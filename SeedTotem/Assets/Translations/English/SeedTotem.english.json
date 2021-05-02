@@ -1,0 +1,17 @@
+{
+	"piece_seed_totem_name": "Seed totem",
+	"piece_seed_totem_description": "Disperses seeds around it",
+	"tutorial_seed_totem_label": "Hugin: Seed Totems",
+	"tutorial_seed_totem_topic": "You have built a Seed Totem",
+	"tutorial_seed_totem_text": "A <color=yellow>Seed Totem</color> will plant stored seeds in an area around it.\nTry <color=yellow>hitting it</color> when the surrounding plants are <color=yellow>fully grown and ready to pick</color>.",
+	"message_seed_totem_seed_generic": "seed",
+	"message_seed_totem_seed_generic_plural": "seeds",
+	"message_seed_totem_all": "all",
+	"message_seed_totem_not_a_seed": "Not a seed",
+	"message_seed_totem_restricted_to": "Restricted to",
+	"message_seed_totem_restrict": "Restrict",
+	"message_seed_totem_unrestricted": "Unrestricted",
+	"message_seed_totem_status_looking_for_space": "Looking for available space",
+	"message_seed_totem_status_planting": "Planting",
+	"message_seed_totem_status_wrong_biome": "Wrong biome"
+}

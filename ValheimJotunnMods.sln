@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.31019.35
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JotunnModStub", "JotunnModStub\JotunnModStub.csproj", "{DEAF4438-8089-40ED-8175-398E1261D45B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeedTotem", "SeedTotem\SeedTotem.csproj", "{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DEAF4438-8089-40ED-8175-398E1261D45B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DEAF4438-8089-40ED-8175-398E1261D45B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DEAF4438-8089-40ED-8175-398E1261D45B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

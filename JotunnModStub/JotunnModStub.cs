@@ -16,7 +16,7 @@ namespace JotunnModStub
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class JotunnModStub : BaseUnityPlugin
     {
-        public const string PluginGUID = "com.jotunn.jotunnmodstub";
+        public const string PluginGUID = "marcopogo.jotunnmodstub";
         public const string PluginName = "JotunnModStub";
         public const string PluginVersion = "0.0.1";
 
@@ -33,8 +33,9 @@ namespace JotunnModStub
 #if DEBUG
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.F6))
-            { // Set a breakpoint here to break on F6 key press
+            if (Input.GetKeyDown(KeyCode.F9))
+            { // Set a breakpoint here to break on F9 key press
+                Jotunn.Logger.LogInfo("Right here");
             }
         }
 #endif

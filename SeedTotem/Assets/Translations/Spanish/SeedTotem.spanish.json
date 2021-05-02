@@ -1,0 +1,17 @@
+{
+    "piece_seed_totem_name": "Tótem de semillas",
+    "piece_seed_totem_description": "Esparce las semillas a su alrededor",
+    "tutorial_seed_totem_label": "Hugin: Tótems de Semillas",
+    "tutorial_seed_totem_topic": "Has construido un Tótem de Semillas",
+    "tutorial_seed_totem_text": "Un <color=yellow>Tótem de Semillas</color> plantará las semillas guardadas en su interior en el área alrededor de este.\nPrueba a <color=yellow>golpearlo</color> cuando las plantas cercanas estén <color=yellow>totalmente crecidas y listas para cosechar</color>.",
+    "message_seed_totem_seed_generic": "semilla",
+    "message_seed_totem_seed_generic_plural": "semillas",
+	"message_seed_totem_all": "todas las",
+    "message_seed_totem_not_a_seed": "No es una semilla",
+    "message_seed_totem_restricted_to": "Limitado a",
+    "message_seed_totem_restrict": "Limitado",
+    "message_seed_totem_unrestricted": "Ilimitado",
+    "message_seed_totem_status_looking_for_space": "Buscando espacio disponible",
+    "message_seed_totem_status_planting": "Plantando",
+    "message_seed_totem_status_wrong_biome": "Bioma equivocado"
+}
