@@ -1,4 +1,6 @@
 ﻿using BepInEx.Logging;
+using Jotunn.Entities;
+using Jotunn.Utils;
 using JotunnLib.Entities;
 using JotunnLib.Managers;
 using JotunnLib.Utils;
@@ -6,13 +8,12 @@ using UnityEngine;
 
 namespace PlanBuild
 {
-    class PlanCrystalPrefabConfig : PrefabConfig
+    class PlanCrystalPrefabConfig : CustomItem
     {
         public static ManualLogSource logger;
 
         public const string prefabName = "PlanCrystal";
-        private Recipe recipe;
-        private ItemDrop itemDrop;
+        private Recipe recipe; 
         private ItemDrop.ItemData itemData;
         private ItemDrop.ItemData.SharedData sharedData;
         private const string localizationName = "plan_crystal";
@@ -23,25 +24,20 @@ namespace PlanBuild
         public PlanCrystalPrefabConfig() : base(prefabName, "Ruby")
         {
             
-        }
+        } 
 
-        public override void Register()
+        public void PrefabCreated()
         {
-            ShaderHelper.UpdateTextures(Prefab, ShaderHelper.ShaderState.Supported);
-        }
-
-        public void RegisterItem()
-        {
-            PlanBuildMod.logger.LogDebug("Configuring item drop for PlanCrystal");
-            itemDrop = Prefab.GetComponent<ItemDrop>();
-
-            itemData = itemDrop.m_itemData;
-            sharedData = itemData.m_shared;
+            logger.LogDebug("Configuring item drop for PlanCrystal"); 
+            itemData = ItemDrop.m_itemData;
             
-            itemData.m_dropPrefab = Prefab;
+            ShaderHelper.UpdateTextures(itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
+
+            sharedData = itemData.m_shared;
+             
             sharedData.m_name = "$item_" + localizationName;
             sharedData.m_description = "$item_" + localizationName + "_description";
-            Texture2D texture = AssetUtils.LoadTexture(PlanBuildMod.GetAssetPath(iconPath));
+            Texture2D texture = AssetUtils.LoadTexture(PlanBuild.GetAssetPath(iconPath));
             StatusEffect statusEffect = ScriptableObject.CreateInstance(typeof(StatusEffect)) as StatusEffect;
             statusEffect.m_icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
             statusEffect.m_startMessageType = MessageHud.MessageType.Center;

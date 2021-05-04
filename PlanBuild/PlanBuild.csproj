@@ -77,12 +77,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PlanCrystalPrefabConfig.cs" />
+    <Compile Include="PlanHammerPrefabConfig.cs" />
+    <Compile Include="PlanPiece.cs" />
+    <Compile Include="PlanPiecePrefabConfig.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
-    <Compile Include="JotunnModStub.cs" />
+    <Compile Include="PlanBuildMod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ShaderHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="assets\Translations\English\PlanBuild.english.json" />
     <None Include="packages.config" />
     <None Include="Package\README.md" />
   </ItemGroup>
@@ -93,6 +99,8 @@
     <None Include="Package\manifest.json" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\icons\plan_crystal.png" />
+    <Content Include="assets\icons\plan_hammer.png" />
     <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
