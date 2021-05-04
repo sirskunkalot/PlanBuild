@@ -1,5 +1,7 @@
 ﻿using BepInEx.Logging;
+using Jotunn.Configs;
 using Jotunn.Entities;
+using Jotunn.Managers;
 using Jotunn.Utils;
 using JotunnLib.Entities;
 using JotunnLib.Managers;
@@ -13,7 +15,7 @@ namespace PlanBuild
         public static ManualLogSource logger;
 
         public const string prefabName = "PlanCrystal";
-        private Recipe recipe; 
+        private Recipe recipe;
         private ItemDrop.ItemData itemData;
         private ItemDrop.ItemData.SharedData sharedData;
         private const string localizationName = "plan_crystal";
@@ -23,18 +25,34 @@ namespace PlanBuild
 
         public PlanCrystalPrefabConfig() : base(prefabName, "Ruby")
         {
-            
-        } 
+            Recipe = new CustomRecipe(new RecipeConfig()
+            {
+                Item = prefabName,
+                CraftingStation = "piece_workbench",
+                Requirements = new RequirementConfig[] {
+                                       new RequirementConfig()
+                                       {
+                                           Item = "Ruby",
+                                           Amount = 1
+                                       } ,
+                                        new  RequirementConfig()
+                                       {
+                                           Item = "GreydwarfEye",
+                                           Amount = 1
+                                       }
+                                   }
+            });
+        }
 
         public void PrefabCreated()
         {
-            logger.LogDebug("Configuring item drop for PlanCrystal"); 
+            logger.LogDebug("Configuring item drop for PlanCrystal");
             itemData = ItemDrop.m_itemData;
-            
+
             ShaderHelper.UpdateTextures(itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
 
             sharedData = itemData.m_shared;
-             
+
             sharedData.m_name = "$item_" + localizationName;
             sharedData.m_description = "$item_" + localizationName + "_description";
             Texture2D texture = AssetUtils.LoadTexture(PlanBuild.GetAssetPath(iconPath));
@@ -76,44 +94,27 @@ namespace PlanBuild
             {
                 sharedData.m_icons[0] = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero);
             }
-            sharedData.m_maxQuality = 1; 
-            ObjectManager.Instance.RegisterItem(Prefab);
+            sharedData.m_maxQuality = 1;
+
         }
 
         internal void RegisterRecipe()
         {
-            recipe = new RecipeConfig()
-            {
-                Item = prefabName, 
-                CraftingStation = "piece_workbench",
-                Requirements = new PieceRequirementConfig[] {
-                                       new PieceRequirementConfig()
-                                       {
-                                           Item = "Ruby",
-                                           Amount = 1
-                                       } ,
-                                        new PieceRequirementConfig()
-                                       {
-                                           Item = "GreydwarfEye",
-                                           Amount = 1
-                                       }
-                                   }
-            }.GetRecipe();
-            ObjectManager.Instance.RegisterRecipe(recipe); 
+
         }
     }
 
-    class StartPlanCrystalStatusEffect: MonoBehaviour
+    class StartPlanCrystalStatusEffect : MonoBehaviour
     {
 
         public void Awake()
-        { 
-            bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner(); 
-            if(attachedPlayer)
+        {
+            bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
+            if (attachedPlayer)
             {
-                PlanBuildMod.logger.LogDebug("Triggering real textures");
-                PlanBuildMod.showRealTextures = true;
-                PlanBuildMod.UpdateAllPlanPieceTextures();
+                PlanBuild.logger.LogDebug("Triggering real textures");
+                PlanBuild.showRealTextures = true;
+                PlanBuild.UpdateAllPlanPieceTextures();
             }
         }
 
@@ -129,7 +130,7 @@ namespace PlanBuild
 
         public override void Register()
         {
-            PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = Prefab; 
+            PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = Prefab;
             Prefab.AddComponent<StartPlanCrystalStatusEffect>();
         }
     }
@@ -139,8 +140,8 @@ namespace PlanBuild
     {
 
         public void Awake()
-        { 
-            bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner(); 
+        {
+            bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
             if (attachedPlayer)
             {
                 PlanBuildMod.logger.LogDebug("Removing real textures");
@@ -161,7 +162,7 @@ namespace PlanBuild
 
         public override void Register()
         {
-            PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = Prefab; 
+            PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = Prefab;
             Prefab.AddComponent<StopPlanCrystalStatusEffect>();
         }
     }
