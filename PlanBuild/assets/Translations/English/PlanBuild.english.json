@@ -1,0 +1,14 @@
+{
+	"item_plan_crystal": "Skuld Crystal",
+	"item_plan_crystal_description": "A crystal imbued with the power of Skuld. Allows the wearer to see into the future.",
+	"message_plan_crystal_start": "You see things as they will be",
+	"message_plan_crystal_stop": "Your vision of the future fades",
+	"item_plan_hammer": "Plan Hammer",
+	"item_plan_hammer_description": "With this to your hand, you can plan high halls and mighty fortifications.",
+	"plan_piece_hover_hold": "Hold",
+	"plan_piece_hover_add_material": "Add material",
+	"plan_piece_hover_add_all_materials":"Add all materials",
+	"plan_piece_hover_build":"Build",
+	"message_plan_piece_need_hammer": "You need a Hammer to build",
+	"message_plan_piece_not_enough_support": "Not enough support"
+}

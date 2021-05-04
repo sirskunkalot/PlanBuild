@@ -1,0 +1,10 @@
+{
+    "name":  "PlanBuild",
+    "description":  "Plan the construction of objects for free. Anyone can add resources and finish the construction. Includes wearable item to see planned construction without shader effect for planning.",
+    "version_number":  "0.0.4",
+    "dependencies":  [
+                         "denikson-BepInExPack_Valheim-5.4.901",
+                         "JotunnLibTeam-JotunnLib-0.1.6"
+                     ],
+    "website_url":  "https://www.nexusmods.com/valheim/mods/1125"
+}
