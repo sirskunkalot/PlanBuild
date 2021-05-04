@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JotunnModStub", "JotunnModS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeedTotem", "SeedTotem\SeedTotem.csproj", "{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SurtlingCoreOverclocking", "SurtlingCoreOverclocking\SurtlingCoreOverclocking.csproj", "{FFD858B4-CB5E-42A6-828C-A72118ADBF2A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransparentSails", "TransparentSails\TransparentSails.csproj", "{B3EF665A-B5B6-43C2-84DC-1BD7CA36D257}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1C32BDAC-7394-4BFC-B5DA-C5CA18559812}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FFD858B4-CB5E-42A6-828C-A72118ADBF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FFD858B4-CB5E-42A6-828C-A72118ADBF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FFD858B4-CB5E-42A6-828C-A72118ADBF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FFD858B4-CB5E-42A6-828C-A72118ADBF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3EF665A-B5B6-43C2-84DC-1BD7CA36D257}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3EF665A-B5B6-43C2-84DC-1BD7CA36D257}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3EF665A-B5B6-43C2-84DC-1BD7CA36D257}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3EF665A-B5B6-43C2-84DC-1BD7CA36D257}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

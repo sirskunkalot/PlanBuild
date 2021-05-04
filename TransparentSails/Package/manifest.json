@@ -1,0 +1,9 @@
+{
+  "name": "TransparentSail",
+  "description": "A fully-configurable dynamic pixelated transparent sail to see where you are going. Toggle with HotKey.",
+  "version_number": "1.1.0",
+  "dependencies": [
+    "ValheimModding-Jotunn-2.0.5"
+  ],
+  "website_url": "https://www.nexusmods.com/valheim/mods/924"
+}

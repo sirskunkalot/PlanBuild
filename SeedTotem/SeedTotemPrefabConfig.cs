@@ -163,11 +163,7 @@ namespace SeedTotem
 
             CustomPiece customPiece = new CustomPiece(Prefab, pieceConfig);
 
-            PieceManager.Instance.AddPiece(customPiece);
-            if (configLocation.Value == PieceLocation.Cultivator)
-            {
-                SetPieceTablePosition("_CultivatorPieceTable", prefabName, 2);
-            }
+            PieceManager.Instance.AddPiece(customPiece); 
         }
 
         internal void UpdatePieceLocation()

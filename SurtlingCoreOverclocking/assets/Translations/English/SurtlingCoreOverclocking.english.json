@@ -1,0 +1,13 @@
+{
+	"item_overclock_core_speed": "Overclock speed core",
+	"item_overclock_core_speed_description": "Add to a Kiln, Smelter or Blast Furnace to increase its speed by <color=green>$1</color>\nEfficiency penalty: <color=red>$2</color>",
+	"item_overclock_core_efficiency": "Overclock efficiency core",
+	"item_overclock_core_efficiency_description":"Add to a Kiln, Smelter or Blast Furnace to decrease its fuel usage by <color=green>$1</color>\nSpeed penalty: <color=red>$2</color>",
+	"item_overclock_core_productivity":"Overclock productivity core",
+	"item_overclock_core_productivity_description":"Add to a Kiln, Smelter or Blast Furnace to increase its productivity by <color=green>$1</color>\nPartial products are stored in an internal buffer until it reaches 100%\nSpeed penalty: <color=red>$2</color>\nEfficiency penalty: <color=red>$3</color>",
+	"item_overclock_core_slot":"Overclock core slot",
+	"item_overclock_core_slot_description": "Add to a Kiln, Smelter or Blast Furnace to increase its Core slots by 1\nMaximum in each smelter: <color=yellow>$1</color>",
+	"message_overclock_core_no_slots_available": "No more Core slots available, add more",
+	"message_overclock_core_no_slots_available_max_reached": "No more Core slots available, maximum reached",
+	"message_overclock_core_max_slots_reached": "Maximum Core slots reached"
+}

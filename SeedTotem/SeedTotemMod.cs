@@ -87,9 +87,14 @@ namespace SeedTotem
             SeedTotem.configFlareColor.SettingChanged += SettingsChanged;
             SeedTotem.configFlareSize.SettingChanged += SettingsChanged;
        
-            SeedTotemPrefabConfig.configLocation.SettingChanged += UpdatePieceLocation; 
+            SeedTotemPrefabConfig.configLocation.SettingChanged += UpdatePieceLocation;
 
-            
+            PieceManager.OnPiecesRegistered += OnPiecesRegistered;
+        }
+
+        private void OnPiecesRegistered()
+        {
+            seedTotemPrefabConfig.UpdatePieceLocation();
         }
 
         public void OnDestroy()

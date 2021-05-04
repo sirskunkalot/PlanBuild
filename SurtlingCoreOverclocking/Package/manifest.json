@@ -1,0 +1,9 @@
+{
+  "name": "SurtlingCoreOverclocking",
+  "description": "Factorio-style modules for Valheim! Overclock your Kilns, Smelters and Blast Furnaces with Surtling Cores.",
+  "version_number": "1.0.1",
+  "dependencies": [
+    "ValheimModding-Jotunn-2.0.5"
+  ],
+  "website_url": "https://www.nexusmods.com/valheim/mods/909"
+}

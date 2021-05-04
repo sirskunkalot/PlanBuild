@@ -153,6 +153,7 @@ if($Target.Equals("Release")) {
     cd $ProjectPath
     Remove-Item  $tsio_tmp_directory -Recurse
 
+    New-Item -ItemType Directory -Force -Path $target_dir
     Copy-Item $nexus_zip $target_dir -Force
     Copy-Item $tsio_zip $target_dir -Force
     Copy-Item $mod_dll $target_dir -Force
