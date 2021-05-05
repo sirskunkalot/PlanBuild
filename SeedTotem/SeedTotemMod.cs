@@ -10,7 +10,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using ModConfigEnforcer;
 using System;
 using System.IO;
 using System.Reflection;
@@ -20,8 +19,7 @@ namespace SeedTotem
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
-    [BepInDependency("pfhoenix.modconfigenforcer")]
-    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
+    [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Major)]
     internal class SeedTotemMod : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.SeedTotem";
@@ -31,6 +29,7 @@ namespace SeedTotem
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
         private Harmony harmony;
+
 
         public enum PieceLocation
         {
@@ -45,42 +44,10 @@ namespace SeedTotem
 
             harmony = new Harmony(PluginGUID);
             harmony.PatchAll();
+            CreateConfiguration();
+            ItemManager.OnVanillaItemsAvailable += AddCustomPrefabs;
+            
 
-            SeedTotem.configRadius = new ConfigVariable<float>(Config, "Server", "Dispersion radius", defaultValue: 5f, new ConfigDescription("Dispersion radius of the Seed Totem.", new AcceptableValueRange<float>(2f, 20f)), localOnly: false);
-            SeedTotem.configDispersionTime = new ConfigVariable<float>(Config, "Server", "Dispersion time", defaultValue: 10f, new ConfigDescription("Time (in seconds) between each dispersion", new AcceptableValueRange<float>(10f, 3600f)), localOnly: false);
-            SeedTotem.configMargin = new ConfigVariable<float>(Config, "Server", "Space requirement margin", defaultValue: 0.1f, new ConfigDescription("Extra distance to make sure plants have enough space", new AcceptableValueRange<float>(0f, 2f)), localOnly: false);
-            SeedTotem.configDispersionCount = new ConfigVariable<int>(Config, "Server", "Dispersion count", defaultValue: 5, new ConfigDescription("Maximum number of plants to place when dispersing", new AcceptableValueRange<int>(1, 20)), localOnly: false);
-            SeedTotem.configMaxRetries = new ConfigVariable<int>(Config, "Server", "Max retries", defaultValue: 8, new ConfigDescription("Maximum number of placement tests on each dispersion", new AcceptableValueRange<int>(1, 20)), localOnly: false);
-            SeedTotem.configHarvestOnHit = new ConfigVariable<bool>(Config, "Server", "Harvest on hit", defaultValue: true, new ConfigDescription("Should the Seed totem send out a wave to pick all pickables in radius when hit?"), localOnly: false);
-            SeedTotem.configCheckCultivated = new ConfigVariable<bool>(Config, "Server", "Check for cultivated ground", defaultValue: true, new ConfigDescription("Should the Seed totem also check for cultivated land?"), localOnly: false);
-            SeedTotem.configCheckBiome = new ConfigVariable<bool>(Config, "Server", "Check for correct biome", defaultValue: true, new ConfigDescription("Should the Seed totem also check for the correct biome?"), localOnly: false);
-
-            On.ObjectDB.CopyOtherDB += AddCustomPrefabs; 
-
-          
-
-            SeedTotemPrefabConfig.configCustomRecipe = new ConfigVariable<bool>(Config, "Server", "Custom piece requirements", false, new ConfigDescription("Load custom piece requirements from " + SeedTotemPrefabConfig.requirementsFile + "?"), localOnly: false);
-       
-            SeedTotem.configShowQueue = Config.Bind<bool>("UI", "Show queue", defaultValue: true, new ConfigDescription("Show the current queue on hover"));
-            SeedTotem.configGlowColor = Config.Bind<Color>("Graphical", "Glow lines color", new Color(0f, 0.8f, 0f, 1f), new ConfigDescription("Color of the glowing lines on the Seed totem"));
-            SeedTotem.configLightColor = Config.Bind<Color>("Graphical", "Glow light color", new Color(0f, 0.8f, 0f, 0.05f), new ConfigDescription("Color of the light from the Seed totem"));
-            SeedTotem.configLightIntensity = Config.Bind<float>("Graphical", "Glow light intensity", 3f, new ConfigDescription("Intensity of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
-            SeedTotem.configFlareColor = Config.Bind<Color>("Graphical", "Glow flare color", new Color(0f, 0.8f, 0f, 0.1f), new ConfigDescription("Color of the light flare from the Seed totem"));
-            SeedTotem.configFlareSize = Config.Bind<float>("Graphical", "Glow flare size", 3f, new ConfigDescription("Size of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
-            nexusID = Config.Bind<int>("General", "NexusID", 876, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 876 })));
-       
-            SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Cultivator, "In which build menu is the Seed totem located");
-             
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configRadius);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configDispersionTime);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configMargin);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configDispersionCount);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configMaxRetries);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configHarvestOnHit);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configCheckCultivated);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotemPrefabConfig.configCustomRecipe);
-            ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configCheckBiome);
-       
             SeedTotem.configGlowColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightIntensity.SettingChanged += SettingsChanged;
@@ -88,10 +55,37 @@ namespace SeedTotem
             SeedTotem.configFlareSize.SettingChanged += SettingsChanged;
        
             SeedTotemPrefabConfig.configLocation.SettingChanged += UpdatePieceLocation;
-
+            //Jotunn already does all the Copyotherdb.fejd/game etc all those hooks you had jotunn already hooks into for Awake() when using it.. so i took that out of AddCustomPrefabs()
+           
             PieceManager.OnPiecesRegistered += OnPiecesRegistered;
         }
 
+
+        //please I am begging drop MCE and just use the builtin Jotunn enforcing so people can use tstore etc to pull down your mod as a dependency :D 
+        private void CreateConfiguration()
+        {
+            //server configs
+            SeedTotem.configRadius = Config.Bind("Server", "Dispersion Radius", defaultValue: 5f, new ConfigDescription("Dispersion radius of the Seed Totem.", new AcceptableValueRange<float>(2f, 20f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configDispersionTime = Config.Bind("Server", "Dispersion time", defaultValue: 10f, new ConfigDescription("Time (in seconds) between each dispersion", new AcceptableValueRange<float>(10f, 3600f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configMargin = Config.Bind("Server", "Space requirement margin", defaultValue: 0.1f, new ConfigDescription("Extra distance to make sure plants have enough space", new AcceptableValueRange<float>(0f, 2f), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configDispersionCount = Config.Bind("Server", "Dispersion count", defaultValue: 5, new ConfigDescription("Maximum number of plants to place when dispersing", new AcceptableValueRange<int>(1, 20), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configMaxRetries = Config.Bind("Server", "Max retries", defaultValue: 8, new ConfigDescription("Maximum number of placement tests on each dispersion", new AcceptableValueRange<int>(1, 20), new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configHarvestOnHit = Config.Bind("Server", "Harvest on hit", defaultValue: true, new ConfigDescription("Should the Seed totem send out a wave to pick all pickables in radius when hit?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configCheckCultivated = Config.Bind("Server", "Check for cultivated ground", defaultValue: true, new ConfigDescription("Should the Seed totem also check for cultivated land?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configCheckBiome = Config.Bind("Server", "Check for correct biome", defaultValue: true, new ConfigDescription("Should the Seed totem also check for the correct biome?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SeedTotem.configCustomRecipe = Config.Bind("Server", "Custom piece requirements", false, new ConfigDescription("Load custom piece requirements from " + SeedTotemPrefabConfig.requirementsFile + "?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
+            //client configs
+            SeedTotem.configShowQueue = Config.Bind<bool>("UI", "Show queue", defaultValue: true, new ConfigDescription("Show the current queue on hover"));
+            SeedTotem.configGlowColor = Config.Bind<Color>("Graphical", "Glow lines color", new Color(0f, 0.8f, 0f, 1f), new ConfigDescription("Color of the glowing lines on the Seed totem"));
+            SeedTotem.configLightColor = Config.Bind<Color>("Graphical", "Glow light color", new Color(0f, 0.8f, 0f, 0.05f), new ConfigDescription("Color of the light from the Seed totem"));
+            SeedTotem.configLightIntensity = Config.Bind<float>("Graphical", "Glow light intensity", 3f, new ConfigDescription("Intensity of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
+            SeedTotem.configFlareColor = Config.Bind<Color>("Graphical", "Glow flare color", new Color(0f, 0.8f, 0f, 0.1f), new ConfigDescription("Color of the light flare from the Seed totem"));
+            SeedTotem.configFlareSize = Config.Bind<float>("Graphical", "Glow flare size", 3f, new ConfigDescription("Size of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
+            nexusID = Config.Bind<int>("General", "NexusID", 876, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 876 })));
+
+            SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Cultivator, "In which build menu is the Seed totem located");
+        }
         private void OnPiecesRegistered()
         {
             seedTotemPrefabConfig.UpdatePieceLocation();
@@ -102,14 +96,23 @@ namespace SeedTotem
             harmony?.UnpatchAll(PluginGUID); 
         }
 
-        private void AddCustomPrefabs(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        private void AddCustomPrefabs()
         {
+            try { 
+            //Gotta fix this up to work with new Jotunn too (well idk how the old way was TBH)
             seedTotemPrefabConfig = new SeedTotemPrefabConfig();
 
-            GameObject seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
+            var seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
             seedTotemPrefabConfig.UpdateCopiedPrefab(seedTotemPrefab);
-
-            orig(self, other);
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogError($"Error while adding cloned item: {ex.Message}");
+            }
+            finally
+            {
+                ItemManager.OnVanillaItemsAvailable -= AddCustomPrefabs;
+            }
         }
          
 

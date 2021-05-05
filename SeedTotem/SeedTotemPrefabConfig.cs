@@ -4,7 +4,6 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using ModConfigEnforcer;
 using SimpleJson;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,7 @@ namespace SeedTotem
         internal static ConfigEntry<SeedTotemMod.PieceLocation> configLocation;
         private PieceTable pieceTable;
         private Piece piece;
-        internal static ConfigVariable<bool> configCustomRecipe;
+        
         private GameObject currentPiece;
 
         public SeedTotemPrefabConfig()
@@ -64,7 +63,7 @@ namespace SeedTotem
                     Recover = true
                 }
             };
-            if (configCustomRecipe.Value)
+            if (SeedTotem.configCustomRecipe.Value)
             {
                 string assetPath = SeedTotemMod.GetAssetPath(filename);
                 bool fileFound = string.IsNullOrEmpty(assetPath);

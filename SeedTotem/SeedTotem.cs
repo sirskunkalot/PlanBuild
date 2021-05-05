@@ -2,7 +2,6 @@
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
-using ModConfigEnforcer;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -29,17 +28,18 @@ namespace SeedTotem
         internal static ConfigEntry<Color> configFlareColor;
         internal static ConfigEntry<Color> configLightColor;
         internal static ConfigEntry<float> configLightIntensity;
-        public static ConfigVariable<float> configRadius;
-        public static ConfigVariable<float> configDispersionTime;
-        public static ConfigVariable<float> configMargin;
-        public static ConfigVariable<int> configDispersionCount;
-        public static ConfigVariable<bool> configHarvestOnHit;
-        public static ConfigVariable<bool> configCheckCultivated;
         public static ConfigEntry<Color> configGlowColor;
-
-        internal static ConfigVariable<bool> configCheckBiome;
         internal static ConfigEntry<bool> configShowQueue;
-        internal static ConfigVariable<int> configMaxRetries;
+        internal static ConfigEntry<float> configRadius;
+        internal static ConfigEntry<float> configDispersionTime;
+        internal static ConfigEntry<float> configMargin;
+        internal static ConfigEntry<int> configDispersionCount;
+        internal static ConfigEntry<int> configMaxRetries;
+        internal static ConfigEntry<bool> configHarvestOnHit;
+        internal static ConfigEntry<bool> configCheckCultivated;
+        internal static ConfigEntry<bool> configCheckBiome;
+        internal static ConfigEntry<bool> configCustomRecipe;
+        
 
         public static Dictionary<string, ItemConversion> seedPrefabMap = new Dictionary<string, ItemConversion>();
 
