@@ -10,5 +10,7 @@
 	"plan_piece_hover_add_all_materials":"Add all materials",
 	"plan_piece_hover_build":"Build",
 	"message_plan_piece_need_hammer": "You need a Hammer to build",
-	"message_plan_piece_not_enough_support": "Not enough support"
+	"message_plan_piece_not_enough_support": "Not enough support",
+	"item_plan_piece_name": "$1 (Plan)",
+	"item_plan_piece_description": "Plan the construction of a $1"
 }

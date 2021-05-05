@@ -1,6 +1,6 @@
 ﻿using BepInEx.Logging;
 using HarmonyLib;
-using JotunnLib.Managers;
+using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -176,7 +176,7 @@ namespace PlanBuild
 
         private ShaderHelper.ShaderState GetShaderState()
         { 
-            if(PlanBuildMod.showRealTextures)
+            if(PlanBuild.showRealTextures)
             {
                 return ShaderHelper.ShaderState.Skuld;
             }
@@ -336,7 +336,7 @@ namespace PlanBuild
                 return false;
             } 
             if (user.GetInventory().GetItem("$item_hammer") == null
-                && user.GetInventory().GetItem(PlanHammerPrefabConfig.itemDrop.m_itemData.m_shared.m_name) == null)
+                && user.GetInventory().GetItem(PlanHammerPrefabConfig.itemName) == null)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_need_hammer");
                 return false;

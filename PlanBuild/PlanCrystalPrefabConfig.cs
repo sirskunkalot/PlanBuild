@@ -1,11 +1,7 @@
 ﻿using BepInEx.Logging;
 using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using Jotunn.Utils;
-using JotunnLib.Entities;
-using JotunnLib.Managers;
-using JotunnLib.Utils;
+using Jotunn.Entities; 
+using Jotunn.Utils; 
 using UnityEngine;
 
 namespace PlanBuild
@@ -14,10 +10,7 @@ namespace PlanBuild
     {
         public static ManualLogSource logger;
 
-        public const string prefabName = "PlanCrystal";
-        private Recipe recipe;
-        private ItemDrop.ItemData itemData;
-        private ItemDrop.ItemData.SharedData sharedData;
+        public const string prefabName = "PlanCrystal";  
         private const string localizationName = "plan_crystal";
         private string iconPath = "icons/plan_crystal.png";
         public static GameObject startPlanCrystalEffectPrefab;
@@ -25,36 +18,15 @@ namespace PlanBuild
 
         public PlanCrystalPrefabConfig() : base(prefabName, "Ruby")
         {
-            Recipe = new CustomRecipe(new RecipeConfig()
-            {
-                Item = prefabName,
-                CraftingStation = "piece_workbench",
-                Requirements = new RequirementConfig[] {
-                                       new RequirementConfig()
-                                       {
-                                           Item = "Ruby",
-                                           Amount = 1
-                                       } ,
-                                        new  RequirementConfig()
-                                       {
-                                           Item = "GreydwarfEye",
-                                           Amount = 1
-                                       }
-                                   }
-            });
-        }
-
-        public void PrefabCreated()
-        {
+            ItemDrop = Mock<ItemDrop>.Create(prefabName);
             logger.LogDebug("Configuring item drop for PlanCrystal");
-            itemData = ItemDrop.m_itemData;
 
-            ShaderHelper.UpdateTextures(itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
 
-            sharedData = itemData.m_shared;
+            ItemDrop.ItemData.SharedData sharedData = new ItemDrop.ItemData.SharedData();
 
             sharedData.m_name = "$item_" + localizationName;
             sharedData.m_description = "$item_" + localizationName + "_description";
+            ItemDrop.m_itemData.m_shared = sharedData;
             Texture2D texture = AssetUtils.LoadTexture(PlanBuild.GetAssetPath(iconPath));
             StatusEffect statusEffect = ScriptableObject.CreateInstance(typeof(StatusEffect)) as StatusEffect;
             statusEffect.m_icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -92,19 +64,38 @@ namespace PlanBuild
             }
             else
             {
-                sharedData.m_icons[0] = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero);
+                sharedData.m_icons = new Sprite[] { Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero) };
             }
             sharedData.m_maxQuality = 1;
-
+            Recipe = new CustomRecipe(new RecipeConfig()
+            {
+                Item = prefabName,
+                Name = "$item_" + localizationName,
+                CraftingStation = "piece_workbench",
+                Requirements = new RequirementConfig[] {
+                                       new RequirementConfig()
+                                       {
+                                           Item = "Ruby",
+                                           Amount = 1
+                                       } ,
+                                        new  RequirementConfig()
+                                       {
+                                           Item = "GreydwarfEye",
+                                           Amount = 1
+                                       }
+                                   }
+            });
         }
-
-        internal void RegisterRecipe()
+         
+         public void PrefabCreated()
         {
+
+            ShaderHelper.UpdateTextures(ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
 
         }
     }
 
-    class StartPlanCrystalStatusEffect : MonoBehaviour
+   public  class StartPlanCrystalStatusEffect : MonoBehaviour
     {
 
         public void Awake()
@@ -119,24 +110,10 @@ namespace PlanBuild
         }
 
     }
-
-    class StartPlanCrystalStatusEffectPrefabConfig : PrefabConfig
-    {
-        private const string PrefabName = PlanCrystalPrefabConfig.prefabName + "StartEffect";
-
-        public StartPlanCrystalStatusEffectPrefabConfig() : base(PrefabName, "vfx_blocked")
-        {
-        }
-
-        public override void Register()
-        {
-            PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = Prefab;
-            Prefab.AddComponent<StartPlanCrystalStatusEffect>();
-        }
-    }
+     
 
 
-    class StopPlanCrystalStatusEffect : MonoBehaviour
+    public class StopPlanCrystalStatusEffect : MonoBehaviour
     {
 
         public void Awake()
@@ -144,26 +121,12 @@ namespace PlanBuild
             bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
             if (attachedPlayer)
             {
-                PlanBuildMod.logger.LogDebug("Removing real textures");
-                PlanBuildMod.showRealTextures = false;
-                PlanBuildMod.UpdateAllPlanPieceTextures();
+                PlanBuild.logger.LogDebug("Removing real textures");
+                PlanBuild.showRealTextures = false;
+                PlanBuild.UpdateAllPlanPieceTextures();
             }
         }
 
     }
-
-    class StopPlanCrystalStatusEffectPrefabConfig : PrefabConfig
-    {
-        private const string PrefabName = PlanCrystalPrefabConfig.prefabName + "StopEffect";
-
-        public StopPlanCrystalStatusEffectPrefabConfig() : base(PrefabName, "vfx_blocked")
-        {
-        }
-
-        public override void Register()
-        {
-            PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = Prefab;
-            Prefab.AddComponent<StopPlanCrystalStatusEffect>();
-        }
-    }
+     
 }

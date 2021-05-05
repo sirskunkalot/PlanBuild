@@ -26,8 +26,8 @@ namespace SeedTotem
     {
         public const string PluginGUID = "marcopogo.SeedTotem";
         public const string PluginName = "Seed Totem";
-        public const string PluginVersion = "1.1.0";
-        public static ManualLogSource logger; 
+        public const string PluginVersion = "1.1.1";
+        public static ManualLogSource logger;
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
         private Harmony harmony;
@@ -55,12 +55,12 @@ namespace SeedTotem
             SeedTotem.configCheckCultivated = new ConfigVariable<bool>(Config, "Server", "Check for cultivated ground", defaultValue: true, new ConfigDescription("Should the Seed totem also check for cultivated land?"), localOnly: false);
             SeedTotem.configCheckBiome = new ConfigVariable<bool>(Config, "Server", "Check for correct biome", defaultValue: true, new ConfigDescription("Should the Seed totem also check for the correct biome?"), localOnly: false);
 
-            On.ObjectDB.CopyOtherDB += AddCustomPrefabs; 
+            On.ObjectDB.CopyOtherDB += AddCustomPrefabs;
 
-          
+
 
             SeedTotemPrefabConfig.configCustomRecipe = new ConfigVariable<bool>(Config, "Server", "Custom piece requirements", false, new ConfigDescription("Load custom piece requirements from " + SeedTotemPrefabConfig.requirementsFile + "?"), localOnly: false);
-       
+
             SeedTotem.configShowQueue = Config.Bind<bool>("UI", "Show queue", defaultValue: true, new ConfigDescription("Show the current queue on hover"));
             SeedTotem.configGlowColor = Config.Bind<Color>("Graphical", "Glow lines color", new Color(0f, 0.8f, 0f, 1f), new ConfigDescription("Color of the glowing lines on the Seed totem"));
             SeedTotem.configLightColor = Config.Bind<Color>("Graphical", "Glow light color", new Color(0f, 0.8f, 0f, 0.05f), new ConfigDescription("Color of the light from the Seed totem"));
@@ -68,9 +68,9 @@ namespace SeedTotem
             SeedTotem.configFlareColor = Config.Bind<Color>("Graphical", "Glow flare color", new Color(0f, 0.8f, 0f, 0.1f), new ConfigDescription("Color of the light flare from the Seed totem"));
             SeedTotem.configFlareSize = Config.Bind<float>("Graphical", "Glow flare size", 3f, new ConfigDescription("Size of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
             nexusID = Config.Bind<int>("General", "NexusID", 876, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 876 })));
-       
+
             SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Cultivator, "In which build menu is the Seed totem located");
-             
+
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configRadius);
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configDispersionTime);
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configMargin);
@@ -80,13 +80,13 @@ namespace SeedTotem
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configCheckCultivated);
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotemPrefabConfig.configCustomRecipe);
             ConfigManager.RegisterModConfigVariable(PluginName, SeedTotem.configCheckBiome);
-       
+
             SeedTotem.configGlowColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightIntensity.SettingChanged += SettingsChanged;
             SeedTotem.configFlareColor.SettingChanged += SettingsChanged;
             SeedTotem.configFlareSize.SettingChanged += SettingsChanged;
-       
+
             SeedTotemPrefabConfig.configLocation.SettingChanged += UpdatePieceLocation;
 
             PieceManager.OnPiecesRegistered += OnPiecesRegistered;
@@ -98,20 +98,32 @@ namespace SeedTotem
         }
 
         public void OnDestroy()
-        { 
-            harmony?.UnpatchAll(PluginGUID); 
+        {
+            harmony?.UnpatchAll(PluginGUID);
         }
+
+        bool prefabsAdded = false;
 
         private void AddCustomPrefabs(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
         {
-            seedTotemPrefabConfig = new SeedTotemPrefabConfig();
+            if (!prefabsAdded)
+            {
+                try
+                {
+                    seedTotemPrefabConfig = new SeedTotemPrefabConfig();
 
-            GameObject seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
-            seedTotemPrefabConfig.UpdateCopiedPrefab(seedTotemPrefab);
+                    GameObject seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
+                    seedTotemPrefabConfig.UpdateCopiedPrefab(seedTotemPrefab);
+                }
+                finally
+                {
+                    prefabsAdded = true;
+                }
+            }
 
             orig(self, other);
         }
-         
+
 
         private void UpdatePieceLocation(object sender, EventArgs e)
         {
