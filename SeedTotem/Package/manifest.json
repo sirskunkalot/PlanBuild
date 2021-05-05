@@ -1,10 +1,9 @@
 {
   "name": "SeedTotem",
   "description": "Place a Seed Totem in your fields to automatically plant seeds around it. Give the totem a whack to harvest all plants around it.",
-  "version_number": "1.1.0",
-  "dependencies": [
-    "denikson-BepInExPack_Valheim-5.4.1000",
-    "ValheimModding-Jotunn-2.0.4"
+  "version_number": "1.1.1",
+  "dependencies": [ 
+    "ValheimModding-Jotunn-2.0.6"
   ],
   "website_url": "https://www.nexusmods.com/valheim/mods/876"
 }

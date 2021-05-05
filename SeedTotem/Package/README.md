@@ -1,6 +1,4 @@
-﻿# :warning: Also requires Mod Config Enforcer, not available on Thunderstore, get it here: https://www.nexusmods.com/valheim/mods/460
-
-Feedback & Bug reports on Nexus please: https://www.nexusmods.com/valheim/mods/876
+﻿Feedback & Bug reports on Nexus please: https://www.nexusmods.com/valheim/mods/876
 
 The Seed Totem disperses stored seeds in an area around it.
 
@@ -57,5 +55,5 @@ Graphical
     Glow flare size: Size of the light flare from the Seed totem (default: 3)
 
 
-Source available on GitHub: https://github.com/MathiasDecrock/Valheim-SeedTotem
+Source available on GitHub: https://github.com/MathiasDecrock/ValheimMods/tree/master/SeedTotem
 All contributions are welcome!

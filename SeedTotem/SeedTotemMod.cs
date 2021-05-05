@@ -46,19 +46,18 @@ namespace SeedTotem
             harmony.PatchAll();
             CreateConfiguration();
             ItemManager.OnVanillaItemsAvailable += AddCustomPrefabs;
-            
+
             SeedTotem.configGlowColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightColor.SettingChanged += SettingsChanged;
             SeedTotem.configLightIntensity.SettingChanged += SettingsChanged;
             SeedTotem.configFlareColor.SettingChanged += SettingsChanged;
             SeedTotem.configFlareSize.SettingChanged += SettingsChanged;
-       
+
             SeedTotemPrefabConfig.configLocation.SettingChanged += UpdatePieceLocation;
-            //Jotunn already does all the Copyotherdb.fejd/game etc all those hooks you had jotunn already hooks into for Awake() when using it.. so i took that out of AddCustomPrefabs()
-           
+
             PieceManager.OnPiecesRegistered += OnPiecesRegistered;
         }
-         
+
         private void CreateConfiguration()
         {
             //server configs
@@ -95,12 +94,12 @@ namespace SeedTotem
 
         private void AddCustomPrefabs()
         {
-            try { 
-            //Gotta fix this up to work with new Jotunn too (well idk how the old way was TBH)
-            seedTotemPrefabConfig = new SeedTotemPrefabConfig();
+            try
+            { 
+                seedTotemPrefabConfig = new SeedTotemPrefabConfig();
 
-            var seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
-            seedTotemPrefabConfig.UpdateCopiedPrefab(seedTotemPrefab);
+                var seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
+                seedTotemPrefabConfig.UpdateCopiedPrefab(seedTotemPrefab);
             }
             catch (Exception ex)
             {
