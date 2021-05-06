@@ -333,6 +333,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PoissonDiscSampling.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="SeedTotem.cs" />
     <Compile Include="SeedTotemMod.cs" />

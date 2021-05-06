@@ -39,6 +39,8 @@ namespace SeedTotem
         internal static ConfigEntry<bool> configCheckCultivated;
         internal static ConfigEntry<bool> configCheckBiome;
         internal static ConfigEntry<bool> configCustomRecipe;
+
+        //TODO: Keep list of previous valid plant locations, to avoid raycasting all the time
         
 
         public static Dictionary<string, ItemConversion> seedPrefabMap = new Dictionary<string, ItemConversion>();

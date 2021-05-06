@@ -54,6 +54,7 @@ New Assets can be created with Unity and imported into Valheim using the mod. A 
 5. Install the `AssetBundle Browser` package in the Unity Editor via `Window`-> `Package Manager`.
 6. Copy all `assembly_*.dll` from `<ValheimDir>\valheim_Data\Managed` into `<JotunnModStub>\JotunnModUnity\Assets\Assemblies`. **Do this directly in the filesystem - don't import the dlls in Unity**.
 7. Go back to the Unity Editor and press `Ctrl+R`. This should reload all files and add the Valheim assemblies under `Assets\Assemblies`
+8. **Warning:** These assembly files are copyrighted material and you can theoretically get into trouble when you distribute them in your github repository. To avoid that there is a .gitignore file in the Unity project folder. Keep that when you clone or copy this repository.
 
 ## Debugging with dnSpy
 
@@ -86,9 +87,10 @@ When Valheim updates it is likely that parts of the assembly files change. If th
 
 ### Visual Studio actions
 
-1. There is a file called DoPrebuild.props included in this repo. When you set its only value to true, Jötunn will automatically generate publicized and MMHook assemblies for you. Otherwise you have to do this stap manually.
+1. There is a file called DoPrebuild.props included in the solution. When you set its only value to true, Jötunn will automatically generate publicized and MMHook assemblies for you. Otherwise you have to do this step manually.
 
 ### Unity actions
 
-1. Copy all original `assembly_*.dll` as described in [Unity Editor Setup] step 6 and 7.
+1. Copy all `assembly_*.dll` from `<ValheimDir>\valheim_Data\Managed` into `<JotunnModStub>\JotunnModUnity\Assets\Assemblies`. <br />
+  **Do this directly in the filesystem - don't import the dlls in Unity**.
 2. Go to Unity Editor and press `Ctrl+R`. This reloads all files from the filesystem and "re-imports" the copied dlls into the project.

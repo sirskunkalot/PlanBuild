@@ -62,8 +62,8 @@ namespace PlanBuild
             ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
 
-            On.ObjectDB.CopyOtherDB += OnCopyOtherDB;
-
+            ItemManager.OnItemsRegistered += AddCustomItems;
+             
             //ItemManager.OnItemsRegistered += RegisterObjects;
 
             //PieceManager.OnPiecesRegistered += OnPiecesRegistered;
@@ -71,9 +71,8 @@ namespace PlanBuild
             showAllPieces.SettingChanged += UpdateKnownRecipes;
         }
 
-        private void OnCopyOtherDB(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        private void AddCustomItems()
         {
-
             PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StartEffect", "vfx_blocked");
             PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
             PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StopEffect", "vfx_blocked");
@@ -86,8 +85,8 @@ namespace PlanBuild
             ItemManager.Instance.AddItem(planCrystalPrefabConfig);
 
 
-            orig(self, other);
         }
+         
 
         private void OnPiecesRegistered()
         {
