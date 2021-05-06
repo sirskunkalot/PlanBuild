@@ -62,63 +62,77 @@ namespace PlanBuild
             ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
 
-            ItemManager.OnItemsRegistered += AddCustomItems;
-             
-            //ItemManager.OnItemsRegistered += RegisterObjects;
+            On.ObjectDB.CopyOtherDB += AddClonedItems;
 
-            //PieceManager.OnPiecesRegistered += OnPiecesRegistered;
+             
+            ItemManager.OnItemsRegistered += OnItemsRegistered;
+
+            PieceManager.OnPiecesRegistered += OnPiecesRegistered;
 
             showAllPieces.SettingChanged += UpdateKnownRecipes;
         }
 
-        private void AddCustomItems()
+        private void OnItemsRegistered()
         {
-            PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StartEffect", "vfx_blocked");
-            PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
-            PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StopEffect", "vfx_blocked");
-            PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-            //planHammerPrefabConfig = new PlanHammerPrefabConfig();
-            planCrystalPrefabConfig = new PlanCrystalPrefabConfig();
-
-            //PieceManager.Instance.AddPieceTable(PlanHammerPrefabConfig.pieceTableName);
-            //ItemManager.Instance.AddItem(planHammerPrefabConfig);
-            ItemManager.Instance.AddItem(planCrystalPrefabConfig);
-
-
+            planHammerPrefabConfig.PrefabCreated();
+            planCrystalPrefabConfig.PrefabCreated();
         }
-         
 
+        private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        {
+            try
+            {
+                PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StartEffect", "vfx_blocked");
+                PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
+                PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StopEffect", "vfx_blocked");
+                PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
+                planHammerPrefabConfig = new PlanHammerPrefabConfig();
+                planCrystalPrefabConfig = new PlanCrystalPrefabConfig();
+
+                PieceManager.Instance.AddPieceTable(PlanHammerPrefabConfig.pieceTableName);
+                ItemManager.Instance.AddItem(planHammerPrefabConfig);
+                ItemManager.Instance.AddItem(planCrystalPrefabConfig);
+                planHammerPrefabConfig.Register();
+                planCrystalPrefabConfig.Register();
+
+            } finally
+            {
+                On.ObjectDB.CopyOtherDB -= AddClonedItems;
+            }
+            orig(self, other);
+        }
+          
         private void OnPiecesRegistered()
         {
-            foreach (PieceTable table in Resources.FindObjectsOfTypeAll(typeof(PieceTable)))
-            {
-                string name = table.gameObject.name;
-                if (name.Equals("_HammerPieceTable"))
+            try
+            { 
+                logger.LogInfo("Scanning Hammer PieceTable for Pieces");
+                foreach (GameObject hammerRecipe in PieceManager.Instance.GetPieceTable("Hammer").m_pieces)
                 {
-                    foreach (GameObject hammerRecipe in table.m_pieces)
+                    Piece piece = hammerRecipe.GetComponent<Piece>();
+                    if (piece.name == "piece_repair")
                     {
-                        Piece piece = hammerRecipe.GetComponent<Piece>();
-                        if (piece.name == "piece_repair")
-                        {
-                            PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName).m_pieces.Add(hammerRecipe);
-                            continue;
-                        }
-
-                        if (!piece.m_enabled
-                         || piece.GetComponent<Ship>() != null
-                         || piece.GetComponent<Plant>() != null
-                         || piece.GetComponent<TerrainModifier>() != null
-                         || piece.m_resources.Length == 0)
-                        {
-                            logger.LogInfo($"Skipping piece {piece.name}");
-                            continue;
-                        }
-                        PlanPiecePrefabConfig prefabConfig = new PlanPiecePrefabConfig(piece);
-                        PieceManager.Instance.AddPiece(prefabConfig);
-                        prefabConfig.Register();
-                        planPiecePrefabConfigs.Add(prefabConfig);
+                        PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName).m_pieces.Add(hammerRecipe);
+                        continue;
                     }
-                }
+
+                    if (!piece.m_enabled
+                        || piece.GetComponent<Ship>() != null
+                        || piece.GetComponent<Plant>() != null
+                        || piece.GetComponent<TerrainModifier>() != null
+                        || piece.m_resources.Length == 0)
+                    {
+                        logger.LogInfo($"Skipping piece {piece.name}");
+                        continue;
+                    }
+                    PlanPiecePrefabConfig prefabConfig = new PlanPiecePrefabConfig(piece);
+                    PieceManager.Instance.AddPiece(prefabConfig);
+                    prefabConfig.Register();
+                    planPiecePrefabConfigs.Add(prefabConfig);
+                } 
+            } finally
+            {
+                PieceManager.OnPiecesRegistered -= OnPiecesRegistered;
             }
         }
 
@@ -127,16 +141,16 @@ namespace PlanBuild
             Player player = Player.m_localPlayer;
             if (!showAllPieces.Value)
             {
-                foreach (PlanPiecePrefabConfig prefabConfig in planPiecePrefabConfigs)
+                foreach (PlanPiecePrefabConfig planPieceConfig in planPiecePrefabConfigs)
                 {
-                    if (!player.HaveRequirements(prefabConfig.originalPiece, Player.RequirementMode.IsKnown))
+                    if (!player.HaveRequirements(planPieceConfig.originalPiece, Player.RequirementMode.IsKnown))
                     {
-                        logger.LogInfo("Removing planned piece from m_knownRecipes: " + prefabConfig.planPiece.m_name);
-                        player.m_knownRecipes.Remove(prefabConfig.planPiece.m_name);
+                        logger.LogInfo("Removing planned piece from m_knownRecipes: " + planPieceConfig.Piece.m_name);
+                        player.m_knownRecipes.Remove(planPieceConfig.Piece.m_name);
                     }
                     else
                     {
-                        logger.LogDebug("Player knows about " + prefabConfig.originalPiece.m_name);
+                        logger.LogDebug("Player knows about " + planPieceConfig.originalPiece.m_name);
                     }
                 }
             }

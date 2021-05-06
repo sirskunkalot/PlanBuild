@@ -26,12 +26,8 @@ namespace PlanBuild
             
         }
 
-
-        public void PrefabCreated()
-        {
-            prefab = ItemDrop.m_itemData.m_dropPrefab;
-            ShaderHelper.UpdateTextures(prefab, ShaderHelper.ShaderState.Supported);
-             
+        public void Register()
+        { 
             itemData = ItemDrop.m_itemData;
             sharedData = itemData.m_shared;
 
@@ -49,7 +45,14 @@ namespace PlanBuild
             {
                 sharedData.m_icons[0] = Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero);
             }
-            sharedData.m_maxQuality = 1; 
+            sharedData.m_maxQuality = 1;
+        }
+
+        public void PrefabCreated()
+        {
+            prefab = ItemDrop.m_itemData.m_dropPrefab;
+            ShaderHelper.UpdateTextures(prefab, ShaderHelper.ShaderState.Supported);
+           
         }
           
 

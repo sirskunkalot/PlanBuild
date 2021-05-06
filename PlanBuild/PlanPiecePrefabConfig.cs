@@ -18,31 +18,27 @@ namespace PlanBuild
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
         public PlanPiecePrefabConfig(Piece piece) : base(piece.name + plannedSuffix, piece.name)
-        {
-            this.originalPiece = piece; 
-            planPiece = piece;
-            planPiece.m_name = Localization.instance.Localize("$item_plan_piece_name", planPiece.m_name);
-            planPiece.m_description = Localization.instance.Localize("$item_plan_piece_description", originalPiece.m_name);
-            planPiece.m_resources = new Piece.Requirement[0];
-            planPiece.m_craftingStation = null;
-            planPiece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
-            planPiece.m_comfort = 0;
-            planPiece.m_groundOnly = originalPiece.m_groundOnly;
-            planPiece.m_groundPiece = originalPiece.m_groundPiece;
-            planPiece.m_icon = originalPiece.m_icon;
-            planPiece.m_inCeilingOnly = originalPiece.m_inCeilingOnly;
-            planPiece.m_isUpgrade = originalPiece.m_isUpgrade;
-            planPiece.m_haveCenter = originalPiece.m_haveCenter;
-            planPiece.m_dlc = originalPiece.m_dlc;
-            planPiece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
-            planPiece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
-            planPiece.m_canBeRemoved = true;
-            this.originalPiece = piece;
+        { 
+            this.originalPiece = piece;  
+            Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", originalPiece.m_name);
+            Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", originalPiece.m_name);
+            Piece.m_resources = new Piece.Requirement[0];
+            Piece.m_craftingStation = null;
+            Piece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
+            Piece.m_comfort = 0;
+            Piece.m_groundOnly = originalPiece.m_groundOnly;
+            Piece.m_groundPiece = originalPiece.m_groundPiece;
+            Piece.m_icon = originalPiece.m_icon;
+            Piece.m_inCeilingOnly = originalPiece.m_inCeilingOnly;
+            Piece.m_isUpgrade = originalPiece.m_isUpgrade;
+            Piece.m_haveCenter = originalPiece.m_haveCenter;
+            Piece.m_dlc = originalPiece.m_dlc;
+            Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
+            Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
+            Piece.m_canBeRemoved = true; 
             this.PieceTable = PlanHammerPrefabConfig.pieceTableName; 
         }
-         
-        public Piece planPiece;
-
+           
         public void Register()
         {
             Prefab = this.Piece.gameObject;
@@ -52,8 +48,7 @@ namespace PlanBuild
 
             WearNTear wearNTear = Prefab.GetComponent<WearNTear>();
             if (wearNTear == null)
-            {
-                logger.LogInfo("Piece without WearNTear, adding for planned version");
+            { 
                 wearNTear = Prefab.AddComponent<WearNTear>();
             }
             wearNTear.m_noSupportWear = true;
@@ -64,7 +59,7 @@ namespace PlanBuild
 
             PlanPiece planPieceScript = Prefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = originalPiece;
-            planToOriginalMap.Add(planPiece, originalPiece);
+            planToOriginalMap.Add(Piece, originalPiece);
             if (logComponents)
             {
                 StringBuilder sb = new StringBuilder("Components in prefab: " + Prefab.name + "\n");
@@ -85,7 +80,7 @@ namespace PlanBuild
                 typeof(GuidePoint),
                 typeof(Light),
                 typeof(LightLod),
-                 typeof(Smelter),
+                typeof(Smelter),
                 typeof(Interactable),
                 typeof(Hoverable)
             };

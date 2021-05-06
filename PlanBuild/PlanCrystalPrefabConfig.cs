@@ -18,15 +18,34 @@ namespace PlanBuild
 
         public PlanCrystalPrefabConfig() : base(prefabName, "Ruby")
         {
-            ItemDrop = Mock<ItemDrop>.Create(prefabName);
+            
+            Recipe = new CustomRecipe(new RecipeConfig()
+            {
+                Item = prefabName,
+                Name = "$item_" + localizationName,
+                CraftingStation = "piece_workbench",
+                Requirements = new RequirementConfig[] {
+                                       new RequirementConfig()
+                                       {
+                                           Item = "Ruby",
+                                           Amount = 1
+                                       } ,
+                                        new  RequirementConfig()
+                                       {
+                                           Item = "GreydwarfEye",
+                                           Amount = 1
+                                       }
+                                   }
+            });
+        }
+         
+        public void Register()
+        {
             logger.LogDebug("Configuring item drop for PlanCrystal");
 
-
-            ItemDrop.ItemData.SharedData sharedData = new ItemDrop.ItemData.SharedData();
-
+            ItemDrop.ItemData.SharedData sharedData = ItemDrop.m_itemData.m_shared;
             sharedData.m_name = "$item_" + localizationName;
             sharedData.m_description = "$item_" + localizationName + "_description";
-            ItemDrop.m_itemData.m_shared = sharedData;
             Texture2D texture = AssetUtils.LoadTexture(PlanBuild.GetAssetPath(iconPath));
             StatusEffect statusEffect = ScriptableObject.CreateInstance(typeof(StatusEffect)) as StatusEffect;
             statusEffect.m_icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
@@ -67,29 +86,11 @@ namespace PlanBuild
                 sharedData.m_icons = new Sprite[] { Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero) };
             }
             sharedData.m_maxQuality = 1;
-            Recipe = new CustomRecipe(new RecipeConfig()
-            {
-                Item = prefabName,
-                Name = "$item_" + localizationName,
-                CraftingStation = "piece_workbench",
-                Requirements = new RequirementConfig[] {
-                                       new RequirementConfig()
-                                       {
-                                           Item = "Ruby",
-                                           Amount = 1
-                                       } ,
-                                        new  RequirementConfig()
-                                       {
-                                           Item = "GreydwarfEye",
-                                           Amount = 1
-                                       }
-                                   }
-            });
         }
-         
+
          public void PrefabCreated()
         {
-
+           
             ShaderHelper.UpdateTextures(ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
 
         }
