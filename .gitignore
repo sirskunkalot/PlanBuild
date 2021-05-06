@@ -369,16 +369,9 @@ FodyWeavers.xsd
 .idea/
 
 # not the valheim path file
-Environment.props
-<<<<<<< HEAD
+Environment.props 
 JotunnModUnity/
 JotunnModStub/Package/plugins/
 SeedTotem/Package/plugins/
 */output
 */Package/plugins/*
-*.dll
-=======
-
-# not the generated dll for thunderstore
-*/Package/plugins/*
->>>>>>> fork-origin/master
