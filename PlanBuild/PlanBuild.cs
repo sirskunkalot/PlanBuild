@@ -23,18 +23,18 @@ namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
-    [BepInDependency(buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuild : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.1.0";
+        public const string PluginVersion = "0.1.1";
 
         public static ManualLogSource logger;
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
-        private const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
-        private const string buildShareGUID = "com.valheim.cr_advanced_builder";
+
         Harmony harmony;
 
         public static ConfigEntry<string> buildModeHotkeyConfig;
@@ -44,7 +44,7 @@ namespace PlanBuild
         private PlanHammerPrefabConfig planHammerPrefabConfig;
         public static PlanBuild Instance;
 
-        private static readonly Dictionary<string, PlanPiecePrefabConfig> planPiecePrefabConfigs = new Dictionary<string, PlanPiecePrefabConfig>();
+        public static readonly Dictionary<string, PlanPiecePrefabConfig> planPiecePrefabConfigs = new Dictionary<string, PlanPiecePrefabConfig>();
 
         private void Awake()
         {
@@ -56,17 +56,7 @@ namespace PlanBuild
             PlanPiecePrefabConfig.logger = logger;
             logger.LogInfo("Harmony patches");
             Patches.Apply(harmony);
-            if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
-            {
-                logger.LogInfo("Adding BuildCamera patches");
-                harmony.PatchAll(typeof(PatcherBuildCamera));
-            }
-            HarmonyLib.Patches patches = Harmony.GetPatchInfo(typeof(Player).GetMethod("OnSpawned"));
-            if (patches?.Owners.Contains(buildShareGUID) == true)
-            {
-                logger.LogInfo("Adding BuildShare patches");
-                harmony.PatchAll(typeof(PatcherBuildShare));
-            }
+            
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
 
             buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
@@ -88,10 +78,16 @@ namespace PlanBuild
 
             PrefabManager.OnPrefabsRegistered += ScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
+            PieceManager.OnPiecesRegistered += LateScanHammer;
 
             showAllPieces.SettingChanged += UpdateKnownRecipes;
 
             UpdateBuildKey();
+        }
+
+        private void LateScanHammer()
+        {
+            ScanHammer(true);
         }
 
         private void UpdateBuildKey(object sender, EventArgs e)
@@ -122,7 +118,7 @@ namespace PlanBuild
             planCrystalPrefabConfig.PrefabCreated();
             hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
             hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
-
+            
         }
 
         private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
@@ -161,7 +157,7 @@ namespace PlanBuild
         {
             try
             {
-                logger.LogInfo("Scanning Hammer PieceTable for Pieces");
+                logger.LogDebug("Scanning Hammer PieceTable for Pieces");
                 foreach (GameObject hammerRecipe in PieceManager.Instance.GetPieceTable("Hammer").m_pieces)
                 {
                     Piece piece = hammerRecipe.GetComponent<Piece>();
@@ -170,8 +166,12 @@ namespace PlanBuild
                     {
                         if (!addedHammer)
                         {
-                            PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName).m_pieces.Add(hammerRecipe);
-                            addedHammer = true;
+                            PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName);
+                            if(planHammerPieceTable != null)
+                            {
+                                planHammerPieceTable.m_pieces.Add(hammerRecipe);
+                                addedHammer = true;
+                            }
                         }
                         continue;
                     }

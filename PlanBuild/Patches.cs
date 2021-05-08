@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using BepInEx.Bootstrap;
+using HarmonyLib;
 using Jotunn.Managers;
 using System;
 using UnityEngine;
@@ -9,6 +10,9 @@ namespace PlanBuild
 {
     class Patches
     {
+        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
+        public const string buildShareGUID = "com.valheim.cr_advanced_builder";
+        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
 
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
@@ -51,20 +55,42 @@ namespace PlanBuild
             }
         }
 
-        [HarmonyPatch(typeof(Player), "Awake")]
+        private static bool interceptGetPrefab = true;
+         
+        [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
         [HarmonyPostfix]
-        static void Player_Awake_Postfix()
+        static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
         {
-            if(Player.m_localPlayer)
+            if(__result == null
+                && interceptGetPrefab)
             {
-                PlanBuild.Instance.ScanHammer();
-            }
+                interceptGetPrefab = false;
+                PlanBuild.Instance.ScanHammer(true);
+                __result = __instance.GetPrefab(hash);
+                interceptGetPrefab = true;
+            } 
         }
 
         internal static void Apply(Harmony harmony)
         {
             harmony.PatchAll(typeof(Patches));
             harmony.PatchAll(typeof(PlanPiece));
+            if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
+            {
+                logger.LogInfo("Applying BuildCamera patches");
+                harmony.PatchAll(typeof(PatcherBuildCamera));
+            }
+            if (Chainloader.PluginInfos.ContainsKey(craftFromContainersGUID))
+            {
+                logger.LogInfo("Applying CraftFromContainers patches");
+                harmony.PatchAll(typeof(PatcherCraftFromContainers));
+            }
+            HarmonyLib.Patches patches = Harmony.GetPatchInfo(typeof(Player).GetMethod("OnSpawned"));
+            if (patches?.Owners.Contains(buildShareGUID) == true)
+            {
+                logger.LogInfo("Applying BuildShare patches");
+                harmony.PatchAll(typeof(PatcherBuildShare));
+            }
         }
     }
 }

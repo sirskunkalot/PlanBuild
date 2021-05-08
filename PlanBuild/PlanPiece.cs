@@ -17,9 +17,7 @@ namespace PlanBuild
     
         public const string zdoPlanPiece = "PlanPiece";
         public const string zdoPlanResource = "PlanResource";
-
-        public static bool checkInventory = true;
-
+         
         private ZNetView m_nView;
         private WearNTear m_wearNTear;
 
@@ -257,7 +255,7 @@ namespace PlanBuild
             }
         }
 
-        public static bool SetupRequirement(Transform elementRoot, Piece.Requirement req, int currentAmount)
+        public bool SetupRequirement(Transform elementRoot, Piece.Requirement req, int currentAmount)
         {
             Image imageResIcon = elementRoot.transform.Find("res_icon").GetComponent<Image>();
             Text textResName = elementRoot.transform.Find("res_name").GetComponent<Text>();
@@ -276,7 +274,7 @@ namespace PlanBuild
 
                 int requiredAmount = req.GetAmount(0);
 
-                int playerAmount = Player.m_localPlayer.GetInventory().CountItems(req.m_resItem.m_itemData.m_shared.m_name);
+                int playerAmount = PlayerGetResourceCount(Player.m_localPlayer, req.m_resItem.m_itemData.m_shared.m_name);
                 int remaining = requiredAmount - currentAmount;
 
                 textResAmount.text = currentAmount + "/" + requiredAmount;
@@ -294,6 +292,21 @@ namespace PlanBuild
             return true;
         }
 
+        //Hooks for Harmony patches
+        public bool PlayerHaveResource(Humanoid player, string resourceName)
+        {
+            return player.GetInventory().HaveItem(resourceName);
+        }
+
+        public int PlayerGetResourceCount(Humanoid player, string resourceName)
+        {
+            return player.GetInventory().CountItems(resourceName);
+        }
+
+        public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
+        {
+             player.GetInventory().RemoveItem(resourceName, amount);
+        }
 
         public bool Interact(Humanoid user, bool hold)
         {
@@ -311,7 +324,7 @@ namespace PlanBuild
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
-                if (checkInventory && !user.GetInventory().HaveItem(resourceName))
+                if (!PlayerHaveResource(user, resourceName))
                 {
                     continue;
                 }
@@ -360,17 +373,17 @@ namespace PlanBuild
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
-                if (checkInventory && !user.GetInventory().HaveItem(resourceName))
+                if (!PlayerHaveResource(user, resourceName))
                 {
                     continue;
                 }
                 int currentCount = GetResourceCount(resourceName);
                 int remaining = req.m_amount - currentCount;
-                int amountToAdd = Math.Min(remaining, user.GetInventory().CountItems(resourceName));
+                int amountToAdd = Math.Min(remaining, PlayerGetResourceCount(user, resourceName));
                 if (amountToAdd > 0)
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
-                    user.GetInventory().RemoveItem(resourceName, amountToAdd);
+                    PlayerRemoveResource(user, resourceName, amountToAdd);
                     UpdateHoverText();
                     added = true;
 
@@ -393,7 +406,7 @@ namespace PlanBuild
                     continue;
                 }
                 string resourceName = GetResourceName(req);
-                if (checkInventory && !user.GetInventory().HaveItem(resourceName))
+                if (!PlayerHaveResource(user, resourceName))
                 {
                     continue;
                 }
@@ -402,7 +415,7 @@ namespace PlanBuild
                 if (remaining > 0)
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
-                    user.GetInventory().RemoveItem(resourceName, 1);
+                    PlayerRemoveResource(user, resourceName, 1);
                     UpdateHoverText();
                     return true;
                 }
@@ -428,8 +441,7 @@ namespace PlanBuild
                     int dropCount = Mathf.Min(currentCount, itemData.m_shared.m_maxStackSize);
                     itemData.m_stack = dropCount;
                     currentCount -= dropCount;
-
-    //                    logger.LogDebug("Dropping " + itemData.m_stack + " " + itemData.m_shared.m_name);
+                     
                     Object.Instantiate(req.m_resItem.gameObject, base.transform.position + Vector3.up, Quaternion.identity)
                         .GetComponent<ItemDrop>().m_itemData = itemData;
                 }
@@ -478,18 +490,7 @@ namespace PlanBuild
             }
             return m_nView.GetZDO().GetInt(zdoPlanResource + "_" + resource);
         }
-
-        private static GameObject GetPrefabPiece(string pieceName)
-        {
-            GameObject prefab = PrefabManager.Instance.GetPrefab(pieceName);
-            if (!prefab)
-            {
-                logger.LogWarning("No prefab found for " + pieceName);
-                return null;
-            }
-            return prefab;
-        }
-
+         
         public void UpdateHoverText()
         {
             StringBuilder builder = new StringBuilder();
@@ -522,7 +523,7 @@ namespace PlanBuild
         static bool WearNTear_Hightlight_Prefix(WearNTear __instance)
         {
             if (__instance.GetComponent<PlanPiece>())
-            {
+            { 
                 foreach (MeshRenderer renderer in __instance.GetComponentsInChildren<MeshRenderer>())
                 {
                     foreach (Material material in renderer.sharedMaterials)

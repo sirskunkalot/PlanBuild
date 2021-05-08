@@ -140,7 +140,7 @@ namespace TransparentSails
 
         private void OnHotKeyChanged(object sender, EventArgs e)
         {
-
+            RegisterInputs();
         }
 
         private void RegisterInputs()
