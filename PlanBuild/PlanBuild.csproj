@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>PlanBuild</RootNamespace>
     <AssemblyName>PlanBuild</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
@@ -43,6 +43,12 @@
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
+    </Reference>
+    <Reference Include="Build Camera">
+      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\Valheim Build Camera.zip-226-1-5-1-1617987250\Build Camera.dll</HintPath>
+    </Reference>
+    <Reference Include="CR-BuildShare_VML">
+      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\BuildShare-5-1-5-1-1615378123\CR-BuildShare_VML.dll</HintPath>
     </Reference>
     <Reference Include="Jotunn, Version=2.0.7.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.0.7\lib\net462\Jotunn.dll</HintPath>
@@ -78,7 +84,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="PatcherBuildCamera.cs" />
     <Compile Include="Patches.cs" />
+    <Compile Include="PatcherBuildShare.cs" />
     <Compile Include="PlanCrystalPrefabConfig.cs" />
     <Compile Include="PlanHammerPrefabConfig.cs" />
     <Compile Include="PlanPiece.cs" />

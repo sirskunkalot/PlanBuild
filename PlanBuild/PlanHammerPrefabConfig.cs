@@ -29,6 +29,7 @@ namespace PlanBuild
         public void Register()
         { 
             itemData = ItemDrop.m_itemData;
+            itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(pieceTableName);
             sharedData = itemData.m_shared;
 
             sharedData.m_name = itemName;
@@ -36,6 +37,7 @@ namespace PlanBuild
             sharedData.m_useDurability = false;
             sharedData.m_durabilityDrain = 0f;
             sharedData.m_useDurabilityDrain = 0f;
+            
             Texture2D texture = AssetUtils.LoadTexture(GetAssetPath(iconPath));
             if (texture == null)
             {

@@ -24,8 +24,7 @@ namespace PlanBuild
         private WearNTear m_wearNTear;
 
         public string m_hoverText = "";
-        public Piece originalPiece;
-        public GameObject originalPrefab;
+        public Piece originalPiece; 
 
         //GUI 
         public static bool m_forceDisableInit;
@@ -43,12 +42,7 @@ namespace PlanBuild
                 InvalidPlanPiece();
                 return;
             }
-
-            originalPrefab = GetPrefabPiece(originalPiece.name);
-            if (!originalPrefab)
-            {
-                InvalidPlanPiece();
-            }
+             
             //logger.LogInfo("Prefab loaded for " + name + " -> " + originalPrefab.name);
             DisablePiece(gameObject);
 
@@ -394,6 +388,10 @@ namespace PlanBuild
         {
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {
+                if(req.m_resItem.m_itemData.m_shared.m_name != item.m_shared.m_name)
+                {
+                    continue;
+                }
                 string resourceName = GetResourceName(req);
                 if (checkInventory && !user.GetInventory().HaveItem(resourceName))
                 {
@@ -508,7 +506,7 @@ namespace PlanBuild
             {
                 return;
             }
-            GameObject actualPiece = Object.Instantiate(originalPrefab.gameObject, gameObject.transform.position, gameObject.transform.rotation);
+            GameObject actualPiece = Object.Instantiate(originalPiece.gameObject, gameObject.transform.position, gameObject.transform.rotation);
             WearNTear wearNTear = actualPiece.GetComponent<WearNTear>();
             if (wearNTear)
             {
@@ -519,104 +517,88 @@ namespace PlanBuild
             Destroy(this.gameObject);
         }
           
-        [HarmonyPatch(typeof(WearNTear), "Highlight")]
-        class WearNTear_HighLight_Patch
+        [HarmonyPatch(typeof(WearNTear), "Highlight")] 
+        [HarmonyPrefix]
+        static bool WearNTear_Hightlight_Prefix(WearNTear __instance)
         {
-
-            static bool Prefix(WearNTear __instance)
+            if (__instance.GetComponent<PlanPiece>())
             {
-                if (__instance.GetComponent<PlanPiece>())
+                foreach (MeshRenderer renderer in __instance.GetComponentsInChildren<MeshRenderer>())
                 {
-                    foreach (MeshRenderer renderer in __instance.GetComponentsInChildren<MeshRenderer>())
+                    foreach (Material material in renderer.sharedMaterials)
                     {
-                        foreach (Material material in renderer.sharedMaterials)
-                        {
-                            material.SetColor("_EmissionColor", Color.black);
-                        }
+                        material.SetColor("_EmissionColor", Color.black);
                     }
-                    return false;
                 }
-                return true;
+                return false;
             }
-        }
+            return true;
+        } 
           
         [HarmonyPatch(typeof(WearNTear), "Damage")]
-        class WearNTear_Damage_Patch
-        { 
-            static bool Prefix(WearNTear __instance)
-            {
-                if (__instance.GetComponent<PlanPiece>())
-                {
-                    return false;
-                }
-                return true;
-            }
-        }
-
-        [HarmonyPatch(typeof(WearNTear), "GetSupport")]
-        class WearNTear_GetSupport_Patch
+        [HarmonyPrefix]
+        static bool WearNTear_Damage_Prefix(WearNTear __instance)
         {
-
-            static bool Prefix(WearNTear __instance, ref float __result)
+            if (__instance.GetComponent<PlanPiece>())
             {
-                if (__instance.GetComponent<PlanPiece>())
-                {
-                    __result = 0f;
-                    return false;
-                }
-                return true;
+                return false;
             }
+            return true;
         }
-
-        [HarmonyPatch(typeof(WearNTear), "HaveSupport")]
-        class WearNTear_HaveSupport_Patch
-        { 
-            static bool Prefix(WearNTear __instance, ref bool __result)
+        
+        [HarmonyPatch(typeof(WearNTear), "GetSupport")]
+        [HarmonyPrefix]
+        static bool WearNTear_GetSupport_Prefix(WearNTear __instance, ref float __result)
+        {
+            if (__instance.GetComponent<PlanPiece>())
             {
-                if (__instance.GetComponent<PlanPiece>())
-                {
-                    __result = true;
-                    return false;
-                }
-                return true;
+                __result = 0f;
+                return false;
             }
+            return true;
         }
+    
+        [HarmonyPatch(typeof(WearNTear), "HaveSupport")] 
+        [HarmonyPrefix]
+        static bool WearNTear_HaveSupport_Prefix(WearNTear __instance, ref bool __result)
+        {
+            if (__instance.GetComponent<PlanPiece>())
+            {
+                __result = true;
+                return false;
+            }
+            return true;
+        } 
           
         [HarmonyPatch(typeof(WearNTear), "Destroy")]
-        class WearNTear_Destroy_Patch
+        [HarmonyPrefix]
+        static bool WearNTear_Destroy_Prefix(WearNTear __instance)
         {
-
-            static bool Prefix(WearNTear __instance)
+            PlanPiece planPiece = __instance.GetComponent<PlanPiece>();
+            if (planPiece && planPiece.m_nView.IsOwner())
             {
-                PlanPiece planPiece = __instance.GetComponent<PlanPiece>();
-                if (planPiece && planPiece.m_nView.IsOwner())
-                {
-                    //Don't
-                    // create noise
-                    // create fragments
-                    // play destroyed effects
-                    planPiece.Refund(all: true);
-                    ZNetScene.instance.Destroy(__instance.gameObject);
-                    return false;
-                }
-                return true;
+                //Don't
+                // create noise
+                // create fragments
+                // play destroyed effects
+                planPiece.Refund(all: true);
+                ZNetScene.instance.Destroy(__instance.gameObject);
+                return false;
             }
+            return true;
         }
+        
           
         [HarmonyPatch(typeof(Player), "CheckCanRemovePiece")]
-        class Player_CheckCanRemovePiece_Patch
+        static bool Player_CheckCanRemovePiece_Prefix(Piece piece, ref bool __result)
         {
-            static bool Prefix(Piece piece, ref bool __result)
+            PlanPiece PlanPiece = piece.GetComponent<PlanPiece>();
+            if (PlanPiece)
             {
-                PlanPiece PlanPiece = piece.GetComponent<PlanPiece>();
-                if (PlanPiece)
-                {
-                    __result = true;
-                    return false;
-                }
-                return true;
+                __result = true;
+                return false;
             }
-
+            return true;
         }
 
     }
