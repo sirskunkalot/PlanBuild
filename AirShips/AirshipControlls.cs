@@ -17,14 +17,24 @@ namespace AirShips
             m_nview.Register<ZDOID>("ReleaseControl", RPC_ReleaseControl);
             m_nview.Register<bool>("RequestRespons", RPC_RequestRespons);
             m_ship = GetComponentInParent<Airship>();
-            m_attachPoint = transform.Find("attach"); 
+            m_attachPoint = m_ship.transform.Find("attachpoint");
         }
 
         public new void RPC_RequestControl(long sender, ZDOID playerID)
         {
-            Jotunn.Logger.LogInfo("Request control");
-            base.RPC_RequestControl(sender, playerID);
-        }
+            if (m_nview.IsOwner() && m_ship.IsPlayerInBoat(playerID))
+            {
+                if (GetUser() == playerID || !HaveValidUser())
+                {
+                    m_nview.GetZDO().Set("user", playerID);
+                    m_nview.InvokeRPC(sender, "RequestRespons", true);
+                }
+                else
+                {
+                    m_nview.InvokeRPC(sender, "RequestRespons", false);
+                }
+            }
+        } 
 
         public new void RPC_RequestRespons(long sender, bool granted)
         {
@@ -40,7 +50,7 @@ namespace AirShips
             if(airshipControlls != null)
             {
 
-                return false;
+                return true;
             }
             return true;
         }

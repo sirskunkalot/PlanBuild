@@ -16,6 +16,7 @@ namespace AirShips
         {
             m_sailObject = new GameObject("fake_sail");
             base.Awake();
+            m_shipControlls = GetComponentInChildren<AirshipControlls>();
         }
 
         public new void ApplyMovementControlls(Vector3 direction)
@@ -24,7 +25,10 @@ namespace AirShips
             base.ApplyMovementControlls(direction);
         }
 
-
+        public new void UpdateSail(float dt)
+        {
+            //Nothing to do
+        }
 
         public new void UpdateSailSize(float dt)
         {

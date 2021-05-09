@@ -438,7 +438,9 @@ namespace PlanBuild
                 while (currentCount > 0)
                 {
                     ItemDrop.ItemData itemData = req.m_resItem.m_itemData.Clone();
-                    int dropCount = Mathf.Min(currentCount, itemData.m_shared.m_maxStackSize);
+                    //FIXME: There is a bug in Valheim where ItemDrop amounts are not synced correctly, dropping each resource as a separate stack as a workaround for now
+                    //int dropCount = Mathf.Min(currentCount, itemData.m_shared.m_maxStackSize);
+                    int dropCount = 1;
                     itemData.m_stack = dropCount;
                     currentCount -= dropCount;
                      

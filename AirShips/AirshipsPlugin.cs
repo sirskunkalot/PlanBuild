@@ -13,6 +13,7 @@ using Jotunn.Managers;
 using Jotunn.Utils;
 using System;
 using UnityEngine;
+using ValheimRAFT;
 using Object = UnityEngine.Object;
 
 namespace AirShips
@@ -30,6 +31,7 @@ namespace AirShips
         private int pieceLayer;
         private int itemLayer;
         private int vehicleLayer;
+        private int characterTriggerLayer;
         private Harmony harmony;
 
         private void Awake()
@@ -37,6 +39,7 @@ namespace AirShips
             pieceLayer = LayerMask.NameToLayer("piece");
             itemLayer = LayerMask.NameToLayer("item");
             vehicleLayer = LayerMask.NameToLayer("vehicle");
+            characterTriggerLayer = LayerMask.NameToLayer("character_trigger");
 
             harmony = new Harmony(PluginGUID);
             harmony.PatchAll(typeof(AirshipControlls));
@@ -50,7 +53,7 @@ namespace AirShips
         {
             harmony?.UnpatchAll(PluginGUID);
         }
-
+         
         private void UpdatePrefabs()
         {
             try
@@ -60,9 +63,20 @@ namespace AirShips
                 var raftPrefab = PrefabManager.Instance.GetPrefab("Raft");
                 Ship raftShip = raftPrefab.GetComponent<Ship>();
                 ShipControlls raftShipControlls = raftPrefab.GetComponentInChildren<ShipControlls>();
-             
-                GameObject shipObject = Object.Instantiate(new GameObject("ship"), airshipPiece.PiecePrefab.transform);
-                GameObject collidersObject = Object.Instantiate(new GameObject("colliders"), shipObject.transform);
+                GameObject onBoardTrigger = Object.Instantiate(new GameObject(), airshipPiece.PiecePrefab.transform);
+                onBoardTrigger.name = "OnBoardTrigger";
+                BoxCollider onBoardCollider = onBoardTrigger.AddComponent<BoxCollider>();
+                onBoardCollider.isTrigger = true;
+                onBoardTrigger.layer = characterTriggerLayer;
+                onBoardTrigger.transform.localPosition = new Vector3(0, 1, 0);
+                onBoardTrigger.transform.localScale = Vector3.one * 2;
+                onBoardTrigger.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                GameObject attachPoint = Object.Instantiate(new GameObject(), airshipPiece.PiecePrefab.transform);
+                attachPoint.name = "attachpoint";
+                GameObject shipObject = Object.Instantiate(new GameObject(), airshipPiece.PiecePrefab.transform);
+                shipObject.name = "ship";
+                GameObject collidersObject = Object.Instantiate(new GameObject(), shipObject.transform);
+                collidersObject.name = "colliders";
                 collidersObject.layer = vehicleLayer;
                 var colliderObject = airshipPiece.PiecePrefab.transform.Find("collider").gameObject;
                 colliderObject.transform.SetParent(collidersObject.transform);
