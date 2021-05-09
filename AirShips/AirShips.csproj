@@ -75,13 +75,17 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="ValheimRAFT">
-      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\ValheimRAFT 1.0.2-1136-1-0-2-1619844547\ValheimRAFT\ValheimRAFT.dll</HintPath>
+    <Reference Include="ValheimRAFT, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\ValheimMods\lib\publicized\ValheimRAFT.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Airship.cs" />
+    <Compile Include="AirshipBase.cs" />
+    <Compile Include="AirshipControlls.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
-    <Compile Include="JotunnModStub.cs" />
+    <Compile Include="AirshipsPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

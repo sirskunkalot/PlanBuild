@@ -10,13 +10,12 @@ using System.Reflection;
 namespace SurtlingCoreOverclocking
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid)]
-    [BepInDependency("pfhoenix.modconfigenforcer")]
+    [BepInDependency(Jotunn.Main.ModGuid)] 
     public partial class SurtlingCoreOverclockingMod : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.SurtlingCoreOverclocking";
         public const string PluginName = "Surtling Core Overclocking";
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.1.1";
 
         private readonly Harmony harmony = new Harmony(PluginGUID);
         public static ManualLogSource logger;
@@ -32,18 +31,18 @@ namespace SurtlingCoreOverclocking
             logger = Logger;
             nexusID = Config.Bind<int>("General", "NexusID", 909, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 909 })));
 
-            SurtlingCoreOverclocking.m_speedCoreSpeedMultiplier = base.Config.Bind("Speed", "Speed core bonus", 0.20, new ConfigDescription("Bonus from Speed Cores"));
-            SurtlingCoreOverclocking.m_speedCoreEfficiencyPenalty = base.Config.Bind("Speed", "Speed core efficiency penalty", 0.5, new ConfigDescription("Efficiency penalty from Speed Cores"));
+            SurtlingCoreOverclocking.m_speedCoreSpeedMultiplier = base.Config.Bind("Speed", "Speed core bonus", 0.20, new ConfigDescription("Bonus from Speed Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SurtlingCoreOverclocking.m_speedCoreEfficiencyPenalty = base.Config.Bind("Speed", "Speed core efficiency penalty", 0.5, new ConfigDescription("Efficiency penalty from Speed Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
-            SurtlingCoreOverclocking.m_efficiencyCoreEfficiencyBonus = base.Config.Bind("Efficiency", "Efficiency core bonus", 0.25, new ConfigDescription("Bonus from Efficiency Cores"));
-            SurtlingCoreOverclocking.m_efficiencyCoreSpeedPenalty = base.Config.Bind("Efficiency", "Efficiency core speed penalty", 0.1, new ConfigDescription("Speed penalty from Efficiency Cores"));
+            SurtlingCoreOverclocking.m_efficiencyCoreEfficiencyBonus = base.Config.Bind("Efficiency", "Efficiency core bonus", 0.25, new ConfigDescription("Bonus from Efficiency Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SurtlingCoreOverclocking.m_efficiencyCoreSpeedPenalty = base.Config.Bind("Efficiency", "Efficiency core speed penalty", 0.1, new ConfigDescription("Speed penalty from Efficiency Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
-            SurtlingCoreOverclocking.m_productivityCoreProductivityBonus = base.Config.Bind("Productivity", "Productivity core bonus", 0.1, new ConfigDescription("Bonus from Productivity Cores"));
-            SurtlingCoreOverclocking.m_productivityCoreEfficiencyPenalty = base.Config.Bind("Productivity", "Productivity core efficiency penalty", 0.25, new ConfigDescription("Efficiency penalty from Productivity Cores"));
-            SurtlingCoreOverclocking.m_productivityCoreSpeedPenalty = base.Config.Bind("Productivity", "Productivity core speed penalty", 0.25, new ConfigDescription("Efficiency penalty from Productivity Cores"));
+            SurtlingCoreOverclocking.m_productivityCoreProductivityBonus = base.Config.Bind("Productivity", "Productivity core bonus", 0.1, new ConfigDescription("Bonus from Productivity Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SurtlingCoreOverclocking.m_productivityCoreEfficiencyPenalty = base.Config.Bind("Productivity", "Productivity core efficiency penalty", 0.25, new ConfigDescription("Efficiency penalty from Productivity Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SurtlingCoreOverclocking.m_productivityCoreSpeedPenalty = base.Config.Bind("Productivity", "Productivity core speed penalty", 0.25, new ConfigDescription("Efficiency penalty from Productivity Cores", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
-            SurtlingCoreOverclocking.m_defaultMaxOverclockCores = base.Config.Bind("Core slots", "Default max overclock core slots", 4, new ConfigDescription("Default maximum of Overclock cores on each Kiln, Smelter and Blast Furnace"));
-            SurtlingCoreOverclocking.m_maxAdditionalOverclockCores = base.Config.Bind("Core slots", "Max additionial overclock core slots", 4, new ConfigDescription("Maximum of additional Overclock cores on each Smelter"));
+            SurtlingCoreOverclocking.m_defaultMaxOverclockCores = base.Config.Bind("Core slots", "Default max overclock core slots", 4, new ConfigDescription("Default maximum of Overclock cores on each Kiln, Smelter and Blast Furnace", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            SurtlingCoreOverclocking.m_maxAdditionalOverclockCores = base.Config.Bind("Core slots", "Max additionial overclock core slots", 4, new ConfigDescription("Maximum of additional Overclock cores on each Smelter", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             SurtlingCoreOverclocking.m_speedCoreSpeedMultiplier.SettingChanged += UpdateDescriptionCallback;
             SurtlingCoreOverclocking.m_speedCoreEfficiencyPenalty.SettingChanged += UpdateDescriptionCallback;

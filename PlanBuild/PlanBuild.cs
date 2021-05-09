@@ -30,7 +30,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.1.1";
+        public const string PluginVersion = "0.1.2";
 
         public static ManualLogSource logger;
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
@@ -160,6 +160,11 @@ namespace PlanBuild
                 logger.LogDebug("Scanning Hammer PieceTable for Pieces");
                 foreach (GameObject hammerRecipe in PieceManager.Instance.GetPieceTable("Hammer").m_pieces)
                 {
+                    if(hammerRecipe == null)
+                    {
+                        logger.LogWarning("null recipe in Hammer PieceTable");
+                        continue;
+                    }
                     Piece piece = hammerRecipe.GetComponent<Piece>();
 
                     if (piece.name == "piece_repair")

@@ -15,8 +15,8 @@ namespace SurtlingCoreOverclocking
         public const string oldCoreSlotKey = "$overclockCoreSlot";
 
         public const string speedCoreKey = "item_overclock_core_speed";
-        public const string productivityCoreKey = "item_overclock_core_efficiency";
-        public const string efficiencyCoreKey = "item_overclock_core_productivity";
+        public const string productivityCoreKey = "item_overclock_core_productivity";
+        public const string efficiencyCoreKey = "item_overclock_core_efficiency";
         public const string coreSlotKey = "item_overclock_core_slot";
 
         public const string noSlotsAvailable_addSlots = "message_overclock_core_no_slots_available";
