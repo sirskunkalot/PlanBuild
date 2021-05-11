@@ -375,3 +375,5 @@ JotunnModStub/Package/plugins/
 SeedTotem/Package/plugins/
 */output
 */Package/plugins/*
+
+*.dll

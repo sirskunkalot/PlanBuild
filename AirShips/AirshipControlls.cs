@@ -42,6 +42,8 @@ namespace AirShips
             base.RPC_RequestRespons(sender, granted);
         }
 
+        
+
         [HarmonyPatch(typeof(Player), "SetControls")]
         [HarmonyPrefix]
         static bool Player_SetControls_Prefix(ShipControlls ___m_shipControl)

@@ -70,9 +70,10 @@ namespace AirShips
                 onBoardTrigger.layer = characterTriggerLayer;
                 onBoardTrigger.transform.localPosition = new Vector3(0, 1, 0);
                 onBoardTrigger.transform.localScale = Vector3.one * 2;
-                onBoardTrigger.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+                
                 GameObject attachPoint = Object.Instantiate(new GameObject(), airshipPiece.PiecePrefab.transform);
                 attachPoint.name = "attachpoint";
+                attachPoint.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
                 GameObject shipObject = Object.Instantiate(new GameObject(), airshipPiece.PiecePrefab.transform);
                 shipObject.name = "ship";
                 GameObject collidersObject = Object.Instantiate(new GameObject(), shipObject.transform);
