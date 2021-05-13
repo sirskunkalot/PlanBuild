@@ -1,0 +1,38 @@
+ManifestFileVersion: 0
+CRC: 479631640
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 9508268d90de3f35deb403a4be032f84
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 0919e83cb1b16da8afdfe38eaceb0286
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 2094620348, guid: 1095959f18e8a8b41b5396c52e303d84, type: 3}
+- Class: 114
+  Script: {fileID: 895252998, guid: 1095959f18e8a8b41b5396c52e303d84, type: 3}
+- Class: 114
+  Script: {fileID: 1521249158, guid: 1095959f18e8a8b41b5396c52e303d84, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 205
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/elevator_icon.png
+- Assets/PrefabInstance/elevator_base.prefab
+Dependencies: []

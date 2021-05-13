@@ -23,7 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HaulingCart", "HaulingCart\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AncientPortals", "AncientPortals\AncientPortals.csproj", "{9EA2F345-D04A-4E46-AE2A-F6E9BA39D514}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CableCar", "Elevator\CableCar.csproj", "{E3CC9247-083F-4627-8B39-A4DC0972131F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Elevator", "Elevator\Elevator.csproj", "{E3CC9247-083F-4627-8B39-A4DC0972131F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBuildHammer", "VBuildHammer\VBuildHammer.csproj", "{1005CA94-8D6C-448F-AB37-9EFB9230A594}"
 EndProject
