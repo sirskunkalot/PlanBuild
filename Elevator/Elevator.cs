@@ -14,12 +14,12 @@ namespace Elevator
         public static readonly int ElevatorBasePositionHash = "ElevatorBasePosition".GetStableHashCode(); 
         public static readonly int ElevatorBaseRotationHash = "ElevatorBaseRotation".GetStableHashCode();
 
-
         public new void Awake()
         {
             m_sailObject = new GameObject("fake_sail");
             m_controlGuiPos = transform.Find("ControlGui");
-            m_nview = GetComponent<ZNetView>(); 
+            m_nview = GetComponent<ZNetView>();
+            m_body = GetComponent<Rigidbody>();
             WearNTear component = GetComponent<WearNTear>();
             if ((bool)component)
             {
@@ -34,7 +34,6 @@ namespace Elevator
 
         public new void ApplyMovementControlls(Vector3 direction)
         {
-            Jotunn.Logger.LogInfo("Intercept direction: " + direction);
             base.ApplyMovementControlls(direction);
         }
 
@@ -84,7 +83,7 @@ namespace Elevator
                     positionChange.y -= m_rudderSpeed * Time.fixedDeltaTime;
                     break; 
             }
-            gameObject.transform.position += positionChange;
+            m_body.AddForce(positionChange, ForceMode.Acceleration);
         }
 
         public new void UpdateControlls(float dt)
@@ -96,6 +95,6 @@ namespace Elevator
             }
             m_speed = (Speed)m_nview.GetZDO().GetInt("forward");
         }
-
+         
     }
 }

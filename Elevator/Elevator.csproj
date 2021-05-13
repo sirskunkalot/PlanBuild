@@ -77,6 +77,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Elevator.cs" />
+    <Compile Include="ElevatorControlls.cs" />
+    <Compile Include="MoveableBaseElevatorSync.cs" />
+    <Compile Include="MoveableBaseRoot.cs" />
+    <Compile Include="Patches.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="ElevatorPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

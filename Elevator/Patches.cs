@@ -11,9 +11,71 @@ namespace Elevator
 {
     class Patches
     {
-        private static Piece m_lastRayPiece; 
+        private static Piece m_lastRayPiece;
 
-        [HarmonyPatch(typeof(Player), "PlacePiece")]
+		[HarmonyPatch(typeof(Hud), "UpdateShipHud")]
+		[HarmonyPrefix]
+		public static bool UpdateShipHud(Hud __instance, Player player, float dt)
+        {
+            Elevator controlledElevator = player.GetControlledShip() as Elevator;
+			if(controlledElevator)
+            {
+				Ship.Speed speedSetting = controlledElevator.GetSpeedSetting();
+				float rudder = controlledElevator.GetRudder();
+				float rudderValue = controlledElevator.GetRudderValue();
+				__instance.m_shipHudRoot.SetActive(value: true);
+				__instance.m_rudderSlow.SetActive(speedSetting == Ship.Speed.Slow);
+				__instance.m_rudderForward.SetActive(speedSetting == Ship.Speed.Half);
+				__instance.m_rudderFastForward.SetActive(speedSetting == Ship.Speed.Full);
+				__instance.m_rudderBackward.SetActive(speedSetting == Ship.Speed.Back);
+				__instance.m_rudderLeft.SetActive(value: false);
+				__instance.m_rudderRight.SetActive(value: false);
+				__instance.m_fullSail.SetActive(false);
+				__instance.m_halfSail.SetActive(false);
+                __instance.m_shipWindIconRoot.gameObject.SetActive(false);
+				__instance.m_shipWindIndicatorRoot.gameObject.SetActive(false);
+				GameObject rudder2 = __instance.m_rudder; 
+				rudder2.SetActive(false);
+				if ((rudder > 0f && rudderValue < 1f) || (rudder < 0f && rudderValue > -1f))
+				{
+					__instance.m_shipRudderIcon.transform.Rotate(new Vector3(0f, 0f, 200f * (0f - rudder) * dt));
+				} 
+				__instance.m_shipRudderIndicator.gameObject.SetActive(value: false); 
+				 
+				float shipYawAngle = controlledElevator.GetShipYawAngle();
+				__instance.m_shipWindIndicatorRoot.localRotation = Quaternion.Euler(0f, 0f, shipYawAngle);
+				float windAngle = controlledElevator.GetWindAngle();
+				__instance.m_shipWindIconRoot.localRotation = Quaternion.Euler(0f, 0f, windAngle);
+				float windAngleFactor = controlledElevator.GetWindAngleFactor();
+				__instance.m_shipWindIcon.color = Color.Lerp(new Color(0.2f, 0.2f, 0.2f, 1f), Color.white, windAngleFactor);
+				Camera mainCamera = Utils.GetMainCamera();
+				if (!(mainCamera == null))
+				{
+					__instance.m_shipControlsRoot.transform.position = mainCamera.WorldToScreenPoint(controlledElevator.m_controlGuiPos.position);
+				}
+				return false;
+            }
+			return true;
+        }
+
+		[HarmonyPatch(typeof(CharacterAnimEvent), "OnAnimatorIK")]
+		[HarmonyPrefix]
+		private static bool OnAnimatorIK(CharacterAnimEvent __instance, int layerIndex)
+		{
+			Player player = __instance.m_character as Player;
+			if ((object)player != null && player.IsAttached() && (bool)player.m_attachPoint && (bool)player.m_attachPoint.parent)
+			{
+				ElevatorControlls elevator = player.m_attachPoint.parent.GetComponent<ElevatorControlls>();
+				if (elevator)
+				{
+					elevator.UpdateIK(player .m_animator);
+				} 
+			}
+			return true;
+		}
+
+
+		[HarmonyPatch(typeof(Player), "PlacePiece")]
 		[HarmonyTranspiler]
 		public static IEnumerable<CodeInstruction> PlacePiece(IEnumerable<CodeInstruction> instructions)
 		{
@@ -36,21 +98,34 @@ namespace Elevator
 
 		public static void PlacedPiece(Player player, GameObject gameObject)
 		{
-			Piece component = gameObject.GetComponent<Piece>();
-			if (!component)
+			Piece piece = gameObject.GetComponent<Piece>();
+			if (!piece)
 			{
 				return;
-			}
-			Rigidbody componentInChildren = component.GetComponentInChildren<Rigidbody>();
-			if ((!componentInChildren || componentInChildren.isKinematic) && (bool)m_lastRayPiece)
+			} 
+			if (m_lastRayPiece)
 			{
-				MoveableBaseRoot componentInParent = m_lastRayPiece.GetComponentInParent<MoveableBaseRoot>();
-				if ((bool)componentInParent)
+				MoveableBaseRoot moveableBaseRoot = m_lastRayPiece.GetComponentInParent<MoveableBaseRoot>();
+				if (moveableBaseRoot)
 				{
-					componentInParent.AddNewPiece(component);
+					moveableBaseRoot.AddNewPiece(piece);
 				}
 			}
 		}
+
+		[HarmonyPatch(typeof(Player), "SetShipControl")]
+		[HarmonyPrefix]
+
+		public static bool SetShipControl(Player __instance, ref Vector3 moveDir)
+        {
+            Elevator elevator = __instance.GetControlledShip() as Elevator;
+			if(elevator)
+            {
+				elevator.ApplyMovementControlls(moveDir);
+				return false;
+            }
+			return true;
+        }
 
 		[HarmonyPatch(typeof(Player), "PieceRayTest")]
 		[HarmonyPrefix]

@@ -148,7 +148,7 @@ namespace ValheimStands.Unity
                         itemData.m_crafterID = zdo.GetLong($"{zdoVar}crafterID", itemData.m_crafterID);
                         itemData.m_crafterName = zdo.GetString($"{zdoVar}crafterName", itemData.m_crafterName);
                         
-                        this.armorStand.m_effects.Create(this.armorStand.m_dropSpawnPoint.position, Quaternion.identity, (Transform)null, 1f);
+                        this.armorStand.m_effects.Create(this.armorStand.m_dropSpawnPoint.position, Quaternion.identity, null, 1f);
                         zdo.Set(zdoVar, "");
                         zdo.Set(zdoVariantVar, 0);
                         
@@ -166,7 +166,7 @@ namespace ValheimStands.Unity
 
             public void removeVisual() {
                 if(visualObject != null) {
-                    UnityEngine.Object.Destroy((GameObject)visualObject.gameObject);
+                    UnityEngine.Object.Destroy(visualObject.gameObject);
                     visualObject = null;
                     
                     this.OnDestroyVisual(this);                    
@@ -430,7 +430,7 @@ namespace ValheimStands.Unity
             legsStand.material.SetTexture("_MainTex", defaultBodyTexture);
             legsPole.material.SetTexture("_MainTex", defaultBodyTexture);
 
-            this.m_nview = (bool)((UnityEngine.Object)this.m_netViewOverride) ? this.m_netViewOverride : this.gameObject.GetComponent<ZNetView>();
+            this.m_nview = (UnityEngine.Object)this.m_netViewOverride ? this.m_netViewOverride : this.gameObject.GetComponent<ZNetView>();
             
             if (this.m_nview.GetZDO() == null)
                 return;            
@@ -493,7 +493,7 @@ namespace ValheimStands.Unity
 
             if(Input.GetKey(KeyCode.LeftShift)) {       
                 if (!this.m_nview.IsOwner())
-                    this.m_nview.InvokeRPC("RequestOwn", (object[])Array.Empty<object>());
+                    this.m_nview.InvokeRPC("RequestOwn", Array.Empty<object>());
                     
                 poseManager.setNextPose();
                 return true;
@@ -515,7 +515,7 @@ namespace ValheimStands.Unity
         private void DelayedPowerActivation()
         {
             Player player = Player.m_localPlayer;
-            if ((UnityEngine.Object)player == (UnityEngine.Object)null)
+            if (player == null)
                 return;
             player.SetGuardianPower(this.m_guardianPower.name);
         }
@@ -530,11 +530,11 @@ namespace ValheimStands.Unity
             }
 
             if (!this.CanAttach(item)) {
-                user.Message(MessageHud.MessageType.Center, "$ceko_piece_armorstand_cantattach", 0, (Sprite)null);
+                user.Message(MessageHud.MessageType.Center, "$ceko_piece_armorstand_cantattach", 0, null);
                 return true;
             }
             if (!this.m_nview.IsOwner())
-                this.m_nview.InvokeRPC("RequestOwn", (object[])Array.Empty<object>());
+                this.m_nview.InvokeRPC("RequestOwn", Array.Empty<object>());
             equipmentSlotManager.queuedItem = item;
 
             this.CancelInvoke("UpdateAttach");
@@ -551,7 +551,7 @@ namespace ValheimStands.Unity
         
         public void DestroyAttachment()
         {
-            this.m_nview.InvokeRPC("DestroyAttachment", (object[])Array.Empty<object>());
+            this.m_nview.InvokeRPC("DestroyAttachment", Array.Empty<object>());
         }
 
         public void RPC_DestroyAttachment(long sender)
@@ -561,7 +561,7 @@ namespace ValheimStands.Unity
                 
             this.m_nview.GetZDO().Set("item", "");
             this.m_nview.InvokeRPC(ZNetView.Everybody, "SetVisualItems");
-            this.m_destroyEffects.Create(this.m_dropSpawnPoint.position, Quaternion.identity, (Transform)null, 1f);
+            this.m_destroyEffects.Create(this.m_dropSpawnPoint.position, Quaternion.identity, null, 1f);
         }
         
         private void DropItems()
@@ -584,7 +584,7 @@ namespace ValheimStands.Unity
                 return;
             this.CancelInvoke("UpdateAttach");
             Player player = Player.m_localPlayer;
-            if (equipmentSlotManager.hasQueuedItem() && (UnityEngine.Object)player != (UnityEngine.Object)null && (player.GetInventory().ContainsItem(equipmentSlotManager.queuedItem)) && this.CanAttach(equipmentSlotManager.queuedItem))
+            if (equipmentSlotManager.hasQueuedItem() && player != null && (player.GetInventory().ContainsItem(equipmentSlotManager.queuedItem)) && this.CanAttach(equipmentSlotManager.queuedItem))
             {
                 // Users can queue one item at a time, but depending on its type is what slot it belongs to. If the slot is already filled it should
                 // drop the item first.
@@ -609,13 +609,13 @@ namespace ValheimStands.Unity
                     }
 
                     if(unfilledSlot == null) {
-                        player.Message(MessageHud.MessageType.Center, "$ceko_piece_slot_filled", 0, (Sprite)null);
+                        player.Message(MessageHud.MessageType.Center, "$ceko_piece_slot_filled", 0, null);
                     }else{
                         unfilledSlot.equip(itemData);
                         player.UnequipItem(equipmentSlotManager.queuedItem, true);
                         player.GetInventory().RemoveOneItem(equipmentSlotManager.queuedItem);
                         this.m_nview.InvokeRPC(ZNetView.Everybody, "SetVisualItems");
-                        this.m_effects.Create(this.GetAttach(equipmentSlotManager.queuedItem).transform.position, Quaternion.identity, (Transform)null, 1f);
+                        this.m_effects.Create(this.GetAttach(equipmentSlotManager.queuedItem).transform.position, Quaternion.identity, null, 1f);
                     }
                 }else{
                     ZLog.Log("Queued item didn't map to a slot.");
@@ -678,7 +678,7 @@ namespace ValheimStands.Unity
                 return;
 
             GameObject wantedPrefab = ObjectDB.instance.GetItemPrefab(wantedItem);
-            if ((UnityEngine.Object)wantedPrefab == (UnityEngine.Object)null) {
+            if (wantedPrefab == null) {
                 ZLog.LogWarning("Missing item prefab " + wantedItem);
             } else {
                 ItemDrop component = wantedPrefab.GetComponent<ItemDrop>();                
@@ -687,10 +687,10 @@ namespace ValheimStands.Unity
                 
                 // This is the gameobject in the prefab that gets instantiated and attached to the stand
                 GameObject wantedAttachPrefab = this.GetAttachPrefab(wantedPrefab);
-                if ((UnityEngine.Object)wantedAttachPrefab == (UnityEngine.Object)null) {
+                if (wantedAttachPrefab == null) {
                     // Can happen if a gameobject is not found with attach or attach_skin name, sometimes prefabs just change
                     // the player's textures and don't add any new geometry.
-                    ZLog.LogWarning((object)("Failed to get attach prefab for item " + wantedPrefab));
+                    ZLog.LogWarning("Failed to get attach prefab for item " + wantedPrefab);
                     slot.visualObject = new VisualEquipment {
                         prefabName = wantedItem,
                         drop = wantedPrefab.GetComponent<ItemDrop>(),
@@ -726,8 +726,8 @@ namespace ValheimStands.Unity
                         if (this.m_clothColliders.Length != 0) {
                             if (cloth.capsuleColliders.Length != 0)
                             {
-                                List<CapsuleCollider> list2 = new List<CapsuleCollider>((IEnumerable<CapsuleCollider>) this.m_clothColliders);
-                                list2.AddRange((IEnumerable<CapsuleCollider>) cloth.capsuleColliders);
+                                List<CapsuleCollider> list2 = new List<CapsuleCollider>(m_clothColliders);
+                                list2.AddRange(cloth.capsuleColliders);
                                 cloth.capsuleColliders = list2.ToArray();
                             }
                             else
@@ -771,7 +771,7 @@ namespace ValheimStands.Unity
             if ((bool)((UnityEngine.Object)transform))
                 return transform.gameObject;
 
-            return (GameObject)null;
+            return null;
         }
 
         private bool CanAttach(ItemDrop.ItemData item)
