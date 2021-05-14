@@ -83,7 +83,7 @@ namespace Elevator
                     positionChange.y -= m_rudderSpeed * Time.fixedDeltaTime;
                     break; 
             }
-            m_body.AddForce(positionChange, ForceMode.Acceleration);
+            m_body.MovePosition(transform.position + positionChange);
         }
 
         public new void UpdateControlls(float dt)
