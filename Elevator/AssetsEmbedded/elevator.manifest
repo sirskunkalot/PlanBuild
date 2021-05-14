@@ -1,9 +1,9 @@
 ManifestFileVersion: 0
-CRC: 509313124
+CRC: 2870076989
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: f9a70f9e081c9170854ef23540ed62fc
+    Hash: e402f7a9070ef0c67e823154b5edd1c7
   TypeTreeHash:
     serializedVersion: 2
     Hash: 0919e83cb1b16da8afdfe38eaceb0286
@@ -33,6 +33,7 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
+- Assets/PrefabInstance/elevator_support.prefab
 - Assets/elevator_icon.png
 - Assets/PrefabInstance/elevator_base.prefab
 Dependencies: []

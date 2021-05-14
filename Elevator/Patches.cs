@@ -63,12 +63,12 @@ namespace Elevator
 		private static bool OnAnimatorIK(CharacterAnimEvent __instance, int layerIndex)
 		{
 			Player player = __instance.m_character as Player;
-			if ((object)player != null && player.IsAttached() && (bool)player.m_attachPoint && (bool)player.m_attachPoint.parent)
+			if (player && player.IsAttached() && player.m_attachPoint && player.m_attachPoint.parent)
 			{
-				ElevatorControlls elevator = player.m_attachPoint.parent.GetComponent<ElevatorControlls>();
+				Elevator elevator = player.m_attachPoint.parent.GetComponent<Elevator>();
 				if (elevator)
 				{
-					elevator.UpdateIK(player .m_animator);
+					elevator.m_elevatorControlls.UpdateIK(player.m_animator);
 				} 
 			}
 			return true;

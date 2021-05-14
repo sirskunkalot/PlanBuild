@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Elevator
 {
-    class ElevatorControlls : ShipControlls
+    public class ElevatorControlls : ShipControlls
     {
         private Transform m_handAttach;
         private Collider m_wheelCollider;
@@ -20,7 +20,7 @@ namespace Elevator
             m_nview.Register<ZDOID>("ReleaseControl", RPC_ReleaseControl);
             m_nview.Register<bool>("RequestRespons", RPC_RequestRespons);
             m_ship = GetComponentInParent<Elevator>();
-            m_handAttach = transform.parent.Find("New/pivot_left/handattach").transform;
+            m_handAttach = transform.parent.Find("New/crank/handattach").transform;
             m_wheelCollider = GetComponent<Collider>();
             m_attachPoint = m_ship.transform.Find("attachpoint");
         }

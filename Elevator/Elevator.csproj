@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="Elevator.cs" />
     <Compile Include="ElevatorControlls.cs" />
+    <Compile Include="ElevatorSupport.cs" />
     <Compile Include="MoveableBaseElevatorSync.cs" />
     <Compile Include="MoveableBaseRoot.cs" />
     <Compile Include="Patches.cs" />

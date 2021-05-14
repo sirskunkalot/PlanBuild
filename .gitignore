@@ -370,7 +370,7 @@ FodyWeavers.xsd
 
 # not the valheim path file
 Environment.props 
-JotunnModUnity/
+
 JotunnModStub/Package/plugins/
 SeedTotem/Package/plugins/
 */output

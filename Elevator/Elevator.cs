@@ -13,6 +13,7 @@ namespace Elevator
         public static readonly KeyValuePair<int, int> ElevatorBaseParentHash = ZDO.GetHashZDOID("ElevatorBaseParent"); 
         public static readonly int ElevatorBasePositionHash = "ElevatorBasePosition".GetStableHashCode(); 
         public static readonly int ElevatorBaseRotationHash = "ElevatorBaseRotation".GetStableHashCode();
+        public ElevatorControlls m_elevatorControlls;
 
         public new void Awake()
         {
@@ -28,8 +29,9 @@ namespace Elevator
             if (m_nview.GetZDO() == null)
             {
                 base.enabled = false;
-            }  
-            m_shipControlls = GetComponentInChildren<ElevatorControlls>();
+            }
+            m_elevatorControlls = GetComponentInChildren<ElevatorControlls>();
+            m_shipControlls = m_elevatorControlls;
         }
 
         public new void ApplyMovementControlls(Vector3 direction)
