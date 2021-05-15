@@ -7,6 +7,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using HarmonyLib;
+using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -19,7 +20,7 @@ using Object = UnityEngine.Object;
 namespace Elevator
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid)]
+    [BepInDependency(Main.ModGuid)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class ElevatorPlugin : BaseUnityPlugin
     {
@@ -35,7 +36,7 @@ namespace Elevator
         private void Awake()
         {
             kitBashRoot = new GameObject("KitBashRoot");
-            Object.DontDestroyOnLoad(kitBashRoot);
+            DontDestroyOnLoad(kitBashRoot);
             kitBashRoot.SetActive(false);
 
             harmony = new Harmony(PluginGUID);
@@ -117,9 +118,30 @@ namespace Elevator
                     rotation = Quaternion.Euler(-281.961f, -12.404f, 24.551f)
                 },
             };
-            KitBash(elevatorSupportPrefab, elevatorSupportKitBashes);
+            KitBash(elevatorSupportPrefab, elevatorSupportKitBashes); 
+            GameObject raft = PrefabManager.Instance.GetPrefab("Raft");
+            LineRenderer sourceLineRenderer = raft.transform.Find("ship/visual/ropes/left").GetComponent<LineRenderer>();
+            
+            foreach(LineRenderer lineRenderer in elevatorSupportPrefab.GetComponentsInChildren<LineRenderer>())
+            {
+                lineRenderer.materials = sourceLineRenderer.materials;
+                lineRenderer.startWidth = sourceLineRenderer.startWidth;
+                lineRenderer.endWidth = sourceLineRenderer.endWidth;
+                lineRenderer.widthCurve = sourceLineRenderer.widthCurve;
+                lineRenderer.textureMode = sourceLineRenderer.textureMode;
+                lineRenderer.shadowCastingMode = sourceLineRenderer.shadowCastingMode;
+                lineRenderer.alignment = sourceLineRenderer.alignment;
+                lineRenderer.numCapVertices = sourceLineRenderer.numCapVertices;
+                lineRenderer.numCornerVertices = sourceLineRenderer.numCornerVertices;
+                lineRenderer.widthMultiplier = sourceLineRenderer.widthMultiplier;
+                lineRenderer.generateLightingData = sourceLineRenderer.generateLightingData;
+                lineRenderer.material = sourceLineRenderer.material;
+                lineRenderer.rayTracingMode = sourceLineRenderer.rayTracingMode;
+                lineRenderer.realtimeLightmapIndex = sourceLineRenderer.realtimeLightmapIndex;
+                lineRenderer.realtimeLightmapScaleOffset = sourceLineRenderer.realtimeLightmapScaleOffset;
+            }
         }
-
+          
         private void KitBashElevatorBase()
         {
             List<KitBashConfig> elevatorBaseKitBashes = new List<KitBashConfig>
@@ -307,10 +329,16 @@ namespace Elevator
 
         private void RegisterCustomItems()
         {
-            embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("elevator", typeof(ElevatorPlugin).Assembly);
+            try
+            { 
+                embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("elevator", typeof(ElevatorPlugin).Assembly);
             
-            SetupElevatorBase(); 
-            SetupElevatorSupport();
+                SetupElevatorBase(); 
+                SetupElevatorSupport();
+            } finally
+            {
+                ItemManager.OnVanillaItemsAvailable -= RegisterCustomItems;
+            }
     
             //  elevatorBase = new CustomPiece(embeddedResourceBundle, "Assets/PrefabInstance/elevator_base.prefab", "Hammer", true);
 
@@ -321,19 +349,19 @@ namespace Elevator
         private void SetupElevatorSupport()
         {
             GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_support");
-            elevatorSupportPrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform);
+            elevatorSupportPrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             elevatorSupportPrefab.name = "piece_elevator_support";
-            elevatorSupportPrefab.AddComponent<ElevatorSupport>(); 
             PieceManager.Instance.AddPiece(new CustomPiece(elevatorSupportPrefab, new PieceConfig()
             {
                 PieceTable = "Hammer"
             }));
+            elevatorSupportPrefab.AddComponent<ElevatorSupport>();
         }
 
         private void SetupElevatorBase()
         {
             GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_base");
-            elevatorBasePrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform);
+            elevatorBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             elevatorBasePrefab.name = "piece_elevator";
             elevatorBasePrefab.AddComponent<Elevator>();
             elevatorBasePrefab.AddComponent<MoveableBaseRoot>();
@@ -362,7 +390,7 @@ namespace Elevator
                     Jotunn.Logger.LogWarning("");
                     continue;
                 }
-                GameObject kitBashObject = Object.Instantiate(sourceGameObject, parentTransform);
+                GameObject kitBashObject = Instantiate(sourceGameObject, parentTransform);
                 kitBashObject.name = config.name;
                 kitBashObject.transform.localPosition = config.position;
                 kitBashObject.transform.localRotation = config.rotation;

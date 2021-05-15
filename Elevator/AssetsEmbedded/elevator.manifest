@@ -1,17 +1,19 @@
 ManifestFileVersion: 0
-CRC: 2870076989
+CRC: 1149555498
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: e402f7a9070ef0c67e823154b5edd1c7
+    Hash: 8d550bc7cf017c492bf6169ac4f8d734
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 0919e83cb1b16da8afdfe38eaceb0286
+    Hash: 56bb51f6e44d4e96257f01616784cbb9
 HashAppended: 0
 ClassTypes:
 - Class: 1
   Script: {instanceID: 0}
 - Class: 4
+  Script: {instanceID: 0}
+- Class: 21
   Script: {instanceID: 0}
 - Class: 28
   Script: {instanceID: 0}
@@ -27,6 +29,8 @@ ClassTypes:
   Script: {fileID: 1521249158, guid: 1095959f18e8a8b41b5396c52e303d84, type: 3}
 - Class: 115
   Script: {instanceID: 0}
+- Class: 120
+  Script: {instanceID: 0}
 - Class: 205
   Script: {instanceID: 0}
 - Class: 213
@@ -36,4 +40,5 @@ Assets:
 - Assets/PrefabInstance/elevator_support.prefab
 - Assets/elevator_icon.png
 - Assets/PrefabInstance/elevator_base.prefab
-Dependencies: []
+Dependencies:
+- C:/Users/mathi/source/repos/ValheimJotunnMods/JotunnModUnity/AssetBundles/StandaloneWindows/seedtotem

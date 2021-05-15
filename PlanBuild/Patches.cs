@@ -2,6 +2,7 @@
 using HarmonyLib;
 using Jotunn.Managers;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static PlanBuild.PlanBuild;
 using static PlanBuild.ShaderHelper;
@@ -56,15 +57,18 @@ namespace PlanBuild
         }
 
         private static bool interceptGetPrefab = true;
+        private static HashSet<int> checkedHashes = new HashSet<int>();
          
         [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
         [HarmonyPostfix]
         static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
         {
             if(__result == null
-                && interceptGetPrefab)
+                && interceptGetPrefab
+                && !checkedHashes.Contains(hash))
             {
                 interceptGetPrefab = false;
+                checkedHashes.Add(hash);
                 PlanBuild.Instance.ScanHammer(true);
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;

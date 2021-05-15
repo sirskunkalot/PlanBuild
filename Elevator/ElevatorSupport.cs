@@ -10,28 +10,28 @@ namespace Elevator
 {
     class ElevatorSupport : MonoBehaviour
     {
-        private int zdoElevatorID = "elevatorID".GetStableHashCode();
+        public static int zdoElevatorID = "elevatorID".GetStableHashCode();
         internal static GameObject elevatorPrefab;
         private ZNetView m_nview;
         private GameObject elevatorObject;
-        private LineRenderer m_lineRenderer;
+        private Elevator elevator;
 
         public void Awake()
         {
-            m_nview = GetComponent<ZNetView>();
-            m_lineRenderer = GetComponent<LineRenderer>();
+            m_nview = GetComponent<ZNetView>(); 
             if (m_nview.IsValid() && m_nview.IsOwner())
             {
-                int elevatorID = m_nview.GetZDO().GetInt(zdoElevatorID);
+                int elevatorID = GetElevatorID();
                 if (elevatorID != 0)
                 {
                     Jotunn.Logger.LogDebug("Looking for elevator " + elevatorID);
-                    foreach (Elevator worldElevator in Object.FindObjectsOfType<Elevator>())
+                    foreach (Elevator worldElevator in FindObjectsOfType<Elevator>())
                     {
-                        if (worldElevator.GetInstanceID() == elevatorID)
+                        if (worldElevator.GetElevatorID() == elevatorID)
                         {
                             Jotunn.Logger.LogDebug("Found elevator");
                             elevatorObject = worldElevator.gameObject;
+                            elevator = worldElevator;
                             break;
                         }
                     }
@@ -39,15 +39,37 @@ namespace Elevator
                 if (elevatorObject == null)
                 {
                     Jotunn.Logger.LogDebug("Spawning elevator");
-                    elevatorObject = Object.Instantiate(elevatorPrefab, transform.position + (transform.up * -4f), transform.rotation);
+                    elevatorObject = Instantiate(elevatorPrefab, transform.position + (transform.up * -3f), transform.rotation);
+                    Jotunn.Logger.LogDebug(GetInstanceID() + ": Spawned " + elevatorObject.GetInstanceID());
+                    elevator = elevatorObject.GetComponent<Elevator>();
+                    elevator.SetSupport(this);
                     elevatorID = elevatorObject.GetInstanceID();
                     m_nview.GetZDO().Set(zdoElevatorID, elevatorID);
                 }
-                AttachRopes("rope_attach_left_front", "rope_attach_left_back", "rope_attach_right_front", "front_attach_right_back");
+                if(elevatorObject != null )
+                {
+                    AttachRopes("rope_attach_left_front", "rope_attach_left_back", "rope_attach_right_front", "rope_attach_right_back");
+                }
             }
         }
 
-        private Dictionary<Transform, Transform> attachMap = new Dictionary<Transform, Transform>();
+        class Rope
+        {
+            public Transform top;
+            public Transform bottom;
+            public LineRenderer lineRenderer;
+
+            internal void Update(bool enabled)
+            {
+                lineRenderer.enabled = enabled;
+                if(enabled)
+                {
+                    lineRenderer.SetPositions(new Vector3[] { top.position, bottom.position });
+                }
+            }
+        }
+
+        private List<Rope> ropes = new List<Rope>();
 
         private void AttachRopes(params string[] pointNames)
         {
@@ -56,25 +78,26 @@ namespace Elevator
             {
                 Transform topAttach = gameObject.transform.Find(pointName);
                 Transform bottomAttach = elevatorObject.transform.Find(pointName);
-                attachMap.Add(topAttach, bottomAttach);
+                ropes.Add(new Rope()
+                {
+                    top = topAttach,
+                    bottom = bottomAttach,
+                    lineRenderer = topAttach.GetComponent<LineRenderer>()
+                });
             }
         }
 
-        public void LateUpdate()
+        internal int GetElevatorID()
         {
-            if(elevatorObject)
+            return m_nview.GetZDO().GetInt(zdoElevatorID);
+        }
+
+        public void LateUpdate()
+        { 
+            foreach(Rope rope in ropes)
             {
-                m_lineRenderer.enabled = true;
-                int i = 0;
-                foreach(KeyValuePair<Transform, Transform> pair in attachMap)
-                {
-                    m_lineRenderer.SetPosition(i++, pair.Key.position);
-                    m_lineRenderer.SetPosition(i++, pair.Value.position); 
-                }
-            } else
-            {
-                m_lineRenderer.enabled = false;
-            }
+                rope.Update(elevatorObject != null);
+            } 
         }
     }
 }

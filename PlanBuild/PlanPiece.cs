@@ -513,7 +513,9 @@ namespace PlanBuild
             {
                 wearNTear.OnPlaced();
             }
+#if DEBUG
             logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
+#endif
             ZNetScene.instance.Destroy(this.gameObject);
             Destroy(this.gameObject);
         }

@@ -17,7 +17,7 @@ namespace Elevator
 			if ((bool)m_baseRoot)
 			{
 				m_baseRoot.CleanUp();
-				Object.Destroy(m_baseRoot.gameObject);
+                Destroy(m_baseRoot.gameObject);
 			}
 		}
 

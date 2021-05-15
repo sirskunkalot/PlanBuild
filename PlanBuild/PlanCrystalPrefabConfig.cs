@@ -104,7 +104,9 @@ namespace PlanBuild
             bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
             if (attachedPlayer)
             {
+#if DEBUG
                 PlanBuild.logger.LogDebug("Triggering real textures");
+#endif
                 PlanBuild.showRealTextures = true;
                 PlanBuild.UpdateAllPlanPieceTextures();
             }
@@ -122,7 +124,9 @@ namespace PlanBuild
             bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
             if (attachedPlayer)
             {
+#if DEBUG
                 PlanBuild.logger.LogDebug("Removing real textures");
+#endif
                 PlanBuild.showRealTextures = false;
                 PlanBuild.UpdateAllPlanPieceTextures();
             }

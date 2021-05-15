@@ -70,7 +70,7 @@ namespace Elevator
 			List<Player> allPlayers = Player.GetAllPlayers();
 			for (int j = 0; j < allPlayers.Count; j++)
 			{
-				if ((bool)allPlayers[j] && allPlayers[j].transform.parent == base.transform)
+				if ((bool)allPlayers[j] && allPlayers[j].transform.parent == transform)
 				{
 					allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
 				}
@@ -79,7 +79,7 @@ namespace Elevator
 		  
 		public void LateUpdate()
 		{ 
-			Vector2i zone = ZoneSystem.instance.GetZone(base.transform.position);
+			Vector2i zone = ZoneSystem.instance.GetZone(transform.position);
 			if (zone != m_sector)
 			{
 				m_sector = zone;
@@ -230,7 +230,7 @@ namespace Elevator
 			ZNetView component = piece.GetComponent<ZNetView>();
 			if ((bool)component)
 			{
-				piece.transform.SetParent(base.transform);
+				piece.transform.SetParent(transform);
 				piece.transform.localPosition = component.m_zdo.GetVec3(MBPositionHash, piece.transform.localPosition);
 				piece.transform.localRotation = component.m_zdo.GetQuaternion(MBRotationHash, piece.transform.localRotation);
 				WearNTear component2 = piece.GetComponent<WearNTear>();
@@ -244,7 +244,7 @@ namespace Elevator
 
 		public void AddNewPiece(Piece piece)
 		{
-			piece.transform.SetParent(base.transform);
+			piece.transform.SetParent(transform);
 			ZNetView component = piece.GetComponent<ZNetView>();
 			component.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
 			component.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
@@ -303,7 +303,7 @@ namespace Elevator
 			{
 				if (componentsInChildren2[k].isKinematic)
 				{
-					Object.Destroy(componentsInChildren2[k]);
+                    Destroy(componentsInChildren2[k]);
 				}
 			}
 			UpdateStats();

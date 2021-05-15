@@ -12,6 +12,7 @@ namespace Elevator
     {
         private Transform m_handAttach;
         private Collider m_wheelCollider;
+        internal Elevator m_elevator;
 
         public new void Awake()
         {
@@ -19,7 +20,8 @@ namespace Elevator
             m_nview.Register<ZDOID>("RequestControl", RPC_RequestControl);
             m_nview.Register<ZDOID>("ReleaseControl", RPC_ReleaseControl);
             m_nview.Register<bool>("RequestRespons", RPC_RequestRespons);
-            m_ship = GetComponentInParent<Elevator>();
+            m_elevator = GetComponentInParent<Elevator>();
+            m_ship = m_elevator;
             m_handAttach = transform.parent.Find("New/crank/handattach").transform;
             m_wheelCollider = GetComponent<Collider>();
             m_attachPoint = m_ship.transform.Find("attachpoint");
