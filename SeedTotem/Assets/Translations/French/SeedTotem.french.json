@@ -8,7 +8,7 @@
 	"message_seed_totem_seed_generic_plural": "graines",
 	"message_seed_totem_all": "tou(t)(e)s",
 	"message_seed_totem_not_a_seed": "Ce n'est pas une graine",
-	"message_seed_totem_restricted_to": "restreint :",
+	"message_seed_totem_restricted_to": "Restreint :",
 	"message_seed_totem_restrict": "Restreindre",
 	"message_seed_totem_unrestricted": "Non restreint",
 	"message_seed_totem_status_looking_for_space": "Recherche d'espace libre",
