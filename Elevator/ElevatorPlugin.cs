@@ -358,12 +358,12 @@ namespace Elevator
             GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_base");
             elevatorBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             elevatorBasePrefab.name = "piece_elevator";
-            elevatorBasePrefab.AddComponent<Elevator>(); 
             elevatorBasePrefab.AddComponent<MoveableBaseElevatorSync>();
             elevatorBasePrefab.transform.Find("wheel_collider").gameObject.AddComponent<ElevatorControlls>();
-            PrefabManager.Instance.AddPrefab(elevatorBasePrefab);
-            PrefabManager.Instance.RegisterToZNetScene(elevatorBasePrefab);
-            ElevatorSupport.elevatorPrefab = elevatorBasePrefab;
+            PieceManager.Instance.AddPiece(new CustomPiece(elevatorBasePrefab, new PieceConfig()
+            {
+                PieceTable = "Hammer"
+            })); 
         }
 
         private void KitBash(GameObject piecePrefab, List<KitBashConfig> kitbashes)

@@ -79,6 +79,9 @@ namespace Elevator
 
         internal void UpdateIK(Animator m_animator)
         {
+#if DEBUG
+            Jotunn.Logger.LogInfo("HandAttach: Position: " + m_handAttach.position);
+#endif
             m_animator.SetIKPosition(AvatarIKGoal.RightHand, m_handAttach.position);
             m_animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
         }

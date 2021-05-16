@@ -228,8 +228,8 @@ namespace Elevator
 				return true;
 			} 
 			return false;
-		}
-		 
+		} 
+
 		[HarmonyPatch(typeof(Player), "FindHoverObject")]
 		[HarmonyPrefix]
 		public static bool FindHoverObject(Player __instance, ref GameObject hover, ref Character hoverCreature)

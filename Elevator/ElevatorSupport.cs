@@ -10,11 +10,10 @@ namespace Elevator
 {
     class ElevatorSupport : MonoBehaviour
     {
-        public static readonly KeyValuePair<int, int> ElevatorBaseHash = ZDO.GetHashZDOID("ElevatorBase");
-        internal static GameObject elevatorPrefab;
+        public static readonly KeyValuePair<int, int> ElevatorBaseHash = ZDO.GetHashZDOID("ElevatorBase"); 
         internal ZNetView m_nview;
-        private GameObject elevatorObject;
-        private Elevator elevator;
+        private GameObject m_elevatorObject;
+        private Elevator m_evelator;
 
         public void Awake()
         {
@@ -25,47 +24,45 @@ namespace Elevator
                 if (elevatorID != ZDOID.None)
                 {
                     Jotunn.Logger.LogDebug("Looking for elevator " + elevatorID);
-                    elevatorObject = ZNetScene.instance.FindInstance(elevatorID);
-                    if(elevatorObject)
+                    m_elevatorObject = ZNetScene.instance.FindInstance(elevatorID);
+                    if(m_elevatorObject)
                     {
-                        elevator = elevatorObject.GetComponent<Elevator>();
+                        m_evelator = m_elevatorObject.GetComponent<Elevator>();
                     } else
                     {
                         Jotunn.Logger.LogWarning("ZDO stored elevator not found: " + elevatorID);
                     }
-                } else
-                {
-                    Jotunn.Logger.LogDebug("Spawning elevator");
-                    elevatorObject = Instantiate(elevatorPrefab, transform.position + (transform.up * -3f), transform.rotation);
-                    elevator = elevatorObject.GetComponent<Elevator>();
-                    Jotunn.Logger.LogDebug(GetElevatorSupportID() + ": Spawned " + elevator.GetElevatorID());
-                    elevator.SetSupport(this); 
-                    m_nview.GetZDO().Set(ElevatorBaseHash, elevator.GetElevatorID());
-                }
-                if(elevatorObject != null )
-                {
-                    AttachRopes("rope_attach_left_front", "rope_attach_left_back", "rope_attach_right_front", "rope_attach_right_back");
-                }
+                }  
+                
             }
+        }
+
+        public void SetElevatorBase(Elevator elevator)
+        {
+            m_nview.GetZDO().Set(ElevatorBaseHash, elevator.GetElevatorID());
+            this.m_evelator = elevator;
+            m_elevatorObject = elevator.gameObject; 
+            AttachRopes("rope_attach_left_front", "rope_attach_left_back", "rope_attach_right_front", "rope_attach_right_back"); 
         }
 
         public void Update()
         {
-            if(!elevator)
+            if(!m_evelator)
             {
                 ZDOID elevatorID = m_nview.GetZDO().GetZDOID(ElevatorBaseHash);
                 if (elevatorID != ZDOID.None)
                 {
                     Jotunn.Logger.LogDebug("Looking for elevator " + elevatorID);
-                    elevatorObject = ZNetScene.instance.FindInstance(elevatorID);
-                    if (elevatorObject)
+                    m_elevatorObject = ZNetScene.instance.FindInstance(elevatorID);
+                    if (m_elevatorObject)
                     {
-                        elevator = elevatorObject.GetComponent<Elevator>();
+                        m_evelator = m_elevatorObject.GetComponent<Elevator>();
                         AttachRopes("rope_attach_left_front", "rope_attach_left_back", "rope_attach_right_front", "rope_attach_right_back");
                     }
                     else
                     {
                         Jotunn.Logger.LogWarning("ZDO stored elevator not found: " + elevatorID);
+                        m_nview.GetZDO().Set(ElevatorBaseHash, ZDOID.None);
                     }
                 }
             }
@@ -94,7 +91,7 @@ namespace Elevator
             foreach (string pointName in pointNames)
             {
                 Transform topAttach = gameObject.transform.Find(pointName);
-                Transform bottomAttach = elevatorObject.transform.Find(pointName);
+                Transform bottomAttach = m_elevatorObject.transform.Find(pointName);
                 ropes.Add(new Rope()
                 {  
                     top = topAttach,
@@ -113,7 +110,7 @@ namespace Elevator
         { 
             foreach(Rope rope in ropes)
             {
-                rope.Update(elevator);
+                rope.Update(m_evelator);
             } 
         }
     }

@@ -15,18 +15,27 @@ namespace Elevator
 		public void Awake()
         {
 			m_nview = GetComponent<ZNetView>();
-			Elevator elevator = GetComponent<Elevator>();
-			m_baseRootObject = elevator.gameObject;
+			m_baseRootObject = new GameObject
+			{
+				name = "MoveableBase",
+				layer = 0
+			};
+			m_baseRootObject.transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
+			m_baseRootObject.transform.position = base.transform.position;
+			m_baseRootObject.transform.rotation = base.transform.rotation;
+			transform.SetParent(m_baseRootObject.transform);
 			m_baseRoot = m_baseRootObject.AddComponent<MoveableBaseRoot>();
 			activatedPendingPieces = m_baseRoot.ActivatePendingPieces(); 
 			m_baseRoot.m_moveableBaseSync = this;
 			m_baseRoot.m_nview = m_nview;
+			m_rigidbody = m_baseRootObject.AddComponent<Rigidbody>();
+            m_rigidbody.mass = 1000f;
+			m_rigidbody.constraints = RigidbodyConstraints.FreezeRotation & RigidbodyConstraints.FreezePositionX & RigidbodyConstraints.FreezePositionZ;
+			m_rigidbody.useGravity = false;
+			m_rigidbody.isKinematic = true;
+			Elevator elevator = gameObject.AddComponent<Elevator>();
 			m_baseRoot.m_elevator = elevator;
 			m_baseRoot.m_id = m_nview.m_zdo.m_uid;
-			m_rigidbody = GetComponent<Rigidbody>();
-			m_baseRoot.m_syncRigidbody = m_rigidbody;
-			m_rigidbody.mass = 1000f;  
-
 		}
 
 		public void Update()

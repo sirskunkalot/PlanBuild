@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - snappoint
+  - leaky
   layers:
   - Default
   - TransparentFX
@@ -33,8 +35,8 @@ TagManager:
   - 
   - 
   - 
-  - 
-  - 
+  - vehicle
+  - moveable_piece
   - 
   - 
   m_SortingLayers:

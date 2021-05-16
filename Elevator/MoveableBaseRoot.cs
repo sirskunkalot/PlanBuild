@@ -26,7 +26,7 @@ namespace Elevator
 
 		public List<Piece> m_pieces = new List<Piece>();
 
-		public Rigidbody m_syncRigidbody;
+		// public Rigidbody m_syncRigidbody;
 
 		//public List<RudderComponent> m_rudderPieces = new List<RudderComponent>();
 
@@ -49,6 +49,7 @@ namespace Elevator
 		public void Awake()
 		{
 			m_elevator = gameObject.GetComponent<Elevator>();
+
 			//m_blockingcollider = gameObject.transform.Find("collider").GetComponent<BoxCollider>();
 			//m_onboardcollider = gameObject.transform.Find("OnBoardTrigger").GetComponent<BoxCollider>();
 			//m_bounds = m_onboardcollider.bounds;
@@ -65,8 +66,7 @@ namespace Elevator
 			{
 				Piece piece = m_pieces[i];
 				if ((bool)piece)
-				{
-					piece.transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
+				{ 
 					AddInactivePiece(m_id, piece);
 				}
 			}
@@ -274,7 +274,7 @@ namespace Elevator
 
 		public void AddPiece(Piece piece)
 		{
-			m_pieces.Add(piece);
+			m_pieces.Add(piece); 
 			//EncapsulateBounds(piece);
 		//	MastComponent component = piece.GetComponent<MastComponent>();
 		//	if ((bool)component)
@@ -328,7 +328,17 @@ namespace Elevator
 			}
 			UpdateStats();
 		}
-		 
+
+		public void OnTriggerEnter(Collider collider)
+		{
+			m_elevator?.OnTriggerEnter(collider);
+		}
+
+		public void OnTriggerExit(Collider collider)
+		{
+			m_elevator?.OnTriggerExit(collider);
+		}
+
 		//public void EncapsulateBounds(Piece piece)
 		//{
 		//	List<Collider> allColliders = piece.GetAllColliders();
