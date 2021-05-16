@@ -25,18 +25,20 @@ namespace Elevator
 		public Elevator m_elevator;
 
 		public List<Piece> m_pieces = new List<Piece>();
-		 
+
+		public Rigidbody m_syncRigidbody;
+
 		//public List<RudderComponent> m_rudderPieces = new List<RudderComponent>();
 
 		public List<Piece> m_portals = new List<Piece>();
 
 		public Vector2i m_sector;
 
-		public Bounds m_bounds = default(Bounds);
+		//public Bounds m_bounds;
 
-		public BoxCollider m_blockingcollider;
+		//public BoxCollider m_blockingcollider;
 		  
-		public BoxCollider m_onboardcollider;
+		//public BoxCollider m_onboardcollider;
 
 		public ZDOID m_id;
 
@@ -47,8 +49,9 @@ namespace Elevator
 		public void Awake()
 		{
 			m_elevator = gameObject.GetComponent<Elevator>();
-			m_blockingcollider = gameObject.transform.Find("collider").GetComponent<BoxCollider>();
-			m_onboardcollider = gameObject.transform.Find("OnBoardTrigger").GetComponent<BoxCollider>();
+			//m_blockingcollider = gameObject.transform.Find("collider").GetComponent<BoxCollider>();
+			//m_onboardcollider = gameObject.transform.Find("OnBoardTrigger").GetComponent<BoxCollider>();
+			//m_bounds = m_onboardcollider.bounds;
 			m_nview = GetComponent<ZNetView>();
 		}
 
@@ -136,6 +139,9 @@ namespace Elevator
 
 		public static void AddInactivePiece(ZDOID id, Piece piece)
 		{
+#if DEBUG
+            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece);
+#endif
 			if (!m_pendingPieces.TryGetValue(id, out var value))
 			{
 				value = new List<Piece>();
@@ -175,16 +181,19 @@ namespace Elevator
 			 
 		}
 
-		public void ActivatePendingPieces()
+		public bool ActivatePendingPieces()
 		{
 			if (!m_nview || m_nview.m_zdo == null)
 			{
-				return;
+				return false;
 			}
+#if DEBUG
+			Jotunn.Logger.LogInfo("Activate pending pieces for " + m_nview.m_zdo.m_uid);
+#endif
 			ZDOID uid = m_nview.m_zdo.m_uid;
 			if (!m_pendingPieces.TryGetValue(uid, out var value))
 			{
-				return;
+				return true;
 			}
 			for (int i = 0; i < value.Count; i++)
 			{
@@ -196,6 +205,7 @@ namespace Elevator
 			}
 			value.Clear();
 			m_pendingPieces.Remove(uid);
+			return true;
 		}
 
 		public static void InitPiece(Piece piece)
@@ -206,10 +216,13 @@ namespace Elevator
 				return;
 			}
 			ZDOID zDOID = piece.m_nview.m_zdo.GetZDOID(MBParentHash);
-			if (!(zDOID != ZDOID.None))
-			{
+			if (zDOID == ZDOID.None)
+			{ 
 				return;
 			}
+#if DEBUG
+			Jotunn.Logger.LogInfo("Piece has Parent: " + zDOID);
+#endif
 			GameObject gameObject = ZNetScene.instance.FindInstance(zDOID);
 			if ((bool)gameObject)
 			{
@@ -227,6 +240,9 @@ namespace Elevator
 
 		public void ActivatePiece(Piece piece)
 		{
+#if DEBUG
+			Jotunn.Logger.LogInfo("Activating piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+#endif
 			ZNetView component = piece.GetComponent<ZNetView>();
 			if ((bool)component)
 			{
@@ -244,8 +260,12 @@ namespace Elevator
 
 		public void AddNewPiece(Piece piece)
 		{
+#if DEBUG
+			Jotunn.Logger.LogInfo("Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+#endif
 			piece.transform.SetParent(transform);
 			ZNetView component = piece.GetComponent<ZNetView>();
+			
 			component.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
 			component.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
 			component.m_zdo.Set(MBRotationHash, piece.transform.localRotation);
@@ -255,7 +275,7 @@ namespace Elevator
 		public void AddPiece(Piece piece)
 		{
 			m_pieces.Add(piece);
-			EncapsulateBounds(piece);
+			//EncapsulateBounds(piece);
 		//	MastComponent component = piece.GetComponent<MastComponent>();
 		//	if ((bool)component)
 		//	{
@@ -308,25 +328,25 @@ namespace Elevator
 			}
 			UpdateStats();
 		}
-
-		public void EncapsulateBounds(Piece piece)
-		{
-			List<Collider> allColliders = piece.GetAllColliders();
-			Door componentInChildren = piece.GetComponentInChildren<Door>();
-			if (!componentInChildren)
-			{
-				m_bounds.Encapsulate(piece.transform.localPosition);
-			}
-			for (int i = 0; i < allColliders.Count; i++)
-			{
-				Physics.IgnoreCollision(allColliders[i], m_blockingcollider, ignore: true); 
-				Physics.IgnoreCollision(allColliders[i], m_onboardcollider, ignore: true);
-			}
-			m_blockingcollider.size = new Vector3(m_bounds.size.x, 3f, m_bounds.size.z);
-			m_blockingcollider.center = new Vector3(m_bounds.center.x, -0.2f, m_bounds.center.z); 
-			m_onboardcollider.size = m_bounds.size;
-			m_onboardcollider.center = m_bounds.center;
-		}
+		 
+		//public void EncapsulateBounds(Piece piece)
+		//{
+		//	List<Collider> allColliders = piece.GetAllColliders();
+		//	Door componentInChildren = piece.GetComponentInChildren<Door>();
+		//	if (!componentInChildren)
+		//	{
+		//		m_bounds.Encapsulate(piece.transform.localPosition);
+		//	}
+		//	for (int i = 0; i < allColliders.Count; i++)
+		//	{
+		//		Physics.IgnoreCollision(allColliders[i], m_blockingcollider, ignore: true); 
+		//		Physics.IgnoreCollision(allColliders[i], m_onboardcollider, ignore: true);
+		//	}
+		//	//m_blockingcollider.size = new Vector3(m_bounds.size.x, 3f, m_bounds.size.z);
+		//	//m_blockingcollider.center = new Vector3(m_bounds.center.x, -0.2f, m_bounds.center.z); 
+		//	//m_onboardcollider.size = m_bounds.size;
+		//	//m_onboardcollider.center = m_bounds.center;
+		//}
 
 		public int GetPieceCount()
 		{

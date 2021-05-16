@@ -38,7 +38,7 @@ namespace Elevator
 				rudder2.SetActive(false);
 				if ((rudder > 0f && rudderValue < 1f) || (rudder < 0f && rudderValue > -1f))
 				{
-					__instance.m_shipRudderIcon.transform.Rotate(new Vector3(0f, 0f, 200f * (0f - rudder) * dt));
+					__instance.m_shipRudderIcon.transform.rotation = Quaternion.Euler(controlledElevator.rotation, 0f, 0f);
 				} 
 				__instance.m_shipRudderIndicator.gameObject.SetActive(value: false); 
 				 
@@ -57,6 +57,16 @@ namespace Elevator
             }
 			return true;
         }
+
+		[HarmonyPatch(typeof(Piece), "Awake")]
+		[HarmonyPostfix]
+		public static void Piece_Awake(Piece __instance)
+		{
+			if ((bool)__instance.m_nview && __instance.m_nview.m_zdo != null)
+			{
+				MoveableBaseRoot.InitPiece(__instance);
+			}
+		}
 
 		[HarmonyPatch(typeof(CharacterAnimEvent), "OnAnimatorIK")]
 		[HarmonyPrefix]
@@ -216,15 +226,10 @@ namespace Elevator
 			if (!componentInParent)
 			{
 				return true;
-			}
-			if (__instance.transform.localPosition.y < 1f)
-			{
-				__instance.m_nview.GetZDO().Set("support", 1500f);
-				return false;
-			}
+			} 
 			return false;
 		}
-
+		 
 		[HarmonyPatch(typeof(Player), "FindHoverObject")]
 		[HarmonyPrefix]
 		public static bool FindHoverObject(Player __instance, ref GameObject hover, ref Character hoverCreature)

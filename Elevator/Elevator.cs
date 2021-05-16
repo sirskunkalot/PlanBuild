@@ -10,7 +10,7 @@ namespace Elevator
     public class Elevator: Ship
     {
 
-        public static readonly KeyValuePair<int, int> ElevatorBaseParentHash = ZDO.GetHashZDOID("ElevatorBaseParent"); 
+        public static readonly KeyValuePair<int, int> ElevatorSupportHash = ZDO.GetHashZDOID("ElevatorSupport"); 
         public static readonly int ElevatorBasePositionHash = "ElevatorBasePosition".GetStableHashCode(); 
         public static readonly int ElevatorBaseRotationHash = "ElevatorBaseRotation".GetStableHashCode();
         public ElevatorControlls m_elevatorControlls;
@@ -22,6 +22,7 @@ namespace Elevator
         internal Transform planet3;
         internal Transform planet4;
         internal Transform crank;
+        internal float rotation;
 
         public new void Awake()
         {
@@ -48,11 +49,18 @@ namespace Elevator
             planet3 = pivotRight.Find("planet_3");
             planet4 = pivotRight.Find("planet_4");
             crank = transform.Find("New/crank");
+            m_support = FindElevatorSupport();
+            if (!m_support)
+            {
+                Jotunn.Logger.LogWarning(GetInstanceID() + ": No support for elevator @ " + this.transform.position + " " + gameObject.GetInstanceID());
+                return;
+            }
+            UpdateRotation();
         }
 
-        internal int GetElevatorID()
+        internal ZDOID GetElevatorID()
         {
-            return m_nview.GetZDO().GetInt(ElevatorSupport.zdoElevatorID); 
+            return m_nview.m_zdo.m_uid;
         }
 
         public new void ApplyMovementControlls(Vector3 direction)
@@ -68,7 +76,7 @@ namespace Elevator
         internal void SetSupport(ElevatorSupport elevatorSupport)
         {
             Jotunn.Logger.LogWarning(GetInstanceID() + ": Setting support for elevator @ " + this.transform.position + " " + gameObject.GetInstanceID() + ": " + elevatorSupport.GetInstanceID()); 
-            m_nview.GetZDO().Set(ElevatorSupport.zdoElevatorID, gameObject.GetInstanceID());
+            m_nview.GetZDO().Set(ElevatorSupportHash, elevatorSupport.m_nview.m_zdo.m_uid);
             m_support = elevatorSupport;
         }
 
@@ -82,6 +90,18 @@ namespace Elevator
             base.OnTriggerEnter(collider);
         }
 
+        public void Update()
+        {
+            if(!m_support)
+            {
+                m_support = FindElevatorSupport();
+                if(m_support)
+                {
+                    UpdateRotation();
+                }
+            }
+        }
+
         public new void FixedUpdate()
         {
             bool haveControllingPlayer = HaveControllingPlayer();
@@ -92,28 +112,28 @@ namespace Elevator
             }
             if (m_players.Count == 0)
             {
-                m_speed = Speed.Stop; 
+                m_speed = Speed.Stop;
             }
             if (!haveControllingPlayer && (m_speed == Speed.Slow || m_speed == Speed.Back))
             {
                 m_speed = Speed.Stop;
-            } 
-            if(m_speed == Speed.Stop)
+            }
+            if (m_speed == Speed.Stop)
             {
                 return;
             }
-            if(!m_support)
+            if (!m_support)
             {
                 m_support = FindElevatorSupport();
-                if(!m_support)
+                if (!m_support)
                 {
                     Jotunn.Logger.LogWarning(GetInstanceID() + ": No support for elevator @ " + this.transform.position + " " + gameObject.GetInstanceID());
                     return;
                 }
             }
-            
+
             Vector3 positionChange = Vector3.zero;
-            switch(m_speed)
+            switch (m_speed)
             {
                 case Speed.Stop:
                     return;
@@ -126,14 +146,19 @@ namespace Elevator
                     break;
                 case Speed.Back:
                     positionChange.y -= m_rudderSpeed * Time.fixedDeltaTime;
-                    break; 
+                    break;
             }
             m_body.MovePosition(transform.position + positionChange);
+            UpdateRotation();
+        }
+
+        private void UpdateRotation()
+        {
             float ropeLength = m_support.transform.position.y - transform.position.y;
 
             const float diameter = 1.270749f * Mathf.PI;
 
-            float rotation = ropeLength % diameter / diameter * 360f;
+            rotation = ropeLength % diameter / diameter * 360f;
 
             pivotLeft.localRotation = Quaternion.Euler(rotation, 0f, 0f);
             pivotRight.localRotation = Quaternion.Euler(-rotation, 0f, 0f);
@@ -146,15 +171,19 @@ namespace Elevator
 
         private ElevatorSupport FindElevatorSupport()
         {
-            int elevatorID = m_nview.GetZDO().GetInt(ElevatorSupport.zdoElevatorID);
-            foreach (ElevatorSupport worldElevatorSupport in FindObjectsOfType<ElevatorSupport>())
+            ZDOID elevatorSupportID = m_nview.GetZDO().GetZDOID(ElevatorSupportHash);
+            if(elevatorSupportID == ZDOID.None)
             {
-                if (worldElevatorSupport.GetElevatorID() == elevatorID)
-                {
-                    return worldElevatorSupport;
-                }
+                Jotunn.Logger.LogWarning("No ZDO Elevator Support set: " + this.transform.position);
+                return null;
             }
-            return null;
+            GameObject elevatorSupportObject = ZNetScene.instance.FindInstance(elevatorSupportID);
+            if(!elevatorSupportObject)
+            {
+                Jotunn.Logger.LogWarning("Stored Elevator Support not found!: " + elevatorSupportID);
+                return null;
+            }
+            return elevatorSupportObject.GetComponent<ElevatorSupport>();
         }
 
         public new void UpdateControlls(float dt)

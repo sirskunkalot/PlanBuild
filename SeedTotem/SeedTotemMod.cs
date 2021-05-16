@@ -24,7 +24,7 @@ namespace SeedTotem
     {
         public const string PluginGUID = "marcopogo.SeedTotem";
         public const string PluginName = "Seed Totem";
-        public const string PluginVersion = "1.1.2";
+        public const string PluginVersion = "1.1.3";
         public static ManualLogSource logger;
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
@@ -70,7 +70,8 @@ namespace SeedTotem
             SeedTotem.configCheckCultivated = Config.Bind("Server", "Check for cultivated ground", defaultValue: true, new ConfigDescription("Should the Seed totem also check for cultivated land?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             SeedTotem.configCheckBiome = Config.Bind("Server", "Check for correct biome", defaultValue: true, new ConfigDescription("Should the Seed totem also check for the correct biome?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             SeedTotem.configCustomRecipe = Config.Bind("Server", "Custom piece requirements", false, new ConfigDescription("Load custom piece requirements from " + SeedTotemPrefabConfig.requirementsFile + "?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-
+            SeedTotem.configMaxSeeds = Config.Bind("Server", "Max seeds in totem (0 is no limit)", defaultValue: 0, new ConfigDescription("Maximum number of seeds in each totem, 0 is no limit", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+             
             //client configs
             SeedTotem.configShowQueue = Config.Bind<bool>("UI", "Show queue", defaultValue: true, new ConfigDescription("Show the current queue on hover"));
             SeedTotem.configGlowColor = Config.Bind<Color>("Graphical", "Glow lines color", new Color(0f, 0.8f, 0f, 1f), new ConfigDescription("Color of the glowing lines on the Seed totem"));

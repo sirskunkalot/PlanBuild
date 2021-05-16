@@ -24,6 +24,7 @@ namespace Elevator
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class ElevatorPlugin : BaseUnityPlugin
     {
+        public const int ElevatorLayer = 29;
         public const string PluginGUID = "marcopogo.Elevator";
         public const string PluginName = "Elevator";
         public const string PluginVersion = "0.0.1";
@@ -41,13 +42,7 @@ namespace Elevator
 
             harmony = new Harmony(PluginGUID);
             harmony.PatchAll(typeof(Patches));
-            // Do all your init stuff here
-            // Acceptable value ranges can be defined to allow configuration via a slider in the BepInEx ConfigurationManager: https://github.com/BepInEx/BepInEx.ConfigurationManager
-            Config.Bind<int>("Main Section", "Example configuration integer", 1, new ConfigDescription("This is an example config, using a range limitation for ConfigurationManager", new AcceptableValueRange<int>(0, 100)));
-
-            // Jotunn comes with its own Logger class to provide a consistent Log style for all mods using it
-            Jotunn.Logger.LogInfo("ModStub has landed");
-
+            
             ItemManager.OnVanillaItemsAvailable += RegisterCustomItems;
             PrefabManager.OnPrefabsRegistered += ApplyKitBash;
         }
@@ -363,8 +358,7 @@ namespace Elevator
             GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_base");
             elevatorBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             elevatorBasePrefab.name = "piece_elevator";
-            elevatorBasePrefab.AddComponent<Elevator>();
-            elevatorBasePrefab.AddComponent<MoveableBaseRoot>();
+            elevatorBasePrefab.AddComponent<Elevator>(); 
             elevatorBasePrefab.AddComponent<MoveableBaseElevatorSync>();
             elevatorBasePrefab.transform.Find("wheel_collider").gameObject.AddComponent<ElevatorControlls>();
             PrefabManager.Instance.AddPrefab(elevatorBasePrefab);

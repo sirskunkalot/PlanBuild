@@ -39,6 +39,7 @@ namespace SeedTotem
         internal static ConfigEntry<bool> configCheckCultivated;
         internal static ConfigEntry<bool> configCheckBiome;
         internal static ConfigEntry<bool> configCustomRecipe;
+        internal static ConfigEntry<int> configMaxSeeds;
 
         //TODO: Keep list of previous valid plant locations, to avoid raycasting all the time
         
@@ -327,7 +328,12 @@ namespace SeedTotem
 
         private void UpdateHoverText()
         {
-            StringBuilder sb = new StringBuilder(GetHoverName() + " (" + GetTotalSeedCount() + ")\n");
+            StringBuilder sb = new StringBuilder(GetHoverName() + " (" + GetTotalSeedCount());
+            if(configMaxSeeds.Value > 0)
+            {
+                sb.Append("/" + configMaxSeeds.Value);
+            }
+            sb.Append(")\n");
 
             string restrict = GetRestrict();
             string seedName = messageSeedGenericSingular;
@@ -521,6 +527,16 @@ namespace SeedTotem
                 return false;
             }
 
+            if(configMaxSeeds.Value > 0)
+            {
+                int currentSeeds = GetTotalSeedCount();
+                if(currentSeeds >= configMaxSeeds.Value)
+                {
+                    user.Message(MessageHud.MessageType.Center, "$msg_itsfull");
+                    return false;
+                }
+            }
+
             user.GetInventory().RemoveItem(seedName, 1);
             m_nview.InvokeRPC("AddSeed", seedName, 1);
 
@@ -534,6 +550,7 @@ namespace SeedTotem
         {
             string restrict = GetRestrict();
             StringBuilder builder = new StringBuilder();
+            bool added = false;
             foreach (string seedName in seedPrefabMap.Keys)
             {
                 if (restrict != "" && restrict != seedName)
@@ -542,9 +559,26 @@ namespace SeedTotem
                 }
 
                 logger.LogDebug("Looking for seed " + seedName);
-
                 int amount = user.GetInventory().CountItems(seedName);
-                if (amount != 0)
+                if(configMaxSeeds.Value > 0)
+                {
+                    int currentSeedsCount = GetTotalSeedCount();
+                    int spaceLeft = configMaxSeeds.Value - currentSeedsCount;
+                    if(spaceLeft < 0)
+                    {
+                        if (added)
+                        {
+                            return true;
+                        }
+                        else
+                        {
+                            user.Message(MessageHud.MessageType.Center, "$msg_itsfull");
+                            return false;
+                        }
+                    }
+                    amount = Math.Min(spaceLeft, amount);
+                }
+                if (amount > 0)
                 {
                     m_nview.InvokeRPC("AddSeed", seedName, amount);
                     user.GetInventory().RemoveItem(seedName, amount);

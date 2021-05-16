@@ -31,6 +31,7 @@ Most values are configurable:
     Dispersion time: Time (in seconds) between each dispersion (default: 10)
     Space requirement margin: Extra distance to make sure plants have enough space (default: 0.1)
     Max retries: Number of retries when randomly sampling possible planting locations(default: 8) (Don't increase too much, can cause lag!)
+    Max seeds in totem: Soft limit of number of seeds (like the Kiln or Smelters), 0 is no limit (default: 0)
     Dispersion count: Maximum number of plants to place when dispersing (default: 5)
     Harvest on hit: Should the Seed totem send out a wave to pick all pickables in radius when damaged? (default: true)
     Check for cultivated ground: Should the Seed totem also check for cultivated land? (default: true)
