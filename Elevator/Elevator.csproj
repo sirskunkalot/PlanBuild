@@ -77,9 +77,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Elevator.cs" />
-    <Compile Include="ElevatorControlls.cs" />
-    <Compile Include="ElevatorSupport.cs" />
+    <Compile Include="Pulley.cs" />
+    <Compile Include="PulleyControlls.cs" />
+    <Compile Include="PulleySupport.cs" />
     <Compile Include="MoveableBaseElevatorSync.cs" />
     <Compile Include="MoveableBaseRoot.cs" />
     <Compile Include="Patches.cs" />

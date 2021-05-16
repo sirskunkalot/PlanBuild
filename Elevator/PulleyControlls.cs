@@ -8,11 +8,12 @@ using UnityEngine;
 
 namespace Elevator
 {
-    public class ElevatorControlls : ShipControlls
+    public class PulleyControlls : ShipControlls
     {
-        private Transform m_handAttach;
-        private Collider m_wheelCollider;
-        internal Elevator m_elevator;
+        private Transform m_handAttach; 
+        internal Pulley m_elevator;
+        private MoveableBaseRoot m_baseRoot;
+
 
         public new void Awake()
         {
@@ -20,11 +21,11 @@ namespace Elevator
             m_nview.Register<ZDOID>("RequestControl", RPC_RequestControl);
             m_nview.Register<ZDOID>("ReleaseControl", RPC_ReleaseControl);
             m_nview.Register<bool>("RequestRespons", RPC_RequestRespons);
-            m_elevator = GetComponentInParent<Elevator>();
-            m_ship = m_elevator;
-            m_handAttach = transform.parent.Find("New/crank/handattach").transform;
-            m_wheelCollider = GetComponent<Collider>();
-            m_attachPoint = m_ship.transform.Find("attachpoint");
+            m_elevator = GetComponentInParent<Pulley>();
+            m_baseRoot = GetComponentInParent<MoveableBaseRoot>();
+            m_ship = m_baseRoot;
+            m_handAttach = m_elevator.transform.Find("New/crank/handattach").transform; 
+            m_attachPoint = m_elevator.transform.Find("attachpoint");
         }
 
         public new void OnUseStop(Player player)
@@ -33,6 +34,7 @@ namespace Elevator
           //  Physics.IgnoreCollision(m_wheelCollider, Player.m_localPlayer.GetComponent<Collider>(), ignore: false);
             base.OnUseStop(player);
         }
+         
           
         public new void RPC_RequestControl(long sender, ZDOID playerID)
         {
@@ -57,6 +59,7 @@ namespace Elevator
             {
                 Player.m_localPlayer.m_animator.SetIKPosition(AvatarIKGoal.RightHand, m_handAttach.position);
                 Player.m_localPlayer.m_animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);
+                m_baseRoot.SetActiveControll(this);
              //   Physics.IgnoreCollision(m_wheelCollider, Player.m_localPlayer.GetComponent<Collider>());
             }
             base.RPC_RequestRespons(sender, granted);

@@ -73,8 +73,41 @@ namespace Elevator
                 },
                 new KitBashConfig
                 {
+                    name = "pivot_gear",
+                    targetParentPath = "New/pivot",
+                    sourcePrefab = "piece_artisanstation",
+                    sourcePath = "ArtisanTable_Destruction/ArtisanTable_Destruction.007_ArtisanTable.019",
+                    materialPath = "New/high/ArtisanTable.004",
+                    position = new Vector3(-1.904f, 1.365f, -0.2620001f),
+                    rotation = Quaternion.Euler(180f, 180f, 98.78699f),
+                    scale = new Vector3(1.4f, 1.4f, 1f),
+                    materialRemap = new int[]{ 1, 0 }
+                },
+                new KitBashConfig
+                {
+                    name = "support_left",
+                    targetParentPath = "New/pivot",
+                    sourcePrefab = "piece_spinningwheel",
+                    sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.011_SpinningWheel_Broken.027",
+                    materialPath = "New/High/SpinningWheel",
+                    position = new Vector3(-0.2338867f, -0.913f, 0.72f),
+                    rotation = Quaternion.Euler(283.043f, -168.623f, 205.604f),
+                    scale = Vector3.one  * -1
+                },
+                new KitBashConfig
+                {
+                    name = "support_right",
+                    targetParentPath = "New/pivot",
+                    sourcePrefab = "piece_spinningwheel",
+                    sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.011_SpinningWheel_Broken.027",
+                    materialPath = "New/High/SpinningWheel",
+                    position = new Vector3(0.223f, -0.913f, 0.72f),
+                    rotation = Quaternion.Euler(-283.095f, -11.332f, 25.65f)
+                },
+                new KitBashConfig
+                {
                     name = "wheel_left",
-                    targetParentPath = "New/pivot_left",
+                    targetParentPath = "New/pivot/pivot_left",
                     sourcePrefab = "piece_spinningwheel",
                     sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.002_SpinningWheel_Broken.018",
                     materialPath = "New/High/SpinningWheel",
@@ -84,34 +117,14 @@ namespace Elevator
                 new KitBashConfig
                 {
                     name = "wheel_right",
-                    targetParentPath = "New/pivot_right",
+                    targetParentPath = "New/pivot/pivot_right",
                     sourcePrefab = "piece_spinningwheel",
                     sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.002_SpinningWheel_Broken.018",
                     materialPath = "New/High/SpinningWheel",
                     position = new Vector3(-0.07488656f, -0.8700893f, -1.121964f),
                     rotation = Quaternion.Euler(-270.04f, 0, 0)
                 },
-                 new KitBashConfig
-                {
-                    name = "support_left",
-                    targetParentPath = "New",
-                    sourcePrefab = "piece_spinningwheel",
-                    sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.011_SpinningWheel_Broken.027",
-                    materialPath = "New/High/SpinningWheel",
-                    position = new Vector3(-0.2338867f, 0.1241241f, 0.689f),
-                    rotation = Quaternion.Euler(281.91f, -167.542f, 204.497f),
-                    scale = Vector3.one  * -1
-                }, 
-                new KitBashConfig
-                {
-                    name = "support_right",
-                    targetParentPath = "New",
-                    sourcePrefab = "piece_spinningwheel",
-                    sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.011_SpinningWheel_Broken.027",
-                    materialPath = "New/High/SpinningWheel",
-                    position = new Vector3(0.223f, 0.1341143f, 0.7010067f),
-                    rotation = Quaternion.Euler(-281.961f, -12.404f, 24.551f)
-                },
+                 
             };
             KitBash(elevatorSupportPrefab, elevatorSupportKitBashes); 
             GameObject raft = PrefabManager.Instance.GetPrefab("Raft");
@@ -157,7 +170,7 @@ namespace Elevator
                     sourcePrefab = "piece_spinningwheel",
                     sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.002_SpinningWheel_Broken.018",
                     materialPath = "New/High/SpinningWheel",
-                    position = new Vector3(0.06511331f, -1.12f, -0.89f),
+                    position = new Vector3(0.06511331f, -1.12f, -0.855f),
                     rotation = Quaternion.Euler(0, 180, 0)
                 },
                 new KitBashConfig
@@ -350,7 +363,7 @@ namespace Elevator
             {
                 PieceTable = "Hammer"
             }));
-            elevatorSupportPrefab.AddComponent<ElevatorSupport>();
+            elevatorSupportPrefab.AddComponent<PulleySupport>();
         }
 
         private void SetupElevatorBase()
@@ -359,7 +372,6 @@ namespace Elevator
             elevatorBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             elevatorBasePrefab.name = "piece_elevator";
             elevatorBasePrefab.AddComponent<MoveableBaseElevatorSync>();
-            elevatorBasePrefab.transform.Find("wheel_collider").gameObject.AddComponent<ElevatorControlls>();
             PieceManager.Instance.AddPiece(new CustomPiece(elevatorBasePrefab, new PieceConfig()
             {
                 PieceTable = "Hammer"

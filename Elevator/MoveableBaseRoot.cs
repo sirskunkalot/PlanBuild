@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 namespace Elevator
 {
-	public class MoveableBaseRoot : MonoBehaviour
+	public class MoveableBaseRoot : Ship
 	{
 		public static readonly KeyValuePair<int, int> MBParentHash = ZDO.GetHashZDOID("MBParent");
 
@@ -19,10 +19,8 @@ namespace Elevator
 		public static Dictionary<ZDOID, List<Piece>> m_pendingPieces = new Dictionary<ZDOID, List<Piece>>();
 
 		public MoveableBaseElevatorSync m_moveableBaseSync;
-		  
-		public ZNetView m_nview;
-		 
-		public Elevator m_elevator;
+		    
+		public List<Pulley> m_pulleys = new List<Pulley>();
 
 		public List<Piece> m_pieces = new List<Piece>();
 
@@ -46,17 +44,52 @@ namespace Elevator
 
 		public bool m_statsOverride;
 
-		public void Awake()
-		{
-			m_elevator = gameObject.GetComponent<Elevator>();
+		private float highestFloor;
+
+		public new void Awake()
+		{ 
+			Heightmap.GetHeight(transform.position, out highestFloor);
+			m_body = GetComponent<Rigidbody>();
+			m_shipControlls = GetComponentInChildren<PulleyControlls>();
+			InvokeRepeating("UpdateHeightMap", 10f, 10f);
 
 			//m_blockingcollider = gameObject.transform.Find("collider").GetComponent<BoxCollider>();
 			//m_onboardcollider = gameObject.transform.Find("OnBoardTrigger").GetComponent<BoxCollider>();
 			//m_bounds = m_onboardcollider.bounds;
-			m_nview = GetComponent<ZNetView>();
+			// m_nview = GetComponent<ZNetView>(); 
+			// 
+			// if (m_nview.GetZDO() == null)
+			// {
+			// 	enabled = false;
+			// }
+
 		}
 
-		public void CleanUp()
+		public void UpdateHeightMap()
+		{ 
+			Heightmap.GetHeight(transform.position, out highestFloor);
+			foreach (Piece piece in m_pieces)
+			{
+				if (Heightmap.GetHeight(piece.transform.position, out float floorHeight))
+				{
+					highestFloor = Math.Max(floorHeight, highestFloor);
+				}
+			}
+#if DEBUG
+			Jotunn.Logger.LogInfo("Updated max floor height to: " + highestFloor);
+#endif
+		}
+
+		internal void AddPulley(Pulley pulley)
+        {
+			m_pulleys.Add(pulley);
+			if(!m_shipControlls)
+            {
+				SetActiveControll(pulley.m_elevatorControlls);
+            }
+        }
+
+        public void CleanUp()
 		{
 			if (!ZNetScene.instance || !ZNetScene.instance.m_netSceneRoot || !(m_id != ZDOID.None))
 			{
@@ -79,8 +112,17 @@ namespace Elevator
 				}
 			}
 		}
-		  
-		public void LateUpdate()
+
+        internal void SetActiveControll(PulleyControlls pulleyControlls)
+        {
+#if DEBUG
+			Jotunn.Logger.LogInfo(m_nview.m_zdo.m_uid + " Setting active control: " + pulleyControlls.m_nview.m_zdo.m_uid);
+#endif
+			m_shipControlls = pulleyControlls;
+			m_controlGuiPos = pulleyControlls.m_elevator.m_controlGuiPos;
+        }
+
+        public void LateUpdate()
 		{ 
 			Vector2i zone = ZoneSystem.instance.GetZone(transform.position);
 			if (zone != m_sector)
@@ -329,36 +371,145 @@ namespace Elevator
 			UpdateStats();
 		}
 
-		public void OnTriggerEnter(Collider collider)
+		public new void ApplyMovementControlls(Vector3 direction)
 		{
-			m_elevator?.OnTriggerEnter(collider);
+			base.ApplyMovementControlls(direction);
 		}
 
-		public void OnTriggerExit(Collider collider)
+		public new void UpdateSail(float dt)
 		{
-			m_elevator?.OnTriggerExit(collider);
+			//Nothing to do
 		}
 
-		//public void EncapsulateBounds(Piece piece)
-		//{
-		//	List<Collider> allColliders = piece.GetAllColliders();
-		//	Door componentInChildren = piece.GetComponentInChildren<Door>();
-		//	if (!componentInChildren)
-		//	{
-		//		m_bounds.Encapsulate(piece.transform.localPosition);
-		//	}
-		//	for (int i = 0; i < allColliders.Count; i++)
-		//	{
-		//		Physics.IgnoreCollision(allColliders[i], m_blockingcollider, ignore: true); 
-		//		Physics.IgnoreCollision(allColliders[i], m_onboardcollider, ignore: true);
-		//	}
-		//	//m_blockingcollider.size = new Vector3(m_bounds.size.x, 3f, m_bounds.size.z);
-		//	//m_blockingcollider.center = new Vector3(m_bounds.center.x, -0.2f, m_bounds.center.z); 
-		//	//m_onboardcollider.size = m_bounds.size;
-		//	//m_onboardcollider.center = m_bounds.center;
-		//}
+		public new Ship.Speed GetSpeed()
+		{
+			//Only used by MusicMan
+			return Speed.Stop;
+		}
 
-		public int GetPieceCount()
+		public new void UpdateSailSize(float dt)
+		{
+			//Nothing to do
+		}
+
+		public new void OnTriggerEnter(Collider collider)
+		{
+			base.OnTriggerEnter(collider);
+		}
+
+
+		public new void OnTriggerExit(Collider collider)
+		{
+			base.OnTriggerExit(collider);
+		}
+
+		public new void UpdateControlls(float dt)
+		{
+			if (m_nview.IsOwner())
+			{
+				m_nview.GetZDO().Set("forward", (int)m_speed);
+				return;
+			}
+			m_speed = (Speed)m_nview.GetZDO().GetInt("forward");
+		}
+
+		public float GetShortestRope()
+        {
+			float shortest = float.MaxValue;
+			foreach(Pulley pulley in m_pulleys)
+            {
+				if(pulley.IsConnected())
+                {
+					shortest = Math.Min(shortest, pulley.GetRopeLength());
+                }
+            }
+			return shortest;
+        }
+
+		public new void FixedUpdate()
+		{
+			bool haveControllingPlayer = HaveControllingPlayer();
+			UpdateControlls(Time.fixedDeltaTime);
+			if (m_nview && !m_nview.IsOwner())
+			{
+				return;
+			}
+			if (m_players.Count == 0)
+			{
+				m_speed = Speed.Stop;
+			}
+			if (!haveControllingPlayer && (m_speed == Speed.Slow || m_speed == Speed.Back))
+			{
+				m_speed = Speed.Stop;
+			}
+			if (m_speed == Speed.Stop)
+			{
+				return;
+			}
+
+			float ropeLength = GetShortestRope(); 
+			Vector3 positionChange = Vector3.zero;
+			switch (m_speed)
+			{
+				case Speed.Stop:
+					return;
+				case Speed.Half:
+				case Speed.Full:
+					m_speed = Speed.Slow;
+					goto case Speed.Slow;
+				case Speed.Slow:
+					float ropeLeftUp = ropeLength - 3f;
+					positionChange.y += Math.Min(m_rudderSpeed * Time.fixedDeltaTime, ropeLeftUp);
+					break;
+				case Speed.Back:
+					float ropeLeftDown = transform.position.y - highestFloor;
+					positionChange.y -= Math.Min(m_rudderSpeed * Time.fixedDeltaTime, ropeLeftDown);
+					break;
+			}
+			if (!m_body)
+			{
+				m_body = GetComponentInParent<Rigidbody>();
+				if (!m_body)
+				{
+					Jotunn.Logger.LogWarning("No rigid body!");
+					return;
+				}
+			}
+			m_body.MovePosition(transform.position + positionChange);
+			UpdateRotation();
+		}
+
+        private void UpdateRotation()
+        {
+			foreach (Pulley pulley in m_pulleys)
+			{
+				if (pulley.IsConnected())
+				{
+					pulley.UpdateRotation();
+				}
+			}
+		}
+		 
+        //public void EncapsulateBounds(Piece piece)
+        //{
+        //	List<Collider> allColliders = piece.GetAllColliders();
+        //	Door componentInChildren = piece.GetComponentInChildren<Door>();
+        //	if (!componentInChildren)
+        //	{
+        //		m_bounds.Encapsulate(piece.transform.localPosition);
+        //	}
+        //	for (int i = 0; i < allColliders.Count; i++)
+        //	{
+        //		Physics.IgnoreCollision(allColliders[i], m_blockingcollider, ignore: true); 
+        //		Physics.IgnoreCollision(allColliders[i], m_onboardcollider, ignore: true);
+        //	}
+        //	//m_blockingcollider.size = new Vector3(m_bounds.size.x, 3f, m_bounds.size.z);
+        //	//m_blockingcollider.center = new Vector3(m_bounds.center.x, -0.2f, m_bounds.center.z); 
+        //	//m_onboardcollider.size = m_bounds.size;
+        //	//m_onboardcollider.center = m_bounds.center;
+        //}
+
+        public int GetPieceCount()
 		{
 			return m_pieces.Count;
 		}

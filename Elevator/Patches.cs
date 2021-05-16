@@ -17,7 +17,7 @@ namespace Elevator
 		[HarmonyPrefix]
 		public static bool UpdateShipHud(Hud __instance, Player player, float dt)
         {
-            Elevator controlledElevator = player.GetControlledShip() as Elevator;
+            MoveableBaseRoot controlledElevator = player.GetControlledShip() as MoveableBaseRoot;
 			if(controlledElevator)
             {
 				Ship.Speed speedSetting = controlledElevator.GetSpeedSetting();
@@ -35,19 +35,9 @@ namespace Elevator
                 __instance.m_shipWindIconRoot.gameObject.SetActive(false);
 				__instance.m_shipWindIndicatorRoot.gameObject.SetActive(false);
 				GameObject rudder2 = __instance.m_rudder; 
-				rudder2.SetActive(false);
-				if ((rudder > 0f && rudderValue < 1f) || (rudder < 0f && rudderValue > -1f))
-				{
-					__instance.m_shipRudderIcon.transform.rotation = Quaternion.Euler(controlledElevator.rotation, 0f, 0f);
-				} 
+				rudder2.SetActive(false); 
 				__instance.m_shipRudderIndicator.gameObject.SetActive(value: false); 
-				 
-				float shipYawAngle = controlledElevator.GetShipYawAngle();
-				__instance.m_shipWindIndicatorRoot.localRotation = Quaternion.Euler(0f, 0f, shipYawAngle);
-				float windAngle = controlledElevator.GetWindAngle();
-				__instance.m_shipWindIconRoot.localRotation = Quaternion.Euler(0f, 0f, windAngle);
-				float windAngleFactor = controlledElevator.GetWindAngleFactor();
-				__instance.m_shipWindIcon.color = Color.Lerp(new Color(0.2f, 0.2f, 0.2f, 1f), Color.white, windAngleFactor);
+				  
 				Camera mainCamera = Utils.GetMainCamera();
 				if (!(mainCamera == null))
 				{
@@ -75,7 +65,7 @@ namespace Elevator
 			Player player = __instance.m_character as Player;
 			if (player && player.IsAttached() && player.m_attachPoint && player.m_attachPoint.parent)
 			{
-				Elevator elevator = player.m_attachPoint.parent.GetComponent<Elevator>();
+				Pulley elevator = player.m_attachPoint.parent.GetComponent<Pulley>();
 				if (elevator)
 				{
 					elevator.m_elevatorControlls.UpdateIK(player.m_animator);
@@ -128,7 +118,7 @@ namespace Elevator
 
 		public static bool SetShipControl(Player __instance, ref Vector3 moveDir)
         {
-            Elevator elevator = __instance.GetControlledShip() as Elevator;
+            MoveableBaseRoot elevator = __instance.GetControlledShip() as MoveableBaseRoot;
 			if(elevator)
             {
 				elevator.ApplyMovementControlls(moveDir);
@@ -213,7 +203,7 @@ namespace Elevator
 		{
 			m_lastRayPiece = piece;
 		}
-
+		  
 		[HarmonyPatch(typeof(WearNTear), "UpdateSupport")]
 		[HarmonyPrefix]
 		public static bool UpdateSupport(WearNTear __instance)
