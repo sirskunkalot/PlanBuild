@@ -160,5 +160,14 @@ namespace Pulleys
                 rope.Update(m_pulley);
             }  
         }
+
+        internal bool CanBeRemoved()
+        {
+            if(!m_pulley)
+            {
+                return true;
+            }
+            return m_pulley.CanBeRemoved();
+        }
     }
 }

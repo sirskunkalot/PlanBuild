@@ -370,7 +370,7 @@ namespace Pulleys
             GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_base");
             pulleyBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
             pulleyBasePrefab.name = "piece_pulley_base";
-            pulleyBasePrefab.AddComponent<MoveableBaseSync>();
+            pulleyBasePrefab.AddComponent<MoveableBaseSync>(); 
             PieceManager.Instance.AddPiece(new CustomPiece(pulleyBasePrefab, new PieceConfig()
             {
                 PieceTable = "Hammer"

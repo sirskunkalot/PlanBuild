@@ -23,6 +23,7 @@ namespace Pulleys
         internal float rotation;
         public Transform m_controlGuiPos;
         internal ZNetView m_nview;
+        internal MoveableBaseRoot m_baseRoot;
 
         private int m_supportRayMask;
 
@@ -30,6 +31,12 @@ namespace Pulleys
         {
             m_supportRayMask = LayerMask.GetMask("piece");
             m_nview = GetComponent<ZNetView>();
+            
+            if(!m_nview || !m_nview.IsValid())
+            {
+                return;
+            } 
+
             WearNTear wearNTear = GetComponent<WearNTear>();
             wearNTear.m_onDestroyed += OnDestroyed;
             m_pulleyControlls = transform.Find("wheel_collider").gameObject.AddComponent<PulleyControlls>();
@@ -58,6 +65,7 @@ namespace Pulleys
         private void OnDestroyed()
         {
             m_support?.PulleyBaseDestroyed(this);
+            m_pulleyControlls.m_baseRoot?.RemovePulley(this);
         }
 
         internal void SupportDestroyed(PulleySupport pulleySupport)
@@ -100,9 +108,9 @@ namespace Pulleys
             return m_nview.m_zdo.m_uid;
         }
 
-        internal void UpdateRotation()
+        internal void UpdateRotation(float defaultRopeLength = 0f)
         {
-            float ropeLength = GetRopeLength();
+            float ropeLength = GetRopeLength(defaultRopeLength);
             
             const float diameter = 1.270749f * Mathf.PI;
 
@@ -142,9 +150,22 @@ namespace Pulleys
             return m_support != null;
         }
 
-        internal float GetRopeLength()
+        internal float GetRopeLength(float defaultRopeLength = 0f)
         { 
+            if(!m_support)
+            {
+                return defaultRopeLength;
+            }
             return m_support.transform.position.y - transform.position.y;
+        }
+
+        internal bool CanBeRemoved()
+        {
+            if(!m_baseRoot)
+            {
+                return true;
+            }
+            return m_baseRoot.m_pulleys.Count(pulley => pulley.IsConnected()) > 1;
         }
     }
 }

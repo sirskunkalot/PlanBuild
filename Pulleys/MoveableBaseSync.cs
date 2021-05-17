@@ -1,18 +1,23 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Pulleys
 {
     public class MoveableBaseSync: MonoBehaviour
     {
+		 
 		public MoveableBaseRoot m_baseRoot;
 
 		public Rigidbody m_rigidbody;
 
 		public ZNetView m_nview;
-
+		public bool m_follower;
 		public GameObject m_baseRootObject;
 		private bool activatedPendingPieces = false;
-		public void Awake()
+        internal Pulley m_pulley;
+
+        public void Awake()
         {
 			m_nview = GetComponent<ZNetView>();
 
@@ -24,11 +29,22 @@ namespace Pulleys
             {
 				return;
             }
-			m_baseRoot = GetComponentInParent<MoveableBaseRoot>();
-			if(!m_baseRoot)
+			m_pulley = gameObject.AddComponent<Pulley>();
+			m_pulley.m_baseRoot = m_baseRoot;
+			
+			ZDOID zDOID = m_nview.GetZDO().GetZDOID(MoveableBaseRoot.MBParentHash);
+            if (zDOID != ZDOID.None)
             {
 #if DEBUG
-				Jotunn.Logger.LogInfo("Creating MoveableBaseRoot");
+                Jotunn.Logger.LogWarning(m_nview.m_zdo.m_uid + " Pulley part of existing base, setting as follower");
+
+#endif
+				this.m_follower = true; 
+            }
+			if(!m_follower)
+            {
+#if DEBUG
+				Jotunn.Logger.LogInfo(m_nview.m_zdo.m_uid + " Creating MoveableBaseRoot");
 #endif
 				m_baseRootObject = new GameObject
 				{
@@ -48,21 +64,20 @@ namespace Pulleys
 				activatedPendingPieces = m_baseRoot.ActivatePendingPieces();
 				m_baseRoot.m_moveableBaseSync = this;
 				m_baseRoot.m_nview = m_nview;
-				m_baseRoot.m_id = m_nview.m_zdo.m_uid;
-            }
+				m_baseRoot.m_id = m_nview.m_zdo.m_uid; 
+			}
 #if DEBUG
 			else
             {
-				Jotunn.Logger.LogDebug("Attaching to existing MoveableBaseRoot");
+				Jotunn.Logger.LogDebug(m_nview.m_zdo.m_uid + " Attached to existing MoveableBaseRoot");
             }
 #endif 
-			Pulley pulley = gameObject.AddComponent<Pulley>();
-			m_baseRoot.AddPulley(pulley);
+			m_baseRoot?.AddPulley(m_pulley);
 		}
 
 		public void Update()
         {
-			if (!m_nview || !m_nview.IsValid())
+			if (m_follower || !m_nview || !m_nview.IsValid() || !m_baseRoot)
 			{
 				return;
 			}
@@ -74,12 +89,18 @@ namespace Pulleys
 
 		public void OnDestroy()
 		{
-			if ((bool)m_baseRoot)
+			if ((bool)m_baseRoot && !m_follower)
 			{
-				m_baseRoot.CleanUp();
-                Destroy(m_baseRoot.gameObject);
+				if(m_baseRoot.OnBaseRootDestroy(this))
+                {
+					Destroy(m_baseRoot.gameObject);
+                }
 			}
 		}
 
-	}
+        internal ZDOID GetZDOID()
+        {
+			return m_nview.m_zdo.m_uid;
+        }
+    }
 }

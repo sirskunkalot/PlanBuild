@@ -12,7 +12,7 @@ namespace Pulleys
     {
         private Transform m_handAttach; 
         internal Pulley m_pulley;
-        private MoveableBaseRoot m_baseRoot;
+        internal MoveableBaseRoot m_baseRoot;
 
 
         public new void Awake()
@@ -26,6 +26,11 @@ namespace Pulleys
             m_ship = m_baseRoot;
             m_handAttach = m_pulley.transform.Find("New/crank/handattach").transform; 
             m_attachPoint = m_pulley.transform.Find("attachpoint");
+        }
+
+        public new bool Interact(Humanoid user, bool hold)
+        {
+            return base.Interact(user, hold);
         }
 
         public new void OnUseStop(Player player)
@@ -64,8 +69,7 @@ namespace Pulleys
             }
             base.RPC_RequestRespons(sender, granted);
         }
-
-
+         
 
         [HarmonyPatch(typeof(Player), "SetControls")]
         [HarmonyPrefix]
@@ -82,7 +86,7 @@ namespace Pulleys
         internal void UpdateIK(Animator m_animator)
         {
 #if DEBUG
-            Jotunn.Logger.LogInfo("HandAttach: Position: " + m_handAttach.position);
+            //Jotunn.Logger.LogInfo("HandAttach: Position: " + m_handAttach.position);
 #endif
             m_animator.SetIKPosition(AvatarIKGoal.RightHand, m_handAttach.position);
             m_animator.SetIKPositionWeight(AvatarIKGoal.RightHand, 1f);

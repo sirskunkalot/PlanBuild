@@ -199,11 +199,36 @@ namespace Pulleys
 
 		[HarmonyPatch(typeof(Player), "PieceRayTest")]
 		[HarmonyPostfix]
-		public static void PieceRayTestPostfix(Player __instance, ref bool __result, ref Vector3 point, ref Vector3 normal, ref Piece piece, ref Heightmap heightmap, ref Collider waterSurface, bool water)
+		public static void PieceRayTestPostfix(Piece piece)
 		{
 			m_lastRayPiece = piece;
 		}
-		  
+
+		[HarmonyPatch(typeof(Player), "CheckCanRemovePiece")]
+		[HarmonyPrefix]
+		public static bool CheckCanRemovePiecePrefix(Player __instance, ref bool __result, Piece piece)
+		{
+            if(piece.TryGetComponent(out Pulley pulley))
+            { 
+				if(!pulley.CanBeRemoved())
+                {
+					__instance.Message(MessageHud.MessageType.Center, "$msg_pulley_is_supporting");
+					__result = false;
+					return false;
+				}
+            }
+			if (piece.TryGetComponent(out PulleySupport pulleySupport))
+			{
+				if (!pulleySupport.CanBeRemoved())
+				{
+					__instance.Message(MessageHud.MessageType.Center, "$msg_pulley_is_supporting");
+					__result = false;
+					return false;
+				}
+			}
+			return true;
+		}
+
 		[HarmonyPatch(typeof(WearNTear), "UpdateSupport")]
 		[HarmonyPrefix]
 		public static bool UpdateSupport(WearNTear __instance)

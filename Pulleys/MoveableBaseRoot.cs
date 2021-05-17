@@ -17,16 +17,17 @@ namespace Pulleys
 		public static Dictionary<ZDOID, List<Piece>> m_pendingPieces = new Dictionary<ZDOID, List<Piece>>();
 
 		public MoveableBaseSync m_moveableBaseSync;
-		    
+		public readonly List<MoveableBaseSync> m_followers = new List<MoveableBaseSync>();    
 		public readonly List<Pulley> m_pulleys = new List<Pulley>();
 
 		public readonly List<Piece> m_pieces = new List<Piece>();
 
-		// public Rigidbody m_syncRigidbody;
+        // public Rigidbody m_syncRigidbody;
 
-		//public List<RudderComponent> m_rudderPieces = new List<RudderComponent>();
+        //public List<RudderComponent> m_rudderPieces = new List<RudderComponent>();
 
-		public List<Piece> m_portals = new List<Piece>();
+        public readonly List<Piece> m_portals = new List<Piece>();
+
 
 		public Vector2i m_sector;
 
@@ -43,9 +44,11 @@ namespace Pulleys
 		public bool m_statsOverride;
 
 		private float highestFloor;
+        private int m_supportRayMask;
 
-		public new void Awake()
+        public new void Awake()
 		{ 
+			m_supportRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece");
 			Heightmap.GetHeight(transform.position, out highestFloor);
 			m_body = GetComponent<Rigidbody>();
 			m_shipControlls = GetComponentInChildren<PulleyControlls>();
@@ -68,11 +71,18 @@ namespace Pulleys
 			Heightmap.GetHeight(transform.position, out highestFloor);
 			foreach (Piece piece in m_pieces)
 			{
-				if (Heightmap.GetHeight(piece.transform.position, out float floorHeight))
-				{
-					highestFloor = Math.Max(floorHeight, highestFloor);
-				}
+				if(Physics.Raycast(piece.transform.position, piece.transform.up * -1f,   out var hitInfo, 2000f, m_supportRayMask))
+                {
+					highestFloor = Math.Max(hitInfo.transform.position.y, highestFloor);
+				} else
+                {
+					if (Heightmap.GetHeight(piece.transform.position, out float floorHeight))
+					{
+						highestFloor = Math.Max(floorHeight, highestFloor);
+					}
+                }
 			}
+
 #if DEBUG
 			Jotunn.Logger.LogInfo("Updated max floor height to: " + highestFloor);
 #endif
@@ -84,17 +94,29 @@ namespace Pulleys
 			Jotunn.Logger.LogInfo(GetZDOID() + " AddPulley(" + pulley.m_nview.m_zdo.m_uid + ")");
 #endif
 			m_pulleys.Add(pulley);
-			if(!m_shipControlls)
+			pulley.m_pulleyControlls.m_ship = this;
+			pulley.m_pulleyControlls.m_baseRoot = this;
+			if (!m_shipControlls)
             {
 				SetActiveControll(pulley.m_pulleyControlls);
             }
         }
 
-        public void CleanUp()
+        public bool OnBaseRootDestroy(MoveableBaseSync destroyingSync)
 		{
+            MoveableBaseSync connectedFollower = m_followers.Find(follower => follower.m_pulley.IsConnected());
+			if(connectedFollower)
+            {
+				m_followers.Remove(connectedFollower);
+				connectedFollower.m_follower = false;
+				connectedFollower.m_rigidbody = destroyingSync.m_rigidbody;
+				connectedFollower.m_baseRootObject = destroyingSync.m_baseRootObject;
+				return false;
+            }
+
 			if (!ZNetScene.instance || !ZNetScene.instance.m_netSceneRoot || !(m_id != ZDOID.None))
 			{
-				return;
+				return true;
 			}
 			for (int i = 0; i < m_pieces.Count; i++)
 			{
@@ -112,7 +134,20 @@ namespace Pulleys
 					allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
 				}
 			}
+			return true;
 		}
+
+        internal void RemovePulley(Pulley m_pulley)
+        {
+			m_pulleys.Remove(m_pulley);
+			if(m_shipControlls == m_pulley.m_pulleyControlls)
+            {
+#if DEBUG
+                Jotunn.Logger.LogWarning("Active pulley controlls removed, selecting random remaining as active");
+#endif
+				SetActiveControll(m_pulleys.First().m_pulleyControlls);
+            }
+        }
 
         internal void SetActiveControll(PulleyControlls pulleyControlls)
         {
@@ -188,7 +223,7 @@ namespace Pulleys
 		public static void AddInactivePiece(ZDOID id, Piece piece)
 		{
 #if DEBUG
-            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece);
+            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview.m_zdo.m_uid + ")");
 #endif
 			if (!m_pendingPieces.TryGetValue(id, out var value))
 			{
@@ -261,6 +296,7 @@ namespace Pulleys
 			Rigidbody componentInChildren = piece.GetComponentInChildren<Rigidbody>();
 			if ((bool)componentInChildren && !componentInChildren.isKinematic)
 			{
+				Jotunn.Logger.LogInfo("Ignoring rigidbody: " + piece);
 				return;
 			}
 			ZDOID zDOID = piece.m_nview.m_zdo.GetZDOID(MBParentHash);
@@ -269,7 +305,7 @@ namespace Pulleys
 				return;
 			}
 #if DEBUG
-			Jotunn.Logger.LogInfo("Piece has Parent: " + zDOID);
+			Jotunn.Logger.LogInfo("Piece (" + piece.m_nview.m_zdo.m_uid + ") has Parent: " + zDOID );
 #endif
 			GameObject gameObject = ZNetScene.instance.FindInstance(zDOID);
 			if ((bool)gameObject)
@@ -289,7 +325,7 @@ namespace Pulleys
 		public void ActivatePiece(Piece piece)
 		{
 #if DEBUG
-			Jotunn.Logger.LogInfo("Activating piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+			Jotunn.Logger.LogInfo(GetZDOID() + " Activating piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
 #endif
 			ZNetView component = piece.GetComponent<ZNetView>();
 			if ((bool)component)
@@ -309,16 +345,11 @@ namespace Pulleys
 		public void AddNewPiece(Piece piece)
 		{
 #if DEBUG
-			Jotunn.Logger.LogInfo("Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+			Jotunn.Logger.LogInfo(GetZDOID() + " Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
 #endif
 			piece.transform.SetParent(transform);
 			ZNetView component = piece.GetComponent<ZNetView>();
 
-			if(piece.TryGetComponent<Pulley>(out Pulley pulley))
-            {
-				AddPulley(pulley);
-            }
-			
 			component.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
 			component.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
 			component.m_zdo.Set(MBRotationHash, piece.transform.localRotation);
@@ -327,28 +358,39 @@ namespace Pulleys
 
 		public void AddPiece(Piece piece)
 		{
-			m_pieces.Add(piece); 
+			m_pieces.Add(piece);
 			//EncapsulateBounds(piece);
-		//	MastComponent component = piece.GetComponent<MastComponent>();
-		//	if ((bool)component)
-		//	{
-		//		m_mastPieces.Add(component);
-		//	}
-		//	RudderComponent component2 = piece.GetComponent<RudderComponent>();
-		//	if ((bool)component2)
-		//	{
-		//		if (!component2.m_controls)
-		//		{
-		//			component2.m_controls = piece.GetComponentInChildren<ShipControlls>();
-		//		}
-		//		if (!component2.m_wheel)
-		//		{
-		//			component2.m_wheel = piece.transform.Find("controls/wheel");
-		//		}
-		//		component2.m_controls.m_nview = m_nview;
-		//		component2.m_controls.m_ship = m_moveableBaseSync.GetComponent<Ship>();
-		//		m_rudderPieces.Add(component2);
-		//	}
+			//	MastComponent component = piece.GetComponent<MastComponent>();
+			//	if ((bool)component)
+			//	{
+			//		m_mastPieces.Add(component);
+			//	}
+			//	RudderComponent component2 = piece.GetComponent<RudderComponent>();
+			//	if ((bool)component2)
+			//	{
+			//		if (!component2.m_controls)
+			//		{
+			//			component2.m_controls = piece.GetComponentInChildren<ShipControlls>();
+			//		}
+			//		if (!component2.m_wheel)
+			//		{
+			//			component2.m_wheel = piece.transform.Find("controls/wheel");
+			//		}
+			//		component2.m_controls.m_nview = m_nview;
+			//		component2.m_controls.m_ship = m_moveableBaseSync.GetComponent<Ship>();
+			//		m_rudderPieces.Add(component2);
+			//	} 
+			if(piece.TryGetComponent(out MoveableBaseSync moveableBaseSync))
+            {
+				AddFollower(moveableBaseSync); 
+            }
+
+            if(piece.TryGetComponent(out WearNTear wearNTear))
+            {
+				wearNTear.m_onDestroyed += () => OnDestroyed(piece);
+            }
+
+
 			TeleportWorld component3 = piece.GetComponent<TeleportWorld>();
 			if ((bool)component3)
 			{
@@ -382,7 +424,34 @@ namespace Pulleys
 			UpdateStats();
 		}
 
-		public new void ApplyMovementControlls(Vector3 direction)
+        private void OnDestroyed(Piece piece)
+        {
+#if DEBUG
+			Jotunn.Logger.LogWarning(GetZDOID() + " Removing destroyed piece " + piece + " " + piece.m_nview.m_zdo.m_uid);
+#endif
+			m_pieces.Remove(piece);
+			if(piece.TryGetComponent(out Pulley pulley))
+            {
+				RemovePulley(pulley);
+            }
+        }
+
+        private void AddFollower(MoveableBaseSync moveableBaseSync)
+        {
+#if DEBUG
+			Jotunn.Logger.LogInfo(GetZDOID() + " Adding follower: " + moveableBaseSync.GetZDOID());
+#endif
+			moveableBaseSync.m_follower = true;
+			moveableBaseSync.m_baseRoot = this;
+			moveableBaseSync.m_baseRootObject = gameObject;
+			if (moveableBaseSync.m_pulley)
+			{
+				AddPulley(moveableBaseSync.m_pulley);
+			}
+			m_followers.Add(moveableBaseSync);
+		}
+
+        public new void ApplyMovementControlls(Vector3 direction)
 		{
 			base.ApplyMovementControlls(direction);
 		}
@@ -487,16 +556,16 @@ namespace Pulleys
 				}
 			}
 			m_body.MovePosition(transform.position + positionChange);
-			UpdateRotation();
+			UpdateRotation(ropeLength);
 		}
 
-        private void UpdateRotation()
+        private void UpdateRotation(float ropeLength = -1f)
         {
 			foreach (Pulley pulley in m_pulleys)
 			{
 				if (pulley.IsConnected() || m_shipControlls == pulley.m_pulleyControlls)
 				{
-					pulley.UpdateRotation();
+					pulley.UpdateRotation(ropeLength);
 				}
 			}
 		}
