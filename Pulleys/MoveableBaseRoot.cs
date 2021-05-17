@@ -6,23 +6,21 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Elevator
+namespace Pulleys
 {
 	public class MoveableBaseRoot : Ship
 	{
-		public static readonly KeyValuePair<int, int> MBParentHash = ZDO.GetHashZDOID("MBParent");
-
-		public static readonly int MBPositionHash = "MBPosition".GetStableHashCode();
-
-		public static readonly int MBRotationHash = "MBRotation".GetStableHashCode();
+		public static readonly KeyValuePair<int, int> MBParentHash = ZDO.GetHashZDOID("marcopogo.MBParent"); 
+		public static readonly int MBPositionHash = "marcopogo.MBPosition".GetStableHashCode(); 
+		public static readonly int MBRotationHash = "marcopogo.MBRotation".GetStableHashCode();
 
 		public static Dictionary<ZDOID, List<Piece>> m_pendingPieces = new Dictionary<ZDOID, List<Piece>>();
 
-		public MoveableBaseElevatorSync m_moveableBaseSync;
+		public MoveableBaseSync m_moveableBaseSync;
 		    
-		public List<Pulley> m_pulleys = new List<Pulley>();
+		public readonly List<Pulley> m_pulleys = new List<Pulley>();
 
-		public List<Piece> m_pieces = new List<Piece>();
+		public readonly List<Piece> m_pieces = new List<Piece>();
 
 		// public Rigidbody m_syncRigidbody;
 
@@ -82,10 +80,13 @@ namespace Elevator
 
 		internal void AddPulley(Pulley pulley)
         {
+#if DEBUG
+			Jotunn.Logger.LogInfo(GetZDOID() + " AddPulley(" + pulley.m_nview.m_zdo.m_uid + ")");
+#endif
 			m_pulleys.Add(pulley);
 			if(!m_shipControlls)
             {
-				SetActiveControll(pulley.m_elevatorControlls);
+				SetActiveControll(pulley.m_pulleyControlls);
             }
         }
 
@@ -116,10 +117,15 @@ namespace Elevator
         internal void SetActiveControll(PulleyControlls pulleyControlls)
         {
 #if DEBUG
-			Jotunn.Logger.LogInfo(m_nview.m_zdo.m_uid + " Setting active control: " + pulleyControlls.m_nview.m_zdo.m_uid);
+            Jotunn.Logger.LogInfo(GetZDOID() + " Setting active control: " + pulleyControlls.m_nview.m_zdo.m_uid);
 #endif
-			m_shipControlls = pulleyControlls;
-			m_controlGuiPos = pulleyControlls.m_elevator.m_controlGuiPos;
+            m_shipControlls = pulleyControlls;
+            m_controlGuiPos = pulleyControlls.m_pulley.m_controlGuiPos;
+        }
+
+        private ZDOID GetZDOID()
+        {
+            return m_nview.m_zdo.m_uid;
         }
 
         public void LateUpdate()
@@ -268,7 +274,7 @@ namespace Elevator
 			GameObject gameObject = ZNetScene.instance.FindInstance(zDOID);
 			if ((bool)gameObject)
 			{
-				MoveableBaseElevatorSync component = gameObject.GetComponent<MoveableBaseElevatorSync>();
+				MoveableBaseSync component = gameObject.GetComponent<MoveableBaseSync>();
 				if ((bool)component && (bool)component.m_baseRoot)
 				{
 					component.m_baseRoot.ActivatePiece(piece);
@@ -307,6 +313,11 @@ namespace Elevator
 #endif
 			piece.transform.SetParent(transform);
 			ZNetView component = piece.GetComponent<ZNetView>();
+
+			if(piece.TryGetComponent<Pulley>(out Pulley pulley))
+            {
+				AddPulley(pulley);
+            }
 			
 			component.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
 			component.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
@@ -483,7 +494,7 @@ namespace Elevator
         {
 			foreach (Pulley pulley in m_pulleys)
 			{
-				if (pulley.IsConnected())
+				if (pulley.IsConnected() || m_shipControlls == pulley.m_pulleyControlls)
 				{
 					pulley.UpdateRotation();
 				}

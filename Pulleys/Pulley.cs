@@ -5,15 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Elevator
+namespace Pulleys
 {
     public class Pulley : MonoBehaviour
     {
 
-        public static readonly KeyValuePair<int, int> ElevatorSupportHash = ZDO.GetHashZDOID("ElevatorSupport"); 
-        public static readonly int ElevatorBasePositionHash = "ElevatorBasePosition".GetStableHashCode(); 
-        public static readonly int ElevatorBaseRotationHash = "ElevatorBaseRotation".GetStableHashCode();
-        public PulleyControlls m_elevatorControlls;
+        public static readonly KeyValuePair<int, int> PulleySupportHash = ZDO.GetHashZDOID("marcopogo.PulleySupport");  
+        public PulleyControlls m_pulleyControlls;
         internal PulleySupport m_support;
         internal Transform pivotLeft;
         internal Transform pivotRight;
@@ -24,15 +22,17 @@ namespace Elevator
         internal Transform crank;
         internal float rotation;
         public Transform m_controlGuiPos;
-        private ZNetView m_nview;
+        internal ZNetView m_nview;
 
         private int m_supportRayMask;
 
         public void Awake()
         {
             m_supportRayMask = LayerMask.GetMask("piece");
-            m_nview = GetComponent<ZNetView>(); 
-            m_elevatorControlls = transform.Find("wheel_collider").gameObject.AddComponent<PulleyControlls>();
+            m_nview = GetComponent<ZNetView>();
+            WearNTear wearNTear = GetComponent<WearNTear>();
+            wearNTear.m_onDestroyed += OnDestroyed;
+            m_pulleyControlls = transform.Find("wheel_collider").gameObject.AddComponent<PulleyControlls>();
 
             pivotLeft = transform.Find("New/pivot_left");
             pivotRight = transform.Find("New/pivot_right");
@@ -46,21 +46,38 @@ namespace Elevator
             
             m_support = FindPulleySupport();
             if (!m_support)
-            {
-                Jotunn.Logger.LogWarning(GetInstanceID() + ": No support for elevator @ " + this.transform.position + " " + gameObject.GetInstanceID());
+            { 
                 InvokeRepeating("UpdateLookForSupport", 1f, 1f);
                 return;
             }
           
-            m_support.SetElevatorBase(this);
+            m_support.SetPulleyBase(this);
             UpdateRotation();
         }
 
-        internal void SetSupport(PulleySupport elevatorSupport)
+        private void OnDestroyed()
         {
-            Jotunn.Logger.LogWarning(GetInstanceID() + ": Setting support for elevator @ " + this.transform.position + " " + gameObject.GetInstanceID() + ": " + elevatorSupport.GetInstanceID());
-            m_nview.GetZDO().Set(ElevatorSupportHash, elevatorSupport.m_nview.m_zdo.m_uid);
-            m_support = elevatorSupport;
+            m_support?.PulleyBaseDestroyed(this);
+        }
+
+        internal void SupportDestroyed(PulleySupport pulleySupport)
+        {
+            if(m_support != pulleySupport)
+            {
+                Jotunn.Logger.LogWarning("Invalid callback from " + pulleySupport.GetZDOID() + " to " + this.GetZDOID() + ", expected " + m_support.GetZDOID());
+                return;
+            }
+            m_support = null;
+            m_nview.GetZDO().Set(PulleySupportHash, ZDOID.None);
+        }
+
+        internal void SetSupport(PulleySupport pulleySupport)
+        {
+#if DEBUG
+            Jotunn.Logger.LogWarning(GetInstanceID() + ": Setting support for pulley @ " + this.transform.position + " " + gameObject.GetInstanceID() + ": " + pulleySupport.GetInstanceID());
+#endif
+            m_nview.GetZDO().Set(PulleySupportHash, pulleySupport.m_nview.m_zdo.m_uid);
+            m_support = pulleySupport;
         }
 
         public void UpdateLookForSupport()
@@ -70,7 +87,7 @@ namespace Elevator
                 m_support = FindPulleySupport();
                 if (m_support)
                 {
-                    m_support.SetElevatorBase(this);
+                    m_support.SetPulleyBase(this);
                     UpdateRotation();
                     CancelInvoke("UpdateLookForSupport");
                 }
@@ -78,7 +95,7 @@ namespace Elevator
         }
  
 
-        internal ZDOID GetElevatorID()
+        internal ZDOID GetZDOID()
         {
             return m_nview.m_zdo.m_uid;
         }
@@ -102,23 +119,22 @@ namespace Elevator
 
         private PulleySupport FindPulleySupport()
         {
-            ZDOID elevatorSupportID = m_nview.GetZDO().GetZDOID(ElevatorSupportHash);
-            if(elevatorSupportID == ZDOID.None)
+            ZDOID pulleySupportID = m_nview.GetZDO().GetZDOID(PulleySupportHash);
+            if(pulleySupportID == ZDOID.None)
             {
                 if(Physics.Raycast(transform.position + 2*transform.up , transform.up, out var hitInfo,  2000f, m_supportRayMask)) {
                     return hitInfo.collider.GetComponentInParent<PulleySupport>();
-                }
-                Jotunn.Logger.LogWarning("No Elevator Support found!: " + this.transform.position);
+                } 
                 return null;
             }
-            GameObject elevatorSupportObject = ZNetScene.instance.FindInstance(elevatorSupportID);
-            if(!elevatorSupportObject)
+            GameObject pulleySupportObject = ZNetScene.instance.FindInstance(pulleySupportID);
+            if(!pulleySupportObject)
             {
-                Jotunn.Logger.LogWarning("Stored Elevator Support not found!: " + elevatorSupportID);
-                m_nview.GetZDO().Set(ElevatorSupportHash, ZDOID.None);
+                Jotunn.Logger.LogWarning("Stored Pulley Support not found!: " + pulleySupportID);
+                m_nview.GetZDO().Set(PulleySupportHash, ZDOID.None);
                 return null;
             }
-            return elevatorSupportObject.GetComponent<PulleySupport>();
+            return pulleySupportObject.GetComponent<PulleySupport>();
         }
 
         internal bool IsConnected()

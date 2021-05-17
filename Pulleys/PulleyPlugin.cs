@@ -1,8 +1,8 @@
-﻿// Elevator
+﻿// Pulleys
 // a Valheim mod skeleton using Jötunn
 // 
-// File:    Elevator.cs
-// Project: Elevator
+// File:    Pulleys.cs
+// Project: Pulleys
 
 using BepInEx;
 using BepInEx.Configuration;
@@ -17,20 +17,20 @@ using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Elevator
+namespace Pulleys
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Main.ModGuid)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
-    internal class ElevatorPlugin : BaseUnityPlugin
+    internal class PulleyPlugin : BaseUnityPlugin
     {
-        public const int ElevatorLayer = 29;
-        public const string PluginGUID = "marcopogo.Elevator";
-        public const string PluginName = "Elevator";
+        public const int MoveableBaseRootLayer = 29;
+        public const string PluginGUID = "marcopogo.Pulleys";
+        public const string PluginName = "Pulleys";
         public const string PluginVersion = "0.0.1";
         private AssetBundle embeddedResourceBundle;
-        private GameObject elevatorBasePrefab; 
-        private GameObject elevatorSupportPrefab;
+        private GameObject pulleyBasePrefab; 
+        private GameObject pulleySupportPrefab;
         private GameObject kitBashRoot;
         private Harmony harmony;
 
@@ -54,14 +54,13 @@ namespace Elevator
 
         private void ApplyKitBash()
         {
-            KitBashElevatorBase();
-            KitBashElevatorSupport();
-            //FixCollisionLayers(elevatorBasePrefab);
+            KitBashPulleyBase();
+            KitBashPulleySupport(); 
         }
 
-        private void KitBashElevatorSupport()
+        private void KitBashPulleySupport()
         {
-            List<KitBashConfig> elevatorSupportKitBashes = new List<KitBashConfig>
+            List<KitBashConfig> pulleySupportKitBashes = new List<KitBashConfig>
             {
                 new KitBashConfig
                 {
@@ -126,11 +125,11 @@ namespace Elevator
                 },
                  
             };
-            KitBash(elevatorSupportPrefab, elevatorSupportKitBashes); 
+            KitBash(pulleySupportPrefab, pulleySupportKitBashes); 
             GameObject raft = PrefabManager.Instance.GetPrefab("Raft");
             LineRenderer sourceLineRenderer = raft.transform.Find("ship/visual/ropes/left").GetComponent<LineRenderer>();
             
-            foreach(LineRenderer lineRenderer in elevatorSupportPrefab.GetComponentsInChildren<LineRenderer>())
+            foreach(LineRenderer lineRenderer in pulleySupportPrefab.GetComponentsInChildren<LineRenderer>())
             {
                 lineRenderer.materials = sourceLineRenderer.materials;
                 lineRenderer.startWidth = sourceLineRenderer.startWidth;
@@ -150,9 +149,9 @@ namespace Elevator
             }
         }
           
-        private void KitBashElevatorBase()
+        private void KitBashPulleyBase()
         {
-            List<KitBashConfig> elevatorBaseKitBashes = new List<KitBashConfig>
+            List<KitBashConfig> pulleyBaseKitBashes = new List<KitBashConfig>
             {
                 new KitBashConfig
                 {
@@ -321,7 +320,7 @@ namespace Elevator
                 },
             };
 
-            KitBash(elevatorBasePrefab, elevatorBaseKitBashes);
+            KitBash(pulleyBasePrefab, pulleyBaseKitBashes);
         }
 
         public void FixCollisionLayers(GameObject r)
@@ -339,40 +338,40 @@ namespace Elevator
         {
             try
             { 
-                embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("elevator", typeof(ElevatorPlugin).Assembly);
+                embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("pulleys", typeof(PulleyPlugin).Assembly);
             
-                SetupElevatorBase(); 
-                SetupElevatorSupport();
+                SetupPulleyBase(); 
+                SetupPulleySupport();
+
+                
             } finally
             {
+                embeddedResourceBundle?.Unload(false);
                 ItemManager.OnVanillaItemsAvailable -= RegisterCustomItems;
             }
-    
-            //  elevatorBase = new CustomPiece(embeddedResourceBundle, "Assets/PrefabInstance/elevator_base.prefab", "Hammer", true);
-
-            //PieceManager.Instance.AddPiece(elevatorBase);
+     
 
         }
 
-        private void SetupElevatorSupport()
+        private void SetupPulleySupport()
         {
-            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_support");
-            elevatorSupportPrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
-            elevatorSupportPrefab.name = "piece_elevator_support";
-            PieceManager.Instance.AddPiece(new CustomPiece(elevatorSupportPrefab, new PieceConfig()
+            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_support");
+            pulleySupportPrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
+            pulleySupportPrefab.name = "piece_pulley_support";
+            PieceManager.Instance.AddPiece(new CustomPiece(pulleySupportPrefab, new PieceConfig()
             {
                 PieceTable = "Hammer"
             }));
-            elevatorSupportPrefab.AddComponent<PulleySupport>();
+            pulleySupportPrefab.AddComponent<PulleySupport>();
         }
 
-        private void SetupElevatorBase()
+        private void SetupPulleyBase()
         {
-            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("elevator_base");
-            elevatorBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
-            elevatorBasePrefab.name = "piece_elevator";
-            elevatorBasePrefab.AddComponent<MoveableBaseElevatorSync>();
-            PieceManager.Instance.AddPiece(new CustomPiece(elevatorBasePrefab, new PieceConfig()
+            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_base");
+            pulleyBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
+            pulleyBasePrefab.name = "piece_pulley_base";
+            pulleyBasePrefab.AddComponent<MoveableBaseSync>();
+            PieceManager.Instance.AddPiece(new CustomPiece(pulleyBasePrefab, new PieceConfig()
             {
                 PieceTable = "Hammer"
             })); 

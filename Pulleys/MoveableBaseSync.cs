@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
 
-namespace Elevator
+namespace Pulleys
 {
-    public class MoveableBaseElevatorSync: MonoBehaviour
+    public class MoveableBaseSync: MonoBehaviour
     {
 		public MoveableBaseRoot m_baseRoot;
 
@@ -24,8 +24,8 @@ namespace Elevator
             {
 				return;
             }
-            MoveableBaseRoot moveableBaseRoot = GetComponentInParent<MoveableBaseRoot>();
-			if(!moveableBaseRoot)
+			m_baseRoot = GetComponentInParent<MoveableBaseRoot>();
+			if(!m_baseRoot)
             {
 #if DEBUG
 				Jotunn.Logger.LogInfo("Creating MoveableBaseRoot");
@@ -55,7 +55,7 @@ namespace Elevator
             {
 				Jotunn.Logger.LogDebug("Attaching to existing MoveableBaseRoot");
             }
-#endif
+#endif 
 			Pulley pulley = gameObject.AddComponent<Pulley>();
 			m_baseRoot.AddPulley(pulley);
 		}

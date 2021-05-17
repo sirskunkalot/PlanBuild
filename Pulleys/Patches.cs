@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Elevator
+namespace Pulleys
 {
     class Patches
     {
@@ -17,12 +17,12 @@ namespace Elevator
 		[HarmonyPrefix]
 		public static bool UpdateShipHud(Hud __instance, Player player, float dt)
         {
-            MoveableBaseRoot controlledElevator = player.GetControlledShip() as MoveableBaseRoot;
-			if(controlledElevator)
+            MoveableBaseRoot controlledMoveableBaseRoot = player.GetControlledShip() as MoveableBaseRoot;
+			if(controlledMoveableBaseRoot)
             {
-				Ship.Speed speedSetting = controlledElevator.GetSpeedSetting();
-				float rudder = controlledElevator.GetRudder();
-				float rudderValue = controlledElevator.GetRudderValue();
+				Ship.Speed speedSetting = controlledMoveableBaseRoot.GetSpeedSetting();
+				float rudder = controlledMoveableBaseRoot.GetRudder();
+				float rudderValue = controlledMoveableBaseRoot.GetRudderValue();
 				__instance.m_shipHudRoot.SetActive(value: true);
 				__instance.m_rudderSlow.SetActive(speedSetting == Ship.Speed.Slow);
 				__instance.m_rudderForward.SetActive(speedSetting == Ship.Speed.Half);
@@ -41,7 +41,7 @@ namespace Elevator
 				Camera mainCamera = Utils.GetMainCamera();
 				if (!(mainCamera == null))
 				{
-					__instance.m_shipControlsRoot.transform.position = mainCamera.WorldToScreenPoint(controlledElevator.m_controlGuiPos.position);
+					__instance.m_shipControlsRoot.transform.position = mainCamera.WorldToScreenPoint(controlledMoveableBaseRoot.m_controlGuiPos.position);
 				}
 				return false;
             }
@@ -65,10 +65,10 @@ namespace Elevator
 			Player player = __instance.m_character as Player;
 			if (player && player.IsAttached() && player.m_attachPoint && player.m_attachPoint.parent)
 			{
-				Pulley elevator = player.m_attachPoint.parent.GetComponent<Pulley>();
-				if (elevator)
+				Pulley pulley = player.m_attachPoint.parent.GetComponent<Pulley>();
+				if (pulley)
 				{
-					elevator.m_elevatorControlls.UpdateIK(player.m_animator);
+					pulley.m_pulleyControlls.UpdateIK(player.m_animator);
 				} 
 			}
 			return true;
@@ -118,10 +118,10 @@ namespace Elevator
 
 		public static bool SetShipControl(Player __instance, ref Vector3 moveDir)
         {
-            MoveableBaseRoot elevator = __instance.GetControlledShip() as MoveableBaseRoot;
-			if(elevator)
+            MoveableBaseRoot moveableBaseRoot = __instance.GetControlledShip() as MoveableBaseRoot;
+			if(moveableBaseRoot)
             {
-				elevator.ApplyMovementControlls(moveDir);
+				moveableBaseRoot.ApplyMovementControlls(moveDir);
 				return false;
             }
 			return true;

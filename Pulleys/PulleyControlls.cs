@@ -6,12 +6,12 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Elevator
+namespace Pulleys
 {
     public class PulleyControlls : ShipControlls
     {
         private Transform m_handAttach; 
-        internal Pulley m_elevator;
+        internal Pulley m_pulley;
         private MoveableBaseRoot m_baseRoot;
 
 
@@ -21,11 +21,11 @@ namespace Elevator
             m_nview.Register<ZDOID>("RequestControl", RPC_RequestControl);
             m_nview.Register<ZDOID>("ReleaseControl", RPC_ReleaseControl);
             m_nview.Register<bool>("RequestRespons", RPC_RequestRespons);
-            m_elevator = GetComponentInParent<Pulley>();
+            m_pulley = GetComponentInParent<Pulley>();
             m_baseRoot = GetComponentInParent<MoveableBaseRoot>();
             m_ship = m_baseRoot;
-            m_handAttach = m_elevator.transform.Find("New/crank/handattach").transform; 
-            m_attachPoint = m_elevator.transform.Find("attachpoint");
+            m_handAttach = m_pulley.transform.Find("New/crank/handattach").transform; 
+            m_attachPoint = m_pulley.transform.Find("attachpoint");
         }
 
         public new void OnUseStop(Player player)
@@ -71,10 +71,9 @@ namespace Elevator
         [HarmonyPrefix]
         static bool Player_SetControls_Prefix(Player __instance, ShipControlls ___m_shipControl)
         {
-            ShipControlls elevatorControl = ___m_shipControl;
-            if (elevatorControl != null)
-            {
-                
+            ShipControlls pulleyControl = ___m_shipControl;
+            if (pulleyControl != null)
+            { 
                 return true;
             }
             return true;

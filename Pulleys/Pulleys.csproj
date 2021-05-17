@@ -7,8 +7,8 @@
     <ProjectGuid>{E3CC9247-083F-4627-8B39-A4DC0972131F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Elevator</RootNamespace>
-    <AssemblyName>Elevator</AssemblyName>
+    <RootNamespace>Pulleys</RootNamespace>
+    <AssemblyName>Pulleys</AssemblyName>
     <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -80,16 +80,16 @@
     <Compile Include="Pulley.cs" />
     <Compile Include="PulleyControlls.cs" />
     <Compile Include="PulleySupport.cs" />
-    <Compile Include="MoveableBaseElevatorSync.cs" />
+    <Compile Include="MoveableBaseSync.cs" />
     <Compile Include="MoveableBaseRoot.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
-    <Compile Include="ElevatorPlugin.cs" />
+    <Compile Include="PulleyPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <EmbeddedResource Include="AssetsEmbedded\elevator" />
+    <EmbeddedResource Include="AssetsEmbedded\pulleys" />
     <None Include="packages.config" />
     <None Include="Package\README.md" />
   </ItemGroup>
