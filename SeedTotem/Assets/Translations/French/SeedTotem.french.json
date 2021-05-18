@@ -1,0 +1,17 @@
+{
+	"piece_seed_totem_name": "Totem de semis",
+	"piece_seed_totem_description": "Sème des graines autour de lui",
+	"tutorial_seed_totem_label": "Hugin: totem de semis",
+	"tutorial_seed_totem_topic": "Vous avez construit un totem de semis",
+	"tutorial_seed_totem_text": "Un <color=yellow>totem de semis</color> sème les graines stockées dans une zone autour de lui.\nEssayez de <color=yellow>le frapper</color> quand les plantes alentoures sont <color=yellow>mûres</color>.",
+	"message_seed_totem_seed_generic": "graine",
+	"message_seed_totem_seed_generic_plural": "graines",
+	"message_seed_totem_all": "tou(t)(e)s",
+	"message_seed_totem_not_a_seed": "Ce n'est pas une graine",
+	"message_seed_totem_restricted_to": "Restreint :",
+	"message_seed_totem_restrict": "Restreindre",
+	"message_seed_totem_unrestricted": "Non restreint",
+	"message_seed_totem_status_looking_for_space": "Recherche d'espace libre",
+	"message_seed_totem_status_planting": "En train de semer",
+	"message_seed_totem_status_wrong_biome": "Mauvais biome"
+}
