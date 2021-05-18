@@ -108,9 +108,7 @@ namespace Pulleys
 			if(connectedFollower)
             {
 				m_followers.Remove(connectedFollower);
-				connectedFollower.m_follower = false;
-				connectedFollower.m_rigidbody = destroyingSync.m_rigidbody;
-				connectedFollower.m_baseRootObject = destroyingSync.m_baseRootObject;
+				connectedFollower.TakeOwnership(destroyingSync);
 				return false;
             }
 
@@ -129,7 +127,7 @@ namespace Pulleys
 			List<Player> allPlayers = Player.GetAllPlayers();
 			for (int j = 0; j < allPlayers.Count; j++)
 			{
-				if ((bool)allPlayers[j] && allPlayers[j].transform.parent == transform)
+				if (allPlayers[j] && allPlayers[j].transform.parent == transform)
 				{
 					allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
 				}
@@ -142,6 +140,14 @@ namespace Pulleys
 			m_pulleys.Remove(m_pulley);
 			if(m_shipControlls == m_pulley.m_pulleyControlls)
             {
+				if(m_pulleys.Count == 0)
+                {
+#if DEBUG
+					Jotunn.Logger.LogWarning("Last pulley removed, destroying MoveableBaseRoot");
+#endif
+					Object.Destroy(gameObject);
+					return;
+                }
 #if DEBUG
                 Jotunn.Logger.LogWarning("Active pulley controlls removed, selecting random remaining as active");
 #endif
@@ -223,7 +229,7 @@ namespace Pulleys
 		public static void AddInactivePiece(ZDOID id, Piece piece)
 		{
 #if DEBUG
-            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview.m_zdo.m_uid + ")");
+            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview?.m_zdo.m_uid + ")");
 #endif
 			if (!m_pendingPieces.TryGetValue(id, out var value))
 			{
@@ -294,7 +300,7 @@ namespace Pulleys
 		public static void InitPiece(Piece piece)
 		{
 			Rigidbody componentInChildren = piece.GetComponentInChildren<Rigidbody>();
-			if ((bool)componentInChildren && !componentInChildren.isKinematic)
+			if (componentInChildren && !componentInChildren.isKinematic)
 			{
 				Jotunn.Logger.LogInfo("Ignoring rigidbody: " + piece);
 				return;
@@ -311,7 +317,7 @@ namespace Pulleys
 			if ((bool)gameObject)
 			{
 				MoveableBaseSync component = gameObject.GetComponent<MoveableBaseSync>();
-				if ((bool)component && (bool)component.m_baseRoot)
+				if (component && component.m_baseRoot)
 				{
 					component.m_baseRoot.ActivatePiece(piece);
 				}
@@ -485,6 +491,10 @@ namespace Pulleys
 
 		public new void UpdateControlls(float dt)
 		{
+			if(!m_nview || !m_nview.IsValid())
+            {
+				return;
+            }
 			if (m_nview.IsOwner())
 			{
 				m_nview.GetZDO().Set("forward", (int)m_speed);

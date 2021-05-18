@@ -89,7 +89,7 @@ namespace Pulleys
 
 		public void OnDestroy()
 		{
-			if ((bool)m_baseRoot && !m_follower)
+			if (m_baseRoot && !m_follower)
 			{
 				if(m_baseRoot.OnBaseRootDestroy(this))
                 {
@@ -102,5 +102,13 @@ namespace Pulleys
         {
 			return m_nview.m_zdo.m_uid;
         }
+
+        internal void TakeOwnership(MoveableBaseSync destroyingSync)
+        { 
+			 m_follower = false;
+			 m_rigidbody = destroyingSync.m_rigidbody;
+			 m_baseRootObject = destroyingSync.m_baseRootObject;
+			 m_baseRoot = destroyingSync.m_baseRoot;
+		}
     }
 }

@@ -165,6 +165,10 @@ namespace Pulleys
             {
                 return true;
             }
+            if(!IsConnected())
+            {
+                return true;
+            }
             return m_baseRoot.m_pulleys.Count(pulley => pulley.IsConnected()) > 1;
         }
     }

@@ -52,7 +52,7 @@ namespace Pulleys
 		[HarmonyPostfix]
 		public static void Piece_Awake(Piece __instance)
 		{
-			if ((bool)__instance.m_nview && __instance.m_nview.m_zdo != null)
+			if (__instance.m_nview && __instance.m_nview.m_zdo != null)
 			{
 				MoveableBaseRoot.InitPiece(__instance);
 			}
@@ -140,7 +140,7 @@ namespace Pulleys
 				position = componentInParent.transform.TransformPoint(position);
 				Quaternion quaternion = __instance.m_lookYaw * Quaternion.Euler(__instance.m_lookPitch, 0f - componentInParent.transform.rotation.eulerAngles.y, 0f);
 				Vector3 direction = componentInParent.transform.rotation * quaternion * Vector3.forward;
-				if (Physics.Raycast(position, direction, out var hitInfo, 10f, placeRayMask) && (bool)hitInfo.collider)
+				if (Physics.Raycast(position, direction, out var hitInfo, 10f, placeRayMask) && hitInfo.collider)
 				{
 					MoveableBaseRoot componentInParent2 = hitInfo.collider.GetComponentInParent<MoveableBaseRoot>();
 					if ((bool)componentInParent2)
@@ -169,8 +169,8 @@ namespace Pulleys
 				layerMask = __instance.m_placeWaterRayMask;
 			}
 			if (Physics.Raycast(GameCamera.instance.transform.position, GameCamera.instance.transform.forward, out var hitInfo, 50f, layerMask)
-				&& (bool)hitInfo.collider
-				&& (!hitInfo.collider.attachedRigidbody || hitInfo.collider.attachedRigidbody.GetComponent<MoveableBaseRoot>() != null)
+				&& hitInfo.collider
+                && (!hitInfo.collider.attachedRigidbody || hitInfo.collider.attachedRigidbody.GetComponent<MoveableBaseRoot>() != null)
 				&& Vector3.Distance(__instance.m_eye.position, hitInfo.point) < __instance.m_maxPlaceDistance)
 			{
 				point = hitInfo.point;
@@ -245,48 +245,48 @@ namespace Pulleys
 			return false;
 		} 
 
-		[HarmonyPatch(typeof(Player), "FindHoverObject")]
-		[HarmonyPrefix]
-		public static bool FindHoverObject(Player __instance, ref GameObject hover, ref Character hoverCreature)
-		{
-			hover = null;
-			hoverCreature = null;
-			RaycastHit[] array = Physics.RaycastAll(GameCamera.instance.transform.position, GameCamera.instance.transform.forward, 50f, __instance.m_interactMask);
-			Array.Sort(array, (RaycastHit x, RaycastHit y) => x.distance.CompareTo(y.distance));
-			RaycastHit[] array2 = array;
-			for (int i = 0; i < array2.Length; i++)
-			{
-				RaycastHit raycastHit = array2[i];
-				if ((bool)raycastHit.collider.attachedRigidbody && raycastHit.collider.attachedRigidbody.gameObject == __instance.gameObject)
-				{
-					continue;
-				}
-				if (hoverCreature == null)
-				{
-					Character character = (raycastHit.collider.attachedRigidbody ? raycastHit.collider.attachedRigidbody.GetComponent<Character>() : raycastHit.collider.GetComponent<Character>());
-					if (character != null)
-					{
-						hoverCreature = character;
-					}
-				}
-				if (Vector3.Distance(__instance.m_eye.position, raycastHit.point) < __instance.m_maxInteractDistance)
-				{
-					if (raycastHit.collider.GetComponent<Hoverable>() != null)
-					{
-						hover = raycastHit.collider.gameObject;
-					}
-					else if ((bool)raycastHit.collider.attachedRigidbody && !raycastHit.collider.attachedRigidbody.GetComponent<MoveableBaseRoot>())
-					{
-						hover = raycastHit.collider.attachedRigidbody.gameObject;
-					}
-					else
-					{
-						hover = raycastHit.collider.gameObject;
-					}
-				}
-				break;
-			}
-			return false;
-		}
+		//[HarmonyPatch(typeof(Player), "FindHoverObject")]
+		//[HarmonyPrefix]
+		//public static bool FindHoverObject(Player __instance, ref GameObject hover, ref Character hoverCreature)
+		//{
+		//	hover = null;
+		//	hoverCreature = null;
+		//	RaycastHit[] array = Physics.RaycastAll(GameCamera.instance.transform.position, GameCamera.instance.transform.forward, 50f, __instance.m_interactMask);
+		//	Array.Sort(array, (RaycastHit x, RaycastHit y) => x.distance.CompareTo(y.distance));
+		//	RaycastHit[] array2 = array;
+		//	for (int i = 0; i < array2.Length; i++)
+		//	{
+		//		RaycastHit raycastHit = array2[i];
+		//		if ((bool)raycastHit.collider.attachedRigidbody && raycastHit.collider.attachedRigidbody.gameObject == __instance.gameObject)
+		//		{
+		//			continue;
+		//		}
+		//		if (hoverCreature == null)
+		//		{
+		//			Character character = (raycastHit.collider.attachedRigidbody ? raycastHit.collider.attachedRigidbody.GetComponent<Character>() : raycastHit.collider.GetComponent<Character>());
+		//			if (character != null)
+		//			{
+		//				hoverCreature = character;
+		//			}
+		//		}
+		//		if (Vector3.Distance(__instance.m_eye.position, raycastHit.point) < __instance.m_maxInteractDistance)
+		//		{
+		//			if (raycastHit.collider.GetComponent<Hoverable>() != null)
+		//			{
+		//				hover = raycastHit.collider.gameObject;
+		//			}
+		//			else if ((bool)raycastHit.collider.attachedRigidbody && !raycastHit.collider.attachedRigidbody.GetComponent<MoveableBaseRoot>())
+		//			{
+		//				hover = raycastHit.collider.attachedRigidbody.gameObject;
+		//			}
+		//			else
+		//			{
+		//				hover = raycastHit.collider.gameObject;
+		//			}
+		//		}
+		//		break;
+		//	}
+		//	return false;
+		//}
 	}
 }
