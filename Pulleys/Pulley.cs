@@ -131,7 +131,12 @@ namespace Pulleys
             if(pulleySupportID == ZDOID.None)
             {
                 if(Physics.Raycast(transform.position + 2*transform.up , transform.up, out var hitInfo,  2000f, m_supportRayMask)) {
-                    return hitInfo.collider.GetComponentInParent<PulleySupport>();
+                    PulleySupport pulleySupport = hitInfo.collider.GetComponentInParent<PulleySupport>();
+                    if(pulleySupport && pulleySupport.IsConnected())
+                    {
+                        return null;
+                    }
+                    return pulleySupport;
                 } 
                 return null;
             }
@@ -168,8 +173,13 @@ namespace Pulleys
             if(!IsConnected())
             {
                 return true;
+            } 
+            if(m_baseRoot.m_pulleys.Count(pulley => pulley.IsConnected()) > 1)
+            {
+                return true;
             }
-            return m_baseRoot.m_pulleys.Count(pulley => pulley.IsConnected()) > 1;
+
+            return m_baseRoot.m_pieces.Count == 1;
         }
     }
 }

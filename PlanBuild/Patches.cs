@@ -14,6 +14,7 @@ namespace PlanBuild
         public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
         public const string buildShareGUID = "com.valheim.cr_advanced_builder";
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
+        public const string equipmentQuickSlotsGUID = "randyknapp.mods.equipmentandquickslots";
 
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
@@ -41,14 +42,14 @@ namespace PlanBuild
         [HarmonyPatch(typeof(Player), "SetupPlacementGhost")]
         [HarmonyPrefix]
         static void Player_SetupPlacementGhost_Prefix()
-        { 
+        {
             PlanPiece.m_forceDisableInit = true;
         }
 
         [HarmonyPatch(typeof(Player), "SetupPlacementGhost")]
         [HarmonyPostfix]
         static void Player_SetupPlacementGhost_Postfix(GameObject ___m_placementGhost)
-        { 
+        {
             PlanPiece.m_forceDisableInit = false;
             if (___m_placementGhost != null && configTransparentGhostPlacement.Value)
             {
@@ -58,7 +59,7 @@ namespace PlanBuild
 
         private static bool interceptGetPrefab = true;
         private static HashSet<int> checkedHashes = new HashSet<int>();
-         
+
         [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
         [HarmonyPostfix]
         static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
@@ -89,12 +90,18 @@ namespace PlanBuild
                 logger.LogInfo("Applying CraftFromContainers patches");
                 harmony.PatchAll(typeof(PatcherCraftFromContainers));
             }
+            if (Chainloader.PluginInfos.ContainsKey(equipmentQuickSlotsGUID))
+            {
+                logger.LogInfo("Applying EquipmentQuickSlots patches");
+                harmony.PatchAll(typeof(PatcherEquipmentQuickSlots));
+            }
             HarmonyLib.Patches patches = Harmony.GetPatchInfo(typeof(Player).GetMethod("OnSpawned"));
             if (patches?.Owners.Contains(buildShareGUID) == true)
             {
                 logger.LogInfo("Applying BuildShare patches");
                 harmony.PatchAll(typeof(PatcherBuildShare));
             }
+            
         }
     }
 }

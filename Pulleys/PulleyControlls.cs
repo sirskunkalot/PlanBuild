@@ -30,6 +30,10 @@ namespace Pulleys
 
         public new bool Interact(Humanoid user, bool hold)
         {
+            if(!m_ship)
+            {
+                return false;
+            }
             return base.Interact(user, hold);
         }
 

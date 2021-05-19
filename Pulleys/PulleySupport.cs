@@ -107,6 +107,11 @@ namespace Pulleys
             }
         }
 
+        internal bool IsConnected()
+        {
+            return m_pulley != null;
+        }
+
         class Rope
         { 
             public Transform top;

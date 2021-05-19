@@ -25,12 +25,13 @@ namespace PlanBuild
     [BepInDependency(Jotunn.Main.ModGuid)]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.equipmentQuickSlotsGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuild : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.1.6";
+        public const string PluginVersion = "0.1.7";
 
         public static ManualLogSource logger;
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
@@ -41,8 +42,14 @@ namespace PlanBuild
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
-        private PlanHammerPrefabConfig planHammerPrefabConfig;
+        internal PlanHammerPrefabConfig planHammerPrefabConfig;
         public static PlanBuild Instance;
+
+
+        private PlanCrystalPrefabConfig planCrystalPrefabConfig;
+        internal static bool showRealTextures;
+        internal GameObject hammerPrefab;
+        internal ItemDrop hammerPrefabItemDrop;
 
         public static readonly Dictionary<string, PlanPiecePrefabConfig> planPiecePrefabConfigs = new Dictionary<string, PlanPiecePrefabConfig>();
 
@@ -146,7 +153,7 @@ namespace PlanBuild
             orig(self, other);
         }
 
-        bool addedHammer = false;
+        internal bool addedHammer = false;
 
         internal void ScanHammer()
         {
@@ -310,29 +317,35 @@ namespace PlanBuild
                 && !Player.m_localPlayer.InCutscene();
         }
 
-        private PlanCrystalPrefabConfig planCrystalPrefabConfig;
-        internal static bool showRealTextures;
-        private GameObject hammerPrefab;
-        private ItemDrop hammerPrefabItemDrop;
-
         private void TogglePlanBuildMode()
         {
-            if(ScanHammer(lateAdd: true))
+            if (ScanHammer(lateAdd: true))
             {
                 UpdateKnownRecipes();
             }
+            ReplaceHammerInInventory();
+        }
+
+        private void ReplaceHammerInInventory()
+        {
             Player player = Player.m_localPlayer;
-            ItemDrop.ItemData hammerItem = player.GetInventory().GetItem(hammerPrefabItemDrop.m_itemData.m_shared.m_name);
-            ItemDrop.ItemData planHammerItem = player.GetInventory().GetItem(planHammerPrefabConfig.itemData.m_shared.m_name);
+            Inventory inventory = player.GetInventory();
+            ReplaceHammer(player, inventory);
+        }
+
+        internal bool ReplaceHammer(Player player, Inventory inventory)
+        {
+            ItemDrop.ItemData hammerItem = inventory.GetItem(hammerPrefabItemDrop.m_itemData.m_shared.m_name);
+            ItemDrop.ItemData planHammerItem = inventory.GetItem(planHammerPrefabConfig.itemData.m_shared.m_name);
             if (hammerItem == null && planHammerItem == null)
             {
-                return;
+                return false;
             }
             if (hammerItem != null)
             {
                 logger.LogInfo("Replacing Hammer with PlanHammer");
-                player.GetInventory().RemoveOneItem(hammerItem);
-                player.GetInventory().AddItem(
+                inventory.RemoveOneItem(hammerItem);
+                inventory.AddItem(
                     name: PlanHammerPrefabConfig.planHammerName,
                     stack: 1,
                     durability: hammerItem.m_durability,
@@ -345,14 +358,14 @@ namespace PlanBuild
                 );
                 if (hammerItem.m_equiped)
                 {
-                    player.EquipItem(player.GetInventory().GetItemAt(hammerItem.m_gridPos.x, hammerItem.m_gridPos.y));
+                    player.EquipItem(inventory.GetItemAt(hammerItem.m_gridPos.x, hammerItem.m_gridPos.y));
                 }
             }
             else
             {
                 logger.LogInfo("Replacing PlanHammer with Hammer");
-                player.GetInventory().RemoveOneItem(planHammerItem);
-                player.GetInventory().AddItem(
+                inventory.RemoveOneItem(planHammerItem);
+                inventory.AddItem(
                     name: hammerPrefab.name,
                     stack: 1,
                     durability: planHammerItem.m_durability,
@@ -365,9 +378,10 @@ namespace PlanBuild
                 );
                 if (planHammerItem.m_equiped)
                 {
-                    player.EquipItem(player.GetInventory().GetItemAt(planHammerItem.m_gridPos.x, planHammerItem.m_gridPos.y));
+                    player.EquipItem(inventory.GetItemAt(planHammerItem.m_gridPos.x, planHammerItem.m_gridPos.y));
                 }
             }
+            return true;
         }
 
         public static string GetAssetPath(string assetName, bool isDirectory = false)

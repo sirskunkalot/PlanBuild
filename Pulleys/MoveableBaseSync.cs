@@ -16,11 +16,11 @@ namespace Pulleys
 		public GameObject m_baseRootObject;
 		private bool activatedPendingPieces = false;
         internal Pulley m_pulley;
+        private ZDOID parentZDOID;
 
         public void Awake()
         {
-			m_nview = GetComponent<ZNetView>();
-
+			m_nview = GetComponent<ZNetView>(); 
 		}
 
 		public void Start()
@@ -32,11 +32,11 @@ namespace Pulleys
 			m_pulley = gameObject.AddComponent<Pulley>();
 			m_pulley.m_baseRoot = m_baseRoot;
 			
-			ZDOID zDOID = m_nview.GetZDO().GetZDOID(MoveableBaseRoot.MBParentHash);
-            if (zDOID != ZDOID.None)
+			parentZDOID = m_nview.GetZDO().GetZDOID(MoveableBaseRoot.MBParentHash);
+            if (parentZDOID != ZDOID.None)
             {
 #if DEBUG
-                Jotunn.Logger.LogWarning(m_nview.m_zdo.m_uid + " Pulley part of existing base, setting as follower");
+                Jotunn.Logger.LogWarning(m_nview.m_zdo.m_uid + " Pulley part of existing base, setting as follower of " + parentZDOID);
 
 #endif
 				this.m_follower = true; 
@@ -77,11 +77,20 @@ namespace Pulleys
 
 		public void Update()
         {
-			if (m_follower || !m_nview || !m_nview.IsValid() || !m_baseRoot)
+			if (!m_nview || !m_nview.IsValid())
 			{
 				return;
 			}
-			if (!activatedPendingPieces)
+			if(!m_baseRoot && parentZDOID != ZDOID.None)
+            {
+                m_baseRootObject = ZNetScene.instance.FindInstance(parentZDOID);
+				m_baseRoot = m_baseRootObject?.GetComponentInParent<MoveableBaseRoot>();
+            }
+			if(m_follower)
+            {
+				return;
+            }
+			if (m_baseRoot && !activatedPendingPieces)
             {
 				activatedPendingPieces = m_baseRoot.ActivatePendingPieces();
             }
@@ -89,10 +98,17 @@ namespace Pulleys
 
 		public void OnDestroy()
 		{
-			if (m_baseRoot && !m_follower)
+			if(m_follower)
+            {
+				return;
+            }
+			if (m_baseRoot)
 			{
 				if(m_baseRoot.OnBaseRootDestroy(this))
                 {
+#if DEBUG
+					Jotunn.Logger.LogWarning(m_nview?.m_zdo?.m_uid + "Destroying MoveableBaseRoot: " + m_baseRoot);
+#endif
 					Destroy(m_baseRoot.gameObject);
                 }
 			}
@@ -105,10 +121,19 @@ namespace Pulleys
 
         internal void TakeOwnership(MoveableBaseSync destroyingSync)
         { 
-			 m_follower = false;
-			 m_rigidbody = destroyingSync.m_rigidbody;
-			 m_baseRootObject = destroyingSync.m_baseRootObject;
-			 m_baseRoot = destroyingSync.m_baseRoot;
+			m_follower = false;
+			m_rigidbody = destroyingSync.m_rigidbody;
+			m_baseRootObject = destroyingSync.m_baseRootObject;
+			m_baseRoot = destroyingSync.m_baseRoot;
+			m_baseRoot.m_nview = m_nview;
+			m_baseRoot.OnOwnershipTransferred();
+		}
+
+        internal void SetMoveableBaseRoot(MoveableBaseRoot moveableBaseRoot)
+        {
+			m_follower = true;
+			m_baseRoot = moveableBaseRoot;
+			m_baseRootObject = moveableBaseRoot.gameObject;
 		}
     }
 }

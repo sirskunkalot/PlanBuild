@@ -169,7 +169,7 @@ namespace Pulleys
                     sourcePrefab = "piece_spinningwheel",
                     sourcePath = "SpinningWheel_Destruction/SpinningWheel_Destruction.002_SpinningWheel_Broken.018",
                     materialPath = "New/High/SpinningWheel",
-                    position = new Vector3(0.06511331f, -1.12f, -0.855f),
+                    position = new Vector3(0.06511331f, -1.13f, -0.855f),
                     rotation = Quaternion.Euler(0, 180, 0)
                 },
                 new KitBashConfig

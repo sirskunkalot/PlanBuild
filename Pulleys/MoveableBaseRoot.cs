@@ -52,18 +52,7 @@ namespace Pulleys
 			Heightmap.GetHeight(transform.position, out highestFloor);
 			m_body = GetComponent<Rigidbody>();
 			m_shipControlls = GetComponentInChildren<PulleyControlls>();
-			InvokeRepeating("UpdateHeightMap", 10f, 10f);
-
-			//m_blockingcollider = gameObject.transform.Find("collider").GetComponent<BoxCollider>();
-			//m_onboardcollider = gameObject.transform.Find("OnBoardTrigger").GetComponent<BoxCollider>();
-			//m_bounds = m_onboardcollider.bounds;
-			// m_nview = GetComponent<ZNetView>(); 
-			// 
-			// if (m_nview.GetZDO() == null)
-			// {
-			// 	enabled = false;
-			// }
-
+			InvokeRepeating("UpdateHeightMap", 10f, 10f); 
 		}
 
 		public void UpdateHeightMap()
@@ -96,6 +85,7 @@ namespace Pulleys
 			m_pulleys.Add(pulley);
 			pulley.m_pulleyControlls.m_ship = this;
 			pulley.m_pulleyControlls.m_baseRoot = this;
+			pulley.m_baseRoot = this;
 			if (!m_shipControlls)
             {
 				SetActiveControll(pulley.m_pulleyControlls);
@@ -133,6 +123,22 @@ namespace Pulleys
 				}
 			}
 			return true;
+		}
+
+        internal void OnOwnershipTransferred()
+        {
+#if DEBUG
+
+#endif
+			foreach(Piece piece in m_pieces)
+            {
+				piece.m_nview.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
+            }
+			//Maybe?
+			m_nview.Register("Stop", RPC_Stop);
+			m_nview.Register("Forward", RPC_Forward);
+			m_nview.Register("Backward", RPC_Backward);
+			m_nview.Register<float>("Rudder", RPC_Rudder);
 		}
 
         internal void RemovePulley(Pulley m_pulley)
@@ -424,7 +430,10 @@ namespace Pulleys
 			{
 				if (componentsInChildren2[k].isKinematic)
 				{
-                    Destroy(componentsInChildren2[k]);
+#if DEBUG
+					Jotunn.Logger.LogWarning(GetZDOID() + " Destroying rigidbody: " + componentsInChildren2[k]);
+#endif
+					Destroy(componentsInChildren2[k]);
 				}
 			}
 			UpdateStats();
@@ -447,9 +456,7 @@ namespace Pulleys
 #if DEBUG
 			Jotunn.Logger.LogInfo(GetZDOID() + " Adding follower: " + moveableBaseSync.GetZDOID());
 #endif
-			moveableBaseSync.m_follower = true;
-			moveableBaseSync.m_baseRoot = this;
-			moveableBaseSync.m_baseRootObject = gameObject;
+			moveableBaseSync.SetMoveableBaseRoot(this);
 			if (moveableBaseSync.m_pulley)
 			{
 				AddPulley(moveableBaseSync.m_pulley);
