@@ -1,0 +1,13 @@
+{
+  "item_blueprintrune": "Blueprint Rune",
+  "item_blueprintrune_desc": "Used to make copies of structures and rebuild exact copies of them somewhere else.",
+  "make_blueprint": "Create new blueprint",
+  "make_blueprint_desc": "Creates a new blueprint of a structure.",
+  "piece_blueprint": "Blueprint",
+  "piece_blueprint_desc": "Creates the structure attached to this blueprint.",
+  "hud_bpcapture": "Capture",
+  "hud_bpradius": "Change capture radius (Hold Shift for camera distance)",
+  "hud_bpplace": "Place",
+  "hud_bpflatten": "Flatten ground",
+  "hud_bprotate": "Rotate (Hold Shift for camera distance)"
+}
