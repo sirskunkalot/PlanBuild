@@ -4,19 +4,17 @@ using Jotunn.Entities;
 using Jotunn.Utils; 
 using UnityEngine;
 
-namespace PlanBuild
+namespace PlanBuild.Plans
 {
-    class PlanCrystalPrefabConfig : CustomItem
+    class PlanCrystalPrefab : CustomItem
     {
-        public static ManualLogSource logger;
-
         public const string prefabName = "PlanCrystal";  
         private const string localizationName = "plan_crystal";
         private string iconPath = "icons/plan_crystal.png";
         public static GameObject startPlanCrystalEffectPrefab;
         public static GameObject stopPlanCrystalEffectPrefab;
 
-        public PlanCrystalPrefabConfig() : base(prefabName, "Ruby")
+        public PlanCrystalPrefab() : base(prefabName, "Ruby")
         {
             
             Recipe = new CustomRecipe(new RecipeConfig()
@@ -24,24 +22,25 @@ namespace PlanBuild
                 Item = prefabName,
                 Name = "$item_" + localizationName,
                 CraftingStation = "piece_workbench",
-                Requirements = new RequirementConfig[] {
-                                       new RequirementConfig()
-                                       {
-                                           Item = "Ruby",
-                                           Amount = 1
-                                       } ,
-                                        new  RequirementConfig()
-                                       {
-                                           Item = "GreydwarfEye",
-                                           Amount = 1
-                                       }
-                                   }
+                Requirements = new RequirementConfig[] 
+                {
+                    new RequirementConfig()
+                    {
+                        Item = "Ruby",
+                        Amount = 1
+                    } ,
+                    new  RequirementConfig()
+                    {
+                        Item = "GreydwarfEye",
+                        Amount = 1
+                    }
+                }
             });
         }
          
         public void Register()
         {
-            logger.LogDebug("Configuring item drop for PlanCrystal");
+            Jotunn.Logger.LogDebug("Configuring item drop for PlanCrystal");
 
             ItemDrop.ItemData.SharedData sharedData = ItemDrop.m_itemData.m_shared;
             sharedData.m_name = "$item_" + localizationName;
@@ -79,7 +78,7 @@ namespace PlanBuild
             sharedData.m_centerCamera = true;
             if (texture == null)
             {
-                logger.LogWarning($"planHammer icon not found at {iconPath}");
+                Jotunn.Logger.LogWarning($"planHammer icon not found at {iconPath}");
             }
             else
             {
@@ -105,7 +104,7 @@ namespace PlanBuild
             if (attachedPlayer)
             {
 #if DEBUG
-                PlanBuild.logger.LogDebug("Triggering real textures");
+                Jotunn.Logger.LogDebug("Triggering real textures");
 #endif
                 PlanBuild.showRealTextures = true;
                 PlanBuild.UpdateAllPlanPieceTextures();
@@ -125,7 +124,7 @@ namespace PlanBuild
             if (attachedPlayer)
             {
 #if DEBUG
-                PlanBuild.logger.LogDebug("Removing real textures");
+                Jotunn.Logger.LogDebug("Removing real textures");
 #endif
                 PlanBuild.showRealTextures = false;
                 PlanBuild.UpdateAllPlanPieceTextures();

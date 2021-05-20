@@ -1,16 +1,12 @@
-﻿using HarmonyLib;
-using Jotunn.Configs;
-using Jotunn.Entities;
+﻿using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using static PlanBuild.PlanBuild;
 
-namespace PlanBuild
+namespace PlanBuild.Plans
 {
-    public class PlanHammerPrefabConfig : CustomItem
+    public class PlanHammerPrefab : CustomItem
     {
         public const string planHammerName = "PlanHammer";
         private const string localizationName = "plan_hammer";
@@ -21,7 +17,7 @@ namespace PlanBuild
         private ItemDrop.ItemData.SharedData sharedData;
         public GameObject prefab;
 
-        public PlanHammerPrefabConfig() : base(planHammerName, "Hammer")
+        public PlanHammerPrefab() : base(planHammerName, "Hammer")
         { 
             
         }
@@ -41,7 +37,7 @@ namespace PlanBuild
             Texture2D texture = AssetUtils.LoadTexture(GetAssetPath(iconPath));
             if (texture == null)
             {
-                logger.LogWarning($"PlanHammer icon not found at {iconPath}");
+                Jotunn.Logger.LogWarning($"PlanHammer icon not found at {iconPath}");
             }
             else
             {

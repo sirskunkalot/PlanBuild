@@ -106,15 +106,15 @@
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
-    <Compile Include="PatcherBuildCamera.cs" />
-    <Compile Include="PatcherCraftFromContainers.cs" />
-    <Compile Include="PatcherEquipmentQuickSlots.cs" />
+    <Compile Include="ModCompat\PatcherBuildCamera.cs" />
+    <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
+    <Compile Include="ModCompat\PatcherEquipmentQuickSlots.cs" />
     <Compile Include="Patches.cs" />
-    <Compile Include="PatcherBuildShare.cs" />
-    <Compile Include="PlanCrystalPrefabConfig.cs" />
-    <Compile Include="PlanHammerPrefabConfig.cs" />
-    <Compile Include="PlanPiece.cs" />
-    <Compile Include="PlanPiecePrefabConfig.cs" />
+    <Compile Include="ModCompat\PatcherBuildShare.cs" />
+    <Compile Include="Plans\PlanCrystalPrefab.cs" />
+    <Compile Include="Plans\PlanHammerPrefab.cs" />
+    <Compile Include="Plans\PlanPiece.cs" />
+    <Compile Include="Plans\PlanPiecePrefab.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="PlanBuild.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -124,18 +124,11 @@
     <None Include="app.config" />
     <None Include="assets\Translations\English\PlanBuild.english.json" />
     <None Include="packages.config" />
-    <None Include="Package\README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Package\plugins\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Package\manifest.json" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="assets\icons\plan_crystal.png" />
     <Content Include="assets\icons\plan_hammer.png" />
-    <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">

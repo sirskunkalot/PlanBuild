@@ -433,7 +433,7 @@ namespace PlanBuild.Blueprints
                         BlueprintManager.Instance.m_blueprints.Remove(newbp.m_name);
                     }
 
-                    VeilheimPlugin.Instance.StartCoroutine(AddBlueprint());
+                    PlanBuild.Instance.StartCoroutine(AddBlueprint());
                 }
             }
 
