@@ -119,15 +119,6 @@ namespace PlanBuild
             harmony?.UnpatchAll(PluginGUID);
         }
 
-        private void OnItemsRegistered()
-        {
-            planHammerPrefabConfig.PrefabCreated();
-            planCrystalPrefabConfig.PrefabCreated();
-            hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
-            hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
-
-        }
-
         private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
         {
             try
@@ -151,6 +142,15 @@ namespace PlanBuild
                 On.ObjectDB.CopyOtherDB -= AddClonedItems;
             }
             orig(self, other);
+        }
+
+        private void OnItemsRegistered()
+        {
+            planHammerPrefabConfig.PrefabCreated();
+            planCrystalPrefabConfig.PrefabCreated();
+            hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
+            hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
+
         }
 
         internal bool addedHammer = false;

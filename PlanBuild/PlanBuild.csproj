@@ -102,6 +102,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\BlueprintManager.cs" />
+    <Compile Include="Blueprints\FlattenTerrain.cs" />
+    <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="PatcherBuildCamera.cs" />
     <Compile Include="PatcherCraftFromContainers.cs" />
     <Compile Include="PatcherEquipmentQuickSlots.cs" />
