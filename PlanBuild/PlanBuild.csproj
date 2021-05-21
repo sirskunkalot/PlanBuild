@@ -104,6 +104,7 @@
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
+    <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
@@ -122,6 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="assets\blueprints" />
     <None Include="assets\Translations\English\PlanBuild.english.json" />
     <None Include="packages.config" />
   </ItemGroup>

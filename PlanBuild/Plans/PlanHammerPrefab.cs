@@ -22,7 +22,7 @@ namespace PlanBuild.Plans
             
         }
 
-        public void Register()
+        public void Setup()
         { 
             itemData = ItemDrop.m_itemData;
             itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(pieceTableName);
@@ -46,7 +46,7 @@ namespace PlanBuild.Plans
             sharedData.m_maxQuality = 1;
         }
 
-        public void PrefabCreated()
+        public void FixShader()
         {
             prefab = ItemDrop.m_itemData.m_dropPrefab;
             ShaderHelper.UpdateTextures(prefab, ShaderHelper.ShaderState.Supported);

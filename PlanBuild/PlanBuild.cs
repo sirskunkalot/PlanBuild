@@ -8,13 +8,13 @@ using BepInEx;
 using BepInEx.Configuration;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using PlanBuild.Blueprints;
+using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using static PlanBuild.ShaderHelper;
-using PlanBuild.Plans;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild
@@ -39,28 +39,35 @@ namespace PlanBuild
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
-        
+
         internal PlanHammerPrefab planHammerPrefab;
-        private PlanCrystalPrefab planCrystalPrefab;
+        internal PlanCrystalPrefab planCrystalPrefab;
+        internal BlueprintRunePrefab blueprintRunePrefab;
 
         internal static bool showRealTextures;
         internal GameObject hammerPrefab;
         internal ItemDrop hammerPrefabItemDrop;
 
-        public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabConfigs = new Dictionary<string, PlanPiecePrefab>();
+        public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         private void Awake()
         {
             Instance = this;
-            Jotunn.Logger.LogInfo("Harmony patches");
-            Patches.Apply();
 
+            // Init Blueprints
+            blueprintRunePrefab = new BlueprintRunePrefab();
+            BlueprintManager.Instance.Init();
+
+            // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
 
+            // Harmony patching
+            Patches.Apply();
+
+            // Configs
             buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
             showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-
             configTransparentGhostPlacement = base.Config.Bind<bool>("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
 
             ShaderHelper.unsupportedColorConfig = base.Config.Bind<Color>("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
@@ -74,21 +81,21 @@ namespace PlanBuild
             buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
 
-            On.ObjectDB.CopyOtherDB += AddClonedItems;
-
+            // Hooks
+            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
             PrefabManager.OnPrefabsRegistered += ScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
 
-            UpdateBuildKey();
+            UpdateBuildKey(null, null);
+        }
+
+        private void OnDestroy()
+        {
+            Patches.Remove();
         }
 
         private void UpdateBuildKey(object sender, EventArgs e)
-        {
-            UpdateBuildKey();
-        }
-
-        private void UpdateBuildKey()
         {
             if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
             {
@@ -100,12 +107,7 @@ namespace PlanBuild
             }
         }
 
-        public void OnDestroy()
-        {
-            Patches.Remove();
-        }
-
-        private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        private void AddClonedItems()
         {
             try
             {
@@ -114,26 +116,26 @@ namespace PlanBuild
                 PlanCrystalPrefab.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StopEffect", "vfx_blocked");
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-                planHammerPrefab = new PlanHammerPrefab();
-                planCrystalPrefab = new PlanCrystalPrefab();
 
+                planHammerPrefab = new PlanHammerPrefab();
+                planHammerPrefab.Setup();
                 ItemManager.Instance.AddItem(planHammerPrefab);
+
+                planCrystalPrefab = new PlanCrystalPrefab();
+                planCrystalPrefab.Setup();
                 ItemManager.Instance.AddItem(planCrystalPrefab);
-                planHammerPrefab.Register();
-                planCrystalPrefab.Register();
 
             }
             finally
             {
-                On.ObjectDB.CopyOtherDB -= AddClonedItems;
+                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
             }
-            orig(self, other);
         }
 
         private void OnItemsRegistered()
         {
-            planHammerPrefab.PrefabCreated();
-            planCrystalPrefab.PrefabCreated();
+            planHammerPrefab.FixShader();
+            planCrystalPrefab.FixShader();
             hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
             hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
         }
@@ -188,7 +190,7 @@ namespace PlanBuild
                     }
                     continue;
                 }
-                if (planPiecePrefabConfigs.ContainsKey(piece.name))
+                if (planPiecePrefabs.ContainsKey(piece.name))
                 {
                     continue;
                 }
@@ -202,7 +204,7 @@ namespace PlanBuild
                 }
                 PlanPiecePrefab prefabConfig = new PlanPiecePrefab(piece);
                 PieceManager.Instance.AddPiece(prefabConfig);
-                planPiecePrefabConfigs.Add(piece.name, prefabConfig);
+                planPiecePrefabs.Add(piece.name, prefabConfig);
                 PrefabManager.Instance.RegisterToZNetScene(prefabConfig.PiecePrefab);
                 if (lateAdd)
                 {
@@ -227,7 +229,7 @@ namespace PlanBuild
             Player player = Player.m_localPlayer;
             if (!showAllPieces.Value)
             {
-                foreach (PlanPiecePrefab planPieceConfig in planPiecePrefabConfigs.Values)
+                foreach (PlanPiecePrefab planPieceConfig in planPiecePrefabs.Values)
                 {
                     if (!player.HaveRequirements(planPieceConfig.originalPiece, Player.RequirementMode.IsKnown))
                     {

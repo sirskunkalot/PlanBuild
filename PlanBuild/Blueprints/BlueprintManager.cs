@@ -8,11 +8,9 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
-    internal class BlueprintManager : MonoBehaviour
+    internal class BlueprintManager
     {
-        internal static BlueprintManager Instance { get; private set; }
-
-        internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExConfigPath, nameof(PlanBuild), "blueprints");
+        internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExRootPath, "config", nameof(PlanBuild), "blueprints");
         
         internal float selectionRadius = 10.0f;
 
@@ -25,15 +23,14 @@ namespace PlanBuild.Blueprints
         private GameObject kbHintsPlace;
         private GameObject kbHintsOrig;
 
-        private void Awake()
+        private static BlueprintManager _instance;
+        public static BlueprintManager Instance
         {
-            if (Instance != null)
+            get
             {
-                Jotunn.Logger.LogError($"Two instances of singleton {GetType()}");
-                return;
+                if (_instance == null) _instance = new BlueprintManager();
+                return _instance;
             }
-
-            Instance = this;
         }
 
         internal void Init()
@@ -107,7 +104,7 @@ namespace PlanBuild.Blueprints
                     var circleProjector = self.m_placementGhost.GetComponent<CircleProjector>();
                     if (circleProjector != null)
                     {
-                        Destroy(circleProjector);
+                        Object.Destroy(circleProjector);
                     }
 
                     var bpname = $"blueprint{Instance.m_blueprints.Count() + 1:000}";
@@ -174,7 +171,7 @@ namespace PlanBuild.Blueprints
                         }
 
                         // Instantiate a new object with the new prefab
-                        GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
+                        GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
 
                         // Register special effects
                         CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
@@ -346,7 +343,7 @@ namespace PlanBuild.Blueprints
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
                         {
-                            DestroyImmediate(self.m_placementMarkerInstance);
+                            Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
                         // Restore placementDistance

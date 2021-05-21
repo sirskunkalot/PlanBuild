@@ -38,7 +38,7 @@ namespace PlanBuild.Plans
             });
         }
          
-        public void Register()
+        public void Setup()
         {
             Jotunn.Logger.LogDebug("Configuring item drop for PlanCrystal");
 
@@ -87,7 +87,7 @@ namespace PlanBuild.Plans
             sharedData.m_maxQuality = 1;
         }
 
-         public void PrefabCreated()
+         public void FixShader()
         {
            
             ShaderHelper.UpdateTextures(ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
