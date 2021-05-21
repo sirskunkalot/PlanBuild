@@ -168,14 +168,14 @@ namespace PlanBuild
                 return false;
             }
             bool addedPiece = false;
-            foreach (GameObject hammerRecipe in hammerPieceTable.m_pieces)
+            foreach (GameObject piecePrefab in hammerPieceTable.m_pieces)
             {
-                if (hammerRecipe == null)
+                if (!piecePrefab)
                 {
-                    Jotunn.Logger.LogWarning("null recipe in Hammer PieceTable");
+                    Jotunn.Logger.LogWarning("Invalid prefab in Hammer PieceTable");
                     continue;
                 }
-                Piece piece = hammerRecipe.GetComponent<Piece>();
+                Piece piece = piecePrefab.GetComponent<Piece>();
 
                 if (piece.name == "piece_repair")
                 {
@@ -184,7 +184,7 @@ namespace PlanBuild
                         PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
                         if (planHammerPieceTable != null)
                         {
-                            planHammerPieceTable.m_pieces.Add(hammerRecipe);
+                            planHammerPieceTable.m_pieces.Add(piecePrefab);
                             addedHammer = true;
                         }
                     }
@@ -202,16 +202,16 @@ namespace PlanBuild
                 {
                     continue;
                 }
-                PlanPiecePrefab prefabConfig = new PlanPiecePrefab(piece);
-                PieceManager.Instance.AddPiece(prefabConfig);
-                planPiecePrefabs.Add(piece.name, prefabConfig);
-                PrefabManager.Instance.RegisterToZNetScene(prefabConfig.PiecePrefab);
+                PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
+                PieceManager.Instance.AddPiece(planPiece);
+                planPiecePrefabs.Add(piece.name, planPiece);
+                PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                 if (lateAdd)
                 {
                     PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
-                    if (!pieceTable.m_pieces.Contains(prefabConfig.PiecePrefab))
+                    if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                     {
-                        pieceTable.m_pieces.Add(prefabConfig.PiecePrefab);
+                        pieceTable.m_pieces.Add(planPiece.PiecePrefab);
                         addedPiece = true;
                     }
                 }
