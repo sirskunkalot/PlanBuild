@@ -1,25 +1,23 @@
-﻿// HaulingCart
+﻿// TestMod
 // a Valheim mod skeleton using Jötunn
 // 
-// File:    HaulingCart.cs
-// Project: HaulingCart
+// File:    TestMod.cs
+// Project: TestMod
 
 using BepInEx;
 using BepInEx.Configuration;
-using Jotunn.Entities;
-using Jotunn.Managers;
 using Jotunn.Utils;
 using UnityEngine;
 
-namespace HaulingCart
+namespace TestMod
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid)]
     //[NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
-    internal class HaulingCart : BaseUnityPlugin
+    internal class TestMod : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.jotunnmodstub";
-        public const string PluginName = "HaulingCart";
+        public const string PluginName = "TestMod";
         public const string PluginVersion = "0.0.1";
 
         private void Awake()
@@ -30,22 +28,6 @@ namespace HaulingCart
 
             // Jotunn comes with its own Logger class to provide a consistent Log style for all mods using it
             Jotunn.Logger.LogInfo("ModStub has landed");
-
-            CustomPiece cpHeart = null;
-            CustomPiece cpExpander = null;
-
-            cpHeart.Piece.m_craftingStation = PrefabManager.Cache.GetPrefab<CraftingStation>("piece_workbench");
-            CraftingStation customCraftingStation = cpHeart.PiecePrefab.AddComponent<CraftingStation>();
-            customCraftingStation.m_name = "$piece_TS_Expander_CS";
-
-            cpExpander.Piece.m_craftingStation = customCraftingStation;
-            cpExpander.Piece.m_resources = new Piece.Requirement[]{
-                MockRequirement.Create("Stone", 10),
-                MockRequirement.Create("Wood", 10)
-            };
-            cpExpander.PiecePrefab.AddComponent<CraftingStation>();
-            cpExpander.PiecePrefab.GetComponent<CraftingStation>().m_name = "$piece_TS_Expander_CS";
-            cpExpander.PiecePrefab.GetComponent<CraftingStation>().m_rangeBuild = 45; // 50 or 45 - the range is for the player *not* the piece.
         }
 
 #if DEBUG

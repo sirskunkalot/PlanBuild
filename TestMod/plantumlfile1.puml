@@ -1,0 +1,16 @@
+﻿@startuml
+'' Jotunn loading sequence
+
+box Valheim
+	participant ZNetScene
+end box
+
+box Jotunn
+
+end box
+
+box Pulleys
+
+end box
+
+@enduml

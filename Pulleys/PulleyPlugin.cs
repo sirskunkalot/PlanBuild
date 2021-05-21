@@ -28,17 +28,18 @@ namespace Pulleys
         public const string PluginGUID = "marcopogo.Pulleys";
         public const string PluginName = "Pulleys";
         public const string PluginVersion = "0.0.1";
-        private AssetBundle embeddedResourceBundle;
+
         private GameObject pulleyBasePrefab; 
         private GameObject pulleySupportPrefab;
         private GameObject kitBashRoot;
+
         private Harmony harmony;
 
         private void Awake()
         {
             kitBashRoot = new GameObject("KitBashRoot");
             DontDestroyOnLoad(kitBashRoot);
-            kitBashRoot.SetActive(false);
+            kitBashRoot.SetActive(false); 
 
             harmony = new Harmony(PluginGUID);
             harmony.PatchAll(typeof(Patches));
@@ -50,6 +51,48 @@ namespace Pulleys
         public void OnDestroy()
         {
             harmony?.UnpatchAll(PluginGUID);
+        }
+
+        private void RegisterCustomItems()
+        {
+            AssetBundle embeddedResourceBundle = null;
+            try
+            {
+                embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("pulleys", typeof(PulleyPlugin).Assembly);
+
+                SetupPulleyBase(embeddedResourceBundle);
+                SetupPulleySupport(embeddedResourceBundle);
+            }
+            finally
+            {
+                embeddedResourceBundle?.Unload(false);
+                ItemManager.OnVanillaItemsAvailable -= RegisterCustomItems;
+            }
+        }
+
+        private void SetupPulleySupport(AssetBundle embeddedResourceBundle)
+        {
+            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_support");
+            pulleySupportPrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
+            pulleySupportPrefab.name = "piece_pulley_support";
+            PieceManager.Instance.AddPiece(new CustomPiece(pulleySupportPrefab, new PieceConfig()
+            {
+                PieceTable = "Hammer"
+            }));
+            pulleySupportPrefab.AddComponent<PulleySupport>();
+        }
+
+        private void SetupPulleyBase(AssetBundle embeddedResourceBundle)
+        {
+            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_base");
+            pulleyBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
+            pulleyBasePrefab.name = "piece_pulley_base";
+            pulleyBasePrefab.AddComponent<MoveableBaseSync>();
+            PieceManager.Instance.AddPiece(new CustomPiece(pulleyBasePrefab, new PieceConfig()
+            {
+                PieceTable = "Hammer"
+            }));
+            pulleyBasePrefab.AddComponent<Pulley>();
         }
 
         private void ApplyKitBash()
@@ -332,49 +375,6 @@ namespace Pulleys
 
                 componentsInChildren[i].gameObject.layer = layer;
             }
-        }
-
-        private void RegisterCustomItems()
-        {
-            try
-            { 
-                embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("pulleys", typeof(PulleyPlugin).Assembly);
-            
-                SetupPulleyBase(); 
-                SetupPulleySupport();
-
-                
-            } finally
-            {
-                embeddedResourceBundle?.Unload(false);
-                ItemManager.OnVanillaItemsAvailable -= RegisterCustomItems;
-            }
-     
-
-        }
-
-        private void SetupPulleySupport()
-        {
-            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_support");
-            pulleySupportPrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
-            pulleySupportPrefab.name = "piece_pulley_support";
-            PieceManager.Instance.AddPiece(new CustomPiece(pulleySupportPrefab, new PieceConfig()
-            {
-                PieceTable = "Hammer"
-            }));
-            pulleySupportPrefab.AddComponent<PulleySupport>();
-        }
-
-        private void SetupPulleyBase()
-        {
-            GameObject embeddedPrefab = embeddedResourceBundle.LoadAsset<GameObject>("piece_pulley_base");
-            pulleyBasePrefab = Instantiate(embeddedPrefab, kitBashRoot.transform);
-            pulleyBasePrefab.name = "piece_pulley_base";
-            pulleyBasePrefab.AddComponent<MoveableBaseSync>(); 
-            PieceManager.Instance.AddPiece(new CustomPiece(pulleyBasePrefab, new PieceConfig()
-            {
-                PieceTable = "Hammer"
-            })); 
         }
 
         private void KitBash(GameObject piecePrefab, List<KitBashConfig> kitbashes)

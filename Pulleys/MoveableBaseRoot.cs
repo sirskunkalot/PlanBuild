@@ -14,12 +14,11 @@ namespace Pulleys
 		public static readonly int MBPositionHash = "marcopogo.MBPosition".GetStableHashCode(); 
 		public static readonly int MBRotationHash = "marcopogo.MBRotation".GetStableHashCode();
 
-		public static Dictionary<ZDOID, List<Piece>> m_pendingPieces = new Dictionary<ZDOID, List<Piece>>();
+		public static Dictionary<ZDOID, HashSet<Piece>> m_pendingPieces = new Dictionary<ZDOID, HashSet<Piece>>();
 
 		public MoveableBaseSync m_moveableBaseSync;
-		public readonly List<MoveableBaseSync> m_followers = new List<MoveableBaseSync>();    
-		public readonly List<Pulley> m_pulleys = new List<Pulley>();
-
+		public readonly HashSet<Pulley> m_pulleys = new HashSet<Pulley>();
+		 
 		public readonly List<Piece> m_pieces = new List<Piece>();
 
         // public Rigidbody m_syncRigidbody;
@@ -84,57 +83,51 @@ namespace Pulleys
 #endif
 			m_pulleys.Add(pulley);
 			pulley.m_pulleyControlls.m_ship = this;
-			pulley.m_pulleyControlls.m_baseRoot = this;
-			pulley.m_baseRoot = this;
+			pulley.m_pulleyControlls.m_baseRoot = this; 
 			if (!m_shipControlls)
             {
 				SetActiveControll(pulley.m_pulleyControlls);
             }
         }
 
-        public bool OnBaseRootDestroy(MoveableBaseSync destroyingSync)
-		{
-            MoveableBaseSync connectedFollower = m_followers.Find(follower => follower.m_pulley.IsConnected());
-			if(connectedFollower)
+        public void OnBaseRootDestroy(MoveableBaseSync destroyingSync)
+        {
+            m_pulleys.Remove(destroyingSync.m_pulley);
+            MoveableBaseSync connectedFollower = m_pulleys.Where(pulley => pulley.IsConnected()).First()?.m_baseSync;
+            if (connectedFollower)
             {
-				m_followers.Remove(connectedFollower);
-				connectedFollower.TakeOwnership(destroyingSync);
-				return false;
+                connectedFollower.TakeOwnership(destroyingSync);
+                return;
             }
 
-			if (!ZNetScene.instance || !ZNetScene.instance.m_netSceneRoot || !(m_id != ZDOID.None))
-			{
-				return true;
-			}
-			for (int i = 0; i < m_pieces.Count; i++)
-			{
-				Piece piece = m_pieces[i];
-				if ((bool)piece)
-				{ 
-					AddInactivePiece(m_id, piece);
-				}
-			}
-			List<Player> allPlayers = Player.GetAllPlayers();
-			for (int j = 0; j < allPlayers.Count; j++)
-			{
-				if (allPlayers[j] && allPlayers[j].transform.parent == transform)
-				{
-					allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
-				}
-			}
-			return true;
-		}
+            if (ZNetScene.instance && ZNetScene.instance.m_netSceneRoot && m_id != ZDOID.None)
+            {
+                for (int i = 0; i < m_pieces.Count; i++)
+                {
+                    Piece piece = m_pieces[i];
+                    if ((bool)piece)
+                    {
+                        AddInactivePiece(m_id, piece);
+                    }
+                }
+                List<Player> allPlayers = Player.GetAllPlayers();
+                for (int j = 0; j < allPlayers.Count; j++)
+                {
+                    if (allPlayers[j] && allPlayers[j].transform.parent == transform)
+                    {
+                        allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
+                    }
+                }
+            }
+        }
 
         internal void OnOwnershipTransferred()
         {
 #if DEBUG
 
 #endif
-			foreach(Piece piece in m_pieces)
-            {
-				piece.m_nview.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
-            }
-			//Maybe?
+			m_pieces.ForEach(SetParentAndZDOs);
+			//Maybe? seems to work ...
 			m_nview.Register("Stop", RPC_Stop);
 			m_nview.Register("Forward", RPC_Forward);
 			m_nview.Register("Backward", RPC_Backward);
@@ -235,11 +228,11 @@ namespace Pulleys
 		public static void AddInactivePiece(ZDOID id, Piece piece)
 		{
 #if DEBUG
-            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview?.m_zdo.m_uid + ")");
+            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview?.m_zdo?.m_uid + ")");
 #endif
 			if (!m_pendingPieces.TryGetValue(id, out var value))
 			{
-				value = new List<Piece>();
+				value = new HashSet<Piece>();
 				m_pendingPieces.Add(id, value);
 			}
 			value.Add(piece);
@@ -290,10 +283,9 @@ namespace Pulleys
 			{
 				return true;
 			}
-			for (int i = 0; i < value.Count; i++)
-			{
-				Piece piece = value[i];
-				if ((bool)piece)
+			foreach(Piece piece in value)
+            {
+				if (piece)
 				{
 					ActivatePiece(piece);
 				}
@@ -327,6 +319,12 @@ namespace Pulleys
 				{
 					component.m_baseRoot.ActivatePiece(piece);
 				}
+#if DEBUG
+				else
+                {
+					Jotunn.Logger.LogWarning("ZDOID Saved MoveableBaseSync has no MoveableBaseSync: " + component + " " + component.transform.position);
+                }
+#endif
 			}
 			else
 			{
@@ -355,20 +353,34 @@ namespace Pulleys
 		}
 
 		public void AddNewPiece(Piece piece)
+        {
+#if DEBUG
+            Jotunn.Logger.LogInfo(GetZDOID() + " Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+#endif 
+            SetParentAndZDOs(piece); 
+			AddPiece(piece);
+        }
+
+        private void SetParentAndZDOs(Piece piece)
 		{
 #if DEBUG
-			Jotunn.Logger.LogInfo(GetZDOID() + " Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
+			Jotunn.Logger.LogInfo("MoveableBaseRoot " + m_nview.m_zdo.m_uid + ": Claiming piece " + piece + " " + piece.m_nview.m_zdo.m_uid);
 #endif
 			piece.transform.SetParent(transform);
-			ZNetView component = piece.GetComponent<ZNetView>();
+			ZNetView pieceNview = piece.GetComponent<ZNetView>();
+            pieceNview.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
+            pieceNview.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
+            pieceNview.m_zdo.Set(MBRotationHash, piece.transform.localRotation);
+        }
 
-			component.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
-			component.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
-			component.m_zdo.Set(MBRotationHash, piece.transform.localRotation);
-			AddPiece(piece);
+		internal void ClearMoveableBaseSyncZDO()
+        {
+			m_nview.m_zdo.Set(MBParentHash, ZDOID.None);
+			m_nview.m_zdo.Set(MBPositionHash, Vector3.zero);
+			m_nview.m_zdo.Set(MBRotationHash, Quaternion.identity);
 		}
 
-		public void AddPiece(Piece piece)
+        public void AddPiece(Piece piece)
 		{
 			m_pieces.Add(piece);
 			//EncapsulateBounds(piece);
@@ -456,12 +468,8 @@ namespace Pulleys
 #if DEBUG
 			Jotunn.Logger.LogInfo(GetZDOID() + " Adding follower: " + moveableBaseSync.GetZDOID());
 #endif
-			moveableBaseSync.SetMoveableBaseRoot(this);
-			if (moveableBaseSync.m_pulley)
-			{
-				AddPulley(moveableBaseSync.m_pulley);
-			}
-			m_followers.Add(moveableBaseSync);
+			moveableBaseSync.SetMoveableBaseRoot(this); 
+			AddPulley(moveableBaseSync.m_pulley); 
 		}
 
         public new void ApplyMovementControlls(Vector3 direction)

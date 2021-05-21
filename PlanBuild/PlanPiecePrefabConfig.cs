@@ -28,6 +28,8 @@ namespace PlanBuild
             Piece.m_comfort = 0;
             Piece.m_canBeRemoved = true; 
             
+
+
             Piece.m_category = originalPiece.m_category;
             Piece.m_groundOnly = originalPiece.m_groundOnly;
             Piece.m_groundPiece = originalPiece.m_groundPiece;

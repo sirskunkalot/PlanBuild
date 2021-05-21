@@ -9,7 +9,7 @@ namespace Pulleys
 {
     public class Pulley : MonoBehaviour
     {
-
+        private const float PulleyUpdateTime = 2f;
         public static readonly KeyValuePair<int, int> PulleySupportHash = ZDO.GetHashZDOID("marcopogo.PulleySupport");  
         public PulleyControlls m_pulleyControlls;
         internal PulleySupport m_support;
@@ -23,7 +23,7 @@ namespace Pulleys
         internal float rotation;
         public Transform m_controlGuiPos;
         internal ZNetView m_nview;
-        internal MoveableBaseRoot m_baseRoot;
+        internal MoveableBaseSync m_baseSync;
 
         private int m_supportRayMask;
 
@@ -54,7 +54,7 @@ namespace Pulleys
             m_support = FindPulleySupport();
             if (!m_support)
             { 
-                InvokeRepeating("UpdateLookForSupport", 1f, 1f);
+                InvokeRepeating("UpdateLookForSupport", PulleyUpdateTime, PulleyUpdateTime);
                 return;
             }
           
@@ -65,7 +65,7 @@ namespace Pulleys
         private void OnDestroyed()
         {
             m_support?.PulleyBaseDestroyed(this);
-            m_pulleyControlls.m_baseRoot?.RemovePulley(this);
+            m_baseSync.RemovePulley(this);
         }
 
         internal void SupportDestroyed(PulleySupport pulleySupport)
@@ -77,6 +77,7 @@ namespace Pulleys
             }
             m_support = null;
             m_nview.GetZDO().Set(PulleySupportHash, ZDOID.None);
+            InvokeRepeating("UpdateLookForSupport", PulleyUpdateTime, PulleyUpdateTime);
         }
 
         internal void SetSupport(PulleySupport pulleySupport)
@@ -86,26 +87,24 @@ namespace Pulleys
 #endif
             m_nview.GetZDO().Set(PulleySupportHash, pulleySupport.m_nview.m_zdo.m_uid);
             m_support = pulleySupport;
+            CancelInvoke("UpdateLookForSupport");
         }
 
         public void UpdateLookForSupport()
         {
             if (!m_support)
             {
-                m_support = FindPulleySupport();
-                if (m_support)
+               PulleySupport pulleySupport = FindPulleySupport();
+                if (pulleySupport)
                 {
-                    m_support.SetPulleyBase(this);
-                    UpdateRotation();
-                    CancelInvoke("UpdateLookForSupport");
+                    SetSupport(pulleySupport);
                 }
             }
         }
- 
-
+         
         internal ZDOID GetZDOID()
         {
-            return m_nview.m_zdo.m_uid;
+            return m_nview.m_zdo.m_uid ;
         }
 
         internal void UpdateRotation(float defaultRopeLength = 0f)
@@ -161,25 +160,27 @@ namespace Pulleys
             {
                 return defaultRopeLength;
             }
+
             return m_support.transform.position.y - transform.position.y;
         }
 
         internal bool CanBeRemoved()
         {
-            if(!m_baseRoot)
+            if(!m_baseSync)
             {
+                //In case of error, allow removal
+#if DEBUG
+                Jotunn.Logger.LogWarning(GetZDOID() + " Removed pulley was invalid, no m_baseSync!?");
+#endif 
                 return true;
             }
             if(!IsConnected())
             {
-                return true;
-            } 
-            if(m_baseRoot.m_pulleys.Count(pulley => pulley.IsConnected()) > 1)
-            {
+                //Unconnected pulleys don't support anything
                 return true;
             }
 
-            return m_baseRoot.m_pieces.Count == 1;
+            return m_baseSync.CanBeRemoved(this);
         }
     }
 }
