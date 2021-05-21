@@ -9,8 +9,6 @@ namespace Pulleys
 {
     public class Pulley : MonoBehaviour
     {
-        private const float PulleyUpdateTime = 2f;
-        public static readonly KeyValuePair<int, int> PulleySupportHash = ZDO.GetHashZDOID("marcopogo.PulleySupport");  
         public PulleyControlls m_pulleyControlls;
         internal PulleySupport m_support;
         internal Transform pivotLeft;
@@ -25,12 +23,11 @@ namespace Pulleys
         internal ZNetView m_nview;
         internal MoveableBaseSync m_baseSync;
 
-        private int m_supportRayMask;
 
         public void Awake()
         {
-            m_supportRayMask = LayerMask.GetMask("piece");
             m_nview = GetComponent<ZNetView>();
+            m_baseSync = GetComponent<MoveableBaseSync>();
             
             if(!m_nview || !m_nview.IsValid())
             {
@@ -50,22 +47,11 @@ namespace Pulleys
             crank = transform.Find("New/crank");
 
             m_controlGuiPos = transform.Find("ControlGui");
-            
-            m_support = FindPulleySupport();
-            if (!m_support)
-            { 
-                InvokeRepeating("UpdateLookForSupport", PulleyUpdateTime, PulleyUpdateTime);
-                return;
-            }
-          
-            m_support.SetPulleyBase(this);
-            UpdateRotation();
         }
 
         private void OnDestroyed()
         {
-            m_support?.PulleyBaseDestroyed(this);
-            m_baseSync.RemovePulley(this);
+            m_support?.PulleyBaseDestroyed(this); 
         }
 
         internal void SupportDestroyed(PulleySupport pulleySupport)
@@ -75,9 +61,7 @@ namespace Pulleys
                 Jotunn.Logger.LogWarning("Invalid callback from " + pulleySupport.GetZDOID() + " to " + this.GetZDOID() + ", expected " + m_support.GetZDOID());
                 return;
             }
-            m_support = null;
-            m_nview.GetZDO().Set(PulleySupportHash, ZDOID.None);
-            InvokeRepeating("UpdateLookForSupport", PulleyUpdateTime, PulleyUpdateTime);
+            m_support = null; 
         }
 
         internal void SetSupport(PulleySupport pulleySupport)
@@ -85,23 +69,15 @@ namespace Pulleys
 #if DEBUG
             Jotunn.Logger.LogWarning(GetInstanceID() + ": Setting support for pulley @ " + this.transform.position + " " + gameObject.GetInstanceID() + ": " + pulleySupport.GetInstanceID());
 #endif
-            m_nview.GetZDO().Set(PulleySupportHash, pulleySupport.m_nview.m_zdo.m_uid);
             m_support = pulleySupport;
-            CancelInvoke("UpdateLookForSupport");
+            m_baseSync.PulleyConnected();
         }
 
-        public void UpdateLookForSupport()
+        internal void OnMoveableBaseCreated(MoveableBaseRoot m_baseRoot)
         {
-            if (!m_support)
-            {
-               PulleySupport pulleySupport = FindPulleySupport();
-                if (pulleySupport)
-                {
-                    SetSupport(pulleySupport);
-                }
-            }
+            m_pulleyControlls.SetMoveableBase(m_baseRoot);
         }
-         
+
         internal ZDOID GetZDOID()
         {
             return m_nview.m_zdo.m_uid ;
@@ -122,31 +98,6 @@ namespace Pulleys
             planet3.localRotation = Quaternion.Euler(-rotation, 0f, 0f);
             planet4.localRotation = Quaternion.Euler(-rotation, 0f, 0f);
             crank.localRotation = Quaternion.Euler(rotation, 0f, 0f);
-        }
-
-        private PulleySupport FindPulleySupport()
-        {
-            ZDOID pulleySupportID = m_nview.GetZDO().GetZDOID(PulleySupportHash);
-            if(pulleySupportID == ZDOID.None)
-            {
-                if(Physics.Raycast(transform.position + 2*transform.up , transform.up, out var hitInfo,  2000f, m_supportRayMask)) {
-                    PulleySupport pulleySupport = hitInfo.collider.GetComponentInParent<PulleySupport>();
-                    if(pulleySupport && pulleySupport.IsConnected())
-                    {
-                        return null;
-                    }
-                    return pulleySupport;
-                } 
-                return null;
-            }
-            GameObject pulleySupportObject = ZNetScene.instance.FindInstance(pulleySupportID);
-            if(!pulleySupportObject)
-            {
-                Jotunn.Logger.LogWarning("Stored Pulley Support not found!: " + pulleySupportID);
-                m_nview.GetZDO().Set(PulleySupportHash, ZDOID.None);
-                return null;
-            }
-            return pulleySupportObject.GetComponent<PulleySupport>();
         }
 
         internal bool IsConnected()

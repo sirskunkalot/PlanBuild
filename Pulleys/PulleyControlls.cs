@@ -43,8 +43,17 @@ namespace Pulleys
           //  Physics.IgnoreCollision(m_wheelCollider, Player.m_localPlayer.GetComponent<Collider>(), ignore: false);
             base.OnUseStop(player);
         }
-         
-          
+
+        internal static bool ShipControllsInteract(On.ShipControlls.orig_Interact orig, ShipControlls self, Humanoid character, bool repeat)
+        {
+            PulleyControlls pulleyControlls = self as PulleyControlls;
+            if (pulleyControlls && !pulleyControlls.m_ship) {
+                character.Message(MessageHud.MessageType.Center, "$msg_pulley_is_not_connected");
+                return false;
+            }
+            return orig(self, character, repeat);
+        }
+
         public new void RPC_RequestControl(long sender, ZDOID playerID)
         {
             if (m_nview.IsOwner() && m_ship.IsPlayerInBoat(playerID))
@@ -73,19 +82,12 @@ namespace Pulleys
             }
             base.RPC_RequestRespons(sender, granted);
         }
-         
 
-        [HarmonyPatch(typeof(Player), "SetControls")]
-        [HarmonyPrefix]
-        static bool Player_SetControls_Prefix(Player __instance, ShipControlls ___m_shipControl)
+        internal void SetMoveableBase(MoveableBaseRoot baseRoot)
         {
-            ShipControlls pulleyControl = ___m_shipControl;
-            if (pulleyControl != null)
-            { 
-                return true;
-            }
-            return true;
-        }
+            m_ship = baseRoot;
+            this.m_baseRoot = baseRoot;
+        } 
 
         internal void UpdateIK(Animator m_animator)
         {

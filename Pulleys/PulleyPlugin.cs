@@ -35,7 +35,7 @@ namespace Pulleys
 
         private Harmony harmony;
 
-        private void Awake()
+        public void Awake()
         {
             kitBashRoot = new GameObject("KitBashRoot");
             DontDestroyOnLoad(kitBashRoot);
@@ -46,6 +46,8 @@ namespace Pulleys
             
             ItemManager.OnVanillaItemsAvailable += RegisterCustomItems;
             PrefabManager.OnPrefabsRegistered += ApplyKitBash;
+
+            On.ShipControlls.Interact += PulleyControlls.ShipControllsInteract;
         }
 
         public void OnDestroy()
@@ -60,8 +62,8 @@ namespace Pulleys
             {
                 embeddedResourceBundle = AssetUtils.LoadAssetBundleFromResources("pulleys", typeof(PulleyPlugin).Assembly);
 
-                SetupPulleyBase(embeddedResourceBundle);
                 SetupPulleySupport(embeddedResourceBundle);
+                SetupPulleyBase(embeddedResourceBundle);
             }
             finally
             {

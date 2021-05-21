@@ -16,9 +16,7 @@ namespace Pulleys
 		public ZNetView m_nview;
 		public bool m_follower;
 		public GameObject m_baseRootObject;
-		private bool activatedPendingPieces = false;
-        private MoveableBaseSync m_syncParent;
-        private ZDOID parentZDOID = ZDOID.None;
+		private bool activatedPendingPieces = false; 
         internal Pulley m_pulley;
 
         public void Awake()
@@ -36,16 +34,8 @@ namespace Pulleys
 
             if(m_nview.GetZDO().GetBool(MBHasMoveableBase))
             {
-
-            }
-			
-			parentZDOID = m_nview.GetZDO().GetZDOID(MoveableBaseRoot.MBParentHash);
-#if DEBUG
-            if (parentZDOID != ZDOID.None)
-            {
-                Jotunn.Logger.LogWarning(m_nview.m_zdo.m_uid + " Pulley part of existing base, setting as follower of " + parentZDOID);
-            }
-#endif
+                CreateMoveableBaseRoot();
+            } 
 		}
 
         internal GameObject CreateMoveableBaseRoot()
@@ -76,6 +66,15 @@ namespace Pulleys
             return m_baseRootObject;
         }
 
+        internal void PulleyConnected()
+        {
+            if(!m_baseRoot)
+            {
+                CreateMoveableBaseRoot();
+                m_pulley.OnMoveableBaseCreated(m_baseRoot);
+            }
+        }
+
         internal void RemovePulley(Pulley pulley)
         {
             m_baseRoot?.RemovePulley(pulley);
@@ -86,12 +85,7 @@ namespace Pulleys
 			if (!m_nview || !m_nview.IsValid())
 			{
 				return;
-			}
-			if(!m_baseRoot && parentZDOID != ZDOID.None)
-            {
-                m_baseRootObject = ZNetScene.instance.FindInstance(parentZDOID);
-				SetMoveableBaseRoot(m_baseRootObject?.GetComponentInParent<MoveableBaseRoot>());
-            }
+			} 
 			if(m_follower)
             {
 				return;
