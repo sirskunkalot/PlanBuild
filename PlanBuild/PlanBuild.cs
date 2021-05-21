@@ -6,8 +6,6 @@
 
 using BepInEx;
 using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using System;
@@ -37,8 +35,6 @@ namespace PlanBuild
 
         public static PlanBuild Instance;
 
-        Harmony harmony;
-
         public static ConfigEntry<string> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
@@ -55,10 +51,9 @@ namespace PlanBuild
 
         private void Awake()
         {
-            harmony = new Harmony("marcopogo.PlanBuild");
             Instance = this;
             Jotunn.Logger.LogInfo("Harmony patches");
-            Patches.Apply(harmony);
+            Patches.Apply();
 
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
 
@@ -107,7 +102,7 @@ namespace PlanBuild
 
         public void OnDestroy()
         {
-            harmony?.UnpatchAll(PluginGUID);
+            Patches.Remove();
         }
 
         private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)

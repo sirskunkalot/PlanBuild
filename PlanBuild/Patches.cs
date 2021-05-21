@@ -16,6 +16,8 @@ namespace PlanBuild
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string equipmentQuickSlotsGUID = "randyknapp.mods.equipmentandquickslots";
 
+        private static Harmony harmony;
+
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
         static void PieceManager_RegisterInPieceTables_Prefix()
@@ -76,8 +78,9 @@ namespace PlanBuild
             } 
         }
 
-        internal static void Apply(Harmony harmony)
+        internal static void Apply()
         {
+            harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
             harmony.PatchAll(typeof(PlanPiece));
             if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
@@ -101,7 +104,11 @@ namespace PlanBuild
                 Jotunn.Logger.LogInfo("Applying BuildShare patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherBuildShare));
             }
-            
+        }
+
+        internal static void Remove()
+        {
+            harmony?.UnpatchAll(PlanBuild.PluginGUID);
         }
     }
 }
