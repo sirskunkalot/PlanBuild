@@ -6,17 +6,16 @@ using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace PlanBuild
+namespace PlanBuild.Plans
 {
-    public class PlanPiecePrefabConfig : CustomPiece
+    public class PlanPiecePrefab : CustomPiece
     {
-        public static ManualLogSource logger;
         public const string plannedSuffix = "_planned";
         public Piece originalPiece;
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
-        public PlanPiecePrefabConfig(Piece piece) : base(piece.gameObject.name + PlanPiecePrefabConfig.plannedSuffix, piece.gameObject.name, PlanHammerPrefabConfig.pieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.plannedSuffix, piece.gameObject.name, PlanHammerPrefab.pieceTableName)
         { 
             
             this.originalPiece = piece;
@@ -41,7 +40,7 @@ namespace PlanBuild
             
 
 
-            this.PieceTable = PlanHammerPrefabConfig.pieceTableName;  
+            this.PieceTable = PlanHammerPrefab.pieceTableName;  
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
             if (wearNTear == null)
@@ -67,7 +66,7 @@ namespace PlanBuild
                 {
                     sb.Append($" {component.GetType()} -> {component.name}\n");
                 }
-                logger.LogWarning(sb.ToString());
+                Jotunn.Logger.LogWarning(sb.ToString());
             }
 
             DisablePiece(PiecePrefab);

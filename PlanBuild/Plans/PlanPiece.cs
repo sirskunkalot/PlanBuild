@@ -1,6 +1,5 @@
 ﻿using BepInEx.Logging;
 using HarmonyLib;
-using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,12 +8,10 @@ using UnityEngine.UI;
 using static Piece;
 using Object = UnityEngine.Object;
 
-namespace PlanBuild
+namespace PlanBuild.Plans
 {
     public class PlanPiece : MonoBehaviour, Interactable, Hoverable
     {
-        public static ManualLogSource logger;
-    
         public const string zdoPlanPiece = "PlanPiece";
         public const string zdoPlanResource = "PlanResource";
          
@@ -156,7 +153,7 @@ namespace PlanBuild
         /// </summary>
         private void InvalidPlanPiece()
         {
-            logger.LogWarning("Invalid PlanPiece , destroying self: " + name + " @ " + gameObject.transform.position);
+            Jotunn.Logger.LogWarning("Invalid PlanPiece , destroying self: " + name + " @ " + gameObject.transform.position);
             ZNetScene.instance.Destroy(base.gameObject);
             Destroy(this.gameObject);
         }
@@ -343,7 +340,7 @@ namespace PlanBuild
                 return false;
             } 
             if (user.GetInventory().GetItem("$item_hammer") == null
-                && user.GetInventory().GetItem(PlanHammerPrefabConfig.itemName) == null)
+                && user.GetInventory().GetItem(PlanHammerPrefab.itemName) == null)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_need_hammer");
                 return false;
@@ -514,7 +511,7 @@ namespace PlanBuild
                 wearNTear.OnPlaced();
             }
 #if DEBUG
-            logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
+            Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
             ZNetScene.instance.Destroy(this.gameObject);
             Destroy(this.gameObject);

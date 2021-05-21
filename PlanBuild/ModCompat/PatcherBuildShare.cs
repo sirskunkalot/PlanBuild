@@ -1,8 +1,9 @@
 ﻿using HarmonyLib;
 using System;
 using System.IO;
+using PlanBuild.Plans;
 
-namespace PlanBuild
+namespace PlanBuild.ModCompat
 {
     public class PatcherBuildShare
     {
@@ -36,7 +37,7 @@ namespace PlanBuild
 
                     string[] parts = __result[i].Split(' ');
                     string prefabName = parts[0];
-                    prefabName += PlanPiecePrefabConfig.plannedSuffix; 
+                    prefabName += PlanPiecePrefab.plannedSuffix; 
                     var planPrefab = ZNetScene.instance.GetPrefab(prefabName);
                     if (planPrefab != null)
                     {

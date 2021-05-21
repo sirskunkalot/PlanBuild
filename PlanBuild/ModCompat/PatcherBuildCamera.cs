@@ -1,11 +1,7 @@
 ﻿using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PlanBuild.Plans;
 
-namespace PlanBuild
+namespace PlanBuild.ModCompat
 {
     class PatcherBuildCamera
     { 
@@ -13,7 +9,7 @@ namespace PlanBuild
         [HarmonyPrefix]
         static bool ValheimBuildCamera_IsTool_Prefix(ItemDrop.ItemData itemData, ref bool __result)
         {
-            if (itemData?.m_shared.m_name == PlanHammerPrefabConfig.itemName)
+            if (itemData?.m_shared.m_name == PlanHammerPrefab.itemName)
             {
                 __result = true;
                 return false;

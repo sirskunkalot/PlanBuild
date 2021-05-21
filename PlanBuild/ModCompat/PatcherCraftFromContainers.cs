@@ -1,7 +1,8 @@
 ﻿using HarmonyLib;
-using System; 
+using System;
+using PlanBuild.Plans;
 
-namespace PlanBuild
+namespace PlanBuild.ModCompat
 {
     class PatcherCraftFromContainers
     { 

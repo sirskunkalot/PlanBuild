@@ -4,7 +4,7 @@ using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static PlanBuild.PlanBuild;
+using PlanBuild.Plans;
 using static PlanBuild.ShaderHelper;
 
 namespace PlanBuild
@@ -15,6 +15,8 @@ namespace PlanBuild
         public const string buildShareGUID = "com.valheim.cr_advanced_builder";
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string equipmentQuickSlotsGUID = "randyknapp.mods.equipmentandquickslots";
+
+        private static Harmony harmony;
 
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
@@ -31,7 +33,7 @@ namespace PlanBuild
             {
                 return true;
             }
-            if (PlanPiecePrefabConfig.planToOriginalMap.TryGetValue(piece, out Piece originalPiece))
+            if (PlanPiecePrefab.planToOriginalMap.TryGetValue(piece, out Piece originalPiece))
             {
                 __result = __instance.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
                 return false;
@@ -51,7 +53,7 @@ namespace PlanBuild
         static void Player_SetupPlacementGhost_Postfix(GameObject ___m_placementGhost)
         {
             PlanPiece.m_forceDisableInit = false;
-            if (___m_placementGhost != null && configTransparentGhostPlacement.Value)
+            if (___m_placementGhost != null && PlanBuild.configTransparentGhostPlacement.Value)
             {
                 ShaderHelper.UpdateTextures(___m_placementGhost, ShaderState.Supported);
             }
@@ -76,32 +78,37 @@ namespace PlanBuild
             } 
         }
 
-        internal static void Apply(Harmony harmony)
+        internal static void Apply()
         {
+            harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
             harmony.PatchAll(typeof(PlanPiece));
             if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
             {
-                logger.LogInfo("Applying BuildCamera patches");
-                harmony.PatchAll(typeof(PatcherBuildCamera));
+                Jotunn.Logger.LogInfo("Applying BuildCamera patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherBuildCamera));
             }
             if (Chainloader.PluginInfos.ContainsKey(craftFromContainersGUID))
             {
-                logger.LogInfo("Applying CraftFromContainers patches");
-                harmony.PatchAll(typeof(PatcherCraftFromContainers));
+                Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
             }
             if (Chainloader.PluginInfos.ContainsKey(equipmentQuickSlotsGUID))
             {
-                logger.LogInfo("Applying EquipmentQuickSlots patches");
-                harmony.PatchAll(typeof(PatcherEquipmentQuickSlots));
+                Jotunn.Logger.LogInfo("Applying EquipmentQuickSlots patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherEquipmentQuickSlots));
             }
             HarmonyLib.Patches patches = Harmony.GetPatchInfo(typeof(Player).GetMethod("OnSpawned"));
             if (patches?.Owners.Contains(buildShareGUID) == true)
             {
-                logger.LogInfo("Applying BuildShare patches");
-                harmony.PatchAll(typeof(PatcherBuildShare));
+                Jotunn.Logger.LogInfo("Applying BuildShare patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherBuildShare));
             }
-            
+        }
+
+        internal static void Remove()
+        {
+            harmony?.UnpatchAll(PlanBuild.PluginGUID);
         }
     }
 }

@@ -5,18 +5,16 @@
 // Project: PlanBuild
 
 using BepInEx;
-using BepInEx.Bootstrap;
 using BepInEx.Configuration;
-using BepInEx.Logging;
-using HarmonyLib;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using PlanBuild.Blueprints;
+using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using static PlanBuild.ShaderHelper;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild
@@ -31,78 +29,73 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.1.7";
+        public const string PluginVersion = "0.2.0";
 
-        public static ManualLogSource logger;
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
 
-        Harmony harmony;
+        public static PlanBuild Instance;
 
         public static ConfigEntry<string> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
-        internal PlanHammerPrefabConfig planHammerPrefabConfig;
-        public static PlanBuild Instance;
 
+        internal PlanHammerPrefab planHammerPrefab;
+        internal PlanCrystalPrefab planCrystalPrefab;
+        internal BlueprintRunePrefab blueprintRunePrefab;
 
-        private PlanCrystalPrefabConfig planCrystalPrefabConfig;
         internal static bool showRealTextures;
         internal GameObject hammerPrefab;
         internal ItemDrop hammerPrefabItemDrop;
 
-        public static readonly Dictionary<string, PlanPiecePrefabConfig> planPiecePrefabConfigs = new Dictionary<string, PlanPiecePrefabConfig>();
+        public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         private void Awake()
         {
-            harmony = new Harmony("marcopogo.PlanBuild");
             Instance = this;
-            logger = Logger;
-            PlanPiece.logger = logger;
-            PlanCrystalPrefabConfig.logger = logger;
-            PlanPiecePrefabConfig.logger = logger;
-            logger.LogInfo("Harmony patches");
-            Patches.Apply(harmony);
 
+            // Init Blueprints
+            blueprintRunePrefab = new BlueprintRunePrefab();
+            BlueprintManager.Instance.Init();
+
+            // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
 
+            // Harmony patching
+            Patches.Apply();
+
+            // Configs
             buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
             showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-
             configTransparentGhostPlacement = base.Config.Bind<bool>("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
 
             ShaderHelper.unsupportedColorConfig = base.Config.Bind<Color>("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
             ShaderHelper.supportedPlanColorConfig = base.Config.Bind<Color>("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
-
             ShaderHelper.transparencyConfig = base.Config.Bind<float>("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
-            ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+
             ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
 
             buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
-            On.ObjectDB.CopyOtherDB += AddClonedItems;
+            showAllPieces.SettingChanged += UpdateKnownRecipes;
 
+            // Hooks
+            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
             PrefabManager.OnPrefabsRegistered += ScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
 
-            showAllPieces.SettingChanged += UpdateKnownRecipes;
-
-            UpdateBuildKey();
+            UpdateBuildKey(null, null);
         }
 
-        private void LateScanHammer()
+        private void OnDestroy()
         {
-            ScanHammer(true);
+            Patches.Remove();
         }
 
         private void UpdateBuildKey(object sender, EventArgs e)
-        {
-            UpdateBuildKey();
-        }
-
-        private void UpdateBuildKey()
         {
             if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
             {
@@ -114,43 +107,37 @@ namespace PlanBuild
             }
         }
 
-        public void OnDestroy()
-        {
-            harmony?.UnpatchAll(PluginGUID);
-        }
-
-        private void OnItemsRegistered()
-        {
-            planHammerPrefabConfig.PrefabCreated();
-            planCrystalPrefabConfig.PrefabCreated();
-            hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
-            hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
-
-        }
-
-        private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
+        private void AddClonedItems()
         {
             try
             {
-                PieceManager.Instance.AddPieceTable(PlanHammerPrefabConfig.pieceTableName);
-                PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StartEffect", "vfx_blocked");
-                PlanCrystalPrefabConfig.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
-                PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefabConfig.prefabName + "StopEffect", "vfx_blocked");
-                PlanCrystalPrefabConfig.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-                planHammerPrefabConfig = new PlanHammerPrefabConfig();
-                planCrystalPrefabConfig = new PlanCrystalPrefabConfig();
+                PieceManager.Instance.AddPieceTable(PlanHammerPrefab.pieceTableName);
+                PlanCrystalPrefab.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StartEffect", "vfx_blocked");
+                PlanCrystalPrefab.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
+                PlanCrystalPrefab.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StopEffect", "vfx_blocked");
+                PlanCrystalPrefab.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
 
-                ItemManager.Instance.AddItem(planHammerPrefabConfig);
-                ItemManager.Instance.AddItem(planCrystalPrefabConfig);
-                planHammerPrefabConfig.Register();
-                planCrystalPrefabConfig.Register();
+                planHammerPrefab = new PlanHammerPrefab();
+                planHammerPrefab.Setup();
+                ItemManager.Instance.AddItem(planHammerPrefab);
+
+                planCrystalPrefab = new PlanCrystalPrefab();
+                planCrystalPrefab.Setup();
+                ItemManager.Instance.AddItem(planCrystalPrefab);
 
             }
             finally
             {
-                On.ObjectDB.CopyOtherDB -= AddClonedItems;
+                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
             }
-            orig(self, other);
+        }
+
+        private void OnItemsRegistered()
+        {
+            planHammerPrefab.FixShader();
+            planCrystalPrefab.FixShader();
+            hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
+            hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
         }
 
         internal bool addedHammer = false;
@@ -167,38 +154,43 @@ namespace PlanBuild
             }
         }
 
+        internal void LateScanHammer()
+        {
+            ScanHammer(true);
+        }
+
         internal bool ScanHammer(bool lateAdd)
         {
-            logger.LogDebug("Scanning Hammer PieceTable for Pieces");
+            Jotunn.Logger.LogDebug("Scanning Hammer PieceTable for Pieces");
             PieceTable hammerPieceTable = PieceManager.Instance.GetPieceTable("Hammer");
             if (!hammerPieceTable)
             {
                 return false;
             }
             bool addedPiece = false;
-            foreach (GameObject hammerRecipe in hammerPieceTable.m_pieces)
+            foreach (GameObject piecePrefab in hammerPieceTable.m_pieces)
             {
-                if (hammerRecipe == null)
+                if (!piecePrefab)
                 {
-                    logger.LogWarning("null recipe in Hammer PieceTable");
+                    Jotunn.Logger.LogWarning("Invalid prefab in Hammer PieceTable");
                     continue;
                 }
-                Piece piece = hammerRecipe.GetComponent<Piece>();
+                Piece piece = piecePrefab.GetComponent<Piece>();
 
                 if (piece.name == "piece_repair")
                 {
                     if (!addedHammer)
                     {
-                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName);
+                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
                         if (planHammerPieceTable != null)
                         {
-                            planHammerPieceTable.m_pieces.Add(hammerRecipe);
+                            planHammerPieceTable.m_pieces.Add(piecePrefab);
                             addedHammer = true;
                         }
                     }
                     continue;
                 }
-                if (planPiecePrefabConfigs.ContainsKey(piece.name))
+                if (planPiecePrefabs.ContainsKey(piece.name))
                 {
                     continue;
                 }
@@ -210,16 +202,16 @@ namespace PlanBuild
                 {
                     continue;
                 }
-                PlanPiecePrefabConfig prefabConfig = new PlanPiecePrefabConfig(piece);
-                PieceManager.Instance.AddPiece(prefabConfig);
-                planPiecePrefabConfigs.Add(piece.name, prefabConfig);
-                PrefabManager.Instance.RegisterToZNetScene(prefabConfig.PiecePrefab);
+                PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
+                PieceManager.Instance.AddPiece(planPiece);
+                planPiecePrefabs.Add(piece.name, planPiece);
+                PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                 if (lateAdd)
                 {
-                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName);
-                    if (!pieceTable.m_pieces.Contains(prefabConfig.PiecePrefab))
+                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
+                    if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                     {
-                        pieceTable.m_pieces.Add(prefabConfig.PiecePrefab);
+                        pieceTable.m_pieces.Add(planPiece.PiecePrefab);
                         addedPiece = true;
                     }
                 }
@@ -237,25 +229,25 @@ namespace PlanBuild
             Player player = Player.m_localPlayer;
             if (!showAllPieces.Value)
             {
-                foreach (PlanPiecePrefabConfig planPieceConfig in planPiecePrefabConfigs.Values)
+                foreach (PlanPiecePrefab planPieceConfig in planPiecePrefabs.Values)
                 {
                     if (!player.HaveRequirements(planPieceConfig.originalPiece, Player.RequirementMode.IsKnown))
                     {
 #if DEBUG
-                        logger.LogInfo("Removing planned piece from m_knownRecipes: " + planPieceConfig.Piece.m_name);
+                        Jotunn.Logger.LogInfo("Removing planned piece from m_knownRecipes: " + planPieceConfig.Piece.m_name);
 #endif
                         player.m_knownRecipes.Remove(planPieceConfig.Piece.m_name);
                     }
 #if DEBUG
                     else
                     {
-                        logger.LogDebug("Player knows about " + planPieceConfig.originalPiece.m_name);
+                        Jotunn.Logger.LogDebug("Player knows about " + planPieceConfig.originalPiece.m_name);
                     }
 #endif
                 }
             }
             player.UpdateKnownRecipesList();
-            PieceManager.Instance.GetPieceTable(PlanHammerPrefabConfig.pieceTableName)
+            PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName)
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
         }
 
@@ -336,17 +328,17 @@ namespace PlanBuild
         internal bool ReplaceHammer(Player player, Inventory inventory)
         {
             ItemDrop.ItemData hammerItem = inventory.GetItem(hammerPrefabItemDrop.m_itemData.m_shared.m_name);
-            ItemDrop.ItemData planHammerItem = inventory.GetItem(planHammerPrefabConfig.itemData.m_shared.m_name);
+            ItemDrop.ItemData planHammerItem = inventory.GetItem(planHammerPrefab.itemData.m_shared.m_name);
             if (hammerItem == null && planHammerItem == null)
             {
                 return false;
             }
             if (hammerItem != null)
             {
-                logger.LogInfo("Replacing Hammer with PlanHammer");
+                Jotunn.Logger.LogInfo("Replacing Hammer with PlanHammer");
                 inventory.RemoveOneItem(hammerItem);
                 inventory.AddItem(
-                    name: PlanHammerPrefabConfig.planHammerName,
+                    name: PlanHammerPrefab.planHammerName,
                     stack: 1,
                     durability: hammerItem.m_durability,
                     pos: hammerItem.m_gridPos,
@@ -363,7 +355,7 @@ namespace PlanBuild
             }
             else
             {
-                logger.LogInfo("Replacing PlanHammer with Hammer");
+                Jotunn.Logger.LogInfo("Replacing PlanHammer with Hammer");
                 inventory.RemoveOneItem(planHammerItem);
                 inventory.AddItem(
                     name: hammerPrefab.name,
@@ -395,7 +387,7 @@ namespace PlanBuild
                     text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
                     if (!Directory.Exists(text))
                     {
-                        logger.LogWarning($"Could not find directory ({assetName}).");
+                        Jotunn.Logger.LogWarning($"Could not find directory ({assetName}).");
                         return null;
                     }
                 }
@@ -407,7 +399,7 @@ namespace PlanBuild
                 text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
                 if (!File.Exists(text))
                 {
-                    logger.LogWarning($"Could not find asset ({assetName}).");
+                    Jotunn.Logger.LogWarning($"Could not find asset ({assetName}).");
                     return null;
                 }
             }
