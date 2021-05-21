@@ -9,7 +9,7 @@ namespace PlanBuild.Blueprints
     {
         public BlueprintRunePrefab()
         {
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(PlanBuild.GetAssetPath("assets/blueprints"));
+            AssetBundle assetBundle = AssetBundle.LoadFromFile(PlanBuild.GetAssetPath("bundles/blueprints"));
 
             PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
 

@@ -9,5 +9,6 @@
   "hud_bpradius": "Change capture radius (Hold Shift for camera distance)",
   "hud_bpplace": "Place",
   "hud_bpflatten": "Flatten ground",
+  "hud_bpplan": "Plan blueprint",
   "hud_bprotate": "Rotate (Hold Shift for camera distance)"
 }

@@ -123,7 +123,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="assets\blueprints" />
+    <None Include="assets\bundles\blueprints" />
     <None Include="assets\Translations\English\PlanBuild.english.json" />
     <None Include="packages.config" />
   </ItemGroup>
