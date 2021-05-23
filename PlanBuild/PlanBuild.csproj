@@ -119,14 +119,15 @@
     <None Include="Package\README.md" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="EmbeddedAssets\" />
     <Folder Include="Package\plugins\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Package\manifest.json" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\icons\plan_crystal.png" />
-    <Content Include="assets\icons\plan_hammer.png" />
+    <EmbeddedResource Include="assets\icons\plan_crystal.png" />
+    <EmbeddedResource Include="assets\icons\plan_hammer.png" />
     <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

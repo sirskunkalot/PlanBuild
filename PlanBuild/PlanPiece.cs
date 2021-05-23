@@ -57,7 +57,7 @@ namespace PlanBuild
             }
             m_nView.Register<bool>("Refund", RPC_Refund);
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
-            m_nView.Register("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
+            m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
             UpdateHoverText(); 
         }
 
@@ -372,7 +372,7 @@ namespace PlanBuild
                 return false;
             }
             m_nView.InvokeRPC("Refund", false);
-            m_nView.InvokeRPC("SpawnPieceAndDestroy");
+            m_nView.InvokeRPC("SpawnPieceAndDestroy", (user as Player).GetPlayerID());
             return false;
         }
 
@@ -543,7 +543,7 @@ namespace PlanBuild
             m_hoverText = builder.ToString();
         }
 
-        private void RPC_SpawnPieceAndDestroy(long sender)
+        private void RPC_SpawnPieceAndDestroy(long sender, long creatorID)
         {
             if (!m_nView.IsOwner())
             {
@@ -555,6 +555,7 @@ namespace PlanBuild
             {
                 wearNTear.OnPlaced();
             }
+            actualPiece.GetComponent<Piece>().SetCreator(creatorID);
 #if DEBUG
             logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
