@@ -46,18 +46,18 @@ namespace PlanBuild.Blueprints
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
             // Try to load all saved blueprints
-            foreach (var name in Directory.EnumerateFiles(BlueprintPath, "*.blueprint").Select(Path.GetFileNameWithoutExtension))
+            foreach (var absoluteFilePath in Directory.EnumerateFiles(BlueprintPath, "*.blueprint"))
             {
-                if (!m_blueprints.ContainsKey(name))
+                if (!m_blueprints.ContainsKey(absoluteFilePath))
                 {
-                    var bp = new Blueprint(name);
+                    var bp = new Blueprint(absoluteFilePath);
                     if (bp.Load())
                     {
-                        m_blueprints.Add(name, bp);
+                        m_blueprints.Add(absoluteFilePath, bp);
                     }
                     else
                     {
-                        Jotunn.Logger.LogWarning($"Could not load blueprint {name}");
+                        Jotunn.Logger.LogWarning($"Could not load blueprint {absoluteFilePath}");
                     }
                 }
             }

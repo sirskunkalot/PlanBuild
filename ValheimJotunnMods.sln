@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pulleys", "Pulleys\Pulleys.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBuildHammer", "VBuildHammer\VBuildHammer.csproj", "{1005CA94-8D6C-448F-AB37-9EFB9230A594}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanBuildTest", "PlanBuildTest\PlanBuildTest.csproj", "{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{1005CA94-8D6C-448F-AB37-9EFB9230A594}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1005CA94-8D6C-448F-AB37-9EFB9230A594}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1005CA94-8D6C-448F-AB37-9EFB9230A594}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

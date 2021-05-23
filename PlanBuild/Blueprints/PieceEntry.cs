@@ -13,8 +13,8 @@ namespace PlanBuild.Blueprints
                 line.Replace(',', '.');
             }
 
-            this.line = line;
             var parts = line.Split(';');
+            this.line = line;
             name = parts[0];
             category = parts[1];
             posX = InvariantFloat(parts[2]);
@@ -25,6 +25,40 @@ namespace PlanBuild.Blueprints
             rotZ = InvariantFloat(parts[7]);
             rotW = InvariantFloat(parts[8]);
             additionalInfo = parts[9];
+        }
+
+        public static PieceEntry FromBlueprint(string line)
+        {
+            // backwards compatibility
+            if (line.IndexOf(',') > 0)
+            {
+                line.Replace(',', '.');
+            }
+
+            var parts = line.Split(';');
+            string name = parts[0];
+            string category = parts[1];
+            Vector3 pos = new Vector3(InvariantFloat(parts[2]), InvariantFloat(parts[3]), InvariantFloat(parts[4]));
+            Quaternion rot = new Quaternion(InvariantFloat(parts[5]), InvariantFloat(parts[6]), InvariantFloat(parts[7]), InvariantFloat(parts[8]));
+            string additionalInfo = parts[9];
+            return new PieceEntry(name, category, pos, rot, additionalInfo);
+        }
+
+        public static PieceEntry FromVBuild(string line)
+        {
+            // backwards compatibility
+            if (line.IndexOf(',') > 0)
+            {
+                line.Replace(',', '.');
+            }
+
+            var parts = line.Split(';');
+            string name = parts[0];
+            string category = parts[1];
+            Vector3 pos = new Vector3(InvariantFloat(parts[2]), InvariantFloat(parts[3]), InvariantFloat(parts[4]));
+            Quaternion rot = new Quaternion(InvariantFloat(parts[5]), InvariantFloat(parts[6]), InvariantFloat(parts[7]), InvariantFloat(parts[8]));
+            string additionalInfo = parts[9];
+            return new PieceEntry(name, category, pos, rot, additionalInfo);
         }
 
         public PieceEntry(string name, string category, Vector3 pos, Quaternion rot, string additionalInfo)
@@ -69,12 +103,12 @@ namespace PlanBuild.Blueprints
             return new Quaternion(rotX, rotY, rotZ, rotW);
         }
 
-        private float InvariantFloat(string s)
+        private static float InvariantFloat(string s)
         {
             return float.Parse(s, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         }
 
-        private string InvariantString(float f)
+        private static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);
         }

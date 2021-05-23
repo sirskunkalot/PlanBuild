@@ -13,12 +13,12 @@ using Logger = Jotunn.Logger;
 namespace PlanBuild.Blueprints
 {
     internal class Blueprint
-    {
+    { 
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
         /// </summary>
         private string m_name;
-
+        
         /// <summary>
         ///     Array of the pieces this blueprint is made of
         /// </summary>
@@ -197,9 +197,9 @@ namespace PlanBuild.Blueprints
             return true;
         }
 
-        public bool Load()
+        public bool Load(string fileLocation)
         {
-            var lines = File.ReadAllLines(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint")).ToList();
+            var lines = File.ReadAllLines(fileLocation).ToList();
             Logger.LogDebug("read " + lines.Count + " pieces from " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
 
             if (m_pieceEntries == null)
@@ -215,12 +215,12 @@ namespace PlanBuild.Blueprints
             uint i = 0;
             foreach (var line in lines)
             {
-                m_pieceEntries[i++] = new PieceEntry(line);
+                m_pieceEntries[i++] = PieceEntry.FromBlueprint(line);
             }
 
             return true;
         }
-
+         
         public GameObject CreatePrefab()
         {
             if (m_prefab != null)
@@ -344,8 +344,7 @@ namespace PlanBuild.Blueprints
 
                 var tf = baseObject.transform;
                 tf.rotation = Camera.main.transform.rotation;
-                var quat = new Quaternion();
-                quat.eulerAngles = new Vector3(0, tf.rotation.eulerAngles.y, 0);
+                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
                 tf.SetPositionAndRotation(tf.position, quat);
                 tf.position -= tf.right * (maxX / 2f);
                 tf.position += tf.forward * 5f;
