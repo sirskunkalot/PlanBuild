@@ -10,7 +10,6 @@ namespace Pulleys
 {
     class PulleySupport : MonoBehaviour
     {
-        public static readonly KeyValuePair<int, int> PulleyBaseHash = ZDO.GetHashZDOID("marcopogo.PulleyBase"); 
         internal ZNetView m_nview;
         private GameObject m_pulleyObject;
         private Pulley m_pulley;
@@ -22,27 +21,6 @@ namespace Pulleys
             m_nview = GetComponent<ZNetView>();
             WearNTear wearNTear = GetComponent<WearNTear>();
             wearNTear.m_onDestroyed += OnDestroyed;
-            if (m_nview.IsValid() && m_nview.IsOwner())
-            {
-                ZDOID pulleyID = m_nview.GetZDO().GetZDOID(PulleyBaseHash);
-                if (pulleyID != ZDOID.None)
-                {
-                    Jotunn.Logger.LogDebug("Looking for pulley " + pulleyID);
-                    m_pulleyObject = ZNetScene.instance.FindInstance(pulleyID);
-                    if(m_pulleyObject)
-                    {
-                        Pulley pulley = m_pulleyObject.GetComponent<Pulley>();
-                        if(pulley)
-                        {
-                            SetPulleyBase(pulley);
-                        }
-                    } else
-                    {
-                        Jotunn.Logger.LogWarning("ZDO stored pulley not found: " + pulleyID);
-                    }
-                }  
-                
-            }
         }
 
         private void OnDestroyed()
@@ -52,7 +30,6 @@ namespace Pulleys
 
         public void SetPulleyBase(Pulley pulley)
         {
-            m_nview.GetZDO().Set(PulleyBaseHash, pulley.GetZDOID());
             this.m_pulley = pulley;
             m_pulleyObject = pulley.gameObject;
             AttachRopes();
@@ -71,7 +48,6 @@ namespace Pulleys
                 return;
             }
             m_pulley = null;
-            m_nview.GetZDO().Set(PulleyBaseHash, ZDOID.None);
             RemoveRopes();
         }
 
@@ -84,28 +60,6 @@ namespace Pulleys
             ropes.Clear();
         }
 
-        public void Update()
-        {
-            if(!m_pulley && m_nview && m_nview.IsValid())
-            {
-                ZDOID pulleyID = m_nview.GetZDO().GetZDOID(PulleyBaseHash);
-                if (pulleyID != ZDOID.None)
-                {
-                    Jotunn.Logger.LogDebug("Looking for pulley " + pulleyID);
-                    m_pulleyObject = ZNetScene.instance.FindInstance(pulleyID);
-                    if (m_pulleyObject)
-                    {
-                        m_pulley = m_pulleyObject.GetComponent<Pulley>();
-                        AttachRopes();
-                    }
-                    else
-                    {
-                        Jotunn.Logger.LogWarning("ZDO stored pulley not found: " + pulleyID);
-                        m_nview.GetZDO().Set(PulleyBaseHash, ZDOID.None);
-                    }
-                }
-            }
-        }
 
         internal bool IsConnected()
         {

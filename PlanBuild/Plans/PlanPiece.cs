@@ -15,6 +15,8 @@ namespace PlanBuild.Plans
         public const string zdoPlanPiece = "PlanPiece";
         public const string zdoPlanResource = "PlanResource";
          
+        internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
+
         private ZNetView m_nView;
         private WearNTear m_wearNTear;
 
@@ -37,7 +39,9 @@ namespace PlanBuild.Plans
                 InvalidPlanPiece();
                 return;
             }
-             
+
+            m_planPieces.Add(this);
+
             //logger.LogInfo("Prefab loaded for " + name + " -> " + originalPrefab.name);
             DisablePiece(gameObject);
 
@@ -50,8 +54,13 @@ namespace PlanBuild.Plans
             }
             m_nView.Register<bool>("Refund", RPC_Refund);
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
-            m_nView.Register("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
+            m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
             UpdateHoverText(); 
+        }
+
+        public void OnDestroy()
+        {
+            m_planPieces.Remove(this);
         }
 
         private void RPC_Refund(long sender, bool all)
@@ -360,33 +369,66 @@ namespace PlanBuild.Plans
                 return false;
             }
             m_nView.InvokeRPC("Refund", false);
-            m_nView.InvokeRPC("SpawnPieceAndDestroy");
+            m_nView.InvokeRPC("SpawnPieceAndDestroy", (user as Player).GetPlayerID());
             return false;
         }
 
         private bool AddAllMaterials(Humanoid user)
         {
             bool added = false;
+            bool finished = true;
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {
+                bool reqFinished = true;
                 string resourceName = GetResourceName(req);
-                if (!PlayerHaveResource(user, resourceName))
-                {
-                    continue;
-                }
                 int currentCount = GetResourceCount(resourceName);
                 int remaining = req.m_amount - currentCount;
-                int amountToAdd = Math.Min(remaining, PlayerGetResourceCount(user, resourceName));
-                if (amountToAdd > 0)
-                {
-                    m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
-                    PlayerRemoveResource(user, resourceName, amountToAdd);
-                    UpdateHoverText();
-                    added = true;
+                reqFinished &= remaining == 0;
 
+                if (PlayerHaveResource(user, resourceName))
+                {
+                    int amountToAdd = Math.Min(remaining, PlayerGetResourceCount(user, resourceName));
+
+                    if (amountToAdd > 0)
+                    {
+                        m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
+                        PlayerRemoveResource(user, resourceName, amountToAdd);
+                        UpdateHoverText();
+                        added = true;
+                        reqFinished = remaining == amountToAdd;
+                    }
+
+                    finished &= reqFinished;
                 }
             }
+            bool shouldSpread = true;
+            if (finished && shouldSpread)
+            {
+                PlanPiece supportedNeighbour = GetUnfinishedSupportedNeighbour();
+                if(supportedNeighbour)
+                {
+                    supportedNeighbour.AddAllMaterials(user);
+                }
+            }
+
             return added;
+        }
+
+        private PlanPiece GetUnfinishedSupportedNeighbour()
+        {
+            List<PlanPiece> supportedNeighbours =  m_planPieces 
+                            .FindAll(other => 
+                            other != this 
+                            && other.hasSupport
+                            && !other.HasAllResources());
+            if(supportedNeighbours.Count == 0)
+            {
+                return null;
+            }
+
+            supportedNeighbours.Sort((p1, p2) => Vector3.Distance(transform.position, p1.transform.position) - Vector3.Distance(transform.position, p2.transform.position) < 0 ? -1 : 1);
+
+            return supportedNeighbours[0];
         }
 
         private static string GetResourceName(Requirement req)
@@ -498,7 +540,7 @@ namespace PlanBuild.Plans
             m_hoverText = builder.ToString();
         }
 
-        private void RPC_SpawnPieceAndDestroy(long sender)
+        private void RPC_SpawnPieceAndDestroy(long sender, long creatorID)
         {
             if (!m_nView.IsOwner())
             {
@@ -510,6 +552,7 @@ namespace PlanBuild.Plans
             {
                 wearNTear.OnPlaced();
             }
+            actualPiece.GetComponent<Piece>().SetCreator(creatorID);
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
