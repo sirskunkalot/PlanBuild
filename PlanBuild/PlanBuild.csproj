@@ -98,17 +98,23 @@
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
+    <Compile Include="KitBash\KitBashConfig.cs" />
+    <Compile Include="KitBash\KitBashManager.cs" />
+    <Compile Include="KitBash\KitBashObject.cs" />
+    <Compile Include="KitBash\KitBashSourceConfig.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
     <Compile Include="ModCompat\PatcherEquipmentQuickSlots.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="ModCompat\PatcherBuildShare.cs" />
-    <Compile Include="Plans\PlanCrystalPrefab.cs" />
-    <Compile Include="Plans\PlanHammerPrefab.cs" />
-    <Compile Include="Plans\PlanPiece.cs" />
-    <Compile Include="Plans\PlanPiecePrefab.cs" />
+    <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
+    <Compile Include="PlanBuild\PlanHammerPrefab.cs" />
+    <Compile Include="PlanBuild\PlanPiece.cs" />
+    <Compile Include="PlanBuild\PlanPiecePrefab.cs" />
+    <Compile Include="PlanBuild\PlanTotem.cs" />
+    <Compile Include="PlanBuild\PlanTotemPrefab.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
-    <Compile Include="PlanBuild.cs" />
+    <Compile Include="PlanBuildPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderHelper.cs" />
   </ItemGroup>
@@ -116,6 +122,8 @@
     <None Include="app.config" />
     <None Include="assets\bundles\blueprints" />
     <None Include="assets\Translations\English\PlanBuild.english.json" />
+    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
+    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />

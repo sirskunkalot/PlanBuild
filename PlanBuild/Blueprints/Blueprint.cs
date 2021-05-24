@@ -9,16 +9,17 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using Object = UnityEngine.Object;
 using Logger = Jotunn.Logger;
+using PlanBuild.Plans;
 
 namespace PlanBuild.Blueprints
 {
     internal class Blueprint
-    { 
+    {
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
         /// </summary>
         private string m_name;
-        
+
         /// <summary>
         ///     Array of the pieces this blueprint is made of
         /// </summary>
@@ -69,6 +70,7 @@ namespace PlanBuild.Blueprints
                 if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <
                     startRadius && piece.transform.position.y >= startPosition.y)
                 {
+                    piece.GetComponent<WearNTear>()?.Highlight();
                     collected.Add(piece);
                     numPieces++;
                 }
@@ -83,20 +85,9 @@ namespace PlanBuild.Blueprints
 
             foreach (var piece in collected.Where(x => x.m_category != Piece.PieceCategory.Misc && x.IsPlacedByPlayer()))
             {
-                if (piece.m_nview.GetZDO().m_position.x < minX)
-                {
-                    minX = piece.m_nview.GetZDO().m_position.x;
-                }
-
-                if (piece.m_nview.GetZDO().m_position.z < minZ)
-                {
-                    minZ = piece.m_nview.GetZDO().m_position.z;
-                }
-
-                if (piece.m_nview.GetZDO().m_position.y < minY)
-                {
-                    minY = piece.m_nview.GetZDO().m_position.y;
-                }
+                minX = Math.Min(piece.m_nview.GetZDO().m_position.x, minX);
+                minZ = Math.Min(piece.m_nview.GetZDO().m_position.z, minZ);
+                minY = Math.Min(piece.m_nview.GetZDO().m_position.y, minY);
             }
 
             Logger.LogDebug($"{minX} - {minY} - {minZ}");
@@ -104,8 +95,10 @@ namespace PlanBuild.Blueprints
             var bottomleft = new Vector3(minX, minY, minZ);
 
             // select and order instance piece entries
-            var pieces = collected.Where(x => x.IsPlacedByPlayer() && x.m_category != Piece.PieceCategory.Misc).OrderBy(x => x.transform.position.y)
-                .ThenBy(x => x.transform.position.x).ThenBy(x => x.transform.position.z);
+            var pieces = collected.Where(x => x.IsPlacedByPlayer() && x.m_category != Piece.PieceCategory.Misc)
+                .OrderBy(x => x.transform.position.y)
+                    .ThenBy(x => x.transform.position.x)
+                    .ThenBy(x => x.transform.position.z);
 
             if (m_pieceEntries == null)
             {
@@ -124,12 +117,17 @@ namespace PlanBuild.Blueprints
                     piece.m_nview.GetZDO().m_position.z - bottomleft.z);
 
                 var quat = piece.m_nview.GetZDO().m_rotation;
-                quat.eulerAngles = new Vector3(0, quat.eulerAngles.y, 0);
                 quat.eulerAngles = piece.transform.eulerAngles;
 
                 var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
 
-                m_pieceEntries[i++] = new PieceEntry(piece.name, piece.m_category.ToString(), pos, quat, additionalInfo);
+                string pieceName = piece.name.Split('(')[0];
+                if (pieceName.EndsWith(PlanPiecePrefab.plannedSuffix))
+                {
+                    pieceName = pieceName.Replace(PlanPiecePrefab.plannedSuffix, null);
+
+                }
+                m_pieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
             return true;
@@ -145,9 +143,11 @@ namespace PlanBuild.Blueprints
                 {
                     var xp = 1f * x / width;
                     var yp = 1f * y / height;
-                    var xo = (int) Mathf.Round(xp * orig.width); //Other X pos
-                    var yo = (int) Mathf.Round(yp * orig.height); //Other Y pos
-                    result.SetPixel(x, y, orig.GetPixel(xo, yo));
+                    var xo = (int)Mathf.Round(xp * orig.width); //Other X pos
+                    var yo = (int)Mathf.Round(yp * orig.height); //Other Y pos
+                    Color origPixel = orig.GetPixel(xo, yo);
+                    origPixel.a = 1f;
+                    result.SetPixel(x, y, origPixel);
                 }
             }
 
@@ -162,7 +162,7 @@ namespace PlanBuild.Blueprints
             var screenShot = ScreenCapture.CaptureScreenshotAsTexture();
 
             // Calculate proper height
-            var height = (int) Math.Round(160f * screenShot.height / screenShot.width);
+            var height = (int)Math.Round(160f * screenShot.height / screenShot.width);
 
             // Create thumbnail image from screenShot
             Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
@@ -199,35 +199,70 @@ namespace PlanBuild.Blueprints
 
         public bool Load(string fileLocation)
         {
-            var lines = File.ReadAllLines(fileLocation).ToList();
-            Logger.LogDebug("read " + lines.Count + " pieces from " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
+            try
+            { 
+                string extension = Path.GetExtension(fileLocation).ToLowerInvariant();
+                 
+                var lines = File.ReadAllLines(fileLocation).ToList();
+                Logger.LogDebug("read " + lines.Count + " pieces from " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
 
+                if (m_pieceEntries == null)
+                {
+                    m_pieceEntries = new PieceEntry[lines.Count()];
+                }
+                else if (m_pieceEntries.Length > 0)
+                {
+                    Array.Clear(m_pieceEntries, 0, m_pieceEntries.Length - 1);
+                    Array.Resize(ref m_pieceEntries, lines.Count());
+                }
+
+                uint i = 0;
+                foreach (var line in lines)
+                {
+                    PieceEntry pieceEntry;
+                    switch (extension)
+                    {
+                        case ".vbuild":
+                            pieceEntry = PieceEntry.FromVBuild(line);
+                            break;
+                        case ".blueprint":
+                            pieceEntry = PieceEntry.FromBlueprint(line);
+                            break;
+                        default:
+                            Logger.LogWarning("Unknown extension " + extension);
+                            return false;
+                    }
+
+                    m_pieceEntries[i++] = pieceEntry;
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e);
+                return false;
+            }
+        }
+
+        public void CalculateCost()
+        {
             if (m_pieceEntries == null)
             {
-                m_pieceEntries = new PieceEntry[lines.Count()];
-            }
-            else if (m_pieceEntries.Length > 0)
-            {
-                Array.Clear(m_pieceEntries, 0, m_pieceEntries.Length - 1);
-                Array.Resize(ref m_pieceEntries, lines.Count());
+                Logger.LogWarning("No pieces loaded");
+                return;
             }
 
-            uint i = 0;
-            foreach (var line in lines)
-            {
-                m_pieceEntries[i++] = PieceEntry.FromBlueprint(line);
-            }
 
-            return true;
         }
-         
+
         public GameObject CreatePrefab()
         {
             if (m_prefab != null)
             {
                 return m_prefab;
             }
-            
+
             Logger.LogInfo($"Creating dynamic prefab {m_prefabname}");
 
             if (m_pieceEntries == null)
@@ -272,7 +307,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Add to known prefabs
-            
+
             CustomPiece CP = new CustomPiece(m_prefab, new PieceConfig
             {
                 PieceTable = "_BlueprintPieceTable"
@@ -367,7 +402,7 @@ namespace PlanBuild.Blueprints
                 {
                     var pos = tf.position + tf.right * piece.GetPosition().x + tf.forward * piece.GetPosition().z +
                       new Vector3(0, piece.GetPosition().y, 0);
-                    
+
                     var q = new Quaternion();
                     q.eulerAngles = new Vector3(0, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y);
 
@@ -432,7 +467,7 @@ namespace PlanBuild.Blueprints
                         BlueprintManager.Instance.m_blueprints.Remove(newbp.m_name);
                     }
 
-                    PlanBuild.Instance.StartCoroutine(AddBlueprint());
+                    PlanBuildPlugin.Instance.StartCoroutine(AddBlueprint());
                 }
             }
 
@@ -444,13 +479,13 @@ namespace PlanBuild.Blueprints
                 yield return new WaitForEndOfFrame();
 
                 newbp.RecordFrame();
-                
+
                 Hud.instance.m_userHidden = oldHud;
                 Hud.instance.SetVisible(true);
                 Hud.instance.Update();
                 yield return new WaitForEndOfFrame();
                 yield return new WaitForEndOfFrame();
-                
+
                 newbp.CreatePrefab();
 
                 newbp.AddToPieceTable();
@@ -477,7 +512,7 @@ namespace PlanBuild.Blueprints
                 return oldHud;
             }
 
-            
+
         }
     }
 }

@@ -71,7 +71,7 @@ namespace PlanBuild.Plans
             }
         }
 
-        private bool hasSupport = false;
+        public bool hasSupport = false;
 
         public void Update()
         {
@@ -174,7 +174,7 @@ namespace PlanBuild.Plans
 
         private ShaderHelper.ShaderState GetShaderState()
         { 
-            if(PlanBuild.showRealTextures)
+            if(PlanBuildPlugin.showRealTextures)
             {
                 return ShaderHelper.ShaderState.Skuld;
             }
@@ -299,16 +299,25 @@ namespace PlanBuild.Plans
         }
 
         //Hooks for Harmony patches
+        public List<Inventory> GetInventories(Humanoid player)
+        {
+            //List to support extended inventory from Equipment & Quick Slots
+            return new List<Inventory> { player.GetInventory() };
+        }
+
+        [Obsolete]
         public bool PlayerHaveResource(Humanoid player, string resourceName)
         {
             return player.GetInventory().HaveItem(resourceName);
         }
 
+        [Obsolete]
         public int PlayerGetResourceCount(Humanoid player, string resourceName)
         {
             return player.GetInventory().CountItems(resourceName);
         }
 
+        [Obsolete]
         public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
         {
              player.GetInventory().RemoveItem(resourceName, amount);
@@ -317,19 +326,26 @@ namespace PlanBuild.Plans
         public bool Interact(Humanoid user, bool hold)
         {
             if (hold)
-            { 
+            {
                 if (Time.time - m_lastUseTime < m_holdRepeatInterval)
                 {
                     return false;
                 }
                 m_lastUseTime = Time.time;
 
-                return AddAllMaterials(user);
+                bool added = false;
+                foreach (Inventory inventory in GetInventories(user))
+                {
+                    added |= AddAllMaterials(inventory);
+                }
+
+                return added;
             }
 
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
+
                 if (!PlayerHaveResource(user, resourceName))
                 {
                     continue;
@@ -347,7 +363,7 @@ namespace PlanBuild.Plans
             {
                 user.Message(MessageHud.MessageType.Center, "$msg_missingrequirement");
                 return false;
-            } 
+            }
             if (user.GetInventory().GetItem("$item_hammer") == null
                 && user.GetInventory().GetItem(PlanHammerPrefab.itemName) == null)
             {
@@ -357,23 +373,29 @@ namespace PlanBuild.Plans
             if ((bool)originalPiece.m_craftingStation)
             {
                 CraftingStation craftingStation = CraftingStation.HaveBuildStationInRange(originalPiece.m_craftingStation.m_name, user.transform.position);
-                if(!craftingStation)
+                if (!craftingStation)
                 {
                     user.Message(MessageHud.MessageType.Center, "$msg_missingstation");
                     return false;
                 }
-            }  
+            }
             if (!hasSupport)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_not_enough_support");
                 return false;
             }
-            m_nView.InvokeRPC("Refund", false);
-            m_nView.InvokeRPC("SpawnPieceAndDestroy", (user as Player).GetPlayerID());
+            long playerID = (user as Player).GetPlayerID();
+            Build(playerID);
             return false;
         }
 
-        private bool AddAllMaterials(Humanoid user)
+        public void Build(long playerID)
+        {
+            m_nView.InvokeRPC("Refund", false);
+            m_nView.InvokeRPC("SpawnPieceAndDestroy", playerID);
+        }
+
+        public bool AddAllMaterials(Inventory inventory)
         {
             bool added = false;
             bool finished = true;
@@ -381,18 +403,17 @@ namespace PlanBuild.Plans
             {
                 bool reqFinished = true;
                 string resourceName = GetResourceName(req);
-                int currentCount = GetResourceCount(resourceName);
-                int remaining = req.m_amount - currentCount;
+                int remaining = GetRemaining(req);
                 reqFinished &= remaining == 0;
 
-                if (PlayerHaveResource(user, resourceName))
+                if (inventory.HaveItem(resourceName))
                 {
-                    int amountToAdd = Math.Min(remaining, PlayerGetResourceCount(user, resourceName));
+                    int amountToAdd = Math.Min(remaining, inventory.CountItems(resourceName));
 
                     if (amountToAdd > 0)
                     {
                         m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
-                        PlayerRemoveResource(user, resourceName, amountToAdd);
+                        inventory.RemoveItem(resourceName, amountToAdd);
                         UpdateHoverText();
                         added = true;
                         reqFinished = remaining == amountToAdd;
@@ -401,36 +422,31 @@ namespace PlanBuild.Plans
                     finished &= reqFinished;
                 }
             }
-            bool shouldSpread = true;
-            if (finished && shouldSpread)
-            {
-                PlanPiece supportedNeighbour = GetUnfinishedSupportedNeighbour();
-                if(supportedNeighbour)
-                {
-                    supportedNeighbour.AddAllMaterials(user);
-                }
-            }
-
             return added;
         }
 
-        private PlanPiece GetUnfinishedSupportedNeighbour()
+        public Dictionary<string, int> GetRemaining()
         {
-            List<PlanPiece> supportedNeighbours =  m_planPieces 
-                            .FindAll(other => 
-                            other != this 
-                            && other.hasSupport
-                            && !other.HasAllResources());
-            if(supportedNeighbours.Count == 0)
+            Dictionary<string, int> result = new Dictionary<string, int>();
+            foreach (Piece.Requirement req in originalPiece.m_resources)
             {
-                return null;
+                result.Add(GetResourceName(req), GetRemaining(req));
             }
-
-            supportedNeighbours.Sort((p1, p2) => Vector3.Distance(transform.position, p1.transform.position) - Vector3.Distance(transform.position, p2.transform.position) < 0 ? -1 : 1);
-
-            return supportedNeighbours[0];
+            return result;
         }
 
+        private int GetRemaining(Requirement req)
+        {
+            int currentCount = GetResourceCount(req);
+            int remaining = req.m_amount - currentCount;
+            return remaining;
+        }
+
+        private int GetResourceCount(Requirement req)
+        {
+            return GetResourceCount(GetResourceName(req));
+        }
+         
         private static string GetResourceName(Requirement req)
         {
             return req.m_resItem.m_itemData.m_shared.m_name;
@@ -488,7 +504,7 @@ namespace PlanBuild.Plans
 
         }
 
-        private bool HasAllResources()
+        public bool HasAllResources()
         {
             foreach (Piece.Requirement req in originalPiece.m_resources)
             {

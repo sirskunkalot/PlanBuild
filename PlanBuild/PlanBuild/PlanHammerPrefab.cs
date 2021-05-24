@@ -1,8 +1,7 @@
 ﻿using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using UnityEngine;
-using static PlanBuild.PlanBuild;
+using UnityEngine; 
 
 namespace PlanBuild.Plans
 {
@@ -34,7 +33,7 @@ namespace PlanBuild.Plans
             sharedData.m_durabilityDrain = 0f;
             sharedData.m_useDurabilityDrain = 0f;
              
-            Texture2D texture = AssetUtils.LoadTexture(GetAssetPath(iconPath));
+            Texture2D texture = AssetUtils.LoadTexture(PlanBuildPlugin.GetAssetPath(iconPath));
             if (texture == null)
             {
                 Jotunn.Logger.LogWarning($"PlanHammer icon not found at {iconPath}");

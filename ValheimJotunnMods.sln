@@ -28,6 +28,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBuildHammer", "VBuildHammer\VBuildHammer.csproj", "{1005CA94-8D6C-448F-AB37-9EFB9230A594}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlanBuildTest", "PlanBuildTest\PlanBuildTest.csproj", "{86A4428E-11FF-4BD1-A726-C45FCCE02C4E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{504A8E71-7B0C-42C9-BF37-DFE74B0312F4} = {504A8E71-7B0C-42C9-BF37-DFE74B0312F4}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

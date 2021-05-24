@@ -22,14 +22,14 @@ namespace PlanBuild
         [HarmonyPrefix]
         static void PieceManager_RegisterInPieceTables_Prefix()
         {
-            PlanBuild.Instance.ScanHammer();
+            PlanBuildPlugin.Instance.ScanHammer();
         }
 
         [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
         [HarmonyPrefix]
         static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
         {
-            if (PlanBuild.showAllPieces.Value)
+            if (PlanBuildPlugin.showAllPieces.Value)
             {
                 return true;
             }
@@ -53,7 +53,7 @@ namespace PlanBuild
         static void Player_SetupPlacementGhost_Postfix(GameObject ___m_placementGhost)
         {
             PlanPiece.m_forceDisableInit = false;
-            if (___m_placementGhost != null && PlanBuild.configTransparentGhostPlacement.Value)
+            if (___m_placementGhost != null && PlanBuildPlugin.configTransparentGhostPlacement.Value)
             {
                 ShaderHelper.UpdateTextures(___m_placementGhost, ShaderState.Supported);
             }
@@ -72,7 +72,7 @@ namespace PlanBuild
             {
                 interceptGetPrefab = false;
                 checkedHashes.Add(hash);
-                PlanBuild.Instance.ScanHammer(true);
+                PlanBuildPlugin.Instance.ScanHammer(true);
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
             } 
@@ -108,7 +108,7 @@ namespace PlanBuild
 
         internal static void Remove()
         {
-            harmony?.UnpatchAll(PlanBuild.PluginGUID);
+            harmony?.UnpatchAll(PlanBuildPlugin.PluginGUID);
         }
     }
 }

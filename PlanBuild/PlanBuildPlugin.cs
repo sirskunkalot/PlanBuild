@@ -25,7 +25,7 @@ namespace PlanBuild
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.equipmentQuickSlotsGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
-    internal class PlanBuild : BaseUnityPlugin
+    internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
@@ -33,8 +33,8 @@ namespace PlanBuild
 
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
 
-        public static PlanBuild Instance;
-
+        public static PlanBuildPlugin Instance;
+          
         public static ConfigEntry<string> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
@@ -50,13 +50,22 @@ namespace PlanBuild
 
         public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
-        private void Awake()
+        public void Awake()
         {
             Instance = this;
 
             // Init Blueprints
-            blueprintRunePrefab = new BlueprintRunePrefab();
+
+            Assembly assembly = typeof(PlanBuildPlugin).Assembly;
+            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly); 
+
+            blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
+            blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
+
+            AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
+            planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
+            planbuildBundle.Unload(false);
 
             // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
@@ -80,17 +89,19 @@ namespace PlanBuild
 
             buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
-
+             
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
+            
             PrefabManager.OnPrefabsRegistered += ScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
+           
 
             UpdateBuildKey(null, null);
         }
-
-        private void OnDestroy()
+         
+        public void OnDestroy()
         {
             Patches.Remove();
         }
@@ -125,6 +136,7 @@ namespace PlanBuild
                 planCrystalPrefab.Setup();
                 ItemManager.Instance.AddItem(planCrystalPrefab);
 
+
             }
             finally
             {
@@ -141,6 +153,7 @@ namespace PlanBuild
         }
 
         internal bool addedHammer = false;
+        private PlanTotemPrefab planTotemPrefab;
 
         internal void ScanHammer()
         {
@@ -383,7 +396,7 @@ namespace PlanBuild
             {
                 if (!Directory.Exists(text))
                 {
-                    Assembly assembly = typeof(PlanBuild).Assembly;
+                    Assembly assembly = typeof(PlanBuildPlugin).Assembly;
                     text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
                     if (!Directory.Exists(text))
                     {
@@ -395,7 +408,7 @@ namespace PlanBuild
             }
             if (!File.Exists(text))
             {
-                Assembly assembly = typeof(PlanBuild).Assembly;
+                Assembly assembly = typeof(PlanBuildPlugin).Assembly;
                 text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
                 if (!File.Exists(text))
                 {

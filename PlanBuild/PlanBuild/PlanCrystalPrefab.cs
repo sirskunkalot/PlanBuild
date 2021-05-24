@@ -45,7 +45,7 @@ namespace PlanBuild.Plans
             ItemDrop.ItemData.SharedData sharedData = ItemDrop.m_itemData.m_shared;
             sharedData.m_name = "$item_" + localizationName;
             sharedData.m_description = "$item_" + localizationName + "_description";
-            Texture2D texture = AssetUtils.LoadTexture(PlanBuild.GetAssetPath(iconPath));
+            Texture2D texture = AssetUtils.LoadTexture(PlanBuildPlugin.GetAssetPath(iconPath));
             StatusEffect statusEffect = ScriptableObject.CreateInstance(typeof(StatusEffect)) as StatusEffect;
             statusEffect.m_icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
             statusEffect.m_startMessageType = MessageHud.MessageType.Center;
@@ -106,8 +106,8 @@ namespace PlanBuild.Plans
 #if DEBUG
                 Jotunn.Logger.LogDebug("Triggering real textures");
 #endif
-                PlanBuild.showRealTextures = true;
-                PlanBuild.UpdateAllPlanPieceTextures();
+                PlanBuildPlugin.showRealTextures = true;
+                PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
 
@@ -126,8 +126,8 @@ namespace PlanBuild.Plans
 #if DEBUG
                 Jotunn.Logger.LogDebug("Removing real textures");
 #endif
-                PlanBuild.showRealTextures = false;
-                PlanBuild.UpdateAllPlanPieceTextures();
+                PlanBuildPlugin.showRealTextures = false;
+                PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
 

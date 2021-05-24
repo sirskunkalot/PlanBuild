@@ -7,10 +7,8 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintRunePrefab
     {
-        public BlueprintRunePrefab()
+        public BlueprintRunePrefab(AssetBundle assetBundle)
         {
-            AssetBundle assetBundle = AssetBundle.LoadFromFile(PlanBuild.GetAssetPath("bundles/blueprints"));
-
             PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
 
             GameObject runeprefab = assetBundle.LoadAsset<GameObject>("BlueprintRune");
@@ -38,9 +36,7 @@ namespace PlanBuild.Blueprints
             {
                 var lang = textAsset.name.Replace(".json", null);
                 LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
-            }
-            assetBundle.Unload(false);
-
+            } 
         }
     }
 }

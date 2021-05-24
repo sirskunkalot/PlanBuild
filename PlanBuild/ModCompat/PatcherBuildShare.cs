@@ -14,7 +14,7 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         static void BuildShare_Build_Prefix()
         {
-            interceptReadFile = PlanBuild.configBuildShare.Value;
+            interceptReadFile = PlanBuildPlugin.configBuildShare.Value;
         }
 
         [HarmonyPatch(typeof(BuildShare.BuildShare), "Build")]

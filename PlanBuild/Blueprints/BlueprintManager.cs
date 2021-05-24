@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Jotunn.Managers;
 using Object = UnityEngine.Object;
+using PlanBuild.Plans;
 
 namespace PlanBuild.Blueprints
 {
@@ -24,6 +25,8 @@ namespace PlanBuild.Blueprints
         private GameObject kbHintsOrig;
 
         private static BlueprintManager _instance;
+        private float selectionOffsetMake;
+
         public static BlueprintManager Instance
         {
             get
@@ -45,15 +48,20 @@ namespace PlanBuild.Blueprints
 
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
+            List<string> blueprintFiles = new List<string>();
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BepInEx.Paths.BepInExRootPath, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles("AdvancedBuilder/Builds/", "*.vbuild", SearchOption.AllDirectories));
+
             // Try to load all saved blueprints
-            foreach (var absoluteFilePath in Directory.EnumerateFiles(BlueprintPath, "*.blueprint"))
-            {
-                if (!m_blueprints.ContainsKey(absoluteFilePath))
+            foreach (var absoluteFilePath in blueprintFiles)
+            { 
+                string name = Path.GetFileNameWithoutExtension(absoluteFilePath);
+                if (!m_blueprints.ContainsKey(name))
                 {
-                    var bp = new Blueprint(absoluteFilePath);
-                    if (bp.Load())
+                    var bp = new Blueprint(name);
+                    if (bp.Load(absoluteFilePath))
                     {
-                        m_blueprints.Add(absoluteFilePath, bp);
+                        m_blueprints.Add(name, bp);
                     }
                     else
                     {
@@ -67,7 +75,7 @@ namespace PlanBuild.Blueprints
             On.Player.PlacePiece += BeforePlaceBlueprintPiece;
             On.GameCamera.UpdateCamera += AdjustCameraHeight;
             On.KeyHints.UpdateHints += ShowBlueprintHints;
-            On.Player.UpdatePlacement += ShowBlueprintRadius;
+            On.Player.UpdatePlacement += ShowBlueprintCapture;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
@@ -110,23 +118,20 @@ namespace PlanBuild.Blueprints
                     var bpname = $"blueprint{Instance.m_blueprints.Count() + 1:000}";
                     Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
-                    if (Player.m_localPlayer.m_hoveringPiece != null)
+
+                    var bp = new Blueprint(bpname);
+                    Vector3 capturePosition = self.m_placementGhost.transform.position;
+                    capturePosition.y += selectionOffsetMake;
+                    if (bp.Capture(capturePosition, Instance.selectionRadius, 1.0f))
                     {
-                        var bp = new Blueprint(bpname);
-                        if (bp.Capture(Player.m_localPlayer.m_hoveringPiece.transform.position, Instance.selectionRadius, 1.0f))
-                        {
-                            TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
-                            TextInput.instance.Show($"Save Blueprint ({bp.GetPieceCount()} pieces captured)", bpname, 50);
-                        }
-                        else
-                        {
-                            Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
-                        }
+                        TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
+                        TextInput.instance.Show($"Save Blueprint ({bp.GetPieceCount()} pieces captured)", bpname, 50);
                     }
                     else
                     {
-                        Jotunn.Logger.LogInfo("Not hovering any piece");
+                        Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
                     }
+             
 
                     // Reset Camera offset
                     Instance.cameraOffsetMake = 0f;
@@ -163,7 +168,7 @@ namespace PlanBuild.Blueprints
                         entryQuat.eulerAngles += rotation.eulerAngles;
 
                         // Get the prefab
-                        var prefab = PrefabManager.Instance.GetPrefab(entry.name);
+                        var prefab = PrefabManager.Instance.GetPrefab(entry.name + PlanPiecePrefab.plannedSuffix);
                         if (prefab == null)
                         {
                             Jotunn.Logger.LogError(entry.name + " not found?");
@@ -254,7 +259,21 @@ namespace PlanBuild.Blueprints
                                 }
                             }
 
-                            self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
+                            if (Input.GetKey(KeyCode.LeftControl))
+                            {
+                                float minOffset = -20f;
+                                float maxOffset = 20f;
+                                if (Input.GetAxis("Mouse ScrollWheel") < 0f)
+                                {
+                                    Instance.selectionOffsetMake = Mathf.Clamp(Instance.selectionOffsetMake += 1f, minOffset, maxOffset);
+                                }
+
+                                if (Input.GetAxis("Mouse ScrollWheel") > 0f)
+                                {
+                                    Instance.selectionOffsetMake = Mathf.Clamp(Instance.selectionOffsetMake -= 1f, minOffset, maxOffset);
+                                }
+                            }
+
                         }
                         if (pieceName.StartsWith("piece_blueprint"))
                         {
@@ -281,10 +300,28 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public int HighlightCapture(Vector3 startPosition, float startRadius, float radiusDelta)
+        {
+            int capturedPieces = 0;
+            foreach (var piece in Piece.m_allPieces)
+            {
+                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius )
+                {
+                    WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                    if(wearNTear)
+                    {
+                        wearNTear.Highlight();
+                    }
+                    capturedPieces++;
+                }
+            }
+            return capturedPieces;
+        }
+
         /// <summary>
         ///     Show and change blueprint selection radius
         /// </summary>
-        private void ShowBlueprintRadius(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
+        private void ShowBlueprintCapture(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
         {
             orig(self, takeInput, dt);
             
@@ -302,7 +339,7 @@ namespace PlanBuild.Blueprints
 
                         self.m_maxPlaceDistance = 50f;
 
-                        if (!Input.GetKey(KeyCode.LeftShift))
+                        if (!Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl))
                         {
                             if (Input.GetAxis("Mouse ScrollWheel") < 0f)
                             {
@@ -318,6 +355,7 @@ namespace PlanBuild.Blueprints
                                 Instance.selectionRadius += 2f;
                             }
                         }
+
 
                         var circleProjector = self.m_placementMarkerInstance.GetComponent<CircleProjector>();
                         if (circleProjector == null)
@@ -337,6 +375,9 @@ namespace PlanBuild.Blueprints
                             circleProjector.Update();
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
                         }
+
+                        int capturePieces = HighlightCapture(self.m_placementGhost.transform.position, Instance.selectionRadius, 1.0f);
+                        piece.m_description = "$piece_blueprint_desc\nCaptured pieces: " + capturePieces;
                     }
                     else
                     {
@@ -366,7 +407,6 @@ namespace PlanBuild.Blueprints
                             {
                                 self.m_placeRotation--;
                             }
-
                         }
                     }
                 }
@@ -388,6 +428,21 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        private static void CopyHint(GameObject hint, string componentToCopy, string component, bool active, string text = null)
+        {
+            GameObject obj;
+            Text txt;
+            GameObject hintToCopy = hint.transform.Find(componentToCopy).gameObject;
+            obj = Object.Instantiate(hintToCopy, hintToCopy.transform.parent);
+            obj.SetActive(active);
+
+            if (text != null)
+            {
+                string translated = Localization.instance.Translate(text);
+                txt = obj.transform.Find("Text").GetComponent<Text>();
+                txt.text = translated;
+            }
+        }
         /// <summary>
         ///     Changes the hint GUI for the BlueprintRune
         /// </summary>
@@ -459,5 +514,6 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
+
     }
 }

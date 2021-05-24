@@ -3,36 +3,15 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
-    internal class PieceEntry
+    public class PieceEntry
     {
-        public PieceEntry(string line)
-        {
-            // backwards compatibility
-            if (line.IndexOf(',') > 0)
-            {
-                line.Replace(',', '.');
-            }
-
-            var parts = line.Split(';');
-            this.line = line;
-            name = parts[0];
-            category = parts[1];
-            posX = InvariantFloat(parts[2]);
-            posY = InvariantFloat(parts[3]);
-            posZ = InvariantFloat(parts[4]);
-            rotX = InvariantFloat(parts[5]);
-            rotY = InvariantFloat(parts[6]);
-            rotZ = InvariantFloat(parts[7]);
-            rotW = InvariantFloat(parts[8]);
-            additionalInfo = parts[9];
-        }
 
         public static PieceEntry FromBlueprint(string line)
         {
             // backwards compatibility
             if (line.IndexOf(',') > 0)
             {
-                line.Replace(',', '.');
+                line = line.Replace(',', '.');
             }
 
             var parts = line.Split(';');
@@ -49,15 +28,22 @@ namespace PlanBuild.Blueprints
             // backwards compatibility
             if (line.IndexOf(',') > 0)
             {
-                line.Replace(',', '.');
+                line = line.Replace(',', '.');
             }
-
-            var parts = line.Split(';');
+            bool commaValid = 2.5f.ToString().Contains(",");
+            var parts = line.Split(' ');
             string name = parts[0];
-            string category = parts[1];
-            Vector3 pos = new Vector3(InvariantFloat(parts[2]), InvariantFloat(parts[3]), InvariantFloat(parts[4]));
-            Quaternion rot = new Quaternion(InvariantFloat(parts[5]), InvariantFloat(parts[6]), InvariantFloat(parts[7]), InvariantFloat(parts[8]));
-            string additionalInfo = parts[9];
+            float x = AdvancedParse(parts[1], commaValid);
+            float y = AdvancedParse(parts[2], commaValid);
+            float z = AdvancedParse(parts[3], commaValid);
+            float w = AdvancedParse(parts[4], commaValid);
+            float x2 = AdvancedParse(parts[5], commaValid);
+            float y2 = AdvancedParse(parts[6], commaValid);
+            float z2 = AdvancedParse(parts[7], commaValid);
+            string category = "Building";
+            Quaternion rot = new Quaternion(x, y, z, w);
+            Vector3 pos = new Vector3(x2, y2, z2);
+            string additionalInfo = "";
             return new PieceEntry(name, category, pos, rot, additionalInfo);
         }
 
@@ -105,12 +91,68 @@ namespace PlanBuild.Blueprints
 
         private static float InvariantFloat(string s)
         {
+            if(s.StartsWith("-,"))
+            {
+                s = s.Replace("-,", "-0,");
+            } else if(s.StartsWith(","))
+            {
+                s = "0" + s;
+            }
             return float.Parse(s, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         }
 
         private static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);
+        }
+
+        public static float AdvancedParse(string value, bool commaValid)
+        {
+            if (value.Contains("E-"))
+            {
+                value = value.Replace("E-", "");
+            }
+            float result;
+            if (value.Contains(",") && !commaValid)
+            {
+                CultureInfo provider = CultureInfo.CreateSpecificCulture("fr-FR");
+                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
+                {
+                    return result;
+                } 
+            }
+            else if (value.Contains(".") && commaValid)
+            {
+                CultureInfo provider = CultureInfo.CreateSpecificCulture("en-GB");
+                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
+                {
+                    return result;
+                } 
+            }
+            else if (!commaValid && value.Contains("."))
+            {
+                CultureInfo provider = CultureInfo.CreateSpecificCulture("en-GB");
+                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
+                {
+                    return result;
+                } 
+            }
+            else if (commaValid && value.Contains(","))
+            {
+                CultureInfo provider = CultureInfo.CreateSpecificCulture("fr-FR");
+                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
+                {
+                    return result;
+                } 
+            }
+            else
+            {
+                if (float.TryParse(value, out result))
+                {
+                    return result;
+                } 
+            }
+            return 0f;
         }
     }
 }

@@ -6,9 +6,9 @@ namespace PlanBuild.ModCompat
     class PatcherEquipmentQuickSlots
     {
 
-        [HarmonyPatch(typeof(PlanBuild), "ReplaceHammerInInventory")]
+        [HarmonyPatch(typeof(PlanBuildPlugin), "ReplaceHammerInInventory")]
         [HarmonyPrefix]
-        static bool PlanBuild_ReplaceHammerInInventory_Prefix(PlanBuild __instance)
+        static bool PlanBuild_ReplaceHammerInInventory_Prefix(PlanBuildPlugin __instance)
         {
             Player player = Player.m_localPlayer;
             ExtendedInventory extendedInventory = player.GetInventory() as ExtendedInventory;
