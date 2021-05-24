@@ -1,33 +1,31 @@
-﻿using System.Collections.Generic;
+﻿using BepInEx.Configuration;
+using Jotunn.Configs;
+using Jotunn.Managers;
+using PlanBuild.Plans;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using Jotunn.Managers;
 using Object = UnityEngine.Object;
-using PlanBuild.Plans;
-using BepInEx.Configuration;
 
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintManager
     {
         internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExRootPath, "config", nameof(PlanBuild), "blueprints");
-        
+
         internal float selectionRadius = 10.0f;
+
+        internal float selectionOffsetMake;
 
         internal float cameraOffsetMake = 0.0f;
         internal float cameraOffsetPlace = 5.0f;
 
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
 
-        private GameObject kbHintsMake;
-        private GameObject kbHintsPlace;
-        private GameObject kbHintsOrig;
+        internal static ConfigEntry<float> rayDistanceConfig;
 
         private static BlueprintManager _instance;
-        private float selectionOffsetMake;
-        internal static ConfigEntry<float> rayDistanceConfig;
 
         public static BlueprintManager Instance
         {
@@ -42,13 +40,29 @@ namespace PlanBuild.Blueprints
         {
             //TODO: Client only - how to do? or just ignore - there are no bps and maybe someday there will be a server-wide directory of blueprints for sharing :)
 
-            //TODO: save per profile or world or global?
+            // Load Blueprints
+            LoadKnownBlueprints();
+
+            // KeyHints
+            CreateCustomKeyHints();
+
+            // Hooks
+            On.ZNetScene.Awake += RegisterKnownBlueprints;
+            On.Player.PlacePiece += BeforePlaceBlueprintPiece;
+            On.GameCamera.UpdateCamera += AdjustCameraHeight;
+            On.Player.UpdatePlacement += ShowBlueprintCapture;
+
+            Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        private void LoadKnownBlueprints()
+        {
+            Jotunn.Logger.LogMessage("Loading known blueprints");
+
             if (!Directory.Exists(BlueprintPath))
             {
                 Directory.CreateDirectory(BlueprintPath);
             }
-
-            Jotunn.Logger.LogMessage("Loading known blueprints");
 
             List<string> blueprintFiles = new List<string>();
             blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.blueprint", SearchOption.AllDirectories));
@@ -56,7 +70,7 @@ namespace PlanBuild.Blueprints
 
             // Try to load all saved blueprints
             foreach (var absoluteFilePath in blueprintFiles)
-            { 
+            {
                 string name = Path.GetFileNameWithoutExtension(absoluteFilePath);
                 if (!m_blueprints.ContainsKey(name))
                 {
@@ -71,15 +85,36 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
+        }
 
-            // Hooks
-            On.ZNetScene.Awake += RegisterKnownBlueprints;
-            On.Player.PlacePiece += BeforePlaceBlueprintPiece;
-            On.GameCamera.UpdateCamera += AdjustCameraHeight;
-            On.KeyHints.UpdateHints += ShowBlueprintHints;
-            On.Player.UpdatePlacement += ShowBlueprintCapture;
+        private void CreateCustomKeyHints()
+        {
+            KeyHintConfig KHC_default = new KeyHintConfig
+            {
+                Item = "BlueprintRune",
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC_default);
 
-            Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+            KeyHintConfig KHC_make = new KeyHintConfig
+            {
+                Item = "BlueprintRune",
+                Piece = "make_blueprint",
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC_make);
+
+            foreach (var entry in m_blueprints)
+            {
+                entry.Value.CreateKeyHint();
+            }
         }
 
         private void RegisterKnownBlueprints(On.ZNetScene.orig_Awake orig, ZNetScene self)
@@ -132,7 +167,7 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
                     }
-              
+
                     // Reset Camera offset
                     Instance.cameraOffsetMake = 0f;
 
@@ -224,7 +259,7 @@ namespace PlanBuild.Blueprints
                     return false;
                 }
             }
-            
+
             return orig(self, piece);
         }
 
@@ -234,7 +269,7 @@ namespace PlanBuild.Blueprints
         private void AdjustCameraHeight(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
         {
             orig(self, dt);
-            
+
             if (Player.m_localPlayer)
             {
                 if (Player.m_localPlayer.InPlaceMode())
@@ -301,14 +336,14 @@ namespace PlanBuild.Blueprints
         }
 
         public int HighlightCapture(Vector3 startPosition, float startRadius, float radiusDelta)
-        { 
+        {
             int capturedPieces = 0;
             foreach (var piece in Piece.m_allPieces)
             {
-                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius )
+                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius)
                 {
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
-                    if(wearNTear)
+                    if (wearNTear)
                     {
                         wearNTear.Highlight();
                     }
@@ -324,7 +359,7 @@ namespace PlanBuild.Blueprints
         private void ShowBlueprintCapture(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
         {
             orig(self, takeInput, dt);
-            
+
             if (self.m_placementGhost)
             {
                 var piece = self.m_placementGhost.GetComponent<Piece>();
@@ -412,108 +447,5 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-
-        private static void InitHint(GameObject hint, string component, bool active, string text = null)
-        {
-            GameObject obj;
-            Text txt;
-            obj = hint.transform.Find(component).gameObject;
-            obj.SetActive(active);
-
-            if (text != null)
-            {
-                string translated = Localization.instance.Translate(text);
-                txt = obj.transform.Find("Text").GetComponent<Text>();
-                txt.text = translated;
-            }
-        }
-
-        private static void CopyHint(GameObject hint, string componentToCopy, string component, bool active, string text = null)
-        {
-            GameObject obj;
-            Text txt;
-            GameObject hintToCopy = hint.transform.Find(componentToCopy).gameObject;
-            obj = Object.Instantiate(hintToCopy, hintToCopy.transform.parent);
-            obj.SetActive(active);
-
-            if (text != null)
-            {
-                string translated = Localization.instance.Translate(text);
-                txt = obj.transform.Find("Text").GetComponent<Text>();
-                txt.text = translated;
-            }
-        }
-        /// <summary>
-        ///     Changes the hint GUI for the BlueprintRune
-        /// </summary>
-        private static void ShowBlueprintHints(On.KeyHints.orig_UpdateHints orig, KeyHints self)
-        {
-            orig(self);
-
-            Player localPlayer = Player.m_localPlayer;
-            if (localPlayer == null)
-            {
-                return;
-            }
-
-            if (localPlayer.InPlaceMode() && localPlayer.m_buildPieces.GetSelectedPiece() != null)
-            {
-                if (Instance.kbHintsOrig == null)
-                {
-                    Instance.kbHintsOrig = self.m_buildHints;
-                }
-                if (Instance.kbHintsMake == null)
-                {
-                    Instance.kbHintsMake = Object.Instantiate(Instance.kbHintsOrig);
-                    Instance.kbHintsMake.transform.SetParent(Instance.kbHintsOrig.transform.parent.parent, false);
-                    Instance.kbHintsMake.name = "BlueprintHintsMake";
-
-                    InitHint(Instance.kbHintsMake, "Keyboard/Place", true, "hud_bpcapture");
-                    InitHint(Instance.kbHintsMake, "Keyboard/Remove", false);
-                    InitHint(Instance.kbHintsMake, "Keyboard/BuildMenu", false);
-                    InitHint(Instance.kbHintsMake, "Keyboard/AltPlace", false);
-                    InitHint(Instance.kbHintsMake, "Keyboard/rotate", true, "hud_bpradius");
-                }
-                if (Instance.kbHintsPlace == null)
-                {
-                    Instance.kbHintsPlace = Object.Instantiate(Instance.kbHintsOrig);
-                    Instance.kbHintsPlace.transform.SetParent(Instance.kbHintsOrig.transform.parent.parent, false);
-                    Instance.kbHintsPlace.name = "BlueprintHintsPlace";
-
-                    InitHint(Instance.kbHintsPlace, "Keyboard/Place", true, "hud_bpplace");
-                    InitHint(Instance.kbHintsPlace, "Keyboard/Remove", false);
-                    InitHint(Instance.kbHintsPlace, "Keyboard/BuildMenu", false);
-                    InitHint(Instance.kbHintsPlace, "Keyboard/AltPlace", true, "hud_bpflatten");
-                    InitHint(Instance.kbHintsPlace, "Keyboard/rotate", true, "hud_bprotate");
-                }
-
-                if (localPlayer.m_buildPieces.name.Equals("_BlueprintPieceTable"))
-                {
-                    if (localPlayer.m_buildPieces.GetSelectedPiece().name == "make_blueprint")
-                    {
-                        Instance.kbHintsMake.SetActive(true);
-                        Instance.kbHintsPlace.SetActive(false);
-                        Instance.kbHintsOrig.SetActive(false);
-                        self.m_buildHints = Instance.kbHintsMake;
-                    }
-                    else
-                    {
-                        Instance.kbHintsMake.SetActive(false);
-                        Instance.kbHintsPlace.SetActive(true);
-                        Instance.kbHintsOrig.SetActive(false);
-                        self.m_buildHints = Instance.kbHintsPlace;
-                    }
-
-                }
-                else
-                {
-                    Instance.kbHintsMake.SetActive(false);
-                    Instance.kbHintsPlace.SetActive(false);
-                    Instance.kbHintsOrig.SetActive(true);
-                    self.m_buildHints = Instance.kbHintsOrig;
-                }
-            }
-        }
-
     }
 }
