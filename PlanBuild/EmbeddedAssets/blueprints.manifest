@@ -1,0 +1,66 @@
+ManifestFileVersion: 0
+CRC: 439921392
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d441b9b855457419440faeb5d0b0188f
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 4792be7faf33b78a21ede2fb5befaf12
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 2094620348, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1521249158, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1109157524, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 825357479, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: -946862589, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Blueprints/Textures/runestone_LP_Material_AlbedoTransparency.png
+- Assets/Blueprints/make_blueprint.prefab
+- Assets/Blueprints/Localization/English.json
+- Assets/Blueprints/_BlueprintPieceTable.prefab
+- Assets/Blueprints/Icons/BlueprintIcon.png
+- Assets/Blueprints/Icons/BlueprintCopyIcon.png
+- Assets/Blueprints/Materials/RuneMaterial.mat
+- Assets/Blueprints/Localization/Deutsch.json
+- Assets/Blueprints/Textures/runestone_LP_Material_Emission.png
+- Assets/Blueprints/BlueprintRune.prefab
+- Assets/Blueprints/Mesh/RuneStoneLow.mesh
+- Assets/Blueprints/Textures/runestone_LP_Material_Normal.png
+- Assets/Blueprints/piece_blueprint.prefab
+- Assets/Blueprints/Icons/BlueprintRuneIcon.png
+Dependencies: []

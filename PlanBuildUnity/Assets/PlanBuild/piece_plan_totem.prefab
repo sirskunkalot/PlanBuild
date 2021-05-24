@@ -47,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5664063390961932787
 Transform:
   m_ObjectHideFlags: 0
@@ -121,6 +121,7 @@ GameObject:
   - component: {fileID: 1635876176967085474}
   - component: {fileID: 4092227353250845137}
   - component: {fileID: 2810003565761988933}
+  - component: {fileID: 4156717911647772856}
   m_Layer: 12
   m_Name: piece_plan_totem
   m_TagString: Untagged
@@ -219,3 +220,22 @@ MonoBehaviour:
     m_amountPerLevel: 0
     m_recover: 0
   m_destroyedLootPrefab: {fileID: 0}
+--- !u!95 &4156717911647772856
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079735408568721142}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: ba337ed7d8e32f94abb5d72eb480f231, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0

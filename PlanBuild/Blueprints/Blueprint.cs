@@ -67,8 +67,7 @@ namespace PlanBuild.Blueprints
 
             foreach (var piece in Piece.m_allPieces)
             {
-                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <
-                    startRadius && piece.transform.position.y >= startPosition.y)
+                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius)
                 {
                     piece.GetComponent<WearNTear>()?.Highlight();
                     collected.Add(piece);

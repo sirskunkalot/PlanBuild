@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Jotunn.Managers;
 using Object = UnityEngine.Object;
 using PlanBuild.Plans;
+using BepInEx.Configuration;
 
 namespace PlanBuild.Blueprints
 {
@@ -26,6 +27,7 @@ namespace PlanBuild.Blueprints
 
         private static BlueprintManager _instance;
         private float selectionOffsetMake;
+        internal static ConfigEntry<float> rayDistanceConfig;
 
         public static BlueprintManager Instance
         {
@@ -49,8 +51,8 @@ namespace PlanBuild.Blueprints
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
             List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(BepInEx.Paths.BepInExRootPath, "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles("AdvancedBuilder/Builds/", "*.vbuild", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.vbuild", SearchOption.AllDirectories));
 
             // Try to load all saved blueprints
             foreach (var absoluteFilePath in blueprintFiles)
@@ -118,9 +120,8 @@ namespace PlanBuild.Blueprints
                     var bpname = $"blueprint{Instance.m_blueprints.Count() + 1:000}";
                     Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
-
                     var bp = new Blueprint(bpname);
-                    Vector3 capturePosition = self.m_placementGhost.transform.position;
+                    Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
                     capturePosition.y += selectionOffsetMake;
                     if (bp.Capture(capturePosition, Instance.selectionRadius, 1.0f))
                     {
@@ -131,8 +132,7 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
                     }
-             
-
+              
                     // Reset Camera offset
                     Instance.cameraOffsetMake = 0f;
 
@@ -301,7 +301,7 @@ namespace PlanBuild.Blueprints
         }
 
         public int HighlightCapture(Vector3 startPosition, float startRadius, float radiusDelta)
-        {
+        { 
             int capturedPieces = 0;
             foreach (var piece in Piece.m_allPieces)
             {
@@ -343,7 +343,7 @@ namespace PlanBuild.Blueprints
                         {
                             if (Input.GetAxis("Mouse ScrollWheel") < 0f)
                             {
-                                Instance.selectionRadius -= 2f;
+                                Instance.selectionRadius -= 1f;
                                 if (Instance.selectionRadius < 2f)
                                 {
                                     Instance.selectionRadius = 2f;
@@ -352,7 +352,7 @@ namespace PlanBuild.Blueprints
 
                             if (Input.GetAxis("Mouse ScrollWheel") > 0f)
                             {
-                                Instance.selectionRadius += 2f;
+                                Instance.selectionRadius += 1f;
                             }
                         }
 
@@ -376,7 +376,7 @@ namespace PlanBuild.Blueprints
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
                         }
 
-                        int capturePieces = HighlightCapture(self.m_placementGhost.transform.position, Instance.selectionRadius, 1.0f);
+                        int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f);
                         piece.m_description = "$piece_blueprint_desc\nCaptured pieces: " + capturePieces;
                     }
                     else

@@ -1,4 +1,5 @@
-﻿using Jotunn.Managers;
+﻿using Jotunn;
+using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,10 @@ namespace PlanBuild.KitBash
             {
                 try
                 {
+                    if (kitBashObject.Config.FixReferences)
+                    {
+                        kitBashObject.Prefab.FixReferences();
+                    }
                     kitBashObject.ApplyKitBash();
                 } catch(Exception e)
                 {
@@ -46,7 +51,7 @@ namespace PlanBuild.KitBash
         public KitBashObject KitBash(GameObject embeddedPrefab, KitBashConfig kitBashConfig)
         {
             Jotunn.Logger.LogInfo("Creating KitBash prefab for " + embeddedPrefab + " with config: " + kitBashConfig);
-            GameObject kitbashedPrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform);
+            GameObject kitbashedPrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform); 
             kitbashedPrefab.name = embeddedPrefab.name + "_kitbash";
             KitBashObject kitBashObject = new KitBashObject
             {
@@ -56,21 +61,7 @@ namespace PlanBuild.KitBash
             kitBashObjects.Add(kitBashObject);
             return kitBashObject;
         }
-
-
-
-        //private void CreateBoxColliderFromMesh(GameObject kitbashedPrefab, string colliderPath)
-        //{
-        //    Transform colliderSource = kitbashedPrefab.transform.Find(colliderPath);
-        //    if(!colliderSource)
-        //    {
-        //        Jotunn.Logger.LogWarning("No gameObject found for colliderPath " + colliderPath + " in " + kitbashedPrefab);
-        //        return;
-        //    }
-        //    MeshFilter meshFilter = colliderSource.GetComponent<MeshFilter>();
-        //    
-        //}
-
+         
         public bool KitBash(GameObject kitbashedPrefab, KitBashSourceConfig config)
         {
             GameObject sourcePrefab = PrefabManager.Instance.GetPrefab(config.sourcePrefab);

@@ -157,6 +157,15 @@ namespace PlanBuild.Plans
             UpdateTextures();
         }
 
+        internal bool HasRequiredCraftingStationInRange()
+        {
+            if (originalPiece.m_craftingStation)
+            {
+                return CraftingStation.HaveBuildStationInRange(originalPiece.m_craftingStation.m_name, transform.position); 
+            }
+            return true;
+        }
+
         /// <summary>
         /// Destroy this gameObject because of invalid state detected
         /// </summary>
@@ -388,6 +397,8 @@ namespace PlanBuild.Plans
             Build(playerID);
             return false;
         }
+
+        
 
         public void Build(long playerID)
         {

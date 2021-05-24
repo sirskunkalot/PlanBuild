@@ -9,6 +9,7 @@ using BepInEx.Configuration;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
+using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
@@ -76,6 +77,7 @@ namespace PlanBuild
             // Configs
             buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
             showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
+            PlanTotem.radiusConfig = base.Config.Bind<float>("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
             configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             configTransparentGhostPlacement = base.Config.Bind<bool>("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
 
@@ -86,6 +88,14 @@ namespace PlanBuild
             ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
+
+            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f, new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
+
+            PlanTotemPrefab.glowColorConfig = base.Config.Bind<Color>("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
+
+            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
+            PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
+
 
             buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
@@ -100,7 +110,16 @@ namespace PlanBuild
 
             UpdateBuildKey(null, null);
         }
-         
+
+        private void UpdatePlanTotem(object sender, EventArgs e)
+        {
+            planTotemPrefab.SettingsUpdated();
+            foreach(PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+            {
+                PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
+            }
+        }
+
         public void OnDestroy()
         {
             Patches.Remove();
