@@ -143,11 +143,14 @@ namespace PlanBuild
             if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
             {
                 blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
+                Player.m_localPlayer.m_buildPieces = bluePrintRunePieceTable;
             }
             else
             {
                 blueprintRune.m_shared.m_buildPieces = planHammerPieceTable;
+                Player.m_localPlayer.m_buildPieces = planHammerPieceTable;
             }
+
             Player.m_localPlayer.UpdateAvailablePiecesList();
         }
 
