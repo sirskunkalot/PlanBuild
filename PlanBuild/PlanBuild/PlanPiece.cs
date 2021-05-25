@@ -23,6 +23,7 @@ namespace PlanBuild.Plans
         public string m_hoverText = "";
         public Piece originalPiece; 
 
+
         //GUI 
         public static bool m_forceDisableInit;
            
@@ -38,6 +39,11 @@ namespace PlanBuild.Plans
             {
                 InvalidPlanPiece();
                 return;
+            }
+
+            if(originalPiece.TryGetComponent<WearNTear>(out WearNTear wearNTear))
+            {
+                m_minSupport = wearNTear.GetMinSupport();
             }
 
             m_planPieces.Add(this);
@@ -77,7 +83,7 @@ namespace PlanBuild.Plans
         {
             if(m_nView.IsValid())
             {
-                bool haveSupport = m_nView.GetZDO().GetFloat("support") >= m_wearNTear.GetMinSupport();
+                bool haveSupport = m_nView.GetZDO().GetFloat("support") >= m_minSupport;
                 if (haveSupport != hasSupport)
                 { 
                     hasSupport = haveSupport;
@@ -201,7 +207,8 @@ namespace PlanBuild.Plans
 
         private float m_lastLookedTime = -9999f;
         private float m_lastUseTime = -9999f;
-        private float m_holdRepeatInterval = 1f; 
+        private float m_holdRepeatInterval = 1f;
+        private float m_minSupport = 0f;
 
         public string GetHoverText()
         {

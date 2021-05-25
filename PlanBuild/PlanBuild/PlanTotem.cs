@@ -21,9 +21,10 @@ namespace PlanBuild.PlanBuild
         static internal GameObject m_connectionPrefab;
         private Bounds m_chestBounds;
         internal static ConfigEntry<float> radiusConfig;
+        private List<KeyValuePair<string, int>> m_sortedRequired;
         private readonly List<PlanPiece> m_connectedPieces = new List<PlanPiece>();
         private readonly Dictionary<string, int> m_remainingRequirements = new Dictionary<string, int>();
-        private readonly List<string> m_missingCraftingStations = new List<string>();
+        private readonly HashSet<string> m_missingCraftingStations = new HashSet<string>();
 
         #region Container Override
         static PlanTotem() {
@@ -98,7 +99,6 @@ namespace PlanBuild.PlanBuild
                     {
                         if (planPiece.HasRequiredCraftingStationInRange())
                         {
-                            Jotunn.Logger.LogInfo("Auto Building " + planPiece);
                             TriggerConnection(GetCenter(planPiece.gameObject));
                             planPiece.Build(m_piece.m_creator);
                             continue;
@@ -122,6 +122,18 @@ namespace PlanBuild.PlanBuild
                     m_remainingRequirements[resourceName] = resourceCount;
                 }
             }
+            m_sortedRequired = m_remainingRequirements
+                   .Select(pair => {
+                       int missing = pair.Value;
+                       if (pair.Value > 0)
+                       {
+                           missing -= m_inventory.CountItems(pair.Key);
+                       }
+                       return new KeyValuePair<string, int>(pair.Key, missing);
+                   })
+                   .Where(pair => pair.Value > 0)
+                   .OrderByDescending(pair => pair.Value)
+                   .ToList();
             bool active = m_connectedPieces.Count > 0;
             SetActive(active);
         }
@@ -161,23 +173,27 @@ namespace PlanBuild.PlanBuild
         public new string GetHoverText()
         {
             ShowAreaMarker();
-            string text = $"Plan totem\n" +
+            StringBuilder sb = new StringBuilder($"Plan totem\n" +
                 $"[<color=yellow>$KEY_Use</color>] Open\n" +
-                $"\n" +
-                $"{m_connectedPieces.Count} connected plans ({m_supportedPieces} supported)\n";
-            if(m_remainingRequirements.Count > 0)
+                $"\n");
+            if(m_missingCraftingStations.Count > 0)
             {
-                text += "Required materials:\n";
-                List<KeyValuePair<string, int>> sortedRequired = m_remainingRequirements
-                    .Where(pair => pair.Value > 0)
-                    .OrderByDescending(pair => pair.Value)
-                    .ToList();
-                foreach (var pair in sortedRequired)
+                sb.Append($"Missing crafting stations: \n");
+                foreach(string missingStation in m_missingCraftingStations)
                 {
-                    text += $" <color=yellow>{pair.Value}</color> {pair.Key}\n";
+                    sb.Append($"<color=red>{missingStation}</color>\n");                
                 }
             }
-            return Localization.instance.Localize(text);
+            sb.Append($"{m_connectedPieces.Count} connected plans ({m_supportedPieces} supported)\n");
+            if(m_remainingRequirements.Count > 0)
+            {
+                sb.Append("Required materials:\n"); 
+                foreach (var pair in m_sortedRequired)
+                {
+                    sb.Append($" <color=yellow>{pair.Value}</color> {pair.Key}\n");
+                }
+            }
+            return Localization.instance.Localize(sb.ToString());
         } 
 
         public Vector3 GetCenter(GameObject target)
@@ -200,10 +216,10 @@ namespace PlanBuild.PlanBuild
             GameObject m_connection = Object.Instantiate(m_connectionPrefab, center, Quaternion.identity);
 
             TimedDestruction timedDestruction = m_connection.AddComponent<TimedDestruction>();
-            timedDestruction.Trigger(2f);
 
             Vector3 vector = targetPos - center;
             Quaternion rotation = Quaternion.LookRotation(vector.normalized);
+            timedDestruction.Trigger(vector.magnitude);
             m_connection.transform.position = center;
             m_connection.transform.rotation = rotation;
             m_connection.transform.localScale = new Vector3(1f, 1f, vector.magnitude); 
