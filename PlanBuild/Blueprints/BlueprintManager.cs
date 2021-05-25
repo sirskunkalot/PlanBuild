@@ -20,6 +20,7 @@ namespace PlanBuild.Blueprints
 
         internal float cameraOffsetMake = 0.0f;
         internal float cameraOffsetPlace = 5.0f;
+        internal bool updateCamera = true;
 
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
 
@@ -307,7 +308,10 @@ namespace PlanBuild.Blueprints
                                 }
                             }
 
-                            self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
+                            if(updateCamera)
+                            {
+                                self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
+                            }
 
                             if (Input.GetKey(KeyCode.LeftControl))
                             {

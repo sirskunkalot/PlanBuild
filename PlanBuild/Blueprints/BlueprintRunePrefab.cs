@@ -10,6 +10,8 @@ namespace PlanBuild.Blueprints
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string BlueprintRuneName = "BlueprintRune";
         public const string MakeBlueprintName = "make_blueprint";
+
+        public static string BlueprintRuneItemName;
         public GameObject runeprefab;
         
 
@@ -19,11 +21,11 @@ namespace PlanBuild.Blueprints
 
             runeprefab = assetBundle.LoadAsset<GameObject>(BlueprintRuneName);
             CustomItem rune = new CustomItem(runeprefab, fixReference: false);
-            ItemManager.Instance.AddItem(rune);
-
+            ItemManager.Instance.AddItem(rune); 
+            BlueprintRuneItemName = rune.ItemDrop.m_itemData.m_shared.m_name;
             CustomRecipe runeRecipe = new CustomRecipe(new RecipeConfig()
             {
-                Item = "BlueprintRune",
+                Item = BlueprintRuneName,
                 Amount = 1,
                 Requirements = new RequirementConfig[]
                 {
