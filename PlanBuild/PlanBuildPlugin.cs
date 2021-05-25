@@ -89,7 +89,11 @@ namespace PlanBuild
             ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
 
-            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f, new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
+            BlueprintManager.allowDirectBuildConfig = base.Config.Bind("Blueprint Rune", "Allow direct build", false,
+                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
+
+            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f, 
+                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
 
             PlanTotemPrefab.glowColorConfig = base.Config.Bind<Color>("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
 

@@ -520,6 +520,8 @@ namespace PlanBuild.Blueprints
 
                 newbp.AddToPieceTable();
 
+                newbp.CreateKeyHint();
+
                 Player.m_localPlayer.UpdateKnownRecipesList();
                 Player.m_localPlayer.UpdateAvailablePiecesList();
                 BlueprintManager.Instance.m_blueprints.Add(newbp.m_name, newbp);

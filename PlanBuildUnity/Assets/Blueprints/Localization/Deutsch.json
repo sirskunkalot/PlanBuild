@@ -10,5 +10,6 @@
   "hud_bpplace": "Erstellen",
   "hud_bpflatten": "Begradigen",
   "hud_bpdirect": "Ohne Plan bauen",
-  "hud_bprotate": "Drehen (Shift halten ändert Kameraabstand)"
+  "hud_bprotate": "Drehen (Shift halten ändert Kameraabstand)",
+  "msg_direct_build_disabled": "Ohne Plan zu bauen ist deaktiviert"
 }

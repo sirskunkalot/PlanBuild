@@ -1,10 +1,10 @@
 ManifestFileVersion: 0
-CRC: 2455615005
+CRC: 4188862324
 AssetBundleManifest:
   AssetBundleInfos:
     Info_0:
-      Name: blueprints
+      Name: planbuild
       Dependencies: {}
     Info_1:
-      Name: planbuild
+      Name: blueprints
       Dependencies: {}

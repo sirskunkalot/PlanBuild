@@ -10,5 +10,6 @@
   "hud_bpplace": "Place",
   "hud_bpflatten": "Flatten ground",
   "hud_bpdirect": "Direct build (no plan)",
-  "hud_bprotate": "Rotate (Hold Shift for camera distance)"
+  "hud_bprotate": "Rotate (Hold Shift for camera distance)",
+  "msg_direct_build_disabled": "Direct build disabled"
 }

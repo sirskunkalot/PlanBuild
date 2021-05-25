@@ -24,6 +24,7 @@ namespace PlanBuild.Blueprints
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
 
         internal static ConfigEntry<float> rayDistanceConfig;
+        internal static ConfigEntry<bool> allowDirectBuildConfig;
 
         private static BlueprintManager _instance;
 
@@ -178,20 +179,25 @@ namespace PlanBuild.Blueprints
                 // Place a known blueprint
                 if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid && piece.name.StartsWith("piece_blueprint"))
                 {
-                    if (ZInput.GetButton("AltPlace"))
-                    {
-                        Vector2 extent = Instance.m_blueprints.First(x => $"piece_blueprint ({x.Key})" == piece.name).Value.GetExtent();
-                        FlattenTerrain.FlattenForBlueprint(self.m_placementGhost.transform, extent.x, extent.y,
-                            Instance.m_blueprints.First(x => $"piece_blueprint ({x.Key})" == piece.name).Value.m_pieceEntries);
-                    }
-
-                    uint cntEffects = 0u;
-                    uint maxEffects = 10u;
-
                     Blueprint bp = Instance.m_blueprints[piece.m_name];
                     var transform = self.m_placementGhost.transform;
                     var position = self.m_placementGhost.transform.position;
                     var rotation = self.m_placementGhost.transform.rotation;
+
+                    if (ZInput.GetButton("Crouch") && !allowDirectBuildConfig.Value)
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
+                        return false;
+                    }
+
+                    if (ZInput.GetButton("AltPlace"))
+                    {
+                        Vector2 extent = bp.GetExtent();
+                        FlattenTerrain.FlattenForBlueprint(transform, extent.x, extent.y, bp.m_pieceEntries);
+                    }
+
+                    uint cntEffects = 0u;
+                    uint maxEffects = 10u;
 
                     foreach (var entry in bp.m_pieceEntries)
                     {
@@ -414,7 +420,7 @@ namespace PlanBuild.Blueprints
                         int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f);
                         piece.m_description = "$piece_blueprint_desc\nCaptured pieces: " + capturePieces;
                     }
-                    else
+                    else if (piece.name.StartsWith("piece_blueprint"))
                     {
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
@@ -422,15 +428,8 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        // Restore placementDistance
-                        if (!piece.name.StartsWith("piece_blueprint"))
-                        {
-                            // default value, if we introduce config stuff for this, then change it here!
-                            self.m_maxPlaceDistance = 8;
-                        }
-
                         // Reset rotation when changing camera
-                        if (piece.name.StartsWith("piece_blueprint") && Input.GetAxis("Mouse ScrollWheel") != 0f && Input.GetKey(KeyCode.LeftShift))
+                        if (Input.GetAxis("Mouse ScrollWheel") != 0f && Input.GetKey(KeyCode.LeftShift))
                         {
 
                             if (Input.GetAxis("Mouse ScrollWheel") < 0f)
@@ -442,7 +441,20 @@ namespace PlanBuild.Blueprints
                             {
                                 self.m_placeRotation--;
                             }
+
                         }
+                    }
+                    else
+                    {
+                        // Destroy placement marker instance to get rid of the circleprojector
+                        if (self.m_placementMarkerInstance)
+                        {
+                            Object.DestroyImmediate(self.m_placementMarkerInstance);
+                        }
+
+                        // Restore placementDistance
+                        // default value, if we introduce config stuff for this, then change it here!
+                        self.m_maxPlaceDistance = 8;
                     }
                 }
             }
