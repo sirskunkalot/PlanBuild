@@ -54,6 +54,11 @@ namespace PlanBuild.Blueprints
             return m_pieceEntries.Count();
         }
 
+        public Vector2 GetExtent()
+        {
+            return new Vector2(m_pieceEntries.Max(x => x.posX), m_pieceEntries.Max(x => x.posZ));
+        }
+
         public bool Capture(Vector3 startPosition, float startRadius, float radiusDelta)
         {
             var vec = startPosition;
@@ -413,6 +418,9 @@ namespace PlanBuild.Blueprints
                     {
                         Object.Destroy(component);
                     }
+
+                    // A Ghost also has to look like one
+                    ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating);
                 }
             }
             catch (Exception ex)
@@ -428,9 +436,31 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
-        public Vector2 GetExtent()
+        internal void CreateKeyHint()
         {
-            return new Vector2(m_pieceEntries.Max(x => x.posX), m_pieceEntries.Max(x => x.posZ));
+            KeyHintConfig KHC = new KeyHintConfig
+            {
+                Item = "BlueprintRune",
+                Piece = m_prefabname,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
+                    new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
+                    new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KHC);
+        }
+
+        internal void RemoveKeyHint()
+        {
+            KeyHintConfig KHC = new KeyHintConfig
+            {
+                Item = "BlueprintRune",
+                Piece = m_prefabname
+            };
+            GUIManager.Instance.RemoveKeyHint(KHC);
         }
 
         /// <summary>
@@ -463,6 +493,7 @@ namespace PlanBuild.Blueprints
                     {
                         Blueprint oldbp = BlueprintManager.Instance.m_blueprints[newbp.m_name];
                         oldbp.Destroy();
+                        oldbp.RemoveKeyHint();
                         BlueprintManager.Instance.m_blueprints.Remove(newbp.m_name);
                     }
 
@@ -488,6 +519,8 @@ namespace PlanBuild.Blueprints
                 newbp.CreatePrefab();
 
                 newbp.AddToPieceTable();
+
+                newbp.CreateKeyHint();
 
                 Player.m_localPlayer.UpdateKnownRecipesList();
                 Player.m_localPlayer.UpdateAvailablePiecesList();
