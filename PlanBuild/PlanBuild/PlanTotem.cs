@@ -46,12 +46,13 @@ namespace PlanBuild.PlanBuild
         {
             base.Awake();
             InvokeRepeating("UpdatePlanTotem", 1f, 1f);
-            m_areaMarker = GetComponentInChildren<CircleProjector>();
+            m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
             m_areaMarker.m_radius = radiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
+            HideMarker();
         }
 
         public void OnDestroy()

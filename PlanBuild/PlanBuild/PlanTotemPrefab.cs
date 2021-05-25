@@ -82,6 +82,7 @@ namespace PlanBuild.Plans
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>();
                 circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
+                circleProjector.m_radius = PlanTotem.radiusConfig.Value;
             };
 
             CustomPiece planTotemPiece = new CustomPiece(planTotemKitBash.Prefab, new PieceConfig()
