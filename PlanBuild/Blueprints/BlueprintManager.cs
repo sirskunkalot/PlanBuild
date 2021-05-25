@@ -208,9 +208,14 @@ namespace PlanBuild.Blueprints
                         Quaternion entryQuat = new Quaternion(entry.rotX, entry.rotY, entry.rotZ, entry.rotW);
                         entryQuat.eulerAngles += rotation.eulerAngles;
 
-                        // Get the prefab
-                        var prefab = PrefabManager.Instance.GetPrefab(entry.name + PlanPiecePrefab.plannedSuffix);
-                        if (prefab == null)
+                        // Get the prefab of the piece or the plan piece
+                        string prefabName = entry.name;
+                        if (!allowDirectBuildConfig.Value || !ZInput.GetButton("Crouch"))
+                        {
+                            prefabName += "_planned";
+                        }
+                        GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
+                        if (!prefab)
                         {
                             Jotunn.Logger.LogError(entry.name + " not found?");
                             continue;
@@ -299,6 +304,8 @@ namespace PlanBuild.Blueprints
                                     Instance.cameraOffsetMake = Mathf.Clamp(Instance.cameraOffsetMake -= 1f, minOffset, maxOffset);
                                 }
                             }
+
+                            self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
 
                             if (Input.GetKey(KeyCode.LeftControl))
                             {

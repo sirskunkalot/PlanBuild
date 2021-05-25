@@ -45,5 +45,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_pieces:
   - {fileID: 1997864058320204, guid: 20ebc75132a3a52499ed2082f74c32c4, type: 3}
-  m_useCategories: 1
+  m_useCategories: 0
   m_canRemovePieces: 1
