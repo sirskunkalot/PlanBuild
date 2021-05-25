@@ -47,7 +47,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5664063390961932787
 Transform:
   m_ObjectHideFlags: 0
@@ -121,6 +121,7 @@ GameObject:
   - component: {fileID: 1635876176967085474}
   - component: {fileID: 4092227353250845137}
   - component: {fileID: 2810003565761988933}
+  - component: {fileID: -7196343735784234445}
   - component: {fileID: 4156717911647772856}
   m_Layer: 12
   m_Name: piece_plan_totem
@@ -220,6 +221,49 @@ MonoBehaviour:
     m_amountPerLevel: 0
     m_recover: 0
   m_destroyedLootPrefab: {fileID: 0}
+--- !u!114 &-7196343735784234445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7079735408568721142}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_new: {fileID: 2229460172875680287}
+  m_worn: {fileID: 2229460172875680287}
+  m_broken: {fileID: 2229460172875680287}
+  m_wet: {fileID: 2229460172875680287}
+  m_noRoofWear: 0
+  m_noSupportWear: 0
+  m_materialType: 0
+  m_supports: 0
+  m_comOffset: {x: 0, y: 0, z: 0}
+  m_health: 100
+  m_damages:
+    m_blunt: 0
+    m_slash: 0
+    m_pierce: 0
+    m_chop: 0
+    m_pickaxe: 0
+    m_fire: 0
+    m_frost: 0
+    m_lightning: 0
+    m_poison: 0
+    m_spirit: 0
+  m_hitNoise: 0
+  m_destroyNoise: 0
+  m_destroyedEffect:
+    m_effectPrefabs: []
+  m_hitEffect:
+    m_effectPrefabs: []
+  m_switchEffect:
+    m_effectPrefabs: []
+  m_autoCreateFragments: 1
+  m_fragmentRoots: []
 --- !u!95 &4156717911647772856
 Animator:
   serializedVersion: 3

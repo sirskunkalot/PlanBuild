@@ -145,7 +145,7 @@ MonoBehaviour:
   m_name: $piece_blueprint
   m_description: $piece_blueprint_desc
   m_enabled: 1
-  m_category: 100
+  m_category: 0
   m_isUpgrade: 0
   m_comfort: 0
   m_comfortGroup: 0

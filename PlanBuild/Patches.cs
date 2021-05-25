@@ -11,10 +11,8 @@ namespace PlanBuild
 {
     class Patches
     {
-        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
-        public const string buildShareGUID = "com.valheim.cr_advanced_builder";
-        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
-        public const string equipmentQuickSlotsGUID = "randyknapp.mods.equipmentandquickslots";
+        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera"; 
+        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers"; 
 
         private static Harmony harmony;
 
@@ -22,7 +20,7 @@ namespace PlanBuild
         [HarmonyPrefix]
         static void PieceManager_RegisterInPieceTables_Prefix()
         {
-            PlanBuildPlugin.Instance.ScanHammer();
+            PlanBuildPlugin.Instance.InitialScanHammer();
         }
 
         [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
@@ -40,25 +38,7 @@ namespace PlanBuild
             }
             return true;
         }
-
-        [HarmonyPatch(typeof(Player), "SetupPlacementGhost")]
-        [HarmonyPrefix]
-        static void Player_SetupPlacementGhost_Prefix()
-        {
-            PlanPiece.m_forceDisableInit = true;
-        }
-
-        [HarmonyPatch(typeof(Player), "SetupPlacementGhost")]
-        [HarmonyPostfix]
-        static void Player_SetupPlacementGhost_Postfix(GameObject ___m_placementGhost)
-        {
-            PlanPiece.m_forceDisableInit = false;
-            if (___m_placementGhost != null && PlanBuildPlugin.configTransparentGhostPlacement.Value)
-            {
-                ShaderHelper.UpdateTextures(___m_placementGhost, ShaderState.Supported);
-            }
-        }
-
+          
         private static bool interceptGetPrefab = true;
         private static HashSet<int> checkedHashes = new HashSet<int>();
 
@@ -80,6 +60,8 @@ namespace PlanBuild
 
         internal static void Apply()
         {
+            On.Player.SetupPlacementGhost += SetupPlacementGhost;
+
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
             harmony.PatchAll(typeof(PlanPiece));
@@ -92,18 +74,24 @@ namespace PlanBuild
             {
                 Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
-            }
-            if (Chainloader.PluginInfos.ContainsKey(equipmentQuickSlotsGUID))
+            } 
+        }
+
+        private static void SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            PlanPiece.m_forceDisableInit = true;
+            orig(self);
+            if(self.m_placementGhost)
             {
-                Jotunn.Logger.LogInfo("Applying EquipmentQuickSlots patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherEquipmentQuickSlots));
+                if(PlanBuildPlugin.showRealTextures)
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
+                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value)
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Supported);
+                }
             }
-            HarmonyLib.Patches patches = Harmony.GetPatchInfo(typeof(Player).GetMethod("OnSpawned"));
-            if (patches?.Owners.Contains(buildShareGUID) == true)
-            {
-                Jotunn.Logger.LogInfo("Applying BuildShare patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherBuildShare));
-            }
+            PlanPiece.m_forceDisableInit = false;
         }
 
         internal static void Remove()

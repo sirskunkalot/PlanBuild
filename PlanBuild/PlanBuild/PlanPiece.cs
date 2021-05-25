@@ -380,8 +380,7 @@ namespace PlanBuild.Plans
                 user.Message(MessageHud.MessageType.Center, "$msg_missingrequirement");
                 return false;
             }
-            if (user.GetInventory().GetItem("$item_hammer") == null
-                && user.GetInventory().GetItem(PlanHammerPrefab.itemName) == null)
+            if (user.GetInventory().GetItem("$item_hammer") == null)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_need_hammer");
                 return false;

@@ -1,5 +1,6 @@
 ﻿using BepInEx.Logging; 
-using Jotunn.Entities; 
+using Jotunn.Entities;
+using PlanBuild.Blueprints;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,12 +11,12 @@ namespace PlanBuild.Plans
 {
     public class PlanPiecePrefab : CustomPiece
     {
-        public const string plannedSuffix = "_planned";
+        public const string PlannedSuffix = "_planned";
         public Piece originalPiece;
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
-        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.plannedSuffix, piece.gameObject.name, PlanHammerPrefab.pieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.PlannedSuffix, piece.gameObject.name, BlueprintRunePrefab.PieceTableName)
         { 
             
             this.originalPiece = piece;
@@ -26,9 +27,7 @@ namespace PlanBuild.Plans
             Piece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
             Piece.m_comfort = 0;
             Piece.m_canBeRemoved = true; 
-            
-
-
+             
             Piece.m_category = originalPiece.m_category;
             Piece.m_groundOnly = originalPiece.m_groundOnly;
             Piece.m_groundPiece = originalPiece.m_groundPiece;
@@ -39,10 +38,8 @@ namespace PlanBuild.Plans
             Piece.m_dlc = originalPiece.m_dlc;
             Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
-            
-
-
-            this.PieceTable = PlanHammerPrefab.pieceTableName;  
+             
+            this.PieceTable = BlueprintRunePrefab.PieceTableName;  
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
             if (wearNTear == null)

@@ -45,13 +45,13 @@ namespace PlanBuild.PlanBuild
         public new void Awake()
         {
             base.Awake();
-            InvokeRepeating("UpdatePlanTotem", 1f, 1f);
+            InvokeRepeating("UpdatePlanTotem", 3f, 3f);
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
             m_areaMarker.m_radius = radiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
-            m_allPlanTotems.Add(this);
+            m_allPlanTotems.Add(this); 
             HideMarker();
         }
 
@@ -88,11 +88,17 @@ namespace PlanBuild.PlanBuild
             {
                 return;
             }
+            m_supportedPieces = 0;
             m_connectedPieces.Clear();
             m_remainingRequirements.Clear();
             m_missingCraftingStations.Clear();
             foreach (var planPiece in FindPlanPiecesInRange())
             {
+                if(planPiece.hasSupport)
+                {
+                    m_supportedPieces++;
+                }
+
                 if (m_nview.IsOwner() && planPiece.hasSupport)
                 {
                     planPiece.AddAllMaterials(m_inventory);

@@ -7,11 +7,17 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintRunePrefab
     {
+        public const string PieceTableName = "_BlueprintPieceTable";
+        public const string BlueprintRuneName = "BlueprintRune";
+        public const string MakeBlueprintName = "make_blueprint";
+        public GameObject runeprefab;
+        
+
         public BlueprintRunePrefab(AssetBundle assetBundle)
         {
-            PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>("_BlueprintPieceTable"));
+            PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>(PieceTableName));
 
-            GameObject runeprefab = assetBundle.LoadAsset<GameObject>("BlueprintRune");
+            runeprefab = assetBundle.LoadAsset<GameObject>(BlueprintRuneName);
             CustomItem rune = new CustomItem(runeprefab, fixReference: false);
             ItemManager.Instance.AddItem(rune);
 
@@ -26,9 +32,9 @@ namespace PlanBuild.Blueprints
             });
             ItemManager.Instance.AddRecipe(runeRecipe);
 
-            GameObject makebp_prefab = assetBundle.LoadAsset<GameObject>("make_blueprint");
+            GameObject makebp_prefab = assetBundle.LoadAsset<GameObject>(MakeBlueprintName);
             PrefabManager.Instance.AddPrefab(makebp_prefab);
-            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>("piece_blueprint");
+            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
             PrefabManager.Instance.AddPrefab(placebp_prefab);
 
             TextAsset[] textAssets = assetBundle.LoadAllAssets<TextAsset>();

@@ -184,7 +184,8 @@ namespace PlanBuild.Blueprints
                     var position = self.m_placementGhost.transform.position;
                     var rotation = self.m_placementGhost.transform.rotation;
 
-                    if (ZInput.GetButton("Crouch") && !allowDirectBuildConfig.Value)
+                    bool crouching = ZInput.GetButton("Crouch");
+                    if (crouching && !allowDirectBuildConfig.Value)
                     {
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                         return false;
@@ -210,10 +211,11 @@ namespace PlanBuild.Blueprints
 
                         // Get the prefab of the piece or the plan piece
                         string prefabName = entry.name;
-                        if (!allowDirectBuildConfig.Value || !ZInput.GetButton("Crouch"))
+                        if (!allowDirectBuildConfig.Value || !crouching)
                         {
-                            prefabName += "_planned";
+                            prefabName += PlanPiecePrefab.PlannedSuffix;
                         }
+
                         GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                         if (!prefab)
                         {
@@ -424,8 +426,7 @@ namespace PlanBuild.Blueprints
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
                         }
 
-                        int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f);
-                        piece.m_description = "$piece_blueprint_desc\nCaptured pieces: " + capturePieces;
+                        int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f); 
                     }
                     else if (piece.name.StartsWith("piece_blueprint"))
                     {

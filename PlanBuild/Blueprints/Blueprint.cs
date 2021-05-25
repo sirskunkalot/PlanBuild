@@ -15,6 +15,8 @@ namespace PlanBuild.Blueprints
 {
     internal class Blueprint
     {
+        public const string BlueprintPrefabName = "piece_blueprint";
+
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
         /// </summary>
@@ -42,7 +44,7 @@ namespace PlanBuild.Blueprints
         public Blueprint(string name)
         {
             m_name = name;
-            m_prefabname = $"piece_blueprint ({name})";
+            m_prefabname = $"{BlueprintPrefabName} ({name})";
         }
 
         /// <summary>
@@ -126,9 +128,9 @@ namespace PlanBuild.Blueprints
                 var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
 
                 string pieceName = piece.name.Split('(')[0];
-                if (pieceName.EndsWith(PlanPiecePrefab.plannedSuffix))
+                if (pieceName.EndsWith(PlanPiecePrefab.PlannedSuffix))
                 {
-                    pieceName = pieceName.Replace(PlanPiecePrefab.plannedSuffix, null);
+                    pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
 
                 }
                 m_pieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
@@ -276,7 +278,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Get Stub from PrefabManager
-            var stub = PrefabManager.Instance.GetPrefab("piece_blueprint");
+            var stub = PrefabManager.Instance.GetPrefab(BlueprintPrefabName);
             if (stub == null)
             {
                 Logger.LogWarning("Could not load blueprint stub from prefabs");
@@ -392,6 +394,7 @@ namespace PlanBuild.Blueprints
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
                 {
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
+
                     go.transform.SetPositionAndRotation(go.transform.position, quat);
                     prefabs.Add(piece.name, go);
                 }
@@ -418,9 +421,8 @@ namespace PlanBuild.Blueprints
                     {
                         Object.Destroy(component);
                     }
-
-                    // A Ghost also has to look like one
-                    ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating);
+                     
+                    ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating); 
                 }
             }
             catch (Exception ex)
@@ -435,7 +437,7 @@ namespace PlanBuild.Blueprints
 
             return ret;
         }
-
+        
         internal void CreateKeyHint()
         {
             KeyHintConfig KHC = new KeyHintConfig
@@ -486,7 +488,8 @@ namespace PlanBuild.Blueprints
             public void SetText(string text)
             {
                 newbp.m_name = text;
-                newbp.m_prefabname = $"piece_blueprint ({newbp.m_name})";
+                string test = BlueprintPrefabName;
+                newbp.m_prefabname = $"{BlueprintPrefabName} ({newbp.m_name})";
                 if (newbp.Save())
                 {
                     if (BlueprintManager.Instance.m_blueprints.ContainsKey(newbp.m_name))

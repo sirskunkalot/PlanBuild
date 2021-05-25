@@ -48,16 +48,8 @@
       <HintPath>..\libraries\ext\Build Camera.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="CR-BuildShare_VML">
-      <HintPath>..\libraries\ext\CR-BuildShare_VML.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="CraftFromContainers">
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="EquipmentAndQuickSlots">
-      <HintPath>..\libraries\pub\EquipmentAndQuickSlots.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Jotunn, Version=2.0.11.0, Culture=neutral, processorArchitecture=MSIL">
@@ -104,11 +96,8 @@
     <Compile Include="KitBash\KitBashSourceConfig.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
-    <Compile Include="ModCompat\PatcherEquipmentQuickSlots.cs" />
     <Compile Include="Patches.cs" />
-    <Compile Include="ModCompat\PatcherBuildShare.cs" />
     <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
-    <Compile Include="PlanBuild\PlanHammerPrefab.cs" />
     <Compile Include="PlanBuild\PlanPiece.cs" />
     <Compile Include="PlanBuild\PlanPiecePrefab.cs" />
     <Compile Include="PlanBuild\PlanTotem.cs" />

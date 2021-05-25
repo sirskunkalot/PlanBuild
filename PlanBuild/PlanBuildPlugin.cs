@@ -23,25 +23,20 @@ namespace PlanBuild
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, "2.0.11")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency(Patches.equipmentQuickSlotsGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)] 
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
         public const string PluginVersion = "0.2.0";
-
-        public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
-
-        public static PlanBuildPlugin Instance;
           
-        public static ConfigEntry<string> buildModeHotkeyConfig;
+        public static PlanBuildPlugin Instance;
+           
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
-
-        internal PlanHammerPrefab planHammerPrefab;
+         
         internal PlanCrystalPrefab planCrystalPrefab;
         internal BlueprintRunePrefab blueprintRunePrefab;
 
@@ -75,7 +70,6 @@ namespace PlanBuild
             Patches.Apply();
 
             // Configs
-            buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
             showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             PlanTotem.radiusConfig = base.Config.Bind<float>("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
             configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
@@ -99,20 +93,17 @@ namespace PlanBuild
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
-
-
-            buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
+             
             showAllPieces.SettingChanged += UpdateKnownRecipes;
              
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
             
-            PrefabManager.OnPrefabsRegistered += ScanHammer;
+            PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
            
-
-            UpdateBuildKey(null, null);
+             
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
@@ -128,33 +119,16 @@ namespace PlanBuild
         {
             Patches.Remove();
         }
-
-        private void UpdateBuildKey(object sender, EventArgs e)
-        {
-            if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
-            {
-                InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
-                {
-                    Name = PlanBuildButton,
-                    Key = keyCode
-                });
-            }
-        }
-
+         
         private void AddClonedItems()
         {
             try
-            {
-                PieceManager.Instance.AddPieceTable(PlanHammerPrefab.pieceTableName);
+            { 
                 PlanCrystalPrefab.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StartEffect", "vfx_blocked");
                 PlanCrystalPrefab.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StopEffect", "vfx_blocked");
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-
-                planHammerPrefab = new PlanHammerPrefab();
-                planHammerPrefab.Setup();
-                ItemManager.Instance.AddItem(planHammerPrefab);
-
+                 
                 planCrystalPrefab = new PlanCrystalPrefab();
                 planCrystalPrefab.Setup();
                 ItemManager.Instance.AddItem(planCrystalPrefab);
@@ -168,8 +142,7 @@ namespace PlanBuild
         }
 
         private void OnItemsRegistered()
-        {
-            planHammerPrefab.FixShader();
+        { 
             planCrystalPrefab.FixShader();
             hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
             hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
@@ -178,7 +151,7 @@ namespace PlanBuild
         internal bool addedHammer = false;
         private PlanTotemPrefab planTotemPrefab;
 
-        internal void ScanHammer()
+        internal void InitialScanHammer()
         {
             try
             {
@@ -186,7 +159,7 @@ namespace PlanBuild
             }
             finally
             {
-                PieceManager.OnPiecesRegistered -= ScanHammer;
+                PieceManager.OnPiecesRegistered -= InitialScanHammer;
             }
         }
 
@@ -217,7 +190,7 @@ namespace PlanBuild
                 {
                     if (!addedHammer)
                     {
-                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
+                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
                         if (planHammerPieceTable != null)
                         {
                             planHammerPieceTable.m_pieces.Add(piecePrefab);
@@ -244,7 +217,7 @@ namespace PlanBuild
                 PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                 if (lateAdd)
                 {
-                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName);
+                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
                     if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                     {
                         pieceTable.m_pieces.Add(planPiece.PiecePrefab);
@@ -252,7 +225,18 @@ namespace PlanBuild
                     }
                 }
             }
+            if(addedPiece)
+            {
+                MoveBlueprintsToEnd(PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName));
+            }
             return addedPiece;
+        }
+
+        private void MoveBlueprintsToEnd(PieceTable hammerPieceTable)
+        { 
+            List<GameObject> blueprints = hammerPieceTable.m_pieces.FindAll(piece => piece.name.StartsWith(Blueprint.BlueprintPrefabName) || piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName));
+            hammerPieceTable.m_pieces.RemoveAll(blueprints.Contains);
+            hammerPieceTable.m_pieces.AddRange(blueprints); 
         }
 
         private void UpdateKnownRecipes(object sender, EventArgs e)
@@ -283,7 +267,7 @@ namespace PlanBuild
                 }
             }
             player.UpdateKnownRecipesList();
-            PieceManager.Instance.GetPieceTable(PlanHammerPrefab.pieceTableName)
+            PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName)
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
         }
 
@@ -306,33 +290,17 @@ namespace PlanBuild
 
         public static void UpdateAllPlanPieceTextures()
         {
+            if (showRealTextures 
+                && Player.m_localPlayer.m_placementGhost
+                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName))
+            {
+                ShaderHelper.UpdateTextures(Player.m_localPlayer.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+            }
             foreach (PlanPiece planPiece in Object.FindObjectsOfType<PlanPiece>())
             {
                 planPiece.UpdateTextures();
             }
-        }
-
-        public void Update()
-        {
-            Player player = Player.m_localPlayer;
-            if (ZInput.instance == null
-                || player == null)
-            {
-                return;
-            }
-
-            if (!CheckInput())
-            {
-                return;
-            }
-
-            // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
-            // If we hold the button down, it won't spam toggle our menu.
-            if (ZInput.GetButtonDown(PlanBuildButton))
-            {
-                TogglePlanBuildMode();
-            }
-        }
+        } 
 
         private bool CheckInput()
         {
@@ -344,74 +312,7 @@ namespace PlanBuild
                 && !Minimap.IsOpen()
                 && !Player.m_localPlayer.InCutscene();
         }
-
-        private void TogglePlanBuildMode()
-        {
-            if (ScanHammer(lateAdd: true))
-            {
-                UpdateKnownRecipes();
-            }
-            ReplaceHammerInInventory();
-        }
-
-        private void ReplaceHammerInInventory()
-        {
-            Player player = Player.m_localPlayer;
-            Inventory inventory = player.GetInventory();
-            ReplaceHammer(player, inventory);
-        }
-
-        internal bool ReplaceHammer(Player player, Inventory inventory)
-        {
-            ItemDrop.ItemData hammerItem = inventory.GetItem(hammerPrefabItemDrop.m_itemData.m_shared.m_name);
-            ItemDrop.ItemData planHammerItem = inventory.GetItem(planHammerPrefab.itemData.m_shared.m_name);
-            if (hammerItem == null && planHammerItem == null)
-            {
-                return false;
-            }
-            if (hammerItem != null)
-            {
-                Jotunn.Logger.LogInfo("Replacing Hammer with PlanHammer");
-                inventory.RemoveOneItem(hammerItem);
-                inventory.AddItem(
-                    name: PlanHammerPrefab.planHammerName,
-                    stack: 1,
-                    durability: hammerItem.m_durability,
-                    pos: hammerItem.m_gridPos,
-                    equiped: false,
-                    quality: hammerItem.m_quality,
-                    variant: hammerItem.m_variant,
-                    crafterID: hammerItem.m_crafterID,
-                    crafterName: hammerItem.m_crafterName
-                );
-                if (hammerItem.m_equiped)
-                {
-                    player.EquipItem(inventory.GetItemAt(hammerItem.m_gridPos.x, hammerItem.m_gridPos.y));
-                }
-            }
-            else
-            {
-                Jotunn.Logger.LogInfo("Replacing PlanHammer with Hammer");
-                inventory.RemoveOneItem(planHammerItem);
-                inventory.AddItem(
-                    name: hammerPrefab.name,
-                    stack: 1,
-                    durability: planHammerItem.m_durability,
-                    pos: planHammerItem.m_gridPos,
-                    equiped: false,
-                    quality: planHammerItem.m_quality,
-                    variant: planHammerItem.m_variant,
-                    crafterID: planHammerItem.m_crafterID,
-                    crafterName: planHammerItem.m_crafterName
-                );
-                if (planHammerItem.m_equiped)
-                {
-                    player.EquipItem(inventory.GetItemAt(planHammerItem.m_gridPos.x, planHammerItem.m_gridPos.y));
-                }
-            }
-            return true;
-        }
-
+         
         public static string GetAssetPath(string assetName, bool isDirectory = false)
         {
             string text = Path.Combine(BepInEx.Paths.PluginPath, PluginName, assetName);
