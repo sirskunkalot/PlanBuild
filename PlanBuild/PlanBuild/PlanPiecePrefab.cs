@@ -12,11 +12,12 @@ namespace PlanBuild.Plans
     public class PlanPiecePrefab : CustomPiece
     {
         public const string PlannedSuffix = "_planned";
+        public const string PlanHammerPieceTableName = "_planHammerPieceTable";
         public Piece originalPiece;
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
-        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.PlannedSuffix, piece.gameObject.name, BlueprintRunePrefab.PieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.PlannedSuffix, piece.gameObject.name, PlanHammerPieceTableName)
         { 
             
             this.originalPiece = piece;
@@ -39,7 +40,7 @@ namespace PlanBuild.Plans
             Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
              
-            this.PieceTable = BlueprintRunePrefab.PieceTableName;  
+            this.PieceTable = PlanHammerPieceTableName;  
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
             if (wearNTear == null)

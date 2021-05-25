@@ -487,8 +487,7 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
-                newbp.m_name = text;
-                string test = BlueprintPrefabName;
+                newbp.m_name = text; 
                 newbp.m_prefabname = $"{BlueprintPrefabName} ({newbp.m_name})";
                 if (newbp.Save())
                 {

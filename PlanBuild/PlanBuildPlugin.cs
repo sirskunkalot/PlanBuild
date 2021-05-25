@@ -30,9 +30,10 @@ namespace PlanBuild
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
         public const string PluginVersion = "0.2.0";
-          
+        public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
+
         public static PlanBuildPlugin Instance;
-           
+        private ConfigEntry<string> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
@@ -63,6 +64,8 @@ namespace PlanBuild
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
 
+            PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+
             // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
 
@@ -70,6 +73,7 @@ namespace PlanBuild
             Patches.Apply();
 
             // Configs
+            buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
             showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             PlanTotem.radiusConfig = base.Config.Bind<float>("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
             configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
@@ -93,7 +97,7 @@ namespace PlanBuild
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
-             
+            buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
              
             // Hooks
@@ -102,8 +106,49 @@ namespace PlanBuild
             PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
-           
-             
+            UpdateBuildKey(null, null);
+
+        }
+
+        public void Update()
+        {
+            Player player = Player.m_localPlayer;
+            if (ZInput.instance == null
+                || player == null)
+            {
+                return;
+            }
+
+            if (!CheckInput())
+            {
+                return;
+            }
+
+            // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
+            // If we hold the button down, it won't spam toggle our menu.
+            if (ZInput.GetButtonDown(PlanBuildButton))
+            {
+                TogglePlanBuildMode();
+            }
+        }
+        private void TogglePlanBuildMode()
+        {
+            if (ScanHammer(lateAdd: true))
+            {
+                UpdateKnownRecipes();
+            }
+            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
+            PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+            PieceTable bluePrintRunePieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+            if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
+            {
+                blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
+            }
+            else
+            {
+                blueprintRune.m_shared.m_buildPieces = planHammerPieceTable;
+            }
+            Player.m_localPlayer.UpdateAvailablePiecesList();
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
@@ -119,7 +164,18 @@ namespace PlanBuild
         {
             Patches.Remove();
         }
-         
+
+        private void UpdateBuildKey(object sender, EventArgs e)
+        {
+            if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
+            {
+                InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
+                {
+                    Name = PlanBuildButton,
+                    Key = keyCode
+                });
+            }
+        }
         private void AddClonedItems()
         {
             try
@@ -190,7 +246,7 @@ namespace PlanBuild
                 {
                     if (!addedHammer)
                     {
-                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
                         if (planHammerPieceTable != null)
                         {
                             planHammerPieceTable.m_pieces.Add(piecePrefab);
@@ -217,18 +273,14 @@ namespace PlanBuild
                 PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                 if (lateAdd)
                 {
-                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
                     if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                     {
                         pieceTable.m_pieces.Add(planPiece.PiecePrefab);
                         addedPiece = true;
                     }
                 }
-            }
-            if(addedPiece)
-            {
-                MoveBlueprintsToEnd(PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName));
-            }
+            } 
             return addedPiece;
         }
 
@@ -267,7 +319,7 @@ namespace PlanBuild
                 }
             }
             player.UpdateKnownRecipesList();
-            PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName)
+            PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName)
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
         }
 
