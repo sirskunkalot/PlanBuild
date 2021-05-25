@@ -6,10 +6,10 @@
   "piece_blueprint": "Blueprint",
   "piece_blueprint_desc": "Creates the structure attached to this blueprint.",
   "hud_bpcapture": "Capture",
-  "hud_bpradius": "Change capture radius (Hold Shift for camera distance)",
+  "hud_bpradius": "Change capture radius (Shift: Camera distance, Ctrl: Capture offset)",
   "hud_bpplace": "Place",
   "hud_bpflatten": "Flatten ground",
   "hud_bpdirect": "Direct build (no plan)",
-  "hud_bprotate": "Rotate (Hold Shift for camera distance)",
+  "hud_bprotate": "Rotate (Shift: Camera distance)",
   "msg_direct_build_disabled": "Direct build disabled"
 }
