@@ -94,6 +94,37 @@ namespace PlanBuild
 
             }
         }
-         
+
+        internal static void SetEmissionColor(GameObject gameObject, Color color)
+        {
+            MeshRenderer[] meshRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer meshRenderer in meshRenderers)
+            {
+                if (!(meshRenderer.sharedMaterial == null))
+                {
+                    SetEmissionColor(meshRenderer.sharedMaterials, color);
+                }
+            }
+
+            SkinnedMeshRenderer[] skinnedMeshRenderers = gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
+            {
+                if (!(meshRenderer.sharedMaterial == null))
+                {
+                    SetEmissionColor(meshRenderer.sharedMaterials, color);
+                }
+            }
+        }
+
+        private static void SetEmissionColor(Material[] sharedMaterials, Color color)
+        {
+            foreach(Material material in sharedMaterials)
+            {
+                if(material.HasProperty("_EmissionColor"))
+                {
+                    material.SetColor("_EmissionColor", color);
+                }
+            }
+        }
     }
 }

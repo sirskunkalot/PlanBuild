@@ -149,6 +149,14 @@ namespace PlanBuild
             }
             Player.m_localPlayer.UnequipItem(blueprintRune);
             Player.m_localPlayer.EquipItem(blueprintRune);
+            if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
+            {
+                ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.red);
+            }
+            else
+            {
+                ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.cyan);
+            }
             blueprintRune.m_shared.m_buildPieces.UpdateAvailable(Player.m_localPlayer.m_knownRecipes, Player.m_localPlayer, Player.m_localPlayer.m_hideUnavailable, Player.m_localPlayer.m_noPlacementCost);
             Player.m_localPlayer.UpdateAvailablePiecesList();
             Hud.instance.UpdateBuild(Player.m_localPlayer, true);
