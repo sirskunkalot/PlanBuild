@@ -6,7 +6,7 @@
   "piece_blueprint": "Blaupause",
   "piece_blueprint_desc": "Erschafft eine Kopie der Struktur auf dieser Blaupause.",
   "hud_bpcapture": "Kopieren",
-  "hud_bpradius": "Erfassungsradius ändern (Shift: Kameraabstand, Strg: Erfassungstiefe)",
+  "hud_bpradius": "Erfassungsradius ändern (Shift: Kameraabstand)",
   "hud_bpplace": "Erstellen",
   "hud_bpflatten": "Begradigen",
   "hud_bpdirect": "Ohne Plan bauen",

@@ -15,5 +15,6 @@
 	"item_plan_piece_description": "Plan the construction of a $1",
 	"piece_plan_totem": "Plan Totem",
 	"piece_plan_totem_desc": "Builds planned pieces in an area around it",
-	"hud_bptoggle": "Toggle between piece & blueprint mode"
+	"hud_bp_switch_to_blueprint_mode": "Switch to Blueprint mode",
+	"hud_bp_switch_to_plan_mode": "Switch to Plan mode"
 }

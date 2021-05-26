@@ -6,7 +6,7 @@
   "piece_blueprint": "Blueprint",
   "piece_blueprint_desc": "Creates the structure attached to this blueprint.",
   "hud_bpcapture": "Capture",
-  "hud_bpradius": "Change capture radius (Shift: Camera distance, Ctrl: Capture offset)",
+  "hud_bpradius": "Change capture radius (Shift: Camera distance)",
   "hud_bpplace": "Place",
   "hud_bpflatten": "Flatten ground",
   "hud_bpdirect": "Direct build (no plan)",

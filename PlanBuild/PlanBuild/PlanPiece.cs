@@ -40,7 +40,7 @@ namespace PlanBuild.Plans
                 return;
             }
 
-            if(originalPiece.TryGetComponent<WearNTear>(out WearNTear wearNTear))
+            if(originalPiece.TryGetComponent(out WearNTear wearNTear))
             {
                 m_minSupport = wearNTear.GetMinSupport();
             }
@@ -239,7 +239,7 @@ namespace PlanBuild.Plans
             {
                 if (j < piece.m_resources.Length)
                 {
-                    Piece.Requirement req = piece.m_resources[j];
+                    Requirement req = piece.m_resources[j];
                     uiRequirementPanels[j].SetActive(value: true);
                     SetupRequirement(uiRequirementPanels[j].transform, req, GetResourceCount(GetResourceName(req)));
                 }
@@ -276,7 +276,7 @@ namespace PlanBuild.Plans
             }
         }
 
-        public bool SetupRequirement(Transform elementRoot, Piece.Requirement req, int currentAmount)
+        public bool SetupRequirement(Transform elementRoot, Requirement req, int currentAmount)
         {
             Image imageResIcon = elementRoot.transform.Find("res_icon").GetComponent<Image>();
             Text textResName = elementRoot.transform.Find("res_name").GetComponent<Text>();
@@ -357,7 +357,7 @@ namespace PlanBuild.Plans
                 return added;
             }
 
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
 
@@ -415,7 +415,7 @@ namespace PlanBuild.Plans
         {
             bool added = false;
             bool finished = true;
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 bool reqFinished = true;
                 string resourceName = GetResourceName(req);
@@ -444,7 +444,7 @@ namespace PlanBuild.Plans
         public Dictionary<string, int> GetRemaining()
         {
             Dictionary<string, int> result = new Dictionary<string, int>();
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 result.Add(GetResourceName(req), GetRemaining(req));
             }
@@ -470,7 +470,7 @@ namespace PlanBuild.Plans
 
         public bool UseItem(Humanoid user, ItemDrop.ItemData item)
         {
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 if(req.m_resItem.m_itemData.m_shared.m_name != item.m_shared.m_name)
                 {
@@ -496,7 +496,7 @@ namespace PlanBuild.Plans
 
         private void Refund(bool all)
         {
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
                 int currentCount = GetResourceCount(resourceName);
@@ -522,7 +522,7 @@ namespace PlanBuild.Plans
 
         public bool HasAllResources()
         {
-            foreach (Piece.Requirement req in originalPiece.m_resources)
+            foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
                 int currentCount = GetResourceCount(resourceName);

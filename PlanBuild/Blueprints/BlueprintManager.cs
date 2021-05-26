@@ -16,8 +16,6 @@ namespace PlanBuild.Blueprints
 
         internal float selectionRadius = 10.0f;
 
-        internal float selectionOffsetMake;
-
         internal float cameraOffsetMake = 0.0f;
         internal float cameraOffsetPlace = 5.0f;
         internal bool updateCamera = true;
@@ -96,7 +94,8 @@ namespace PlanBuild.Blueprints
                 Item = "BlueprintRune",
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$" }
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton, Key = PlanBuildPlugin.buildModeHotkeyConfig.Value,  HintToken = "$hud_bp_switch_to_blueprint_mode" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_default);
@@ -108,7 +107,8 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
+                    //new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton,  Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_plan_mode" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_make);
@@ -159,7 +159,6 @@ namespace PlanBuild.Blueprints
 
                     var bp = new Blueprint(bpname);
                     Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
-                    capturePosition.y += selectionOffsetMake;
                     if (bp.Capture(capturePosition, Instance.selectionRadius, 1.0f))
                     {
                         TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
@@ -312,22 +311,6 @@ namespace PlanBuild.Blueprints
                             {
                                 self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
                             }
-
-                            if (Input.GetKey(KeyCode.LeftControl))
-                            {
-                                float minOffset = -20f;
-                                float maxOffset = 20f;
-                                if (Input.GetAxis("Mouse ScrollWheel") < 0f)
-                                {
-                                    Instance.selectionOffsetMake = Mathf.Clamp(Instance.selectionOffsetMake += 1f, minOffset, maxOffset);
-                                }
-
-                                if (Input.GetAxis("Mouse ScrollWheel") > 0f)
-                                {
-                                    Instance.selectionOffsetMake = Mathf.Clamp(Instance.selectionOffsetMake -= 1f, minOffset, maxOffset);
-                                }
-                            }
-
                         }
                         if (pieceName.StartsWith("piece_blueprint"))
                         {
@@ -434,13 +417,15 @@ namespace PlanBuild.Blueprints
                         }
 
                         if (Time.time > m_lastHightlight + HighlightTimeout)
-                        { 
+                        {
                             int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f);
                             m_lastHightlight = Time.time;
                         }
                     }
                     else if (piece.name.StartsWith("piece_blueprint"))
                     {
+                        self.m_maxPlaceDistance = rayDistanceConfig.Value;
+
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
                         {

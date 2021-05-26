@@ -33,7 +33,7 @@ namespace PlanBuild
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
 
         public static PlanBuildPlugin Instance;
-        private ConfigEntry<string> buildModeHotkeyConfig;
+        public static ConfigEntry<KeyCode> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
@@ -41,9 +41,7 @@ namespace PlanBuild
         internal PlanCrystalPrefab planCrystalPrefab;
         internal BlueprintRunePrefab blueprintRunePrefab;
 
-        internal static bool showRealTextures;
-        internal GameObject hammerPrefab;
-        internal ItemDrop hammerPrefabItemDrop;
+        internal static bool showRealTextures; 
 
         public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
@@ -51,6 +49,34 @@ namespace PlanBuild
         {
             Instance = this;
             PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+
+            // Configs
+            buildModeHotkeyConfig = base.Config.Bind("General", "Hammer mode toggle Hotkey", KeyCode.P, new ConfigDescription("Hotkey to switch between Hammer modes"));
+            showAllPieces = base.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
+            PlanTotem.radiusConfig = base.Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
+            configBuildShare = base.Config.Bind("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            configTransparentGhostPlacement = base.Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
+
+            ShaderHelper.unsupportedColorConfig = base.Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
+            ShaderHelper.supportedPlanColorConfig = base.Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
+            ShaderHelper.transparencyConfig = base.Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
+
+            ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
+
+            BlueprintManager.allowDirectBuildConfig = base.Config.Bind("Blueprint Rune", "Allow direct build", false,
+                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
+
+            BlueprintManager.rayDistanceConfig = base.Config.Bind("Blueprint Rune", "Place distance", 20f,
+                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 50f)));
+
+            PlanTotemPrefab.glowColorConfig = base.Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
+
+            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
+            PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
+            buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
+            showAllPieces.SettingChanged += UpdateKnownRecipes;
 
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
@@ -71,33 +97,7 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
 
-            // Configs
-            buildModeHotkeyConfig = base.Config.Bind<string>("General", "Hammer mode toggle Hotkey", "P", new ConfigDescription("Hotkey to switch between Hammer modes", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
-            showAllPieces = base.Config.Bind<bool>("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
-            PlanTotem.radiusConfig = base.Config.Bind<float>("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
-            configBuildShare = base.Config.Bind<bool>("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            configTransparentGhostPlacement = base.Config.Bind<bool>("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
-
-            ShaderHelper.unsupportedColorConfig = base.Config.Bind<Color>("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
-            ShaderHelper.supportedPlanColorConfig = base.Config.Bind<Color>("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
-            ShaderHelper.transparencyConfig = base.Config.Bind<float>("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
-
-            ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
-
-            BlueprintManager.allowDirectBuildConfig = base.Config.Bind("Blueprint Rune", "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
-
-            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f,
-                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
-
-            PlanTotemPrefab.glowColorConfig = base.Config.Bind<Color>("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
-
-            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
-            PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
-            buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
-            showAllPieces.SettingChanged += UpdateKnownRecipes;
+           
 
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
@@ -177,20 +177,14 @@ namespace PlanBuild
         {
             Patches.Remove();
         }
-
-        public static KeyCode buildKeyCode;
-
+         
         private void UpdateBuildKey(object sender, EventArgs e)
-        {
-            if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
+        { 
+            InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
             {
-                buildKeyCode = keyCode;
-                InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
-                {
-                    Name = PlanBuildButton,
-                    Key = keyCode
-                });
-            }
+                Name = PlanBuildButton,
+                Key = buildModeHotkeyConfig.Value
+            }); 
         }
         private void AddClonedItems()
         {
@@ -203,9 +197,7 @@ namespace PlanBuild
 
                 planCrystalPrefab = new PlanCrystalPrefab();
                 planCrystalPrefab.Setup();
-                ItemManager.Instance.AddItem(planCrystalPrefab);
-
-
+                ItemManager.Instance.AddItem(planCrystalPrefab); 
             }
             finally
             {
@@ -215,9 +207,7 @@ namespace PlanBuild
 
         private void OnItemsRegistered()
         {
-            planCrystalPrefab.FixShader();
-            hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
-            hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
+            planCrystalPrefab.FixShader(); 
         }
 
         internal bool addedHammer = false;
@@ -299,14 +289,7 @@ namespace PlanBuild
             }
             return addedPiece;
         }
-
-        private void MoveBlueprintsToEnd(PieceTable hammerPieceTable)
-        {
-            List<GameObject> blueprints = hammerPieceTable.m_pieces.FindAll(piece => piece.name.StartsWith(Blueprint.BlueprintPrefabName) || piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName));
-            hammerPieceTable.m_pieces.RemoveAll(blueprints.Contains);
-            hammerPieceTable.m_pieces.AddRange(blueprints);
-        }
-
+          
         private void UpdateKnownRecipes(object sender, EventArgs e)
         {
             UpdateKnownRecipes();
