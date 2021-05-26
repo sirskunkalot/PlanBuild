@@ -23,7 +23,7 @@ namespace PlanBuild
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, "2.0.11")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)] 
+    [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
@@ -37,7 +37,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
-         
+
         internal PlanCrystalPrefab planCrystalPrefab;
         internal BlueprintRunePrefab blueprintRunePrefab;
 
@@ -89,7 +89,7 @@ namespace PlanBuild
             BlueprintManager.allowDirectBuildConfig = base.Config.Bind("Blueprint Rune", "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
 
-            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f, 
+            BlueprintManager.rayDistanceConfig = base.Config.Bind<float>("Blueprint Rune", "Place distance", 20f,
                 new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
 
             PlanTotemPrefab.glowColorConfig = base.Config.Bind<Color>("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
@@ -98,10 +98,10 @@ namespace PlanBuild
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
             buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
-             
+
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
-            
+
             PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
@@ -142,21 +142,24 @@ namespace PlanBuild
             if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
             {
                 blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
-                Player.m_localPlayer.m_buildPieces = bluePrintRunePieceTable; 
             }
             else
             {
                 blueprintRune.m_shared.m_buildPieces = planHammerPieceTable;
-                Player.m_localPlayer.m_buildPieces = planHammerPieceTable;
             }
-
+            Player.m_localPlayer.UnequipItem(blueprintRune);
+            Player.m_localPlayer.EquipItem(blueprintRune);
+            blueprintRune.m_shared.m_buildPieces.UpdateAvailable(Player.m_localPlayer.m_knownRecipes, Player.m_localPlayer, Player.m_localPlayer.m_hideUnavailable, Player.m_localPlayer.m_noPlacementCost);
             Player.m_localPlayer.UpdateAvailablePiecesList();
+            Hud.instance.UpdateBuild(Player.m_localPlayer, true);
+            blueprintRune.m_shared.m_buildPieces.NextCategory();
+            blueprintRune.m_shared.m_buildPieces.PrevCategory();
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
         {
             planTotemPrefab.SettingsUpdated();
-            foreach(PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+            foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
             {
                 PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
             }
@@ -184,12 +187,12 @@ namespace PlanBuild
         private void AddClonedItems()
         {
             try
-            { 
+            {
                 PlanCrystalPrefab.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StartEffect", "vfx_blocked");
                 PlanCrystalPrefab.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StopEffect", "vfx_blocked");
                 PlanCrystalPrefab.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-                 
+
                 planCrystalPrefab = new PlanCrystalPrefab();
                 planCrystalPrefab.Setup();
                 ItemManager.Instance.AddItem(planCrystalPrefab);
@@ -203,7 +206,7 @@ namespace PlanBuild
         }
 
         private void OnItemsRegistered()
-        { 
+        {
             planCrystalPrefab.FixShader();
             hammerPrefab = PrefabManager.Instance.GetPrefab("Hammer");
             hammerPrefabItemDrop = hammerPrefab.GetComponent<ItemDrop>();
@@ -285,15 +288,15 @@ namespace PlanBuild
                         addedPiece = true;
                     }
                 }
-            } 
+            }
             return addedPiece;
         }
 
         private void MoveBlueprintsToEnd(PieceTable hammerPieceTable)
-        { 
+        {
             List<GameObject> blueprints = hammerPieceTable.m_pieces.FindAll(piece => piece.name.StartsWith(Blueprint.BlueprintPrefabName) || piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName));
             hammerPieceTable.m_pieces.RemoveAll(blueprints.Contains);
-            hammerPieceTable.m_pieces.AddRange(blueprints); 
+            hammerPieceTable.m_pieces.AddRange(blueprints);
         }
 
         private void UpdateKnownRecipes(object sender, EventArgs e)
@@ -347,7 +350,7 @@ namespace PlanBuild
 
         public static void UpdateAllPlanPieceTextures()
         {
-            if (showRealTextures 
+            if (showRealTextures
                 && Player.m_localPlayer.m_placementGhost
                 && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName))
             {
@@ -357,7 +360,7 @@ namespace PlanBuild
             {
                 planPiece.UpdateTextures();
             }
-        } 
+        }
 
         private bool CheckInput()
         {
@@ -369,7 +372,7 @@ namespace PlanBuild
                 && !Minimap.IsOpen()
                 && !Player.m_localPlayer.InCutscene();
         }
-         
+
         public static string GetAssetPath(string assetName, bool isDirectory = false)
         {
             string text = Path.Combine(BepInEx.Paths.PluginPath, PluginName, assetName);

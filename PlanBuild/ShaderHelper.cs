@@ -1,10 +1,8 @@
 ﻿using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild
 {

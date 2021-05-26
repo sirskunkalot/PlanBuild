@@ -1,16 +1,12 @@
 ﻿using BepInEx.Configuration;
-using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.KitBash;
 using PlanBuild.PlanBuild;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine; 
+using UnityEngine;
 
 namespace PlanBuild.Plans
 {

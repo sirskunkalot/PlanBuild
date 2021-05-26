@@ -1,7 +1,6 @@
-﻿using BepInEx.Logging;
-using Jotunn.Configs;
-using Jotunn.Entities; 
-using Jotunn.Utils; 
+﻿using Jotunn.Configs;
+using Jotunn.Entities;
+using Jotunn.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Plans
