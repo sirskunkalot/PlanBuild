@@ -1,6 +1,7 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using PlanBuild.Plans;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -21,6 +22,7 @@ namespace PlanBuild.Blueprints
 
             runeprefab = assetBundle.LoadAsset<GameObject>(BlueprintRuneName);
             CustomItem rune = new CustomItem(runeprefab, fixReference: false);
+            rune.ItemDrop.m_itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
             ItemManager.Instance.AddItem(rune); 
             BlueprintRuneItemName = rune.ItemDrop.m_itemData.m_shared.m_name;
             CustomRecipe runeRecipe = new CustomRecipe(new RecipeConfig()

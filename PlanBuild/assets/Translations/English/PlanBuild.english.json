@@ -14,5 +14,6 @@
 	"item_plan_piece_name": "$1 (Plan)",
 	"item_plan_piece_description": "Plan the construction of a $1",
 	"piece_plan_totem": "Plan Totem",
-	"piece_plan_totem_desc": "Builds planned pieces in an area around it"
+	"piece_plan_totem_desc": "Builds planned pieces in an area around it",
+	"hud_bptoggle": "Toggle between piece & blueprint mode"
 }

@@ -308,7 +308,7 @@ namespace PlanBuild.Blueprints
                                 }
                             }
 
-                            if(updateCamera)
+                            if (updateCamera)
                             {
                                 self.transform.position += new Vector3(0, Instance.cameraOffsetMake, 0);
                             }
@@ -372,6 +372,9 @@ namespace PlanBuild.Blueprints
             return capturedPieces;
         }
 
+        const float HighlightTimeout = 0.5f;
+        float m_lastHightlight = 0;
+
         /// <summary>
         ///     Show and change blueprint selection radius
         /// </summary>
@@ -430,7 +433,11 @@ namespace PlanBuild.Blueprints
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
                         }
 
-                        int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f); 
+                        if (Time.time > m_lastHightlight + HighlightTimeout)
+                        { 
+                            int capturePieces = HighlightCapture(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, 1.0f);
+                            m_lastHightlight = Time.time;
+                        }
                     }
                     else if (piece.name.StartsWith("piece_blueprint"))
                     {

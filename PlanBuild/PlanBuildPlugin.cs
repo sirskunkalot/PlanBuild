@@ -50,11 +50,12 @@ namespace PlanBuild
         public void Awake()
         {
             Instance = this;
+            PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
 
             // Init Blueprints
-
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly); 
+            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
+
 
             blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
             blueprintsBundle.Unload(false);
@@ -63,8 +64,6 @@ namespace PlanBuild
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
-
-            PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
 
             // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
@@ -143,7 +142,7 @@ namespace PlanBuild
             if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
             {
                 blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
-                Player.m_localPlayer.m_buildPieces = bluePrintRunePieceTable;
+                Player.m_localPlayer.m_buildPieces = bluePrintRunePieceTable; 
             }
             else
             {
@@ -168,10 +167,13 @@ namespace PlanBuild
             Patches.Remove();
         }
 
+        public static KeyCode buildKeyCode;
+
         private void UpdateBuildKey(object sender, EventArgs e)
         {
             if (Enum.TryParse(buildModeHotkeyConfig.Value, out KeyCode keyCode))
             {
+                buildKeyCode = keyCode;
                 InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
                 {
                     Name = PlanBuildButton,

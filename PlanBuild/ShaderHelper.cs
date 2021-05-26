@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -94,6 +95,7 @@ namespace PlanBuild
                 sharedMaterials[j] = material;
 
             }
-        } 
+        }
+         
     }
 }
