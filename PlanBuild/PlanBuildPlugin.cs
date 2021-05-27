@@ -29,7 +29,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.2.0";
+        public const string PluginVersion = "0.2.5";
         public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
 
         public static PlanBuildPlugin Instance;
@@ -81,8 +81,7 @@ namespace PlanBuild
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-
-
+             
             blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
@@ -102,11 +101,16 @@ namespace PlanBuild
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
 
-            PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
-            PieceManager.OnPiecesRegistered += LateScanHammer;
+            On.Player.Awake += OnPlayerAwake;
             UpdateBuildKey(null, null);
 
+        }
+
+        private void OnPlayerAwake(On.Player.orig_Awake orig, Player self)
+        {
+            orig(self);
+            LateScanHammer();
         }
 
         public void Update()
@@ -137,6 +141,10 @@ namespace PlanBuild
                 UpdateKnownRecipes();
             }
             ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
+            if(blueprintRune == null)
+            {
+                return;
+            }
             PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
             PieceTable bluePrintRunePieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
             if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
@@ -149,13 +157,16 @@ namespace PlanBuild
             }
             Player.m_localPlayer.UnequipItem(blueprintRune);
             Player.m_localPlayer.EquipItem(blueprintRune);
-            if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
+            if(Player.m_localPlayer.m_visEquipment.m_rightItem == BlueprintRunePrefab.BlueprintRuneItemName)
             {
-                ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.red);
-            }
-            else
-            {
-                ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.cyan);
+                if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
+                {
+                    ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.red);
+                }
+                else
+                {
+                    ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.cyan);
+                }
             }
             blueprintRune.m_shared.m_buildPieces.UpdateAvailable(Player.m_localPlayer.m_knownRecipes, Player.m_localPlayer, Player.m_localPlayer.m_hideUnavailable, Player.m_localPlayer.m_noPlacementCost);
             Player.m_localPlayer.UpdateAvailablePiecesList();
@@ -240,56 +251,104 @@ namespace PlanBuild
             }
             bool addedPiece = false;
             foreach (GameObject piecePrefab in hammerPieceTable.m_pieces)
-            {
+            { 
                 if (!piecePrefab)
                 {
-                    Jotunn.Logger.LogWarning("Invalid prefab in Hammer PieceTable");
+                    Logger.LogWarning("Invalid prefab in Hammer PieceTable");
                     continue;
                 }
-                Piece piece = piecePrefab.GetComponent<Piece>();
-
-                if (piece.name == "piece_repair")
+                Piece piece = piecePrefab.GetComponent<Piece>(); 
+                if(!piece)
                 {
-                    if (!addedHammer)
+                    Logger.LogWarning("Recipe in Hammer has no Piece?! " + piecePrefab.name);
+                    continue;
+                }
+                try
+                {
+                    if (piece.name == "piece_repair")
                     {
-                        PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-                        if (planHammerPieceTable != null)
+                        if (!addedHammer)
                         {
-                            planHammerPieceTable.m_pieces.Add(piecePrefab);
-                            addedHammer = true;
+                            PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+                            if (planHammerPieceTable != null)
+                            {
+                                planHammerPieceTable.m_pieces.Add(piecePrefab);
+                                addedHammer = true;
+                            }
+                        }
+                        continue;
+                    }
+                    if (planPiecePrefabs.ContainsKey(piece.name))
+                    {
+                        continue;
+                    }
+                    if (!piece.m_enabled
+                        || piece.GetComponent<Ship>() != null
+                        || piece.GetComponent<Plant>() != null
+                        || piece.GetComponent<TerrainModifier>() != null
+                        || piece.m_resources.Length == 0)
+                    {
+                        continue;
+                    }
+                    if(!EnsurePrefabRegistered(piece))
+                    {
+                        continue;
+                    }
+                     
+                    PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
+                    PieceManager.Instance.AddPiece(planPiece);
+                    planPiecePrefabs.Add(piece.name, planPiece);
+                    PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
+                    if (lateAdd)
+                    {
+                        PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+                        if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
+                        {
+                            pieceTable.m_pieces.Add(planPiece.PiecePrefab);
+                            addedPiece = true;
                         }
                     }
-                    continue;
                 }
-                if (planPiecePrefabs.ContainsKey(piece.name))
+                catch (Exception e)
                 {
-                    continue;
-                }
-                if (!piece.m_enabled
-                    || piece.GetComponent<Ship>() != null
-                    || piece.GetComponent<Plant>() != null
-                    || piece.GetComponent<TerrainModifier>() != null
-                    || piece.m_resources.Length == 0)
-                {
-                    continue;
-                }
-                PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
-                PieceManager.Instance.AddPiece(planPiece);
-                planPiecePrefabs.Add(piece.name, planPiece);
-                PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                if (lateAdd)
-                {
-                    PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-                    if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
-                    {
-                        pieceTable.m_pieces.Add(planPiece.PiecePrefab);
-                        addedPiece = true;
-                    }
-                }
+                    Logger.LogWarning("Error while creating plan of " + piece.name + ": " + e);
+                };
             }
             return addedPiece;
         }
-          
+
+        private bool EnsurePrefabRegistered(Piece piece)
+        {
+            GameObject prefab = PrefabManager.Instance.GetPrefab(piece.gameObject.name);
+            if(prefab)
+            {
+                return true;
+            }
+            Logger.LogWarning("Piece " + piece.name + " in Hammer not fully registered? Could not find prefab " + piece.gameObject.name);
+            if(!ZNetScene.instance.m_prefabs.Contains(piece.gameObject))
+            {
+                Logger.LogWarning(" Not registered in ZNetScene.m_prefabs! Adding now");
+                ZNetScene.instance.m_prefabs.Add(piece.gameObject);
+            }
+            if (!ZNetScene.instance.m_namedPrefabs.ContainsKey(piece.gameObject.name.GetStableHashCode()))
+            {
+                Logger.LogWarning(" Not registered in ZNetScene.m_namedPrefabs! Adding now");
+                ZNetScene.instance.m_namedPrefabs[piece.gameObject.name.GetStableHashCode()] = piece.gameObject;
+            }
+            //Prefab was added incorrectly, make sure the game doesn't delete it when logging out 
+            GameObject prefabParent = piece.gameObject.transform.parent?.gameObject;
+            if(!prefabParent)
+            {
+                Logger.LogWarning(" Prefab has no parent?! Adding to Jotunn");
+                PrefabManager.Instance.AddPrefab(piece.gameObject);
+            } else if(prefabParent.scene.buildIndex != -1)
+            {
+                Logger.LogWarning(" Prefab container not marked as DontDestroyOnLoad! Marking now");
+                Object.DontDestroyOnLoad(prefabParent);
+            }
+            return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
+        }
+
         private void UpdateKnownRecipes(object sender, EventArgs e)
         {
             UpdateKnownRecipes();

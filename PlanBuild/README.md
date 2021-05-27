@@ -28,3 +28,5 @@ Most values are configurable:
 Source available on GitHub: https://github.com/MathiasDecrock/ValheimMods/tree/master/PlanBuild﻿
 
 All contributions welcome!
+
+A massive thanks to Algorithman & sirskunkalot (helped me a lot to merge this into my mod!) for their Blueprint Rune! Check out their mod Veilheim: https://github.com/sirskunkalot/Veilheim!

@@ -39,14 +39,7 @@ namespace PlanBuild.Blueprints
             GameObject makebp_prefab = assetBundle.LoadAsset<GameObject>(MakeBlueprintName);
             PrefabManager.Instance.AddPrefab(makebp_prefab);
             GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
-            PrefabManager.Instance.AddPrefab(placebp_prefab);
-
-            TextAsset[] textAssets = assetBundle.LoadAllAssets<TextAsset>();
-            foreach (var textAsset in textAssets)
-            {
-                var lang = textAsset.name.Replace(".json", null);
-                LocalizationManager.Instance.AddJson(lang, textAsset.ToString());
-            } 
+            PrefabManager.Instance.AddPrefab(placebp_prefab); 
         }
     }
 }

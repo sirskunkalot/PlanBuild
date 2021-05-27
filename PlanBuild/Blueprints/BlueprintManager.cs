@@ -2,6 +2,7 @@
 using Jotunn.Configs;
 using Jotunn.Managers;
 using PlanBuild.Plans;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -131,7 +132,13 @@ namespace PlanBuild.Blueprints
                 // Create prefabs for all known blueprints
                 foreach (var bp in Instance.m_blueprints.Values)
                 {
-                    bp.CreatePrefab();
+                    try
+                    { 
+                        bp.CreatePrefab();
+                    } catch(Exception e)
+                    {
+                        Jotunn.Logger.LogWarning("Error while loading blueprint " + bp.m_name + ": " + e);
+                    }
                 }
             }
         }

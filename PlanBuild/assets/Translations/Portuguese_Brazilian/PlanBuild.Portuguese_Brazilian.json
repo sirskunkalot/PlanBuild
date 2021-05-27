@@ -1,0 +1,20 @@
+{
+	"item_plan_crystal": "Skuld Crystal",
+	"item_plan_crystal_description": "Um cristal imbuído do poder de Skuld. Permite que o usuário veja o futuro.",
+	"message_plan_crystal_start": "Agora você vê as coisas como elas serão",
+	"message_plan_crystal_stop": "Sua visão do futuro se desvanece",
+	"item_plan_hammer": "Martelo de Planejamento",
+	"item_plan_hammer_description": "Com isso em suas mãos, você pode planejar salões altos e fortificações poderosas.",
+	"plan_piece_hover_hold": "Segure",
+	"plan_piece_hover_add_material": "Adicionar material",
+	"plan_piece_hover_add_all_materials": "Adicionar todos os materiais",
+	"plan_piece_hover_build": "Construir",
+	"message_plan_piece_need_hammer": "Você precisa de um martelo para construir",
+	"message_plan_piece_not_enough_support": "Não há suporte",
+	"item_plan_piece_name": "$1 (Plan)",
+	"item_plan_piece_description": "Planeje a construção de $1",
+	"piece_plan_totem": "Totem de Planejamento",
+	"piece_plan_totem_desc": "Constrói as peças planejadas na área ao seu redor",
+	"hud_bp_switch_to_blueprint_mode": "Mudar para o modo Blueprint",
+	"hud_bp_switch_to_plan_mode": "Mudar para o modo de Planejamento"
+}

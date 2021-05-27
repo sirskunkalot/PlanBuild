@@ -20,7 +20,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
         /// </summary>
-        private string m_name;
+        internal string m_name;
 
         /// <summary>
         ///     Array of the pieces this blueprint is made of
@@ -394,8 +394,13 @@ namespace PlanBuild.Blueprints
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
                 {
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
-
-                    go.transform.SetPositionAndRotation(go.transform.position, quat);
+                    if(!go)
+                    {
+                        Logger.LogWarning("No prefab found for " + piece.name);
+                    } else
+                    {
+                        go.transform.SetPositionAndRotation(go.transform.position, quat);
+                    }
                     prefabs.Add(piece.name, go);
                 }
 
@@ -427,7 +432,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error while instantiating: {ex}");
+                Logger.LogError($"Error while instantiating {m_name}: {ex}");
                 ret = false;
             }
             finally
