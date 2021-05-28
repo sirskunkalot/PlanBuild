@@ -24,9 +24,11 @@ namespace PlanBuild.Blueprints
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
         internal readonly Dictionary<int, List<PlanPiece>> m_worldBlueprints = new Dictionary<int, List<PlanPiece>>();
 
-        internal ConfigEntry<float> rayDistanceConfig;
-        internal ConfigEntry<bool> allowDirectBuildConfig;
-         
+        internal static ConfigEntry<float> rayDistanceConfig;
+        internal static ConfigEntry<bool> allowDirectBuildConfig;
+        internal static ConfigEntry<KeyCode> planSwitchConfig;
+        internal static ButtonConfig planSwitchButton;
+
         private static BlueprintManager _instance;
 
         public static BlueprintManager Instance
@@ -110,13 +112,30 @@ namespace PlanBuild.Blueprints
 
         private void CreateCustomKeyHints()
         {
+            allowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Allow direct build", false,
+                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
+
+            rayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Place distance", 20f,
+                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(0f, 1f)));
+
+            planSwitchConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Rune mode toggle key", KeyCode.P,
+                new ConfigDescription("Hotkey to switch between rune modes"));
+
+            planSwitchButton = new ButtonConfig
+            {
+                Name = "Rune mode toggle key",
+                Key = planSwitchConfig.Value,
+                HintToken = "$hud_bp_switch_to_plan_mode"
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, planSwitchButton);
+
             KeyHintConfig KHC_default = new KeyHintConfig
             {
                 Item = "BlueprintRune",
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton, Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_blueprint_mode" }
+                    planSwitchButton,
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_default);
@@ -127,9 +146,9 @@ namespace PlanBuild.Blueprints
                 Piece = "make_blueprint",
                 ButtonConfigs = new[]
                 {
+                    planSwitchButton,
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
-                    new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton,  Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_plan_mode" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_make);
