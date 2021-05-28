@@ -22,10 +22,11 @@ namespace PlanBuild.Blueprints
         internal bool updateCamera = true;
 
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
+        internal readonly Dictionary<int, List<PlanPiece>> m_worldBlueprints = new Dictionary<int, List<PlanPiece>>();
 
-        internal static ConfigEntry<float> rayDistanceConfig;
-        internal static ConfigEntry<bool> allowDirectBuildConfig;
-
+        internal ConfigEntry<float> rayDistanceConfig;
+        internal ConfigEntry<bool> allowDirectBuildConfig;
+         
         private static BlueprintManager _instance;
 
         public static BlueprintManager Instance
@@ -46,7 +47,7 @@ namespace PlanBuild.Blueprints
 
             // KeyHints
             CreateCustomKeyHints();
-
+            
             // Hooks 
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
             On.Player.PlacePiece += BeforePlaceBlueprintPiece;
@@ -61,6 +62,18 @@ namespace PlanBuild.Blueprints
             RegisterKnownBlueprints();
             player.UpdateKnownRecipesList();
             orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
+        }
+
+        
+
+        public void RegisterPlanPiece(int blueprintID, PlanPiece planPiece)
+        {
+
+        }
+
+        private void UndoLastBlueprint()
+        {
+            
         }
 
         private void LoadKnownBlueprints()
@@ -103,7 +116,7 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    //new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton, Key = PlanBuildPlugin.buildModeHotkeyConfig.Value,  HintToken = "$hud_bp_switch_to_blueprint_mode" }
+                    new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton, Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_blueprint_mode" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_default);
@@ -116,7 +129,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
-                    //new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton,  Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_plan_mode" }
+                    new ButtonConfig { Name = PlanBuildPlugin.PlanBuildButton,  Key = PlanBuildPlugin.buildModeHotkeyConfig.Value, HintToken = "$hud_bp_switch_to_plan_mode" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KHC_make);
@@ -182,6 +195,7 @@ namespace PlanBuild.Blueprints
                 // Place a known blueprint
                 if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid 
                     && piece.name != BlueprintRunePrefab.BlueprintSnapPointName 
+                    && piece.name != BlueprintRunePrefab.BlueprintCenterPointName
                     && piece.name.StartsWith("piece_blueprint"))
                 {
                     Blueprint bp = Instance.m_blueprints[piece.m_name];

@@ -11,7 +11,7 @@ namespace PlanBuild.Plans
 {
     public class PlanPiece : MonoBehaviour, Interactable, Hoverable
     {
-        public const string zdoPlanPiece = "PlanPiece";
+        public const string zdoBlueprintID = "BlueprintID";
         public const string zdoPlanResource = "PlanResource";
          
         internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
@@ -21,7 +21,6 @@ namespace PlanBuild.Plans
 
         public string m_hoverText = "";
         public Piece originalPiece; 
-
 
         //GUI 
         public static bool m_forceDisableInit;
@@ -591,25 +590,7 @@ namespace PlanBuild.Plans
             ZNetScene.instance.Destroy(this.gameObject);
             Destroy(this.gameObject);
         }
-          
-        [HarmonyPatch(typeof(WearNTear), "Highlight")] 
-        [HarmonyPrefix]
-        static bool WearNTear_Hightlight_Prefix(WearNTear __instance)
-        {
-            if (__instance.GetComponent<PlanPiece>())
-            { 
-                foreach (MeshRenderer renderer in __instance.GetComponentsInChildren<MeshRenderer>())
-                {
-                    foreach (Material material in renderer.sharedMaterials)
-                    {
-                        material.SetColor("_EmissionColor", Color.black);
-                    }
-                }
-                return false;
-            }
-            return true;
-        } 
-          
+           
         [HarmonyPatch(typeof(WearNTear), "Damage")]
         [HarmonyPrefix]
         static bool WearNTear_Damage_Prefix(WearNTear __instance)

@@ -76,7 +76,8 @@ namespace PlanBuild.Blueprints
 
             var numPieces = 0;
             var collected = new List<Piece>();
-            var snapPoints = new List<Vector3>(); 
+            var snapPoints = new List<Vector3>();
+            Transform centerPiece = null;
 
             foreach (var piece in Piece.m_allPieces)
             {
@@ -89,6 +90,19 @@ namespace PlanBuild.Blueprints
                         wearNTear.Destroy();
                         continue;
                     }
+                    if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+                    {
+                        if(centerPiece == null)
+                        {
+                            centerPiece = piece.transform;
+                        } else
+                        {
+                            Logger.LogWarning("Multiple center points! Ignoring @ " + piece.transform.position);
+                        }
+                        WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                        wearNTear.Destroy();
+                        continue;
+                    }
                     piece.GetComponent<WearNTear>()?.Highlight();
                     collected.Add(piece);
                     numPieces++;
@@ -96,22 +110,29 @@ namespace PlanBuild.Blueprints
             }
 
             Logger.LogDebug($"Found {numPieces} in a radius of {startRadius:F2}");
+            Vector3 center;
 
-            // Relocate Z
-            var minZ = 9999999.9f;
-            var minX = 9999999.9f;
-            var minY = 9999999.9f;
-
-            foreach (var piece in collected.Where(x => x.m_category != Piece.PieceCategory.Misc && x.IsPlacedByPlayer()))
+            if(centerPiece == null)
             {
-                minX = Math.Min(piece.m_nview.GetZDO().m_position.x, minX);
-                minZ = Math.Min(piece.m_nview.GetZDO().m_position.z, minZ);
-                minY = Math.Min(piece.m_nview.GetZDO().m_position.y, minY);
+                // Relocate Z
+                var minZ = 9999999.9f;
+                var minX = 9999999.9f;
+                var minY = 9999999.9f;
+
+                foreach (var piece in collected.Where(x => x.m_category != Piece.PieceCategory.Misc && x.IsPlacedByPlayer()))
+                {
+                    minX = Math.Min(piece.m_nview.GetZDO().m_position.x, minX);
+                    minZ = Math.Min(piece.m_nview.GetZDO().m_position.z, minZ);
+                    minY = Math.Min(piece.m_nview.GetZDO().m_position.y, minY);
+                }
+
+                Logger.LogDebug($"{minX} - {minY} - {minZ}");
+
+                center = new Vector3(minX, minY, minZ);
+            } else
+            {
+                center = centerPiece.position;
             }
-
-            Logger.LogDebug($"{minX} - {minY} - {minZ}");
-
-            var bottomleft = new Vector3(minX, minY, minZ);
 
             // select and order instance piece entries
             var pieces = collected.Where(x => x.IsPlacedByPlayer() && x.m_category != Piece.PieceCategory.Misc)
@@ -132,7 +153,7 @@ namespace PlanBuild.Blueprints
             uint i = 0;
             foreach (var piece in pieces)
             {
-                var pos = piece.m_nview.GetZDO().m_position - bottomleft;
+                var pos = piece.m_nview.GetZDO().m_position - center;
 
                 var quat = piece.m_nview.GetZDO().m_rotation;
                 quat.eulerAngles = piece.transform.eulerAngles;
@@ -154,7 +175,7 @@ namespace PlanBuild.Blueprints
             }
             for (int j = 0; j < snapPoints.Count(); j++)
             {
-                m_snapPoints[j] = snapPoints[j] - bottomleft;
+                m_snapPoints[j] = snapPoints[j] - center;
             }
 
             return true;
