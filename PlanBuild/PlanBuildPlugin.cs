@@ -50,31 +50,28 @@ namespace PlanBuild
             PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
 
             // Configs
-            showAllPieces = base.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
-            PlanTotem.radiusConfig = base.Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
-            configBuildShare = base.Config.Bind("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-            configTransparentGhostPlacement = base.Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
+            showAllPieces = Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
+            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
+            
+            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
-            ShaderHelper.unsupportedColorConfig = base.Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
-            ShaderHelper.supportedPlanColorConfig = base.Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
-            ShaderHelper.transparencyConfig = base.Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
+            configBuildShare = Config.Bind("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
+            configTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
+            ShaderHelper.unsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
+            ShaderHelper.supportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
+            ShaderHelper.transparencyConfig = Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
+            PlanTotemPrefab.glowColorConfig = Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
+            
             ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
-
-
-            PlanTotemPrefab.glowColorConfig = base.Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
-
-            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
-            buildModeHotkeyConfig.SettingChanged += UpdateBuildKey;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
 
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-
 
             blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
             blueprintsBundle.Unload(false);
@@ -90,15 +87,11 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
 
-           
-
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
-
             PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
-
         }
 
         public void Update()
