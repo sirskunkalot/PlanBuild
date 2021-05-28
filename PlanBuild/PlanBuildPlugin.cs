@@ -6,6 +6,7 @@
 
 using BepInEx;
 using BepInEx.Configuration;
+using Jotunn.Configs;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
@@ -30,10 +31,8 @@ namespace PlanBuild
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
         public const string PluginVersion = "0.2.0";
-        public const string PlanBuildButton = "PlanBuild_PlanBuildMode";
 
         public static PlanBuildPlugin Instance;
-        public static ConfigEntry<KeyCode> buildModeHotkeyConfig;
         public static ConfigEntry<bool> showAllPieces;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
         public static ConfigEntry<bool> configBuildShare;
@@ -51,7 +50,6 @@ namespace PlanBuild
             PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
 
             // Configs
-            buildModeHotkeyConfig = base.Config.Bind("General", "Hammer mode toggle Hotkey", KeyCode.P, new ConfigDescription("Hotkey to switch between Hammer modes"));
             showAllPieces = base.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             PlanTotem.radiusConfig = base.Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
             configBuildShare = base.Config.Bind("BuildShare", "Place as planned pieces", false, new ConfigDescription("Place .vbuild as planned pieces instead", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
@@ -65,11 +63,6 @@ namespace PlanBuild
             ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
 
-            BlueprintManager.allowDirectBuildConfig = base.Config.Bind("Blueprint Rune", "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
-
-            BlueprintManager.rayDistanceConfig = base.Config.Bind("Blueprint Rune", "Place distance", 20f,
-                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 50f)));
 
             PlanTotemPrefab.glowColorConfig = base.Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
 
@@ -105,7 +98,6 @@ namespace PlanBuild
             PrefabManager.OnPrefabsRegistered += InitialScanHammer;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             PieceManager.OnPiecesRegistered += LateScanHammer;
-            UpdateBuildKey(null, null);
 
         }
 
@@ -125,7 +117,7 @@ namespace PlanBuild
 
             // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
             // If we hold the button down, it won't spam toggle our menu.
-            if (ZInput.GetButtonDown(PlanBuildButton))
+            if (ZInput.GetButtonDown(BlueprintManager.planSwitchButton.Name))
             {
                 TogglePlanBuildMode();
             }
@@ -177,15 +169,7 @@ namespace PlanBuild
         {
             Patches.Remove();
         }
-         
-        private void UpdateBuildKey(object sender, EventArgs e)
-        { 
-            InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
-            {
-                Name = PlanBuildButton,
-                Key = buildModeHotkeyConfig.Value
-            }); 
-        }
+
         private void AddClonedItems()
         {
             try

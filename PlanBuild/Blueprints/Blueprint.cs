@@ -446,6 +446,7 @@ namespace PlanBuild.Blueprints
                 Piece = m_prefabname,
                 ButtonConfigs = new[]
                 {
+                    BlueprintManager.planSwitchButton,
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },

@@ -44,9 +44,9 @@
     <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ValheimMods\lib\publicized\Build Camera.dll</HintPath>
+    <Reference Include="Build_Camera">
+      <HintPath>..\libraries\pub\Build_Camera.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="CraftFromContainers">
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
