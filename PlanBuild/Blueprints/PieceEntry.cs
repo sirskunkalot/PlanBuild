@@ -89,7 +89,7 @@ namespace PlanBuild.Blueprints
             return new Quaternion(rotX, rotY, rotZ, rotW);
         }
 
-        private static float InvariantFloat(string s)
+        internal static float InvariantFloat(string s)
         {
             if(s.StartsWith("-,"))
             {
@@ -101,7 +101,7 @@ namespace PlanBuild.Blueprints
             return float.Parse(s, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         }
 
-        private static string InvariantString(float f)
+        internal static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);
         }

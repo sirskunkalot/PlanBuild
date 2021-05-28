@@ -47,13 +47,20 @@ namespace PlanBuild.Blueprints
             // KeyHints
             CreateCustomKeyHints();
 
-            // Hooks
-            On.ZNetScene.Awake += RegisterKnownBlueprints;
+            // Hooks 
+            On.PieceTable.UpdateAvailable += OnUpdateAvailable;
             On.Player.PlacePiece += BeforePlaceBlueprintPiece;
             On.GameCamera.UpdateCamera += AdjustCameraHeight;
             On.Player.UpdatePlacement += ShowBlueprintCapture;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
+        {
+            RegisterKnownBlueprints();
+            player.UpdateKnownRecipesList();
+            orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
         }
 
         private void LoadKnownBlueprints()
@@ -120,25 +127,15 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void RegisterKnownBlueprints(On.ZNetScene.orig_Awake orig, ZNetScene self)
-        {
-            orig(self);
-
+        private void RegisterKnownBlueprints()
+        { 
             // Client only
             if (!ZNet.instance.IsDedicated())
-            {
-                Jotunn.Logger.LogMessage("Registering known blueprints");
-
+            { 
                 // Create prefabs for all known blueprints
                 foreach (var bp in Instance.m_blueprints.Values)
-                {
-                    try
-                    { 
-                        bp.CreatePrefab();
-                    } catch(Exception e)
-                    {
-                        Jotunn.Logger.LogWarning("Error while loading blueprint " + bp.m_name + ": " + e);
-                    }
+                { 
+                    bp.CreatePrefab(); 
                 }
             }
         }
@@ -181,10 +178,11 @@ namespace PlanBuild.Blueprints
 
                     // Don't place the piece and clutter the world with it
                     return false;
-                }
-
+                } 
                 // Place a known blueprint
-                if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid && piece.name.StartsWith("piece_blueprint"))
+                if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid 
+                    && piece.name != BlueprintRunePrefab.BlueprintSnapPointName 
+                    && piece.name.StartsWith("piece_blueprint"))
                 {
                     Blueprint bp = Instance.m_blueprints[piece.m_name];
                     var transform = self.m_placementGhost.transform;
@@ -226,7 +224,7 @@ namespace PlanBuild.Blueprints
                         GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                         if (!prefab)
                         {
-                            Jotunn.Logger.LogError(entry.name + " not found?");
+                            Jotunn.Logger.LogWarning(entry.name + " not found, you are probably missing a dependency for blueprint " + bp.m_name + ", not placing @ " + entryPosition);
                             continue;
                         }
 
@@ -429,6 +427,7 @@ namespace PlanBuild.Blueprints
                             m_lastHightlight = Time.time;
                         }
                     }
+                   
                     else if (piece.name.StartsWith("piece_blueprint"))
                     {
                         self.m_maxPlaceDistance = rayDistanceConfig.Value;

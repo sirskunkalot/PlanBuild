@@ -10,6 +10,7 @@ namespace PlanBuild.Blueprints
     {
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string BlueprintRuneName = "BlueprintRune";
+        public const string BlueprintSnapPointName = "piece_blueprint_snappoint";
         public const string MakeBlueprintName = "make_blueprint";
 
         public static string BlueprintRuneItemName;
@@ -39,7 +40,9 @@ namespace PlanBuild.Blueprints
             GameObject makebp_prefab = assetBundle.LoadAsset<GameObject>(MakeBlueprintName);
             PrefabManager.Instance.AddPrefab(makebp_prefab);
             GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
-            PrefabManager.Instance.AddPrefab(placebp_prefab); 
+            PrefabManager.Instance.AddPrefab(placebp_prefab);
+            GameObject bpsnappoint_prefab = assetBundle.LoadAsset<GameObject>(BlueprintSnapPointName);
+            PrefabManager.Instance.AddPrefab(bpsnappoint_prefab);
         }
     }
 }

@@ -16,6 +16,8 @@ namespace PlanBuild.Blueprints
     internal class Blueprint
     {
         public const string BlueprintPrefabName = "piece_blueprint";
+        private const string HeaderSnapPoints = "#SnapPoints";
+        private const string HeaderPieces = "#Pieces";
 
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
@@ -26,6 +28,11 @@ namespace PlanBuild.Blueprints
         ///     Array of the pieces this blueprint is made of
         /// </summary>
         internal PieceEntry[] m_pieceEntries;
+
+        /// <summary>
+        ///     Array of the snappoints of this blueprint
+        /// </summary>
+        internal Vector3[] m_snapPoints; 
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -69,13 +76,19 @@ namespace PlanBuild.Blueprints
 
             var numPieces = 0;
             var collected = new List<Piece>();
-
-            collected.Clear();
+            var snapPoints = new List<Vector3>(); 
 
             foreach (var piece in Piece.m_allPieces)
             {
                 if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius)
                 {
+                    if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
+                    {
+                        snapPoints.Add(piece.transform.position);
+                        WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                        wearNTear.Destroy();
+                        continue;
+                    }
                     piece.GetComponent<WearNTear>()?.Highlight();
                     collected.Add(piece);
                     numPieces++;
@@ -119,8 +132,7 @@ namespace PlanBuild.Blueprints
             uint i = 0;
             foreach (var piece in pieces)
             {
-                var pos = new Vector3(piece.m_nview.GetZDO().m_position.x - bottomleft.x, piece.m_nview.GetZDO().m_position.y - bottomleft.y,
-                    piece.m_nview.GetZDO().m_position.z - bottomleft.z);
+                var pos = piece.m_nview.GetZDO().m_position - bottomleft;
 
                 var quat = piece.m_nview.GetZDO().m_rotation;
                 quat.eulerAngles = piece.transform.eulerAngles;
@@ -136,8 +148,18 @@ namespace PlanBuild.Blueprints
                 m_pieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
+            if (m_snapPoints == null)
+            {
+                m_snapPoints = new Vector3[snapPoints.Count()];
+            }
+            for (int j = 0; j < snapPoints.Count(); j++)
+            {
+                m_snapPoints[j] = snapPoints[j] - bottomleft;
+            }
+
             return true;
         }
+         
 
         // Scale down a Texture2D
         public Texture2D ScaleTexture(Texture2D orig, int width, int height)
@@ -191,6 +213,16 @@ namespace PlanBuild.Blueprints
             {
                 using (TextWriter tw = new StreamWriter(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint")))
                 {
+                    if(m_snapPoints.Count() > 0)
+                    {
+                        tw.WriteLine(HeaderSnapPoints);
+                        foreach(Vector3 pos in m_snapPoints)
+                        {
+                            tw.WriteLine(string.Join(";", PieceEntry.InvariantString(pos.x), PieceEntry.InvariantString(pos.y), PieceEntry.InvariantString(pos.z)));
+                        }
+                    }
+
+                    tw.WriteLine(HeaderPieces);
                     foreach (var piece in m_pieceEntries)
                     {
                         tw.WriteLine(piece.line);
@@ -212,19 +244,27 @@ namespace PlanBuild.Blueprints
                 var lines = File.ReadAllLines(fileLocation).ToList();
                 Logger.LogDebug("read " + lines.Count + " pieces from " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
 
-                if (m_pieceEntries == null)
-                {
-                    m_pieceEntries = new PieceEntry[lines.Count()];
-                }
-                else if (m_pieceEntries.Length > 0)
-                {
-                    Array.Clear(m_pieceEntries, 0, m_pieceEntries.Length - 1);
-                    Array.Resize(ref m_pieceEntries, lines.Count());
-                }
-
-                uint i = 0;
+                List<PieceEntry> pieceEntries = new List<PieceEntry>();
+                List<Vector3> snapPoints = new List<Vector3>();
+                   
+                bool parsingSnapPoints = false;
                 foreach (var line in lines)
                 {
+                    if(line == HeaderSnapPoints)
+                    {
+                        parsingSnapPoints = true;
+                        continue;
+                    }
+                    if(parsingSnapPoints)
+                    {
+                        if(line == HeaderPieces)
+                        {
+                            parsingSnapPoints = false;
+                            continue;
+                        }
+                        snapPoints.Add(ParsePosition(line));
+                        continue;
+                    }
                     PieceEntry pieceEntry;
                     switch (extension)
                     {
@@ -239,8 +279,11 @@ namespace PlanBuild.Blueprints
                             return false;
                     }
 
-                    m_pieceEntries[i++] = pieceEntry;
+                    pieceEntries.Add(pieceEntry);
                 }
+
+                m_pieceEntries = pieceEntries.ToArray();
+                m_snapPoints = snapPoints.ToArray();
 
                 return true;
             }
@@ -249,6 +292,12 @@ namespace PlanBuild.Blueprints
                 Logger.LogError(e);
                 return false;
             }
+        }
+
+        private Vector3 ParsePosition(string line)
+        {
+            string[] parts = line.Split(';');
+            return new Vector3(PieceEntry.InvariantFloat(parts[0]), PieceEntry.InvariantFloat(parts[1]), PieceEntry.InvariantFloat(parts[2]));
         }
 
         public void CalculateCost()
@@ -262,19 +311,18 @@ namespace PlanBuild.Blueprints
 
         }
 
-        public GameObject CreatePrefab()
+        public bool CreatePrefab()
         {
             if (m_prefab != null)
             {
-                return m_prefab;
+                return false;
             }
-
             Logger.LogInfo($"Creating dynamic prefab {m_prefabname}");
 
             if (m_pieceEntries == null)
             {
                 Logger.LogWarning("No pieces loaded");
-                return null;
+                return false;
             }
 
             // Get Stub from PrefabManager
@@ -282,7 +330,7 @@ namespace PlanBuild.Blueprints
             if (stub == null)
             {
                 Logger.LogWarning("Could not load blueprint stub from prefabs");
-                return null;
+                return false;
             }
 
             // Instantiate clone from stub
@@ -309,7 +357,7 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning("Could not create prefab");
                 Object.DestroyImmediate(m_prefab);
-                return null;
+                return false;
             }
 
             // Add to known prefabs
@@ -319,8 +367,10 @@ namespace PlanBuild.Blueprints
                 PieceTable = "_BlueprintPieceTable"
             });
             PieceManager.Instance.AddPiece(CP);
+            PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
+            PrefabManager.Instance.RegisterToZNetScene(m_prefab);
 
-            return m_prefab;
+            return true;
         }
 
         public void AddToPieceTable()
@@ -383,6 +433,18 @@ namespace PlanBuild.Blueprints
                 var maxX = pieces.Max(x => x.posX);
                 var maxZ = pieces.Max(x => x.posZ);
 
+                foreach(Vector3 snapPoint in m_snapPoints)
+                {
+                    GameObject snapPointObject = new GameObject
+                    {
+                        name = "_snappoint",
+                        layer = LayerMask.NameToLayer("piece"),
+                        tag = "snappoint"
+                    };
+                    snapPointObject.SetActive(false);
+                    Object.Instantiate(snapPointObject, snapPoint, Quaternion.identity, baseObject.transform);
+                }
+
                 var tf = baseObject.transform;
                 tf.rotation = Camera.main.transform.rotation;
                 var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
@@ -396,20 +458,14 @@ namespace PlanBuild.Blueprints
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
                     if(!go)
                     {
-                        Logger.LogWarning("No prefab found for " + piece.name);
+                        Logger.LogWarning("No prefab found for " + piece.name + "! You are probably missing a dependency for blueprint " + m_name);
                     } else
                     {
                         go.transform.SetPositionAndRotation(go.transform.position, quat);
+                        prefabs.Add(piece.name, go);
                     }
-                    prefabs.Add(piece.name, go);
                 }
-
-                var nulls = prefabs.Values.Count(x => x == null);
-                if (nulls > 0)
-                {
-                    throw new Exception($"{nulls} nulls found");
-                }
-
+                 
                 foreach (var piece in pieces)
                 {
                     var pos = tf.position + tf.right * piece.GetPosition().x + tf.forward * piece.GetPosition().z +
@@ -418,16 +474,18 @@ namespace PlanBuild.Blueprints
                     var q = new Quaternion();
                     q.eulerAngles = new Vector3(0, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y);
 
-                    var child = Object.Instantiate(prefabs[piece.name], pos, q);
-                    child.transform.SetParent(baseObject.transform);
+                    if(prefabs.TryGetValue(piece.name, out var prefab)) {
+                        var child = Object.Instantiate(prefab, pos, q);
+                        child.transform.SetParent(baseObject.transform);
 
-                    // A Ghost doesn't need fancy scripts
-                    foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
-                    {
-                        Object.Destroy(component);
-                    }
+                        // A Ghost doesn't need fancy scripts
+                        foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
+                        {
+                            Object.Destroy(component);
+                        }
                      
-                    ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating); 
+                        ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating); 
+                    }
                 }
             }
             catch (Exception ex)

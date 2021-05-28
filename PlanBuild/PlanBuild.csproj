@@ -118,7 +118,6 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="assets\icons\plan_crystal.png" />
-    <Content Include="assets\icons\plan_hammer.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">

@@ -41,7 +41,7 @@ namespace PlanBuild
         internal PlanCrystalPrefab planCrystalPrefab;
         internal BlueprintRunePrefab blueprintRunePrefab;
 
-        internal static bool showRealTextures; 
+        internal static bool showRealTextures;
 
         public static readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
@@ -81,7 +81,7 @@ namespace PlanBuild
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-             
+
             blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
@@ -96,7 +96,7 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
 
-           
+
 
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
@@ -140,8 +140,12 @@ namespace PlanBuild
             {
                 UpdateKnownRecipes();
             }
+            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintRunePrefab.BlueprintRuneName)
+            {
+                return;
+            }
             ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
-            if(blueprintRune == null)
+            if (blueprintRune == null)
             {
                 return;
             }
@@ -157,18 +161,9 @@ namespace PlanBuild
             }
             Player.m_localPlayer.UnequipItem(blueprintRune);
             Player.m_localPlayer.EquipItem(blueprintRune);
-            if(Player.m_localPlayer.m_visEquipment.m_rightItem == BlueprintRunePrefab.BlueprintRuneItemName)
-            {
-                if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
-                {
-                    ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.red);
-                }
-                else
-                {
-                    ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, Color.cyan);
-                }
-            }
-            blueprintRune.m_shared.m_buildPieces.UpdateAvailable(Player.m_localPlayer.m_knownRecipes, Player.m_localPlayer, Player.m_localPlayer.m_hideUnavailable, Player.m_localPlayer.m_noPlacementCost);
+
+            Color color = blueprintRune.m_shared.m_buildPieces == planHammerPieceTable ? Color.red : Color.cyan;
+            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
             Player.m_localPlayer.UpdateAvailablePiecesList();
             Hud.instance.UpdateBuild(Player.m_localPlayer, true);
             blueprintRune.m_shared.m_buildPieces.NextCategory();
@@ -188,14 +183,14 @@ namespace PlanBuild
         {
             Patches.Remove();
         }
-         
+
         private void UpdateBuildKey(object sender, EventArgs e)
-        { 
+        {
             InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
             {
                 Name = PlanBuildButton,
                 Key = buildModeHotkeyConfig.Value
-            }); 
+            });
         }
         private void AddClonedItems()
         {
@@ -208,7 +203,7 @@ namespace PlanBuild
 
                 planCrystalPrefab = new PlanCrystalPrefab();
                 planCrystalPrefab.Setup();
-                ItemManager.Instance.AddItem(planCrystalPrefab); 
+                ItemManager.Instance.AddItem(planCrystalPrefab);
             }
             finally
             {
@@ -218,7 +213,7 @@ namespace PlanBuild
 
         private void OnItemsRegistered()
         {
-            planCrystalPrefab.FixShader(); 
+            planCrystalPrefab.FixShader();
         }
 
         internal bool addedHammer = false;
@@ -251,14 +246,14 @@ namespace PlanBuild
             }
             bool addedPiece = false;
             foreach (GameObject piecePrefab in hammerPieceTable.m_pieces)
-            { 
+            {
                 if (!piecePrefab)
                 {
                     Logger.LogWarning("Invalid prefab in Hammer PieceTable");
                     continue;
                 }
-                Piece piece = piecePrefab.GetComponent<Piece>(); 
-                if(!piece)
+                Piece piece = piecePrefab.GetComponent<Piece>();
+                if (!piece)
                 {
                     Logger.LogWarning("Recipe in Hammer has no Piece?! " + piecePrefab.name);
                     continue;
@@ -290,11 +285,11 @@ namespace PlanBuild
                     {
                         continue;
                     }
-                    if(!EnsurePrefabRegistered(piece))
+                    if (!EnsurePrefabRegistered(piece))
                     {
                         continue;
                     }
-                     
+
                     PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                     PieceManager.Instance.AddPiece(planPiece);
                     planPiecePrefabs.Add(piece.name, planPiece);
@@ -320,12 +315,12 @@ namespace PlanBuild
         private bool EnsurePrefabRegistered(Piece piece)
         {
             GameObject prefab = PrefabManager.Instance.GetPrefab(piece.gameObject.name);
-            if(prefab)
+            if (prefab)
             {
                 return true;
             }
             Logger.LogWarning("Piece " + piece.name + " in Hammer not fully registered? Could not find prefab " + piece.gameObject.name);
-            if(!ZNetScene.instance.m_prefabs.Contains(piece.gameObject))
+            if (!ZNetScene.instance.m_prefabs.Contains(piece.gameObject))
             {
                 Logger.LogWarning(" Not registered in ZNetScene.m_prefabs! Adding now");
                 ZNetScene.instance.m_prefabs.Add(piece.gameObject);
@@ -337,11 +332,12 @@ namespace PlanBuild
             }
             //Prefab was added incorrectly, make sure the game doesn't delete it when logging out 
             GameObject prefabParent = piece.gameObject.transform.parent?.gameObject;
-            if(!prefabParent)
+            if (!prefabParent)
             {
                 Logger.LogWarning(" Prefab has no parent?! Adding to Jotunn");
                 PrefabManager.Instance.AddPrefab(piece.gameObject);
-            } else if(prefabParent.scene.buildIndex != -1)
+            }
+            else if (prefabParent.scene.buildIndex != -1)
             {
                 Logger.LogWarning(" Prefab container not marked as DontDestroyOnLoad! Marking now");
                 Object.DontDestroyOnLoad(prefabParent);
