@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using PlanBuild.Blueprints;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -624,8 +625,17 @@ namespace PlanBuild.Plans
                 return false;
             }
             return true;
-        } 
-          
+        }
+
+        internal ZDOID GetBlueprintID()
+        {
+            if(!m_nView.IsValid())
+            {
+                return ZDOID.None;
+            }
+            return m_nView.GetZDO().GetZDOID(BlueprintManager.ZDOBlueprintBase);
+        }
+
         [HarmonyPatch(typeof(WearNTear), "Destroy")]
         [HarmonyPrefix]
         static bool WearNTear_Destroy_Prefix(WearNTear __instance)

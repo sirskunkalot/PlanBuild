@@ -68,14 +68,7 @@ namespace PlanBuild
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
             showAllPieces.SettingChanged += UpdateKnownRecipes;
-
-            GameObject portalPrefab = PrefabManager.Instance.GetPrefab("Hammer");
-            Piece stonePortal = portalPrefab.GetComponent<Piece>();
-            stonePortal.m_name = "$piece_stone_portal"; //Required, otherwise will collide with default portal
-            stonePortal.m_description= "$piece_stone_portal_desc";
-            PieceManager.Instance.GetPieceTable("Hammer").m_pieces.Add(portalPrefab);
-
-
+             
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);

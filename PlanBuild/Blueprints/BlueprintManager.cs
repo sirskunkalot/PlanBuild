@@ -14,12 +14,18 @@ namespace PlanBuild.Blueprints
     internal class BlueprintManager
     {
         internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExRootPath, "config", nameof(PlanBuild), "blueprints");
+        public const string ZDOBlueprintBase = "BlueprintBase";
+        public const string ZDOBlueprintNumPieces = "BlueprintBaseNumPieces";
+        public const string ZDOBlueprintName = "BlueprintName";
+        public const string ZDOBlueprintPiece = "BlueprintPiece";
 
         internal float selectionRadius = 10.0f;
 
         internal float cameraOffsetMake = 0.0f;
         internal float cameraOffsetPlace = 5.0f;
         internal bool updateCamera = true;
+
+        internal Piece lastHoveredPiece;
 
         internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
         internal readonly Dictionary<int, List<PlanPiece>> m_worldBlueprints = new Dictionary<int, List<PlanPiece>>();
@@ -54,9 +60,17 @@ namespace PlanBuild.Blueprints
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
             On.Player.PlacePiece += BeforePlaceBlueprintPiece;
             On.GameCamera.UpdateCamera += AdjustCameraHeight;
-            On.Player.UpdatePlacement += ShowBlueprintCapture;
+            On.Player.UpdatePlacement += OnUpdatePlacement;
+          //  On.Player.PieceRayTest += OnPieceRayTest;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        {
+            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+            lastHoveredPiece = piece;
+            return result;
         }
 
         private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
@@ -65,8 +79,6 @@ namespace PlanBuild.Blueprints
             player.UpdateKnownRecipesList();
             orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
         }
-
-        
 
         public void RegisterPlanPiece(int blueprintID, PlanPiece planPiece)
         {
@@ -238,8 +250,15 @@ namespace PlanBuild.Blueprints
                     uint cntEffects = 0u;
                     uint maxEffects = 10u;
 
-                    foreach (var entry in bp.m_pieceEntries)
+                    ZDO blueprintZDO = ZDOMan.instance.CreateNewZDO(position);
+                    Jotunn.Logger.LogInfo("Created blueprint ZDO: " + blueprintZDO.m_uid);
+                    blueprintZDO.m_persistent = true;
+                    blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
+                    blueprintZDO.Set(ZDOBlueprintNumPieces, bp.m_pieceEntries.Count());
+
+                    for (int i = 0; i < bp.m_pieceEntries.Length; i++)
                     {
+                        PieceEntry entry = bp.m_pieceEntries[i];
                         // Final position
                         Vector3 entryPosition = position + transform.forward * entry.posZ + transform.right * entry.posX + new Vector3(0, entry.posY, 0);
 
@@ -263,6 +282,18 @@ namespace PlanBuild.Blueprints
 
                         // Instantiate a new object with the new prefab
                         GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
+
+                        ZNetView zNetView = gameObject.GetComponent<ZNetView>();
+                        if(!zNetView)
+                        {
+                            Jotunn.Logger.LogWarning("No ZNetView for " + gameObject + "!!??");
+                        }
+                        else
+                        {
+                            ZDO pieceZDO = zNetView.GetZDO();
+                            pieceZDO.Set(ZDOBlueprintBase, blueprintZDO.m_uid);
+                            blueprintZDO.Set(ZDOBlueprintPiece + "_" + i, pieceZDO.m_uid);
+                        }
 
                         // Register special effects
                         CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
@@ -302,13 +333,24 @@ namespace PlanBuild.Blueprints
                         // Count up player builds
                         Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
                     }
-
-                    // Reset Camera offset
-                    Instance.cameraOffsetPlace = 5f;
+                   
+                        // Reset Camera offset
+                        Instance.cameraOffsetPlace = 5f;
 
                     // Dont set the blueprint piece and clutter the world with it
                     return false;
                 }
+                else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
+                {
+                    if(!lastHoveredPiece)
+                    {
+                        
+                    }
+
+
+                    return false;
+                }
+
             }
 
             return orig(self, piece);
@@ -393,13 +435,32 @@ namespace PlanBuild.Blueprints
             return capturedPieces;
         }
 
+        private void FlashBlueprint(ZDOID blueprintID)
+        {
+            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            int blueprintPieces = blueprintZDO.GetInt(ZDOBlueprintNumPieces);
+            for (int i = 0; i < blueprintPieces; i++)
+            {
+                ZDOID pieceZDOID = blueprintZDO.GetZDOID(ZDOBlueprintPiece + "_" + i);
+                if(pieceZDOID == ZDOID.None)
+                {
+                    continue;
+                }
+                GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
+                if(pieceObject.TryGetComponent(out WearNTear wearNTear))
+                {
+                    wearNTear.Highlight();
+                }
+            }
+        }
+
         const float HighlightTimeout = 0.5f;
         float m_lastHightlight = 0;
 
         /// <summary>
         ///     Show and change blueprint selection radius
         /// </summary>
-        private void ShowBlueprintCapture(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
+        private void OnUpdatePlacement(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
         {
             orig(self, takeInput, dt);
 
@@ -483,10 +544,31 @@ namespace PlanBuild.Blueprints
                             if (Input.GetAxis("Mouse ScrollWheel") > 0f)
                             {
                                 self.m_placeRotation--;
-                            }
-
+                            } 
                         }
                     }
+
+                    else if(piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
+                    {
+                        if (Time.time > m_lastHightlight + HighlightTimeout)
+                        {
+                            if(lastHoveredPiece)
+                            {
+                                if(lastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                                {
+                                    Jotunn.Logger.LogInfo("Looking for ZDOID");
+                                    ZDOID blueprintID = planPiece.GetBlueprintID();
+                                    Jotunn.Logger.LogInfo("Looking for blueprint " + blueprintID);
+                                    if (blueprintID != ZDOID.None)
+                                    {
+                                        FlashBlueprint(blueprintID);
+                                    }
+                                }
+                            }
+                            m_lastHightlight = Time.time;
+                        }
+                    }
+
                     else
                     {
                         // Destroy placement marker instance to get rid of the circleprojector
@@ -502,5 +584,6 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
+
     }
 }

@@ -18,6 +18,7 @@ namespace PlanBuild.Blueprints
         public const string BlueprintPrefabName = "piece_blueprint";
         private const string HeaderSnapPoints = "#SnapPoints";
         private const string HeaderPieces = "#Pieces";
+  
 
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
@@ -78,6 +79,7 @@ namespace PlanBuild.Blueprints
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
+
 
             foreach (var piece in Piece.m_allPieces)
             {
@@ -492,8 +494,7 @@ namespace PlanBuild.Blueprints
                     var pos = tf.position + tf.right * piece.GetPosition().x + tf.forward * piece.GetPosition().z +
                       new Vector3(0, piece.GetPosition().y, 0);
 
-                    var q = new Quaternion();
-                    q.eulerAngles = new Vector3(0, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y);
+                    var q = Quaternion.Euler(0f, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y, 0f);
 
                     if(prefabs.TryGetValue(piece.name, out var prefab)) {
                         var child = Object.Instantiate(prefab, pos, q);
