@@ -62,6 +62,7 @@ namespace PlanBuild
         internal static void Apply()
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
+            On.WearNTear.Highlight += OnHighlight;
 
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
@@ -77,6 +78,16 @@ namespace PlanBuild
                 Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
             } 
+        }
+
+        private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        {
+            if(self.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
+                return;
+            }
+            orig(self);
         }
 
         private static void SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)

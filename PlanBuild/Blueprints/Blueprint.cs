@@ -113,7 +113,7 @@ namespace PlanBuild.Blueprints
                 {
                     snapPoints.Add(piece.transform.position);
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
-                    wearNTear.Destroy();
+                    wearNTear.Remove();
                     continue;
                 }
                 if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
@@ -126,7 +126,7 @@ namespace PlanBuild.Blueprints
                         Logger.LogWarning("Multiple center points! Ignoring @ " + piece.transform.position);
                     }
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
-                    wearNTear.Destroy();
+                    wearNTear.Remove();
                     continue;
                 }
                 piece.GetComponent<WearNTear>()?.Highlight();
@@ -301,13 +301,13 @@ namespace PlanBuild.Blueprints
                         parsingSnapPoints = true;
                         continue;
                     }
-                    if(parsingSnapPoints)
+                    if (line == HeaderPieces)
                     {
-                        if(line == HeaderPieces)
-                        {
-                            parsingSnapPoints = false;
-                            continue;
-                        }
+                        parsingSnapPoints = false;
+                        continue;
+                    }
+                    if (parsingSnapPoints)
+                    { 
                         snapPoints.Add(ParsePosition(line));
                         continue;
                     }
@@ -363,7 +363,7 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
-            Logger.LogInfo($"Creating dynamic prefab {m_prefabname}");
+            Logger.LogDebug($"Creating dynamic prefab {m_prefabname}");
 
             if (m_pieceEntries == null)
             {
@@ -436,8 +436,7 @@ namespace PlanBuild.Blueprints
 
             if (!table.m_pieces.Contains(m_prefab))
             {
-                Logger.LogInfo($"Adding {m_prefabname} to BlueprintRune");
-
+                Logger.LogDebug($"Adding {m_prefabname} to BlueprintRune"); 
                 table.m_pieces.Add(m_prefab);
             }
         }

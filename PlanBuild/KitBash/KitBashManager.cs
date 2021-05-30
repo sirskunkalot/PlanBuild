@@ -31,7 +31,7 @@ namespace PlanBuild.KitBash
                 {
                     return;
                 }
-                Jotunn.Logger.LogInfo("Applying KitBash in " + kitBashObjects.Count + " objects");
+                Jotunn.Logger.LogDebug("Applying KitBash in " + kitBashObjects.Count + " objects");
                 foreach (KitBashObject kitBashObject in kitBashObjects)
                 {
                     try
@@ -55,8 +55,7 @@ namespace PlanBuild.KitBash
         }
 
         public KitBashObject KitBash(GameObject embeddedPrefab, KitBashConfig kitBashConfig)
-        {
-            Jotunn.Logger.LogInfo("Creating KitBash prefab for " + embeddedPrefab + " with config: " + kitBashConfig);
+        { 
             GameObject kitbashedPrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform);
             kitbashedPrefab.name = embeddedPrefab.name + "_kitbash";
             KitBashObject kitBashObject = new KitBashObject

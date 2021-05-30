@@ -38,6 +38,9 @@ namespace PlanBuild.Blueprints
         private ConfigEntry<float> placementOffsetIncrementConfig;
         private ConfigEntry<float> selectionIncrementConfig;
         internal static ConfigEntry<bool> allowDirectBuildConfig;
+        private ConfigEntry<bool> invertCameraOffsetScrollConfig;
+        private ConfigEntry<bool> invertPlacementOffsetScrollConfig;
+        private ConfigEntry<bool> invertSelectionScrollConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
         internal static ButtonConfig planSwitchButton;
 
@@ -128,6 +131,15 @@ namespace PlanBuild.Blueprints
         {
             allowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
+
+            invertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert camera offset scroll", false,
+                new ConfigDescription("Invert the direction of camera offset scrolling"));
+
+            invertPlacementOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert placement height change scroll", false,
+                new ConfigDescription("Invert the direction of placement offset scrolling"));
+
+            invertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert selection scroll", false,
+                new ConfigDescription("Invert the direction of selection scrolling"));
 
             rayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Place distance", 20f,
                 new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 50f)));
@@ -279,9 +291,7 @@ namespace PlanBuild.Blueprints
             {
                 if (lastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                 {
-                    Jotunn.Logger.LogInfo("Looking for ZDOID");
                     ZDOID blueprintID = planPiece.GetBlueprintID();
-                    Jotunn.Logger.LogInfo("Looking for blueprint " + blueprintID);
                     if (blueprintID != ZDOID.None)
                     {
                         RemoveBlueprint(blueprintID);
@@ -306,7 +316,7 @@ namespace PlanBuild.Blueprints
             {
                 if (pieceToRemove.TryGetComponent(out PlanPiece planPiece))
                 {
-                    planPiece.m_wearNTear.Destroy();
+                    planPiece.m_wearNTear.Remove();
                 }
             }
 
@@ -340,7 +350,6 @@ namespace PlanBuild.Blueprints
             GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
 
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            Jotunn.Logger.LogInfo("Created blueprint ZDO: " + blueprintZDO.m_uid);
             blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
             ZDOIDSet createdPlans = new ZDOIDSet();
 
@@ -578,8 +587,11 @@ namespace PlanBuild.Blueprints
             planPieces?.Remove(planPiece.GetPlanPieceID());
             if (planPieces == null || planPieces.Count() == 0)
             {
-                Jotunn.Logger.LogInfo("Removing blueprint parent " + blueprintID);
-                ZNetScene.instance.Destroy(ZNetScene.instance.FindInstance(blueprintID));
+                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+                if(blueprintObject)
+                {
+                    ZNetScene.instance.Destroy(blueprintObject);
+                }
             }
             else
             {
@@ -615,7 +627,8 @@ namespace PlanBuild.Blueprints
                             if (Input.GetKey(KeyCode.LeftShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
-                            } else
+                            }
+                            else
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
@@ -656,7 +669,7 @@ namespace PlanBuild.Blueprints
                         // Reset rotation when changing camera
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
-                        { 
+                        {
                             if (Input.GetKey(KeyCode.LeftShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
@@ -732,9 +745,7 @@ namespace PlanBuild.Blueprints
                             {
                                 if (lastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                                 {
-                                    Jotunn.Logger.LogInfo("Looking for ZDOID");
                                     ZDOID blueprintID = planPiece.GetBlueprintID();
-                                    Jotunn.Logger.LogInfo("Looking for blueprint " + blueprintID);
                                     if (blueprintID != ZDOID.None)
                                     {
                                         FlashBlueprint(blueprintID, Color.red);
@@ -766,15 +777,19 @@ namespace PlanBuild.Blueprints
         {
             if (Input.GetKey(KeyCode.LeftControl))
             {
-                if (scrollWheel < 0f)
+                bool scrollingDown = scrollWheel < 0f;
+                if (invertPlacementOffsetScrollConfig.Value)
                 {
-                    Instance.placementOffset -= placementOffsetIncrementConfig.Value; 
+                    scrollingDown = !scrollingDown;
+                }
+                if (scrollingDown)
+                {
+                    Instance.placementOffset -= placementOffsetIncrementConfig.Value;
                 }
                 else
                 {
-                    Instance.placementOffset += placementOffsetIncrementConfig.Value; 
-                }
-                Jotunn.Logger.LogInfo("Updated placementOffset to " + Instance.placementOffset);
+                    Instance.placementOffset += placementOffsetIncrementConfig.Value;
+                } 
             }
         }
 
@@ -795,10 +810,14 @@ namespace PlanBuild.Blueprints
             // TODO: base min/max off of selected piece dimensions
             float minOffset = 2f;
             float maxOffset = 20f;
-            if (scrollWheel < 0f)
+            bool scrollingDown = scrollWheel < 0f;
+            if (invertCameraOffsetScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
             {
                 Instance.cameraOffset = Mathf.Clamp(Instance.cameraOffset += cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
-
             }
             else
             {
@@ -808,7 +827,12 @@ namespace PlanBuild.Blueprints
 
         private void UpdateSelectionRadius(float scrollWheel)
         {
-            if (scrollWheel < 0f)
+            bool scrollingDown = scrollWheel < 0f;
+            if(invertSelectionScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
             {
                 Instance.selectionRadius -= selectionIncrementConfig.Value;
                 if (Instance.selectionRadius < 2f)
@@ -820,6 +844,6 @@ namespace PlanBuild.Blueprints
             {
                 Instance.selectionRadius += selectionIncrementConfig.Value;
             }
-        } 
+        }
     }
 }

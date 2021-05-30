@@ -111,6 +111,11 @@ namespace PlanBuild.Plans
                 typeof(Hoverable)
             };
 
+        internal void Highlight()
+        {
+            m_wearNTear.Highlight(ShaderHelper.unsupportedColorConfig.Value);
+        }
+
         public static int m_planLayer = LayerMask.NameToLayer("piece_nonsolid");
         public static int m_placeRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle");
 
