@@ -1,9 +1,8 @@
 ﻿using BepInEx.Configuration;
+using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild
 {
@@ -94,6 +93,38 @@ namespace PlanBuild
                 sharedMaterials[j] = material;
 
             }
-        } 
+        }
+
+        internal static void SetEmissionColor(GameObject gameObject, Color color)
+        {
+            MeshRenderer[] meshRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer meshRenderer in meshRenderers)
+            {
+                if (!(meshRenderer.sharedMaterial == null))
+                {
+                    SetEmissionColor(meshRenderer.sharedMaterials, color);
+                }
+            }
+
+            SkinnedMeshRenderer[] skinnedMeshRenderers = gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
+            foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
+            {
+                if (!(meshRenderer.sharedMaterial == null))
+                {
+                    SetEmissionColor(meshRenderer.sharedMaterials, color);
+                }
+            }
+        }
+
+        private static void SetEmissionColor(Material[] sharedMaterials, Color color)
+        {
+            foreach(Material material in sharedMaterials)
+            {
+                if(material.HasProperty("_EmissionColor"))
+                {
+                    material.SetColor("_EmissionColor", color);
+                }
+            }
+        }
     }
 }

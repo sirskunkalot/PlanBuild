@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\JotunnLib.2.0.10\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.0.10\build\JotunnLib.props')" />
+  <Import Project="..\packages\JotunnLib.2.0.11\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.0.11\build\JotunnLib.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -28,7 +28,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
     <DefineConstants>
@@ -37,57 +37,45 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Prefer32Bit>false</Prefer32Bit>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
-      <Private>True</Private>
     </Reference>
-    <Reference Include="Build Camera">
-      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\Valheim Build Camera.zip-226-1-5-1-1617987250\Build Camera.dll</HintPath>
-    </Reference>
-    <Reference Include="CR-BuildShare_VML">
-      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\BuildShare-5-1-5-1-1615378123\CR-BuildShare_VML.dll</HintPath>
+    <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
     </Reference>
     <Reference Include="CraftFromContainers">
-      <HintPath>..\..\..\..\AppData\Roaming\Vortex\valheim\mods\Craft From Containers-40-2-0-6-1617036369\CraftFromContainers.dll</HintPath>
+      <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
+      <Private>False</Private>
     </Reference>
-    <Reference Include="EquipmentAndQuickSlots">
-      <HintPath>..\..\ValheimMods\lib\publicized\EquipmentAndQuickSlots.dll</HintPath>
-    </Reference>
-    <Reference Include="Jotunn, Version=2.0.10.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\JotunnLib.2.0.10\lib\net462\Jotunn.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Jotunn, Version=2.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\JotunnLib.2.0.11\lib\net462\Jotunn.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Mdb, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Pdb, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="Mono.Cecil.Rocks, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MonoMod, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoMod.21.4.29.1\lib\net40\MonoMod.exe</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoMod.RuntimeDetour.21.4.29.1\lib\net40\MonoMod.RuntimeDetour.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="MonoMod.Utils, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoMod.Utils.21.4.29.1\lib\net40\MonoMod.Utils.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -98,36 +86,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PatcherBuildCamera.cs" />
-    <Compile Include="PatcherCraftFromContainers.cs" />
-    <Compile Include="PatcherEquipmentQuickSlots.cs" />
+    <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\BlueprintManager.cs" />
+    <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
+    <Compile Include="Blueprints\FlattenTerrain.cs" />
+    <Compile Include="Blueprints\PieceEntry.cs" />
+    <Compile Include="Blueprints\ZDOIDSet.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="KitBash\KitBashConfig.cs" />
+    <Compile Include="KitBash\KitBashManager.cs" />
+    <Compile Include="KitBash\KitBashObject.cs" />
+    <Compile Include="KitBash\KitBashSourceConfig.cs" />
+    <Compile Include="ModCompat\PatcherBuildCamera.cs" />
+    <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
     <Compile Include="Patches.cs" />
-    <Compile Include="PatcherBuildShare.cs" />
-    <Compile Include="PlanCrystalPrefabConfig.cs" />
-    <Compile Include="PlanHammerPrefabConfig.cs" />
-    <Compile Include="PlanPiece.cs" />
-    <Compile Include="PlanPiecePrefabConfig.cs" />
+    <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
+    <Compile Include="PlanBuild\PlanPiece.cs" />
+    <Compile Include="PlanBuild\PlanPiecePrefab.cs" />
+    <Compile Include="PlanBuild\PlanTotem.cs" />
+    <Compile Include="PlanBuild\PlanTotemPrefab.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
-    <Compile Include="PlanBuild.cs" />
+    <Compile Include="PlanBuildPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ShaderHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="assets\Translations\English\PlanBuild.english.json" />
+    <None Include="assets\Translations\English\PlanBuild.English.json" />
+    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
+    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
-    <None Include="Package\README.md" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Package\plugins\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Package\manifest.json" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="assets\icons\plan_crystal.png" />
-    <Content Include="assets\icons\plan_hammer.png" />
-    <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
@@ -149,6 +141,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\JotunnLib.2.0.10\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.0.10\build\JotunnLib.props'))" />
+    <Error Condition="!Exists('..\packages\JotunnLib.2.0.11\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.0.11\build\JotunnLib.props'))" />
   </Target>
 </Project>

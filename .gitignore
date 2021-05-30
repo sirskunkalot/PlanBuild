@@ -378,3 +378,5 @@ SeedTotem/Package/plugins/
 
 *.dll
 JotunnModUnity/Assets/Assemblies/
+PlanBuildUnity/Assets/Plugins.meta
+PlanBuildUnity/Assets/Plugins/

@@ -202,6 +202,8 @@ namespace TransparentSails
             // Release the temporary RenderTexture
             RenderTexture.ReleaseTemporary(tmp);
 
+            Sprite.Create(texture, new Rect(), Vector2.zero);
+
             myTexture2D.name = texture.name;
 
             return myTexture2D;
