@@ -294,7 +294,7 @@ MonoBehaviour:
         m_attackChainLevels: 0
         m_consumeItem: 0
         m_hitTerrain: 1
-        m_attackStamina: 20
+        m_attackStamina: 0
         m_speedFactor: 0.2
         m_speedFactorRotation: 0.2
         m_attackStartNoise: 10
@@ -398,7 +398,7 @@ MonoBehaviour:
       m_canBeReparied: 1
       m_maxDurability: 100
       m_durabilityPerLevel: 50
-      m_useDurabilityDrain: 1
+      m_useDurabilityDrain: 0
       m_durabilityDrain: 0
       m_holdDurationMin: 0
       m_holdStaminaDrain: 0

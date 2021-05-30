@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlanBuild.Plans;
 using static PlanBuild.ShaderHelper;
+using PlanBuild.Blueprints;
 
 namespace PlanBuild
 {
@@ -61,6 +62,7 @@ namespace PlanBuild
         internal static void Apply()
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
+            On.WearNTear.Highlight += OnHighlight;
 
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
@@ -78,6 +80,16 @@ namespace PlanBuild
             } 
         }
 
+        private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        {
+            if(self.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
+                return;
+            }
+            orig(self);
+        }
+
         private static void SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
             PlanPiece.m_forceDisableInit = true;
@@ -86,10 +98,13 @@ namespace PlanBuild
             {
                 if(PlanBuildPlugin.showRealTextures)
                 {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
-                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value)
+                    UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
+                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
+                    && (self.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
+                        || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                    )
                 {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Supported);
+                    UpdateTextures(self.m_placementGhost, ShaderState.Supported);
                 }
             }
             PlanPiece.m_forceDisableInit = false;

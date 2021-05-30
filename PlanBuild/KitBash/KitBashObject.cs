@@ -12,7 +12,7 @@ namespace PlanBuild.KitBash
 
         public bool ApplyKitBash()
         {
-            Jotunn.Logger.LogInfo("Applying KitBash for " + Prefab);
+            Jotunn.Logger.LogDebug("Applying KitBash for " + Prefab);
             foreach (KitBashSourceConfig config in Config.KitBashSources)
             {
                 if(!KitBashManager.Instance.KitBash(Prefab, config))

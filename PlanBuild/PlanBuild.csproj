@@ -47,7 +47,7 @@
     </Reference>
     <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\ValheimMods\lib\publicized\Build Camera.dll</HintPath>
+      <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
     </Reference>
     <Reference Include="CraftFromContainers">
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
@@ -91,6 +91,8 @@
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
+    <Compile Include="Blueprints\ZDOIDSet.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="KitBash\KitBashConfig.cs" />
     <Compile Include="KitBash\KitBashManager.cs" />
     <Compile Include="KitBash\KitBashObject.cs" />

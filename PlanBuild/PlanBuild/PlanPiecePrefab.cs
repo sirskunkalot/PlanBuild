@@ -17,7 +17,7 @@ namespace PlanBuild.Plans
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
-        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlanPiecePrefab.PlannedSuffix, piece.gameObject.name, PlanHammerPieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PlanHammerPieceTableName)
         { 
             
             this.originalPiece = piece;
@@ -53,6 +53,9 @@ namespace PlanBuild.Plans
             wearNTear.m_autoCreateFragments = false;
             wearNTear.m_supports = true;
             wearNTear.m_hitEffect = new EffectList();
+            wearNTear.m_destroyedEffect = new EffectList();
+            wearNTear.m_destroyNoise = 0f;
+            wearNTear.m_hitNoise = 0f;
 
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = originalPiece;
