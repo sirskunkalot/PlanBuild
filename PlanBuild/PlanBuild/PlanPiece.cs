@@ -69,6 +69,10 @@ namespace PlanBuild.Plans
         private void OnDestroyed()
         {
             BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
+            if (m_nView.IsOwner())
+            {
+                Refund(true);
+            }
         }
 
         public void OnDestroy()
