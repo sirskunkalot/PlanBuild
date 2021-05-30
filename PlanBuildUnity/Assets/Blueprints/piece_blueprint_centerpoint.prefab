@@ -377,8 +377,8 @@ MonoBehaviour:
   m_primaryTarget: 0
   m_randomTarget: 1
   m_icon: {fileID: 21300000, guid: 41b536b26666cbc429050a585908b59c, type: 3}
-  m_name: $piece_blueprint_center
-  m_description: $piece_blueprint_center_desc
+  m_name: $piece_blueprint_centerpoint
+  m_description: $piece_blueprint_centerpoint_desc
   m_enabled: 1
   m_category: 0
   m_isUpgrade: 0

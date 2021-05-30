@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlanBuild.Plans;
 using static PlanBuild.ShaderHelper;
+using PlanBuild.Blueprints;
 
 namespace PlanBuild
 {
@@ -86,10 +87,13 @@ namespace PlanBuild
             {
                 if(PlanBuildPlugin.showRealTextures)
                 {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
-                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value)
+                    UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
+                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
+                    && (self.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
+                        || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                    )
                 {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderState.Supported);
+                    UpdateTextures(self.m_placementGhost, ShaderState.Supported);
                 }
             }
             PlanPiece.m_forceDisableInit = false;

@@ -48,5 +48,6 @@ MonoBehaviour:
   - {fileID: 4779968207475047827, guid: 72f2d9d9599764c4487044c085d282be, type: 3}
   - {fileID: 3384657245165582381, guid: 489d876660cac4c4a9fa41fd4cfb7e1d, type: 3}
   - {fileID: 5104441192492527984, guid: f5cf2b7e0f08f20428c4403e59dfc24d, type: 3}
+  - {fileID: 5663391478578799182, guid: 7ba610455ecf6574cbcf19881d3a25cc, type: 3}
   m_useCategories: 0
   m_canRemovePieces: 1

@@ -91,6 +91,8 @@
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
+    <Compile Include="Blueprints\ZDOIDSet.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="KitBash\KitBashConfig.cs" />
     <Compile Include="KitBash\KitBashManager.cs" />
     <Compile Include="KitBash\KitBashObject.cs" />

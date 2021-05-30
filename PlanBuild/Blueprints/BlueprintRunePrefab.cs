@@ -14,11 +14,10 @@ namespace PlanBuild.Blueprints
         public const string BlueprintCenterPointName = "piece_blueprint_centerpoint";
         public const string MakeBlueprintName = "make_blueprint";
         public const string UndoBlueprintName = "undo_blueprint";
-
+        public const string DeletePlansName = "delete_plans";
         public static string BlueprintRuneItemName;
         public GameObject runeprefab;
-        
-
+         
         public BlueprintRunePrefab(AssetBundle assetBundle)
         {
             PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>(PieceTableName));
@@ -46,6 +45,7 @@ namespace PlanBuild.Blueprints
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintSnapPointName)); 
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintCenterPointName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(UndoBlueprintName));
+            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(DeletePlansName)); 
         }
     }
 }

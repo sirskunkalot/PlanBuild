@@ -10,6 +10,7 @@ using Jotunn.Managers;
 using Object = UnityEngine.Object;
 using Logger = Jotunn.Logger;
 using PlanBuild.Plans;
+using UnityEngine.Rendering;
 
 namespace PlanBuild.Blueprints
 {
@@ -18,7 +19,14 @@ namespace PlanBuild.Blueprints
         public const string BlueprintPrefabName = "piece_blueprint";
         private const string HeaderSnapPoints = "#SnapPoints";
         private const string HeaderPieces = "#Pieces";
-  
+        public const string PlaceColliderName = "place_collider";
+
+
+
+        /// <summary>
+        ///     File location of this blueprint instance.
+        /// </summary>
+        internal string m_fileLocation;
 
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
@@ -49,10 +57,30 @@ namespace PlanBuild.Blueprints
         ///     New "empty" Blueprint with a name but without any pieces. Call Capture() or Load() to add pieces to the blueprint.
         /// </summary>
         /// <param name="name"></param>
-        public Blueprint(string name)
+        private Blueprint()
         {
-            m_name = name;
-            m_prefabname = $"{BlueprintPrefabName} ({name})";
+            
+        }
+
+        public static Blueprint FromWorld(string name)
+        {
+            return new Blueprint
+            {
+                m_fileLocation = Path.Combine(BlueprintManager.BlueprintPath, name + ".blueprint"),
+                m_name = name,
+                m_prefabname = $"{BlueprintPrefabName} ({name})"
+            };
+        }
+
+        public static Blueprint FromFile(string fileLocation)
+        {
+            string name = Path.GetFileNameWithoutExtension(fileLocation);
+            return new Blueprint
+            {
+                m_fileLocation = fileLocation,
+                m_name = name,
+                m_prefabname = $"{BlueprintPrefabName} ({name})"
+            };
         }
 
         /// <summary>
@@ -69,9 +97,8 @@ namespace PlanBuild.Blueprints
             return new Vector2(m_pieceEntries.Max(x => x.posX), m_pieceEntries.Max(x => x.posZ));
         }
 
-        public bool Capture(Vector3 startPosition, float startRadius, float radiusDelta)
-        {
-            var vec = startPosition;
+        public bool Capture(Vector3 position, float radius)
+        { 
             var rot = Camera.main.transform.rotation.eulerAngles;
             Logger.LogDebug("Collecting piece information");
 
@@ -79,39 +106,35 @@ namespace PlanBuild.Blueprints
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
-
-
-            foreach (var piece in Piece.m_allPieces)
-            {
-                if (Vector2.Distance(new Vector2(startPosition.x, startPosition.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) < startRadius)
+            
+            foreach (var piece in BlueprintManager.GetPiecesInRadius(position, radius)) 
+            { 
+                if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
                 {
-                    if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
-                    {
-                        snapPoints.Add(piece.transform.position);
-                        WearNTear wearNTear = piece.GetComponent<WearNTear>();
-                        wearNTear.Destroy();
-                        continue;
-                    }
-                    if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
-                    {
-                        if(centerPiece == null)
-                        {
-                            centerPiece = piece.transform;
-                        } else
-                        {
-                            Logger.LogWarning("Multiple center points! Ignoring @ " + piece.transform.position);
-                        }
-                        WearNTear wearNTear = piece.GetComponent<WearNTear>();
-                        wearNTear.Destroy();
-                        continue;
-                    }
-                    piece.GetComponent<WearNTear>()?.Highlight();
-                    collected.Add(piece);
-                    numPieces++;
+                    snapPoints.Add(piece.transform.position);
+                    WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                    wearNTear.Destroy();
+                    continue;
                 }
+                if(piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+                {
+                    if(centerPiece == null)
+                    {
+                        centerPiece = piece.transform;
+                    } else
+                    {
+                        Logger.LogWarning("Multiple center points! Ignoring @ " + piece.transform.position);
+                    }
+                    WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                    wearNTear.Destroy();
+                    continue;
+                }
+                piece.GetComponent<WearNTear>()?.Highlight();
+                collected.Add(piece);
+                numPieces++; 
             }
 
-            Logger.LogDebug($"Found {numPieces} in a radius of {startRadius:F2}");
+            Logger.LogDebug($"Found {numPieces} in a radius of {radius:F2}");
             Vector3 center;
 
             if(centerPiece == null)
@@ -234,7 +257,7 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                using (TextWriter tw = new StreamWriter(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint")))
+                using (TextWriter tw = new StreamWriter(m_fileLocation))
                 {
                     if(m_snapPoints.Count() > 0)
                     {
@@ -389,6 +412,7 @@ namespace PlanBuild.Blueprints
             {
                 PieceTable = "_BlueprintPieceTable"
             });
+            CP.Piece.m_description += "\nFile location: " + Path.GetFullPath(m_fileLocation);
             PieceManager.Instance.AddPiece(CP);
             PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
             PrefabManager.Instance.RegisterToZNetScene(m_prefab);
@@ -468,6 +492,12 @@ namespace PlanBuild.Blueprints
                     Object.Instantiate(snapPointObject, snapPoint, Quaternion.identity, baseObject.transform);
                 }
 
+                //Tiny collider for accurate placement
+                GameObject gameObject = new GameObject(PlaceColliderName);
+                gameObject.transform.SetParent(baseObject.transform);
+                SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
+                sphereCollider.radius = 0.002f;
+
                 var tf = baseObject.transform;
                 tf.rotation = Camera.main.transform.rotation;
                 var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
@@ -488,25 +518,54 @@ namespace PlanBuild.Blueprints
                         prefabs.Add(piece.name, go);
                     }
                 }
-                 
-                foreach (var piece in pieces)
+
+                for (int i = 0; i < pieces.Count; i++)
                 {
+                    PieceEntry piece = pieces[i];
                     var pos = tf.position + tf.right * piece.GetPosition().x + tf.forward * piece.GetPosition().z +
                       new Vector3(0, piece.GetPosition().y, 0);
 
-                    var q = Quaternion.Euler(0f, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y, 0f);
+                    var q = Quaternion.Euler(0, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y, 0);
 
-                    if(prefabs.TryGetValue(piece.name, out var prefab)) {
-                        var child = Object.Instantiate(prefab, pos, q);
-                        child.transform.SetParent(baseObject.transform);
+                    GameObject pieceObject = new GameObject("piece_entry (" + i + ")");
+                    pieceObject.transform.SetParent(tf);
+                    pieceObject.transform.rotation = q;
+                    pieceObject.transform.position = pos;
 
-                        // A Ghost doesn't need fancy scripts
-                        foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
+                    if (prefabs.TryGetValue(piece.name, out var prefab))
+                    {
+                        GameObject ghostPrefab;
+                        Vector3 ghostPosition;
+                        Quaternion ghostRotation;
+                        if (prefab.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_new)
                         {
-                            Object.Destroy(component);
+                            //Only instantiate the visual part
+                            ghostPrefab = wearNTear.m_new;
+                            ghostRotation = ghostPrefab.transform.localRotation;
+                            ghostPosition = ghostPrefab.transform.localPosition;
                         }
-                     
-                        ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating); 
+                        else
+                        {
+                            //No WearNTear?? Just use the entire prefab
+                            ghostPrefab = prefab;
+                            ghostRotation = Quaternion.identity;
+                            ghostPosition = Vector3.zero;
+                        }
+
+                        var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
+                        child.transform.localRotation = ghostRotation;
+                        child.transform.localPosition = ghostPosition;
+                        MakeGhost(child);
+
+                        //Doors have a dynamic object that also needs to be added
+                        if (prefab.TryGetComponent(out Door door))
+                        {
+                            GameObject doorPrefab = door.m_doorObject;
+                            var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
+                            doorChild.transform.localRotation = doorPrefab.transform.localRotation;
+                            doorChild.transform.localPosition = doorPrefab.transform.localPosition;
+                            MakeGhost(doorChild); 
+                        }
                     }
                 }
             }
@@ -522,16 +581,47 @@ namespace PlanBuild.Blueprints
 
             return ret;
         }
-        
+
+        private static void MakeGhost(GameObject child)
+        {
+            // A Ghost doesn't need fancy scripts
+            foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
+            {
+                Object.Destroy(component);
+            }
+
+            //Disable ripple effect on ghost (only visible when using Skuld crystal)
+            MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer meshRenderer in meshRenderers)
+            {
+                if (meshRenderer.sharedMaterial != null)
+                {
+                    Material[] sharedMaterials = meshRenderer.sharedMaterials;
+                    for (int j = 0; j < sharedMaterials.Length; j++)
+                    {
+                        Material material = new Material(sharedMaterials[j]);
+                        material.SetFloat("_RippleDistance", 0f);
+                        material.SetFloat("_ValueNoise", 0f);
+                        sharedMaterials[j] = material;
+                    }
+                    meshRenderer.sharedMaterials = sharedMaterials;
+                    meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                }
+            }
+
+            // m_placementGhost is updated on the fly instead
+            // ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating);
+        }
+
         internal void CreateKeyHint()
         {
             KeyHintConfig KHC = new KeyHintConfig
             {
-                Item = "BlueprintRune",
+                Item = BlueprintRunePrefab.BlueprintRuneName,
                 Piece = m_prefabname,
                 ButtonConfigs = new[]
                 {
-                    BlueprintManager.planSwitchButton,
+                    new ButtonConfig { Name = BlueprintManager.planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
@@ -545,7 +635,7 @@ namespace PlanBuild.Blueprints
         {
             KeyHintConfig KHC = new KeyHintConfig
             {
-                Item = "BlueprintRune",
+                Item = BlueprintRunePrefab.BlueprintRuneName,
                 Piece = m_prefabname
             };
             GUIManager.Instance.RemoveKeyHint(KHC);
@@ -575,6 +665,7 @@ namespace PlanBuild.Blueprints
             {
                 newbp.m_name = text; 
                 newbp.m_prefabname = $"{BlueprintPrefabName} ({newbp.m_name})";
+                newbp.m_fileLocation = Path.Combine(BlueprintManager.BlueprintPath, newbp.m_name + ".blueprint");
                 if (newbp.Save())
                 {
                     if (BlueprintManager.Instance.m_blueprints.ContainsKey(newbp.m_name))

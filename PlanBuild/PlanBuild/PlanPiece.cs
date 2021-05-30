@@ -14,11 +14,13 @@ namespace PlanBuild.Plans
     {
         public const string zdoBlueprintID = "BlueprintID";
         public const string zdoPlanResource = "PlanResource";
-         
+        public const string zdoAdditionalInfo = "AdditionalText";
+        public const string zdoBlueprintPiece = "BlueprintPiece";
+
         internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
 
         private ZNetView m_nView;
-        private WearNTear m_wearNTear;
+        internal WearNTear m_wearNTear;
 
         public string m_hoverText = "";
         public Piece originalPiece; 
@@ -53,6 +55,7 @@ namespace PlanBuild.Plans
             //logger.LogInfo("PlanPiece awake: " + gameObject.GetInstanceID());
             m_wearNTear = GetComponent<WearNTear>();
             m_nView = GetComponent<ZNetView>();
+            m_wearNTear.m_onDestroyed += OnDestroyed;
             if(m_nView.IsOwner())
             {
                 m_nView.GetZDO().Set("support", 0f);
@@ -61,6 +64,11 @@ namespace PlanBuild.Plans
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
             m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
             UpdateHoverText(); 
+        }
+
+        private void OnDestroyed()
+        {
+            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
         }
 
         public void OnDestroy()
@@ -136,7 +144,7 @@ namespace PlanBuild.Plans
             for (int i = 0; i < array.Length; i++)
             {
                 array[i].gameObject.layer = layer;
-            }
+            } 
 
             AudioSource[] componentsInChildren8 = gameObject.GetComponentsInChildren<AudioSource>();
             for (int i = 0; i < componentsInChildren8.Length; i++)
@@ -177,7 +185,7 @@ namespace PlanBuild.Plans
         private void InvalidPlanPiece()
         {
             Jotunn.Logger.LogWarning("Invalid PlanPiece , destroying self: " + name + " @ " + gameObject.transform.position);
-            ZNetScene.instance.Destroy(base.gameObject);
+            ZNetScene.instance.Destroy(gameObject);
             Destroy(this.gameObject);
         }
 
@@ -332,6 +340,13 @@ namespace PlanBuild.Plans
             return player.GetInventory().CountItems(resourceName);
         }
 
+        internal void PartOfBlueprint(ZDOID blueprintID, PieceEntry entry)
+        { 
+            ZDO pieceZDO = m_nView.GetZDO();
+            pieceZDO.Set(zdoBlueprintID, blueprintID);
+            pieceZDO.Set(zdoAdditionalInfo, entry.additionalInfo); 
+        }
+          
         [Obsolete]
         public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
         {
@@ -403,7 +418,10 @@ namespace PlanBuild.Plans
             return false;
         }
 
-        
+        internal ZDOID GetPlanPieceID()
+        {
+            return m_nView.m_zdo.m_uid;
+        }
 
         public void Build(long playerID)
         {
@@ -513,11 +531,16 @@ namespace PlanBuild.Plans
                     itemData.m_stack = dropCount;
                     currentCount -= dropCount;
 
-                    Object.Instantiate(req.m_resItem.gameObject, base.transform.position + Vector3.up, Quaternion.identity)
+                    Object.Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
                         .GetComponent<ItemDrop>().SetStack(dropCount);
                 }
             }
 
+        }
+
+        internal void Remove()
+        {
+            m_wearNTear.Remove();
         }
 
         public bool HasAllResources()
@@ -579,19 +602,49 @@ namespace PlanBuild.Plans
                 return;
             }
             GameObject actualPiece = Object.Instantiate(originalPiece.gameObject, gameObject.transform.position, gameObject.transform.rotation);
-            WearNTear wearNTear = actualPiece.GetComponent<WearNTear>();
-            if (wearNTear)
+
+            // Register special effects
+            if(creatorID == Player.m_localPlayer.GetPlayerID())
             {
-                wearNTear.OnPlaced();
+                CraftingStation craftingStation = actualPiece.GetComponentInChildren<CraftingStation>();
+                if (craftingStation)
+                {
+                    Player.m_localPlayer.AddKnownStation(craftingStation);
+                } 
+                PrivateArea privateArea = actualPiece.GetComponent<PrivateArea>();
+                if (privateArea)
+                {
+                    privateArea.Setup(Game.instance.GetPlayerProfile().GetName());
+                }
+                if(actualPiece.TryGetComponent(out Piece newPiece))
+                {
+                    newPiece.m_placeEffect.Create(actualPiece.transform.position, actualPiece.transform.rotation, actualPiece.transform, 1f);
+                }
+
+                // Count up player builds
+                Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-            actualPiece.GetComponent<Piece>().SetCreator(creatorID);
+            WearNTear wearntear = gameObject.GetComponent<WearNTear>();
+            if (wearntear)
+            {
+                wearntear.OnPlaced();
+            }
+            TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
+            if (textReceiver != null)
+            {
+                textReceiver.SetText(m_nView.GetZDO().GetString(zdoAdditionalInfo));
+            }
+              
+            actualPiece.GetComponent<Piece>().SetCreator(creatorID); 
+
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
+            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
             ZNetScene.instance.Destroy(this.gameObject);
-            Destroy(this.gameObject);
+            
         }
-           
+
         [HarmonyPatch(typeof(WearNTear), "Damage")]
         [HarmonyPrefix]
         static bool WearNTear_Damage_Prefix(WearNTear __instance)
@@ -633,28 +686,9 @@ namespace PlanBuild.Plans
             {
                 return ZDOID.None;
             }
-            return m_nView.GetZDO().GetZDOID(BlueprintManager.ZDOBlueprintBase);
-        }
-
-        [HarmonyPatch(typeof(WearNTear), "Destroy")]
-        [HarmonyPrefix]
-        static bool WearNTear_Destroy_Prefix(WearNTear __instance)
-        {
-            PlanPiece planPiece = __instance.GetComponent<PlanPiece>();
-            if (planPiece && planPiece.m_nView.IsOwner())
-            {
-                //Don't
-                // create noise
-                // create fragments
-                // play destroyed effects
-                planPiece.Refund(all: true);
-                ZNetScene.instance.Destroy(__instance.gameObject);
-                return false;
-            }
-            return true;
+            return m_nView.GetZDO().GetZDOID(zdoBlueprintID);
         }
         
-          
         [HarmonyPatch(typeof(Player), "CheckCanRemovePiece")]
         static bool Player_CheckCanRemovePiece_Prefix(Piece piece, ref bool __result)
         {
