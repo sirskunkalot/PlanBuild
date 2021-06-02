@@ -71,8 +71,36 @@ namespace PlanBuild.Blueprints
             On.GameCamera.UpdateCamera += AdjustCameraHeight;
             On.Player.UpdatePlacement += OnUpdatePlacement;
             On.Player.PieceRayTest += OnPieceRayTest;
+            On.Humanoid.EquipItem += OnEquipItem;
+            On.Humanoid.UnequipItem += OnUnequipItem;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        private float originalPlaceDistance;
+
+        private bool OnEquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        {
+            bool result = orig(self, item, triggerEquipEffects);
+            if (Player.m_localPlayer && result && 
+                item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
+            {
+                originalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
+                Player.m_localPlayer.m_maxPlaceDistance = rayDistanceConfig.Value;
+                Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
+            }
+            return result;
+        }
+
+        private void OnUnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        {
+            orig(self, item, triggerEquipEffects);
+            if(Player.m_localPlayer && 
+                item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
+            {
+                Player.m_localPlayer.m_maxPlaceDistance = originalPlaceDistance;
+                Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
+            }
         }
 
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
@@ -141,8 +169,8 @@ namespace PlanBuild.Blueprints
             invertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert selection scroll", false,
                 new ConfigDescription("Invert the direction of selection scrolling"));
 
-            rayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Place distance", 20f,
-                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 50f)));
+            rayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Place distance", 50f,
+                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 80f)));
 
             cameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Camera offset increment", 2f,
                 new ConfigDescription("Camera height change when holding Shift and scrolling while in Blueprint mode"));
@@ -617,9 +645,7 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-
-                        self.m_maxPlaceDistance = 50f;
-
+                         
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
@@ -657,9 +683,7 @@ namespace PlanBuild.Blueprints
 
                     }
                     else if (piece.name.StartsWith(Blueprint.BlueprintPrefabName))
-                    {
-                        self.m_maxPlaceDistance = rayDistanceConfig.Value;
-
+                    { 
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
                         {
@@ -688,9 +712,7 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-
-                        self.m_maxPlaceDistance = 50f;
-
+                         
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
                         {
@@ -762,11 +784,7 @@ namespace PlanBuild.Blueprints
                         {
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
-
-                        // Restore placementDistance
-                        // default value, if we introduce config stuff for this, then change it here!
-                        self.m_maxPlaceDistance = 8;
-
+                         
                         Reset();
                     }
                 }

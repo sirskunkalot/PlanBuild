@@ -1,14 +1,19 @@
-﻿using System;
+﻿using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Pulleys
 {
     public class Pulley : MonoBehaviour
     {
+        
+
+
         public PulleyControlls m_pulleyControlls;
         internal PulleySupport m_support;
         internal Transform pivotLeft;
@@ -21,19 +26,16 @@ namespace Pulleys
         internal float rotation;
         public Transform m_controlGuiPos;
         internal ZNetView m_nview;
-        internal MoveableBaseSync m_baseSync;
-
+        internal MoveableBaseRoot m_baseRoot;
 
         public void Awake()
         {
-            m_nview = GetComponent<ZNetView>();
-            m_baseSync = GetComponent<MoveableBaseSync>();
+            m_nview = GetComponent<ZNetView>(); 
             
             if(!m_nview || !m_nview.IsValid())
             {
                 return;
             } 
-
             WearNTear wearNTear = GetComponent<WearNTear>();
             wearNTear.m_onDestroyed += OnDestroyed;
             m_pulleyControlls = transform.Find("wheel_collider").gameObject.AddComponent<PulleyControlls>();
@@ -51,7 +53,7 @@ namespace Pulleys
 
         private void OnDestroyed()
         {
-            m_support?.PulleyBaseDestroyed(this); 
+            m_support?.PulleyBaseDestroyed(this);
         }
 
         internal void SupportDestroyed(PulleySupport pulleySupport)
@@ -70,11 +72,17 @@ namespace Pulleys
             Jotunn.Logger.LogWarning(GetInstanceID() + ": Setting support for pulley @ " + this.transform.position + " " + gameObject.GetInstanceID() + ": " + pulleySupport.GetInstanceID());
 #endif
             m_support = pulleySupport;
-            m_baseSync.PulleyConnected();
+            if(!m_baseRoot)
+            {
+                GameObject baseSyncObject = Object.Instantiate(PrefabManager.Instance.GetPrefab(PulleyManager.MoveableBaseSyncName), transform.position, transform.rotation);
+                MoveableBaseSync moveableBaseSync = baseSyncObject.GetComponent<MoveableBaseSync>();
+                moveableBaseSync.AddNewPiece(GetComponent<Piece>());
+
+            }
         }
 
-        internal void OnMoveableBaseCreated(MoveableBaseRoot m_baseRoot)
-        {
+        internal void SetMoveableBase(MoveableBaseRoot m_baseRoot)
+        {  
             m_pulleyControlls.SetMoveableBase(m_baseRoot);
         }
 
@@ -117,12 +125,8 @@ namespace Pulleys
 
         internal bool CanBeRemoved()
         {
-            if(!m_baseSync)
+            if(!m_baseRoot)
             {
-                //In case of error, allow removal
-#if DEBUG
-                Jotunn.Logger.LogWarning(GetZDOID() + " Removed pulley was invalid, no m_baseSync!?");
-#endif 
                 return true;
             }
             if(!IsConnected())
@@ -131,7 +135,7 @@ namespace Pulleys
                 return true;
             }
 
-            return m_baseSync.CanBeRemoved(this);
+            return m_baseRoot.CanBeRemoved(this);
         }
     }
 }

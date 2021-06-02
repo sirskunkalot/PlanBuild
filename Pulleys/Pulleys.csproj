@@ -86,15 +86,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Pulley.cs" />
-    <Compile Include="PulleyControlls.cs" />
-    <Compile Include="PulleySupport.cs" />
+    <Compile Include="KitBash\KitBashConfig.cs" />
+    <Compile Include="KitBash\KitBashManager.cs" />
+    <Compile Include="KitBash\KitBashObject.cs" />
+    <Compile Include="KitBash\KitBashSourceConfig.cs" />
+    <Compile Include="Pulleys\Pulley.cs" />
+    <Compile Include="Pulleys\PulleyControlls.cs" />
+    <Compile Include="Pulleys\PulleyManager.cs" />
+    <Compile Include="Pulleys\PulleySupport.cs" />
     <Compile Include="MoveableBaseSync.cs" />
     <Compile Include="MoveableBaseRoot.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="PulleyPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ZDOIDSet.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

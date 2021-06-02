@@ -86,7 +86,7 @@ namespace Pulleys
         internal void SetMoveableBase(MoveableBaseRoot baseRoot)
         {
             m_ship = baseRoot;
-            this.m_baseRoot = baseRoot;
+            m_baseRoot = baseRoot;
         } 
 
         internal void UpdateIK(Animator m_animator)

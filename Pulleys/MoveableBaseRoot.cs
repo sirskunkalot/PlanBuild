@@ -10,65 +10,53 @@ namespace Pulleys
 {
 	public class MoveableBaseRoot : Ship
 	{
-		public static readonly KeyValuePair<int, int> MBParentHash = ZDO.GetHashZDOID("marcopogo.MBParent"); 
-		public static readonly int MBPositionHash = "marcopogo.MBPosition".GetStableHashCode(); 
-		public static readonly int MBRotationHash = "marcopogo.MBRotation".GetStableHashCode();
+		public const string zdoPieceSet = "marcopogo.MBPieces";
 
-		public static Dictionary<ZDOID, HashSet<Piece>> m_pendingPieces = new Dictionary<ZDOID, HashSet<Piece>>();
-
-		public MoveableBaseSync m_moveableBaseSync;
 		public readonly HashSet<Pulley> m_pulleys = new HashSet<Pulley>();
 		 
-		public readonly List<Piece> m_pieces = new List<Piece>();
-
         // public Rigidbody m_syncRigidbody;
 
         //public List<RudderComponent> m_rudderPieces = new List<RudderComponent>();
 
-        public readonly List<Piece> m_portals = new List<Piece>();
-
-
-		public Vector2i m_sector;
 
 		//public Bounds m_bounds;
 
 		//public BoxCollider m_blockingcollider;
 		  
 		//public BoxCollider m_onboardcollider;
-
-		public ZDOID m_id;
-
-		public float m_lastPortalUpdate;
-
+		  
 		public bool m_statsOverride;
 
 		private float highestFloor;
         private int m_supportRayMask;
+        private GameObject m_baseRootObject;
+        private Rigidbody m_rigidbody;
+		internal MoveableBaseSync m_baseSync;
 
         public new void Awake()
-		{ 
+		{
 			m_supportRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece");
 			Heightmap.GetHeight(transform.position, out highestFloor);
-			m_body = GetComponent<Rigidbody>();
-			m_shipControlls = GetComponentInChildren<PulleyControlls>();
+			m_body = GetComponent<Rigidbody>(); 
 			InvokeRepeating("UpdateHeightMap", 10f, 10f); 
 		}
 
 		public void UpdateHeightMap()
-		{ 
+		{
 			Heightmap.GetHeight(transform.position, out highestFloor);
-			foreach (Piece piece in m_pieces)
+			foreach (Piece piece in m_baseSync.m_pieces)
 			{
-				if(Physics.Raycast(piece.transform.position, piece.transform.up * -1f,   out var hitInfo, 2000f, m_supportRayMask))
-                {
+				if (Physics.Raycast(piece.transform.position, piece.transform.up * -1f, out var hitInfo, 2000f, m_supportRayMask))
+				{
 					highestFloor = Math.Max(hitInfo.transform.position.y, highestFloor);
-				} else
-                {
+				}
+				else
+				{
 					if (Heightmap.GetHeight(piece.transform.position, out float floorHeight))
 					{
 						highestFloor = Math.Max(floorHeight, highestFloor);
 					}
-                }
+				}
 			}
 
 #if DEBUG
@@ -76,63 +64,43 @@ namespace Pulleys
 #endif
 		}
 
+        internal void SetBaseSync(MoveableBaseSync moveableBaseSync)
+        {
+			m_baseSync = moveableBaseSync;
+			m_nview = moveableBaseSync.m_nview;
+        }
+
+        internal bool CanBeRemoved(Pulley pulleyToRemove)
+		{  
+			int supportingPulleyCount = m_pulleys.Count(pulley => pulley.IsConnected());
+			int pieceCount = m_baseSync.GetPieceCount();
+			if (pieceCount == 0)
+			{
+				//Last pulley can be removed whenever
+				return true;
+			}
+			if (supportingPulleyCount > 1)
+			{
+				//Other pulleys can still support
+				return true;
+			}
+
+			//Last support but pieces remain
+			return false;
+		}
+
 		internal void AddPulley(Pulley pulley)
         {
 #if DEBUG
 			Jotunn.Logger.LogInfo(GetZDOID() + " AddPulley(" + pulley.m_nview.m_zdo.m_uid + ")");
 #endif
-			m_pulleys.Add(pulley);
-			pulley.m_pulleyControlls.m_ship = this;
-			pulley.m_pulleyControlls.m_baseRoot = this; 
+			m_pulleys.Add(pulley); 
+			pulley.SetMoveableBase(this);
 			if (!m_shipControlls)
             {
 				SetActiveControll(pulley.m_pulleyControlls);
             }
         }
-
-        public void OnBaseRootDestroy(MoveableBaseSync destroyingSync)
-        {
-            m_pulleys.Remove(destroyingSync.m_pulley);
-            MoveableBaseSync connectedFollower = m_pulleys.Where(pulley => pulley.IsConnected()).First()?.m_baseSync;
-            if (connectedFollower)
-            {
-                connectedFollower.TakeOwnership(destroyingSync);
-                return;
-            }
-
-            if (ZNetScene.instance && ZNetScene.instance.m_netSceneRoot && m_id != ZDOID.None)
-            {
-                for (int i = 0; i < m_pieces.Count; i++)
-                {
-                    Piece piece = m_pieces[i];
-                    if ((bool)piece)
-                    {
-                        AddInactivePiece(m_id, piece);
-                    }
-                }
-                List<Player> allPlayers = Player.GetAllPlayers();
-                for (int j = 0; j < allPlayers.Count; j++)
-                {
-                    if (allPlayers[j] && allPlayers[j].transform.parent == transform)
-                    {
-                        allPlayers[j].transform.SetParent(ZNetScene.instance.m_netSceneRoot.transform);
-                    }
-                }
-            }
-        }
-
-        internal void OnOwnershipTransferred()
-        {
-#if DEBUG
-
-#endif
-			m_pieces.ForEach(SetParentAndZDOs);
-			//Maybe? seems to work ...
-			m_nview.Register("Stop", RPC_Stop);
-			m_nview.Register("Forward", RPC_Forward);
-			m_nview.Register("Backward", RPC_Backward);
-			m_nview.Register<float>("Rudder", RPC_Rudder);
-		}
 
         internal void RemovePulley(Pulley m_pulley)
         {
@@ -168,310 +136,11 @@ namespace Pulleys
             return m_nview.m_zdo.m_uid;
         }
 
-        public void LateUpdate()
-		{ 
-			Vector2i zone = ZoneSystem.instance.GetZone(transform.position);
-			if (zone != m_sector)
-			{
-				m_sector = zone;
-				UpdateAllPieces();
-			}
-			else
-			{
-				UpdatePortals();
-			}
-		}
-
-		public void UpdatePortals()
-		{
-			if (!(Time.time - m_lastPortalUpdate > 0.5f))
-			{
-				return;
-			}
-			m_lastPortalUpdate = Time.time;
-			for (int i = 0; i < m_portals.Count; i++)
-			{
-				Piece piece = m_portals[i];
-				if (!piece || !piece.m_nview || piece.m_nview.m_zdo == null)
-				{
-					m_pieces.RemoveAt(i);
-					i--;
-					continue;
-				}
-				Vector3 position = piece.m_nview.m_zdo.GetPosition();
-				if ((piece.transform.position - position).sqrMagnitude > 1f)
-				{
-					piece.m_nview.m_zdo.SetPosition(piece.transform.position);
-				}
-			}
-		}
-
-		public void UpdateAllPieces()
-		{
-			for (int i = 0; i < m_pieces.Count; i++)
-			{
-				Piece piece = m_pieces[i];
-				if (!piece)
-				{
-					m_pieces.RemoveAt(i);
-					i--;
-					continue;
-				}
-				ZNetView component = piece.GetComponent<ZNetView>();
-				if ((bool)component)
-				{
-					component.m_zdo.SetPosition(piece.transform.position);
-				}
-			}
-		}
-
-		public static void AddInactivePiece(ZDOID id, Piece piece)
-		{
-#if DEBUG
-            Jotunn.Logger.LogInfo("Adding inactive piece: " + id + " " + piece + " (" + piece.m_nview?.m_zdo?.m_uid + ")");
-#endif
-			if (!m_pendingPieces.TryGetValue(id, out var value))
-			{
-				value = new HashSet<Piece>();
-				m_pendingPieces.Add(id, value);
-			}
-			value.Add(piece);
-			WearNTear component = piece.GetComponent<WearNTear>();
-			if ((bool)component)
-			{
-				component.enabled = false;
-			}
-		}
-
-		public void RemovePiece(Piece piece)
-		{
-			m_pieces.Remove(piece);
-			//MastComponent component = piece.GetComponent<MastComponent>();
-			//if ((bool)component)
-			//{
-			//	m_mastPieces.Remove(component);
-			//}
-			//RudderComponent component2 = piece.GetComponent<RudderComponent>();
-			//if ((bool)component2)
-			//{
-			//	m_rudderPieces.Remove(component2);
-			//}
-			TeleportWorld component3 = piece.GetComponent<TeleportWorld>();
-			if ((bool)component3)
-			{
-				m_portals.Remove(piece);
-			}
-			UpdateStats();
-		}
-
 		public void UpdateStats()
 		{
 			 
 		}
-
-		public bool ActivatePendingPieces()
-		{
-			if (!m_nview || m_nview.m_zdo == null)
-			{
-				return false;
-			}
-#if DEBUG
-			Jotunn.Logger.LogInfo("Activate pending pieces for " + m_nview.m_zdo.m_uid);
-#endif
-			ZDOID uid = m_nview.m_zdo.m_uid;
-			if (!m_pendingPieces.TryGetValue(uid, out var value))
-			{
-				return true;
-			}
-			foreach(Piece piece in value)
-            {
-				if (piece)
-				{
-					ActivatePiece(piece);
-				}
-			}
-			value.Clear();
-			m_pendingPieces.Remove(uid);
-			return true;
-		}
-
-		public static void InitPiece(Piece piece)
-		{
-			Rigidbody componentInChildren = piece.GetComponentInChildren<Rigidbody>();
-			if (componentInChildren && !componentInChildren.isKinematic)
-			{
-				Jotunn.Logger.LogInfo("Ignoring rigidbody: " + piece);
-				return;
-			}
-			ZDOID zDOID = piece.m_nview.m_zdo.GetZDOID(MBParentHash);
-			if (zDOID == ZDOID.None)
-			{ 
-				return;
-			}
-#if DEBUG
-			Jotunn.Logger.LogInfo("Piece (" + piece.m_nview.m_zdo.m_uid + ") has Parent: " + zDOID );
-#endif
-			GameObject gameObject = ZNetScene.instance.FindInstance(zDOID);
-			if ((bool)gameObject)
-			{
-				MoveableBaseSync component = gameObject.GetComponent<MoveableBaseSync>();
-				if (component && component.m_baseRoot)
-				{
-					component.m_baseRoot.ActivatePiece(piece);
-				}
-#if DEBUG
-				else
-                {
-					Jotunn.Logger.LogWarning("ZDOID Saved MoveableBaseSync has no MoveableBaseSync: " + component + " " + component.transform.position);
-                }
-#endif
-			}
-			else
-			{
-				AddInactivePiece(zDOID, piece);
-			}
-		}
-
-		public void ActivatePiece(Piece piece)
-		{
-#if DEBUG
-			Jotunn.Logger.LogInfo(GetZDOID() + " Activating piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
-#endif
-			ZNetView component = piece.GetComponent<ZNetView>();
-			if ((bool)component)
-			{
-				piece.transform.SetParent(transform);
-				piece.transform.localPosition = component.m_zdo.GetVec3(MBPositionHash, piece.transform.localPosition);
-				piece.transform.localRotation = component.m_zdo.GetQuaternion(MBRotationHash, piece.transform.localRotation);
-				WearNTear component2 = piece.GetComponent<WearNTear>();
-				if ((bool)component2)
-				{
-					component2.enabled = true;
-				}
-				AddPiece(piece);
-			}
-		}
-
-		public void AddNewPiece(Piece piece)
-        {
-#if DEBUG
-            Jotunn.Logger.LogInfo(GetZDOID() + " Adding piece " + piece.m_name + " @ " + piece.transform.position + ": Parent: " + m_nview.m_zdo.m_uid);
-#endif 
-            SetParentAndZDOs(piece); 
-			AddPiece(piece);
-        }
-
-        private void SetParentAndZDOs(Piece piece)
-		{
-#if DEBUG
-			Jotunn.Logger.LogInfo("MoveableBaseRoot " + m_nview.m_zdo.m_uid + ": Claiming piece " + piece + " " + piece.m_nview.m_zdo.m_uid);
-#endif
-			piece.transform.SetParent(transform);
-			ZNetView pieceNview = piece.GetComponent<ZNetView>();
-            pieceNview.m_zdo.Set(MBParentHash, m_nview.m_zdo.m_uid);
-            pieceNview.m_zdo.Set(MBPositionHash, piece.transform.localPosition);
-            pieceNview.m_zdo.Set(MBRotationHash, piece.transform.localRotation);
-        }
-
-		internal void ClearMoveableBaseSyncZDO()
-        {
-			m_nview.m_zdo.Set(MBParentHash, ZDOID.None);
-			m_nview.m_zdo.Set(MBPositionHash, Vector3.zero);
-			m_nview.m_zdo.Set(MBRotationHash, Quaternion.identity);
-		}
-
-        public void AddPiece(Piece piece)
-		{
-			m_pieces.Add(piece);
-			//EncapsulateBounds(piece);
-			//	MastComponent component = piece.GetComponent<MastComponent>();
-			//	if ((bool)component)
-			//	{
-			//		m_mastPieces.Add(component);
-			//	}
-			//	RudderComponent component2 = piece.GetComponent<RudderComponent>();
-			//	if ((bool)component2)
-			//	{
-			//		if (!component2.m_controls)
-			//		{
-			//			component2.m_controls = piece.GetComponentInChildren<ShipControlls>();
-			//		}
-			//		if (!component2.m_wheel)
-			//		{
-			//			component2.m_wheel = piece.transform.Find("controls/wheel");
-			//		}
-			//		component2.m_controls.m_nview = m_nview;
-			//		component2.m_controls.m_ship = m_moveableBaseSync.GetComponent<Ship>();
-			//		m_rudderPieces.Add(component2);
-			//	} 
-			if(piece.TryGetComponent(out MoveableBaseSync moveableBaseSync))
-            {
-				AddFollower(moveableBaseSync); 
-            }
-
-            if(piece.TryGetComponent(out WearNTear wearNTear))
-            {
-				wearNTear.m_onDestroyed += () => OnDestroyed(piece);
-            }
-
-
-			TeleportWorld component3 = piece.GetComponent<TeleportWorld>();
-			if ((bool)component3)
-			{
-				m_portals.Add(piece);
-			}
-			MeshRenderer[] componentsInChildren = piece.GetComponentsInChildren<MeshRenderer>(includeInactive: true);
-			MeshRenderer[] array = componentsInChildren;
-			foreach (MeshRenderer meshRenderer in array)
-			{
-				if ((bool)meshRenderer.sharedMaterial)
-				{
-					Material[] sharedMaterials = meshRenderer.sharedMaterials;
-					for (int j = 0; j < sharedMaterials.Length; j++)
-					{
-						Material material = new Material(sharedMaterials[j]);
-						material.SetFloat("_RippleDistance", 0f);
-						material.SetFloat("_ValueNoise", 0f);
-						sharedMaterials[j] = material;
-					}
-					meshRenderer.sharedMaterials = sharedMaterials;
-				}
-			}
-			Rigidbody[] componentsInChildren2 = piece.GetComponentsInChildren<Rigidbody>();
-			for (int k = 0; k < componentsInChildren2.Length; k++)
-			{
-				if (componentsInChildren2[k].isKinematic)
-				{
-#if DEBUG
-					Jotunn.Logger.LogWarning(GetZDOID() + " Destroying rigidbody: " + componentsInChildren2[k]);
-#endif
-					Destroy(componentsInChildren2[k]);
-				}
-			}
-			UpdateStats();
-		}
-
-        private void OnDestroyed(Piece piece)
-        {
-#if DEBUG
-			Jotunn.Logger.LogWarning(GetZDOID() + " Removing destroyed piece " + piece + " " + piece.m_nview.m_zdo.m_uid);
-#endif
-			m_pieces.Remove(piece);
-			if(piece.TryGetComponent(out Pulley pulley))
-            {
-				RemovePulley(pulley);
-            }
-        }
-
-        private void AddFollower(MoveableBaseSync moveableBaseSync)
-        {
-#if DEBUG
-			Jotunn.Logger.LogInfo(GetZDOID() + " Adding follower: " + moveableBaseSync.GetZDOID());
-#endif
-			moveableBaseSync.SetMoveableBaseRoot(this); 
-			AddPulley(moveableBaseSync.m_pulley); 
-		}
-
+		 
         public new void ApplyMovementControlls(Vector3 direction)
 		{
 			base.ApplyMovementControlls(direction);
@@ -614,9 +283,5 @@ namespace Pulleys
         //	//m_onboardcollider.center = m_bounds.center;
         //}
 
-        public int GetPieceCount()
-		{
-			return m_pieces.Count;
-		}
 	}
 }
