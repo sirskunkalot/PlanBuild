@@ -407,14 +407,15 @@ namespace PlanBuild.Blueprints
             }
 
             // Add to known prefabs
-
             CustomPiece CP = new CustomPiece(m_prefab, new PieceConfig
             {
-                PieceTable = "_BlueprintPieceTable"
+                PieceTable = BlueprintRunePrefab.PieceTableName,
+                Category = BlueprintRunePrefab.CategoryBlueprints
             });
             CP.Piece.m_description += "\nFile location: " + Path.GetFullPath(m_fileLocation);
             PieceManager.Instance.AddPiece(CP);
-            PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
+            //PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
+            AddToPieceTable();
             PrefabManager.Instance.RegisterToZNetScene(m_prefab);
 
             return true;
@@ -427,16 +428,16 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
-            var table = PieceManager.Instance.GetPieceTable("_BlueprintPieceTable");
+            var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
             if (table == null)
             {
-                Logger.LogWarning("BlueprintPieceTable not found");
+                Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
                 return;
             }
 
             if (!table.m_pieces.Contains(m_prefab))
             {
-                Logger.LogDebug($"Adding {m_prefabname} to BlueprintRune"); 
+                Logger.LogDebug($"Adding {m_prefabname} to {BlueprintRunePrefab.BlueprintRuneName}"); 
                 table.m_pieces.Add(m_prefab);
             }
         }
@@ -449,16 +450,16 @@ namespace PlanBuild.Blueprints
             }
 
             // Remove from PieceTable
-            var table = PieceManager.Instance.GetPieceTable("_BlueprintPieceTable");
+            var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
             if (table == null)
             {
-                Logger.LogWarning("BlueprintPieceTable not found");
+                Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
                 return;
             }
 
             if (table.m_pieces.Contains(m_prefab))
             {
-                Logger.LogInfo($"Removing {m_prefabname} from BlueprintRune");
+                Logger.LogInfo($"Removing {m_prefabname} from {BlueprintRunePrefab.BlueprintRuneName}");
 
                 table.m_pieces.Remove(m_prefab);
             }
