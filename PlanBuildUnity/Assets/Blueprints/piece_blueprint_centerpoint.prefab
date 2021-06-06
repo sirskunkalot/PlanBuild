@@ -292,8 +292,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6674491514115135298}
-  - component: {fileID: 8242920616089071279}
   - component: {fileID: 3171760543962853912}
+  - component: {fileID: 8242920616089071279}
   - component: {fileID: 8459364807644677401}
   m_Layer: 10
   m_Name: piece_blueprint_centerpoint
@@ -319,49 +319,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8242920616089071279
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4779968207475047827}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_new: {fileID: 8083060575980880540}
-  m_worn: {fileID: 8083060575980880540}
-  m_broken: {fileID: 8083060575980880540}
-  m_wet: {fileID: 8083060575980880540}
-  m_noRoofWear: 0
-  m_noSupportWear: 0
-  m_materialType: 0
-  m_supports: 1
-  m_comOffset: {x: 0, y: 0, z: 0}
-  m_health: 100
-  m_damages:
-    m_blunt: 0
-    m_slash: 0
-    m_pierce: 0
-    m_chop: 0
-    m_pickaxe: 0
-    m_fire: 0
-    m_frost: 0
-    m_lightning: 0
-    m_poison: 0
-    m_spirit: 0
-  m_hitNoise: 0
-  m_destroyNoise: 0
-  m_destroyedEffect:
-    m_effectPrefabs: []
-  m_hitEffect:
-    m_effectPrefabs: []
-  m_switchEffect:
-    m_effectPrefabs: []
-  m_autoCreateFragments: 0
-  m_fragmentRoots: []
 --- !u!114 &3171760543962853912
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,6 +366,49 @@ MonoBehaviour:
   m_craftingStation: {fileID: 0}
   m_resources: []
   m_destroyedLootPrefab: {fileID: 0}
+--- !u!114 &8242920616089071279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4779968207475047827}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_new: {fileID: 8083060575980880540}
+  m_worn: {fileID: 8083060575980880540}
+  m_broken: {fileID: 8083060575980880540}
+  m_wet: {fileID: 8083060575980880540}
+  m_noRoofWear: 0
+  m_noSupportWear: 0
+  m_materialType: 0
+  m_supports: 1
+  m_comOffset: {x: 0, y: 0, z: 0}
+  m_health: 100
+  m_damages:
+    m_blunt: 0
+    m_slash: 0
+    m_pierce: 0
+    m_chop: 0
+    m_pickaxe: 0
+    m_fire: 0
+    m_frost: 0
+    m_lightning: 0
+    m_poison: 0
+    m_spirit: 0
+  m_hitNoise: 0
+  m_destroyNoise: 0
+  m_destroyedEffect:
+    m_effectPrefabs: []
+  m_hitEffect:
+    m_effectPrefabs: []
+  m_switchEffect:
+    m_effectPrefabs: []
+  m_autoCreateFragments: 0
+  m_fragmentRoots: []
 --- !u!114 &8459364807644677401
 MonoBehaviour:
   m_ObjectHideFlags: 0
