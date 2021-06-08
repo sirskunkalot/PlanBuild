@@ -53,6 +53,9 @@
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Gizmo">
+      <HintPath>..\libraries\pub\Gizmo.dll</HintPath>
+    </Reference>
     <Reference Include="Jotunn, Version=2.0.11.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.0.11\lib\net462\Jotunn.dll</HintPath>
     </Reference>
@@ -100,7 +103,10 @@
     <Compile Include="KitBash\KitBashSourceConfig.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
+    <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
+    <Compile Include="PlanBuild\OdinLevelPrefab.cs" />
+    <Compile Include="PlanBuild\OdinLevel.cs" />
     <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
     <Compile Include="PlanBuild\PlanPiece.cs" />
     <Compile Include="PlanBuild\PlanPiecePrefab.cs" />

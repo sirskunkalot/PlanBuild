@@ -14,9 +14,7 @@ using Object = UnityEngine.Object;
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintManager
-    {
-        internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExRootPath, "config", nameof(PlanBuild), "blueprints");
-
+    { 
 
         public const string PanelName = "BlueprintManagerGUI";
         public const string ZDOBlueprintName = "BlueprintName";
@@ -34,11 +32,11 @@ namespace PlanBuild.Blueprints
 
         internal void SetActiveRunestone(WorldBlueprintManager worldBlueprintManager)
         {
-            activeRunestone = worldBlueprintManager;
-            if (!panel) {
-                CreateBlueprintManagerPanel();
-            }
-            panel.SetActive(activeRunestone);
+             activeRunestone = worldBlueprintManager;
+             if (!panel) {
+                 CreateBlueprintManagerPanel();
+             }
+             panel.SetActive(activeRunestone);
         }
 
         const float HighlightTimeout = 1f;
@@ -58,6 +56,8 @@ namespace PlanBuild.Blueprints
         private ConfigEntry<bool> invertPlacementOffsetScrollConfig;
         private ConfigEntry<bool> invertSelectionScrollConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
+        public static ConfigEntry<string> blueprintSearchDirectoryConfig;
+        public static ConfigEntry<string> blueprintSaveDirectoryConfig;
         internal static ButtonConfig planSwitchButton;
 
         private static BlueprintManager _instance;
@@ -77,14 +77,14 @@ namespace PlanBuild.Blueprints
         {
             //TODO: Client only - how to do? or just ignore - there are no bps and maybe someday there will be a server-wide directory of blueprints for sharing :)
 
+            // KeyHints
+            CreateCustomKeyHints();
+
             // Load Blueprints
             LoadKnownBlueprints();
 
             //Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-
-            // KeyHints
-            CreateCustomKeyHints();
 
             // Hooks 
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
@@ -94,9 +94,9 @@ namespace PlanBuild.Blueprints
             On.Player.PieceRayTest += OnPieceRayTest;
             On.Humanoid.EquipItem += OnEquipItem;
             On.Humanoid.UnequipItem += OnUnequipItem;
-            On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
-            On.Player.TakeInput += OnPlayerTakeInput;
-            On.PlayerController.TakeInput += OnPlayerControllerTakeInput; 
+           // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
+           // On.Player.TakeInput += OnPlayerTakeInput;
+           // On.PlayerController.TakeInput += OnPlayerControllerTakeInput; 
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
@@ -209,14 +209,14 @@ namespace PlanBuild.Blueprints
         {
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
-            if (!Directory.Exists(BlueprintPath))
+            if (!Directory.Exists(blueprintSaveDirectoryConfig.Value))
             {
-                Directory.CreateDirectory(BlueprintPath);
+                Directory.CreateDirectory(blueprintSaveDirectoryConfig.Value);
             }
 
             List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.vbuild", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
 
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
@@ -268,6 +268,12 @@ namespace PlanBuild.Blueprints
             planSwitchConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Rune mode toggle key", KeyCode.P,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
+            blueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Search directory", ".",
+                new ConfigDescription("Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location"));
+
+            blueprintSaveDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Save directory", "BepInEx/config/PlanBuild/blueprints",
+                new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
+             
             planSwitchButton = new ButtonConfig
             {
                 Name = "Rune mode toggle key",
@@ -440,12 +446,14 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
+
+
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
             Blueprint bp = Instance.m_blueprints[piece.m_name];
             var transform = player.m_placementGhost.transform;
-            var position = player.m_placementGhost.transform.position;
-            var rotation = player.m_placementGhost.transform.rotation;
+            var position = transform.position;
+            var rotation = transform.rotation;
 
             bool placeDirect = ZInput.GetButton("Crouch");
             if (placeDirect && !allowDirectBuildConfig.Value)
@@ -464,22 +472,21 @@ namespace PlanBuild.Blueprints
             uint maxEffects = 10u;
 
             GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.BlueprintPrefabName);
+
             GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
 
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
-            ZDOIDSet createdPlans = new ZDOIDSet();
+            ZDOIDSet createdPlans = new ZDOIDSet(); 
 
             for (int i = 0; i < bp.m_pieceEntries.Length; i++)
             {
                 PieceEntry entry = bp.m_pieceEntries[i];
                 // Final position
-                Vector3 entryPosition = position + transform.forward * entry.posZ + transform.right * entry.posX + new Vector3(0, entry.posY, 0);
+                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
                 // Final rotation
-                Quaternion entryQuat = new Quaternion(entry.rotX, entry.rotY, entry.rotZ, entry.rotW);
-                entryQuat.eulerAngles += rotation.eulerAngles;
-
+                Quaternion entryQuat = transform.rotation * entry.GetRotation();
                 // Get the prefab of the piece or the plan piece
                 string prefabName = entry.name;
                 if (!placeDirect)
@@ -742,7 +749,7 @@ namespace PlanBuild.Blueprints
                         if (scrollWheel != 0f)
                         {
 
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                             }
@@ -786,12 +793,12 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
-                            else if (Input.GetKey(KeyCode.LeftControl))
+                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
                                 UpdatePlacementOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
@@ -808,7 +815,7 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
                         {
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);

@@ -23,7 +23,7 @@ namespace PlanBuild
         {
             if(BlueprintManager.Instance.ActiveRunestone(this))
             {
-                if(ZInput.GetButtonDown("JoyButtonB") || Input.GetKeyDown(KeyCode.Escape))
+                if(ZInput.GetButtonDown("JoyButtonB") || Input.GetKey(KeyCode.Escape))
                 {
                     BlueprintManager.Instance.SetActiveRunestone(null);
                 }

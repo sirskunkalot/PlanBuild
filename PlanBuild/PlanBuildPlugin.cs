@@ -7,6 +7,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using Jotunn.Configs;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
@@ -25,12 +26,13 @@ namespace PlanBuild
     [BepInDependency(Jotunn.Main.ModGuid, "2.0.11")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.2.9";
+        public const string PluginVersion = "0.2.11";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> showAllPieces;
@@ -61,6 +63,7 @@ namespace PlanBuild
 
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
+            // new OdinLevelPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
 
             // Init Shader

@@ -16,6 +16,7 @@ namespace PlanBuild.Blueprints
         public const string MakeBlueprintName = "make_blueprint";
         public const string UndoBlueprintName = "undo_blueprint";
         public const string DeletePlansName = "delete_plans";
+        public const string OdinLevelName = "piece_odin_level";
         public static string BlueprintRuneItemName;
         public GameObject runeprefab;
          
@@ -47,6 +48,8 @@ namespace PlanBuild.Blueprints
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintCenterPointName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(UndoBlueprintName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(DeletePlansName));
+
+            /*
             CustomPiece blueprintRunestone = new CustomPiece(assetBundle.LoadAsset<GameObject>(BlueprintStandingBlueprintRune), new PieceConfig
             {
                 PieceTable = "Hammer",
@@ -68,6 +71,7 @@ namespace PlanBuild.Blueprints
             blueprintRunestone.PiecePrefab.AddComponent<WorldBlueprintManager>();
 
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintManager.PanelName));
+            */
         }
     }
 }

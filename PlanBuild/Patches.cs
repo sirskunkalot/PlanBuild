@@ -13,7 +13,8 @@ namespace PlanBuild
     class Patches
     {
         public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera"; 
-        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers"; 
+        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
+        public const string gizmoGUID = "com.rolopogo.Gizmo";
 
         private static Harmony harmony;
 
@@ -77,12 +78,17 @@ namespace PlanBuild
             {
                 Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
-            } 
+            }
+            if (Chainloader.PluginInfos.ContainsKey(gizmoGUID))
+            {
+                Jotunn.Logger.LogInfo("Applying Gizmo patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
+            }
         }
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
-            if(self.TryGetComponent(out PlanPiece planPiece))
+            if(!PlanBuildPlugin.showRealTextures && self.TryGetComponent(out PlanPiece planPiece))
             {
                 planPiece.Highlight();
                 return;

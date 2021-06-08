@@ -70,7 +70,7 @@ namespace PlanBuild.Blueprints
         {
             return new Blueprint
             {
-                m_fileLocation = Path.Combine(BlueprintManager.BlueprintPath, name + ".blueprint"),
+                m_fileLocation = Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, name + ".blueprint"),
                 m_name = name,
                 m_prefabname = $"{BlueprintPrefabName} ({name})"
             };
@@ -225,10 +225,12 @@ namespace PlanBuild.Blueprints
 
         public static bool CanCapture(Piece piece)
         {
-            return piece.GetComponent<PlanPiece>() != null 
-                || PlanBuildPlugin.CanCreatePlan(piece);
+            if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+            {
+                return true;
+            }
+            return piece.GetComponent<PlanPiece>() != null || PlanBuildPlugin.CanCreatePlan(piece);
         }
-
 
         // Scale down a Texture2D
         public Texture2D ScaleTexture(Texture2D orig, int width, int height)
@@ -265,7 +267,7 @@ namespace PlanBuild.Blueprints
             Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
 
             // Save to file
-            File.WriteAllBytes(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".png"), thumbnail.EncodeToPNG());
+            File.WriteAllBytes(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, m_name + ".png"), thumbnail.EncodeToPNG());
 
             // Destroy properly
             Object.Destroy(screenShot);
@@ -283,9 +285,9 @@ namespace PlanBuild.Blueprints
             {
                 using (TextWriter tw = new StreamWriter(m_fileLocation))
                 {
-                    tw.WriteLine(HeaderName + m_name);
-                    tw.WriteLine(HeaderDescription);
-                    tw.WriteLine(m_description);
+                   // tw.WriteLine(HeaderName + m_name);
+                   // tw.WriteLine(HeaderDescription);
+                   // tw.WriteLine(m_description);
                     if(m_snapPoints.Count() > 0)
                     {
                         tw.WriteLine(HeaderSnapPoints);
@@ -300,7 +302,7 @@ namespace PlanBuild.Blueprints
                         tw.WriteLine(piece.line);
                     }
 
-                    Logger.LogDebug("Wrote " + m_pieceEntries.Length + " pieces to " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
+                    Logger.LogDebug("Wrote " + m_pieceEntries.Length + " pieces to " + m_fileLocation);
                 }
             }
 
@@ -323,7 +325,7 @@ namespace PlanBuild.Blueprints
                 var lines = File.ReadAllLines(m_fileLocation).ToList();
                 if (logLoading)
                 {
-                    Logger.LogDebug("read " + lines.Count + " pieces from " + Path.Combine(BlueprintManager.BlueprintPath, m_name + ".blueprint"));
+                    Logger.LogDebug("read " + lines.Count + " pieces from " + m_fileLocation);
                 }
                  
                 List<PieceEntry> pieceEntries = new List<PieceEntry>();
@@ -452,10 +454,10 @@ namespace PlanBuild.Blueprints
 
             m_piece = m_prefab.GetComponent<Piece>();
 
-            if (File.Exists(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".png")))
+            if (File.Exists(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, m_name + ".png")))
             {
                 var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintManager.BlueprintPath, m_name + ".png")));
+                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, m_name + ".png")));
 
                 m_piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
@@ -586,10 +588,9 @@ namespace PlanBuild.Blueprints
                 for (int i = 0; i < pieces.Count; i++)
                 {
                     PieceEntry piece = pieces[i];
-                    var pos = tf.position + tf.right * piece.GetPosition().x + tf.forward * piece.GetPosition().z +
-                      new Vector3(0, piece.GetPosition().y, 0);
+                    var pos = tf.position + piece.GetPosition();
 
-                    var q = Quaternion.Euler(0, tf.transform.rotation.eulerAngles.y + piece.GetRotation().eulerAngles.y, 0);
+                    var q = piece.GetRotation();
 
                     GameObject pieceObject = new GameObject("piece_entry (" + i + ")");
                     pieceObject.transform.SetParent(tf);
@@ -729,7 +730,7 @@ namespace PlanBuild.Blueprints
             {
                 newbp.m_name = text; 
                 newbp.m_prefabname = $"{BlueprintPrefabName} ({newbp.m_name})";
-                newbp.m_fileLocation = Path.Combine(BlueprintManager.BlueprintPath, newbp.m_name + ".blueprint");
+                newbp.m_fileLocation = Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, newbp.m_name + ".blueprint");
                 if (newbp.Save())
                 {
                     if (BlueprintManager.Instance.m_blueprints.ContainsKey(newbp.m_name))

@@ -91,12 +91,7 @@ namespace PlanBuild.Plans
                 }
             });
             PieceManager.Instance.AddPiece(planTotemPiece); 
-        }
-
-        public bool ApplyKitBash()
-        {
-            return planTotemKitBash.ApplyKitBash();
-        }
+        } 
 
         internal void SettingsUpdated()
         { 
