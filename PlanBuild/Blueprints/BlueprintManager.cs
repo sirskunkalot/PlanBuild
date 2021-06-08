@@ -186,8 +186,8 @@ namespace PlanBuild.Blueprints
 
             planSwitchButton = new ButtonConfig
             {
-                Name = "Rune mode toggle key",
-                Key = planSwitchConfig.Value,
+                Name = "RuneModeToggle",
+                Config = planSwitchConfig,
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
 
