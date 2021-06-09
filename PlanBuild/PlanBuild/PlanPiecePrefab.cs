@@ -39,7 +39,9 @@ namespace PlanBuild.Plans
             Piece.m_dlc = originalPiece.m_dlc;
             Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
-             
+            Piece.m_randomTarget = false;
+            Piece.m_primaryTarget = false;
+
             this.PieceTable = PlanHammerPieceTableName;  
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
@@ -47,6 +49,7 @@ namespace PlanBuild.Plans
             { 
                 wearNTear = PiecePrefab.AddComponent<WearNTear>();
             }
+            
             
             wearNTear.m_noSupportWear = true;
             wearNTear.m_noRoofWear = false;

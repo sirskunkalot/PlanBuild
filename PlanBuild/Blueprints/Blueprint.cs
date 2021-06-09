@@ -8,7 +8,7 @@ using Jotunn;
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using Object = UnityEngine.Object; 
+using Object = UnityEngine.Object;
 using PlanBuild.Plans;
 using UnityEngine.Rendering;
 using Logger = Jotunn.Logger;
@@ -24,7 +24,7 @@ namespace PlanBuild.Blueprints
         private const string HeaderPieces = "#Pieces";
         public const string PlaceColliderName = "place_collider";
         public static bool logLoading = true;
-    
+
         /// <summary>
         ///     File location of this blueprint instance.
         /// </summary>
@@ -43,7 +43,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Array of the snappoints of this blueprint
         /// </summary>
-        public Vector3[] m_snapPoints; 
+        public Vector3[] m_snapPoints;
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -63,7 +63,7 @@ namespace PlanBuild.Blueprints
         /// <param name="name"></param>
         private Blueprint()
         {
-            
+
         }
 
         public static Blueprint FromWorld(string name)
@@ -102,15 +102,14 @@ namespace PlanBuild.Blueprints
         }
 
         public bool Capture(Vector3 position, float radius)
-        { 
-            var rot = Camera.main.transform.rotation.eulerAngles;
+        {
             Logger.LogDebug("Collecting piece information");
 
             var numPieces = 0;
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
-            
+
             foreach (var piece in BlueprintManager.GetPiecesInRadius(position, radius))
             {
                 if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
@@ -150,11 +149,11 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
-                            
+
             Logger.LogDebug($"Found {numPieces} in a radius of {radius:F2}");
             Vector3 center;
 
-            if(centerPiece == null)
+            if (centerPiece == null)
             {
                 // Relocate Z
                 var minZ = 9999999.9f;
@@ -171,7 +170,8 @@ namespace PlanBuild.Blueprints
                 Logger.LogDebug($"{minX} - {minY} - {minZ}");
 
                 center = new Vector3(minX, minY, minZ);
-            } else
+            }
+            else
             {
                 center = centerPiece.position;
             }
@@ -273,7 +273,7 @@ namespace PlanBuild.Blueprints
             Object.Destroy(screenShot);
             Object.Destroy(thumbnail);
         }
-         
+
         public bool Save()
         {
             if (m_pieceEntries == null)
@@ -285,17 +285,17 @@ namespace PlanBuild.Blueprints
             {
                 using (TextWriter tw = new StreamWriter(m_fileLocation))
                 {
-                   // tw.WriteLine(HeaderName + m_name);
-                   // tw.WriteLine(HeaderDescription);
-                   // tw.WriteLine(m_description);
-                    if(m_snapPoints.Count() > 0)
+                    // tw.WriteLine(HeaderName + m_name);
+                    // tw.WriteLine(HeaderDescription);
+                    // tw.WriteLine(m_description);
+                    if (m_snapPoints.Count() > 0)
                     {
                         tw.WriteLine(HeaderSnapPoints);
-                        foreach(Vector3 pos in m_snapPoints)
+                        foreach (Vector3 pos in m_snapPoints)
                         {
                             tw.WriteLine(string.Join(";", PieceEntry.InvariantString(pos.x), PieceEntry.InvariantString(pos.y), PieceEntry.InvariantString(pos.z)));
                         }
-                    } 
+                    }
                     tw.WriteLine(HeaderPieces);
                     foreach (var piece in m_pieceEntries)
                     {
@@ -319,33 +319,33 @@ namespace PlanBuild.Blueprints
         public bool Load()
         {
             try
-            { 
+            {
                 string extension = Path.GetExtension(m_fileLocation).ToLowerInvariant();
-                 
+
                 var lines = File.ReadAllLines(m_fileLocation).ToList();
                 if (logLoading)
                 {
                     Logger.LogDebug("read " + lines.Count + " pieces from " + m_fileLocation);
                 }
-                 
+
                 List<PieceEntry> pieceEntries = new List<PieceEntry>();
                 List<Vector3> snapPoints = new List<Vector3>();
 
                 ParserState state = ParserState.Pieces;
-                    
+
                 foreach (var line in lines)
                 {
-                    if(line.StartsWith(HeaderName))
+                    if (line.StartsWith(HeaderName))
                     {
                         m_name = line.Substring(HeaderName.Length);
                         continue;
                     }
-                    if(line == HeaderDescription)
+                    if (line == HeaderDescription)
                     {
                         state = ParserState.Description;
                         continue;
                     }
-                    if(line == HeaderSnapPoints)
+                    if (line == HeaderSnapPoints)
                     {
                         state = ParserState.SnapPoints;
                         continue;
@@ -358,7 +358,7 @@ namespace PlanBuild.Blueprints
                     switch (state)
                     {
                         case ParserState.Description:
-                            if(m_description.Length != 0)
+                            if (m_description.Length != 0)
                             {
                                 m_description += "\n";
                             }
@@ -367,7 +367,7 @@ namespace PlanBuild.Blueprints
                         case ParserState.SnapPoints:
                             snapPoints.Add(ParsePosition(line));
                             continue;
-                        case ParserState.Pieces: 
+                        case ParserState.Pieces:
                             PieceEntry pieceEntry;
                             switch (extension)
                             {
@@ -396,10 +396,11 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception e)
             {
-                if(logLoading)
+                if (logLoading)
                 {
                     Logger.LogError(e);
-                } else
+                }
+                else
                 {
                     throw e;
                 }
@@ -503,7 +504,7 @@ namespace PlanBuild.Blueprints
 
             if (!table.m_pieces.Contains(m_prefab))
             {
-                Logger.LogDebug($"Adding {m_prefabname} to BlueprintRune"); 
+                Logger.LogDebug($"Adding {m_prefabname} to BlueprintRune");
                 table.m_pieces.Add(m_prefab);
             }
         }
@@ -546,7 +547,7 @@ namespace PlanBuild.Blueprints
                 var maxX = pieces.Max(x => x.posX);
                 var maxZ = pieces.Max(x => x.posZ);
 
-                foreach(Vector3 snapPoint in m_snapPoints)
+                foreach (Vector3 snapPoint in m_snapPoints)
                 {
                     GameObject snapPointObject = new GameObject
                     {
@@ -565,7 +566,6 @@ namespace PlanBuild.Blueprints
                 sphereCollider.radius = 0.002f;
 
                 var tf = baseObject.transform;
-                tf.rotation = Camera.main.transform.rotation;
                 var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
                 tf.SetPositionAndRotation(tf.position, quat);
                 tf.position -= tf.right * (maxX / 2f);
@@ -575,10 +575,11 @@ namespace PlanBuild.Blueprints
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
                 {
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
-                    if(!go)
+                    if (!go)
                     {
                         Logger.LogWarning("No prefab found for " + piece.name + "! You are probably missing a dependency for blueprint " + m_name);
-                    } else
+                    }
+                    else
                     {
                         go.transform.SetPositionAndRotation(go.transform.position, quat);
                         prefabs.Add(piece.name, go);
@@ -629,7 +630,7 @@ namespace PlanBuild.Blueprints
                             var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
                             doorChild.transform.localRotation = doorPrefab.transform.localRotation;
                             doorChild.transform.localPosition = doorPrefab.transform.localPosition;
-                            MakeGhost(doorChild); 
+                            MakeGhost(doorChild);
                         }
                     }
                 }
@@ -728,7 +729,7 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
-                newbp.m_name = text; 
+                newbp.m_name = text;
                 newbp.m_prefabname = $"{BlueprintPrefabName} ({newbp.m_name})";
                 newbp.m_fileLocation = Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, newbp.m_name + ".blueprint");
                 if (newbp.Save())
