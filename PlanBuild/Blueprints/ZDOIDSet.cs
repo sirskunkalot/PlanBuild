@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlanBuild.Blueprints
 {
-    class ZDOIDSet: HashSet<ZDOID>
+    internal class ZDOIDSet : HashSet<ZDOID>
     {
-
         public static ZDOIDSet From(ZPackage package)
         {
             ZDOIDSet result = new ZDOIDSet();
@@ -22,16 +18,13 @@ namespace PlanBuild.Blueprints
 
         public ZPackage ToZPackage()
         {
-
             var package = new ZPackage();
             package.Write(this.Count());
-            foreach(ZDOID zdoid in this)
+            foreach (ZDOID zdoid in this)
             {
                 package.Write(zdoid);
             }
             return package;
-
         }
-
     }
 }

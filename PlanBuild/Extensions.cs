@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static WearNTear;
 
 namespace PlanBuild
 {
-    static class Extensions
+    internal static class Extensions
     {
-
         public static void Highlight(this WearNTear self, Color color)
         {
             if (self.m_oldMaterials == null)
@@ -52,6 +47,5 @@ namespace PlanBuild
             self.CancelInvoke("ResetHighlight");
             self.Invoke("ResetHighlight", 0.2f);
         }
-         
     }
 }

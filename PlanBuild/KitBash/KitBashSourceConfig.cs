@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace PlanBuild.KitBash
-{ 
+{
     public class KitBashSourceConfig
     {
         public string name;
@@ -13,11 +13,11 @@ namespace PlanBuild.KitBash
         public Vector3 position = Vector3.zero;
         public Quaternion rotation = Quaternion.identity;
         internal Vector3 scale = Vector3.one;
-        internal int[] materialRemap; 
+        internal int[] materialRemap;
 
         public override string ToString()
         {
             return $"KitBashSource(name={name},sourcePrefab={sourcePrefab},sourcePath={sourcePath})";
         }
-    } 
+    }
 }

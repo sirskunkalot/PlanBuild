@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace PlanBuild.Plans
 {
-    class PlanTotemPrefab
+    internal class PlanTotemPrefab
     {
         internal static ConfigEntry<Color> glowColorConfig;
         private KitBashObject planTotemKitBash;
@@ -53,9 +53,9 @@ namespace PlanBuild.Plans
             });
             planTotemKitBash.KitBashApplied += () =>
             {
-                GameObject connectionPrefab = PrefabManager.Instance.GetPrefab("forge_ext1").GetComponent<StationExtension>().m_connectionPrefab; 
+                GameObject connectionPrefab = PrefabManager.Instance.GetPrefab("forge_ext1").GetComponent<StationExtension>().m_connectionPrefab;
                 GameObject planBuildConnectionPrefab = PrefabManager.Instance.CreateClonedPrefab("vfx_PlanBuildConnection", connectionPrefab);
-              
+
                 GameObject planTotemPrefab = planTotemKitBash.Prefab;
 
                 ShaderHelper.UpdateTextures(planTotemPrefab.transform.Find("new/pivot/hammer").gameObject, ShaderHelper.ShaderState.Supported);
@@ -90,11 +90,11 @@ namespace PlanBuild.Plans
                     new RequirementConfig{ Item = "SurtlingCore", Recover = true }
                 }
             });
-            PieceManager.Instance.AddPiece(planTotemPiece); 
-        } 
+            PieceManager.Instance.AddPiece(planTotemPiece);
+        }
 
         internal void SettingsUpdated()
-        { 
+        {
             UpdateGlowColor(planTotemKitBash.Prefab);
         }
 

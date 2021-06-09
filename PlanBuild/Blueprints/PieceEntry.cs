@@ -5,7 +5,6 @@ namespace PlanBuild.Blueprints
 {
     public class PieceEntry
     {
-
         public static PieceEntry FromBlueprint(string line)
         {
             // backwards compatibility
@@ -91,10 +90,11 @@ namespace PlanBuild.Blueprints
 
         internal static float InvariantFloat(string s)
         {
-            if(s.StartsWith("-,"))
+            if (s.StartsWith("-,"))
             {
                 s = s.Replace("-,", "-0,");
-            } else if(s.StartsWith(","))
+            }
+            else if (s.StartsWith(","))
             {
                 s = "0" + s;
             }
@@ -119,7 +119,7 @@ namespace PlanBuild.Blueprints
                 if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
                 {
                     return result;
-                } 
+                }
             }
             else if (value.Contains(".") && commaValid)
             {
@@ -127,7 +127,7 @@ namespace PlanBuild.Blueprints
                 if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
                 {
                     return result;
-                } 
+                }
             }
             else if (!commaValid && value.Contains("."))
             {
@@ -135,7 +135,7 @@ namespace PlanBuild.Blueprints
                 if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
                 {
                     return result;
-                } 
+                }
             }
             else if (commaValid && value.Contains(","))
             {
@@ -143,14 +143,14 @@ namespace PlanBuild.Blueprints
                 if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
                 {
                     return result;
-                } 
+                }
             }
             else
             {
                 if (float.TryParse(value, out result))
                 {
                     return result;
-                } 
+                }
             }
             return 0f;
         }

@@ -8,10 +8,10 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.PlanBuild
 {
-    class PlanTotem : Container
+    internal class PlanTotem : Container
     {
         public static readonly List<PlanTotem> m_allPlanTotems = new List<PlanTotem>();
-         
+
         private CircleProjector m_areaMarker;
         private GameObject m_activeMarker;
         private MeshRenderer m_model;
@@ -25,20 +25,23 @@ namespace PlanBuild.PlanBuild
         private readonly HashSet<string> m_missingCraftingStations = new HashSet<string>();
 
         #region Container Override
-        static PlanTotem() {
-            On.Container.GetHoverText += OnContainerHoverText; 
+
+        static PlanTotem()
+        {
+            On.Container.GetHoverText += OnContainerHoverText;
         }
-         
+
         private static string OnContainerHoverText(On.Container.orig_GetHoverText orig, Container self)
         {
             PlanTotem planTotem = self as PlanTotem;
-            if(planTotem)
+            if (planTotem)
             {
                 return planTotem.GetHoverText();
             }
             return orig(self);
-        } 
-        #endregion
+        }
+
+        #endregion Container Override
 
         public new void Awake()
         {
@@ -49,7 +52,7 @@ namespace PlanBuild.PlanBuild
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
             m_areaMarker.m_radius = radiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
-            m_allPlanTotems.Add(this); 
+            m_allPlanTotems.Add(this);
             HideMarker();
         }
 
@@ -84,7 +87,7 @@ namespace PlanBuild.PlanBuild
 
         public void UpdatePlanTotem()
         {
-            if(!m_nview || !m_nview.IsValid())
+            if (!m_nview || !m_nview.IsValid())
             {
                 return;
             }
@@ -92,10 +95,10 @@ namespace PlanBuild.PlanBuild
             m_connectedPieces.Clear();
             m_remainingRequirements.Clear();
             m_missingCraftingStations.Clear();
-            
+
             foreach (var planPiece in FindPlanPiecesInRange())
             {
-                if(planPiece.hasSupport)
+                if (planPiece.hasSupport)
                 {
                     m_supportedPieces++;
                 }
@@ -134,7 +137,8 @@ namespace PlanBuild.PlanBuild
                 }
             }
             m_sortedRequired = m_remainingRequirements
-                   .Select(pair => {
+                   .Select(pair =>
+                   {
                        int missing = pair.Value;
                        if (pair.Value > 0)
                        {
@@ -172,7 +176,7 @@ namespace PlanBuild.PlanBuild
             {
                 m_areaMarker.gameObject.SetActive(value: true);
                 CancelInvoke("HideMarker");
-                Invoke("HideMarker", 0.5f); 
+                Invoke("HideMarker", 0.5f);
             }
         }
 
@@ -187,43 +191,43 @@ namespace PlanBuild.PlanBuild
             StringBuilder sb = new StringBuilder($"Plan totem\n" +
                 $"[<color=yellow>$KEY_Use</color>] Open\n" +
                 $"\n");
-            if(m_missingCraftingStations.Count > 0)
+            if (m_missingCraftingStations.Count > 0)
             {
                 sb.Append($"Missing crafting stations: \n");
-                foreach(string missingStation in m_missingCraftingStations)
+                foreach (string missingStation in m_missingCraftingStations)
                 {
-                    sb.Append($"<color=red>{missingStation}</color>\n");                
+                    sb.Append($"<color=red>{missingStation}</color>\n");
                 }
             }
             sb.Append($"{m_connectedPieces.Count} connected plans ({m_supportedPieces} supported)\n");
-            if(m_remainingRequirements.Count > 0)
+            if (m_remainingRequirements.Count > 0)
             {
-                sb.Append("Required materials:\n"); 
+                sb.Append("Required materials:\n");
                 foreach (var pair in m_sortedRequired)
                 {
                     sb.Append($" <color=yellow>{pair.Value}</color> {pair.Key}\n");
                 }
             }
             return Localization.instance.Localize(sb.ToString());
-        } 
+        }
 
         public Vector3 GetCenter(GameObject target)
         {
-           Collider[] m_colliders = target.GetComponentsInChildren<Collider>();
-            
-           Vector3 position = target.transform.position;
-           Collider[] colliders = m_colliders;
-           foreach (Collider collider in colliders)
-           {
+            Collider[] m_colliders = target.GetComponentsInChildren<Collider>();
+
+            Vector3 position = target.transform.position;
+            Collider[] colliders = m_colliders;
+            foreach (Collider collider in colliders)
+            {
                 position = (position + collider.bounds.center) / 2;
-           }
-           return position;
+            }
+            return position;
         }
 
         public void TriggerConnection(Vector3 targetPos)
         {
             Vector3 center = m_chestBounds.center;
-         
+
             GameObject m_connection = Object.Instantiate(m_connectionPrefab, center, Quaternion.identity);
 
             TimedDestruction timedDestruction = m_connection.AddComponent<TimedDestruction>();
@@ -233,7 +237,7 @@ namespace PlanBuild.PlanBuild
             timedDestruction.Trigger(vector.magnitude);
             m_connection.transform.position = center;
             m_connection.transform.rotation = rotation;
-            m_connection.transform.localScale = new Vector3(1f, 1f, vector.magnitude); 
-        } 
+            m_connection.transform.localScale = new Vector3(1f, 1f, vector.magnitude);
+        }
     }
 }
