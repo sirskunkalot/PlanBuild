@@ -7,6 +7,7 @@
 using BepInEx;
 using BepInEx.Configuration;
 using Jotunn.Configs;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
@@ -25,12 +26,13 @@ namespace PlanBuild
     [BepInDependency(Jotunn.Main.ModGuid, "2.0.11")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.EveryoneMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.2.7";
+        public const string PluginVersion = "0.2.12";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> showAllPieces;
@@ -61,6 +63,7 @@ namespace PlanBuild
 
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
+            // new OdinLevelPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
 
             // Init Shader
@@ -73,9 +76,7 @@ namespace PlanBuild
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
 
             ItemManager.OnItemsRegistered += OnItemsRegistered;
-            On.Player.Awake += OnPlayerAwake;
-
-
+            On.Player.Awake += OnPlayerAwake; 
         }
 
         private void SetupConfig()
@@ -219,7 +220,7 @@ namespace PlanBuild
         {
             ScanHammer(true);
         }
-
+          
         internal bool ScanHammer(bool lateAdd)
         {
             Jotunn.Logger.LogDebug("Scanning Hammer PieceTable for Pieces");
@@ -261,11 +262,7 @@ namespace PlanBuild
                     {
                         continue;
                     }
-                    if (!piece.m_enabled
-                        || piece.GetComponent<Ship>() != null
-                        || piece.GetComponent<Plant>() != null
-                        || piece.GetComponent<TerrainModifier>() != null
-                        || piece.m_resources.Length == 0)
+                    if (!CanCreatePlan(piece))
                     {
                         continue;
                     }
@@ -294,6 +291,15 @@ namespace PlanBuild
                 };
             }
             return addedPiece;
+        }
+
+        public static bool CanCreatePlan(Piece piece)
+        {
+            return piece.m_enabled
+                && piece.GetComponent<Ship>() == null
+                && piece.GetComponent<Plant>() == null
+                && piece.GetComponent<TerrainModifier>() == null
+                && piece.m_resources.Length != 0;
         }
 
         private bool EnsurePrefabRegistered(Piece piece)

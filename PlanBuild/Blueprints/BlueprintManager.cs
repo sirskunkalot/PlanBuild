@@ -7,15 +7,16 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 using static WearNTear;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintManager
-    {
-        internal static string BlueprintPath = Path.Combine(BepInEx.Paths.BepInExRootPath, "config", nameof(PlanBuild), "blueprints");
+    { 
 
+        public const string PanelName = "BlueprintManagerGUI";
         public const string ZDOBlueprintName = "BlueprintName";
 
         internal float selectionRadius = 10.0f;
@@ -24,6 +25,19 @@ namespace PlanBuild.Blueprints
         internal float cameraOffset = 5.0f;
         internal bool updateCamera = true;
 
+        internal bool ActiveRunestone(WorldBlueprintManager worldBlueprintManager)
+        {
+            return worldBlueprintManager == activeRunestone;
+        }
+
+        internal void SetActiveRunestone(WorldBlueprintManager worldBlueprintManager)
+        {
+             activeRunestone = worldBlueprintManager;
+             if (!panel) {
+                 CreateBlueprintManagerPanel();
+             }
+             panel.SetActive(activeRunestone);
+        }
 
         const float HighlightTimeout = 1f;
         float m_lastHightlight = 0;
@@ -42,9 +56,13 @@ namespace PlanBuild.Blueprints
         private ConfigEntry<bool> invertPlacementOffsetScrollConfig;
         private ConfigEntry<bool> invertSelectionScrollConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
+        public static ConfigEntry<string> blueprintSearchDirectoryConfig;
+        public static ConfigEntry<string> blueprintSaveDirectoryConfig;
         internal static ButtonConfig planSwitchButton;
 
         private static BlueprintManager _instance;
+
+        private GameObject panel;
 
         public static BlueprintManager Instance
         {
@@ -59,11 +77,14 @@ namespace PlanBuild.Blueprints
         {
             //TODO: Client only - how to do? or just ignore - there are no bps and maybe someday there will be a server-wide directory of blueprints for sharing :)
 
+            // KeyHints
+            CreateCustomKeyHints();
+
             // Load Blueprints
             LoadKnownBlueprints();
 
-            // KeyHints
-            CreateCustomKeyHints();
+            //Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
+            PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
             // Hooks 
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
@@ -73,11 +94,74 @@ namespace PlanBuild.Blueprints
             On.Player.PieceRayTest += OnPieceRayTest;
             On.Humanoid.EquipItem += OnEquipItem;
             On.Humanoid.UnequipItem += OnUnequipItem;
+           // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
+           // On.Player.TakeInput += OnPlayerTakeInput;
+           // On.PlayerController.TakeInput += OnPlayerControllerTakeInput; 
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
 
+        private void GameCamera_UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        {
+            if (panel && panel.activeInHierarchy)
+            {
+                return;
+            }
+            orig(self, dt);
+        }
+
+        private bool OnPlayerTakeInput(On.Player.orig_TakeInput orig, Player self)
+        {
+            if (panel && panel.activeInHierarchy)
+            {
+                return false;
+            }
+            return orig(self);
+        }
+
+        private void CreateBlueprintManagerPanel()
+        {
+            Jotunn.Logger.LogInfo("Creating Blueprint Manager panel");
+            var prefabPanel = PrefabManager.Instance.GetPrefab(PanelName);
+            panel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), 800f, 600f);
+            panel.SetActive(false);
+            prefabPanel.transform.SetParent(panel.transform);
+
+            // panel.SetActive(false);
+            // panel.name = PanelName;
+            // GameObject scrollView = GUIManager.Instance.CreateScrollView(panel.transform, false, true, 3f, 3f, ColorBlock.defaultColorBlock, Color.clear, 200f, 290f);
+            // ScrollRect scrollRect = scrollView.GetComponentInChildren<ScrollRect>();
+            //
+            // int i = 0;
+            // foreach (Blueprint blueprint in m_blueprints.Values) {
+            //     i++;
+            //     var guiEntry = new GameObject("blueprint_entry_" + i, typeof(RectTransform), typeof(LayoutElement));
+            //     guiEntry.GetComponent<LayoutElement>().preferredHeight = 64f;
+            //     guiEntry.transform.SetParent(scrollRect.content.transform);
+            //     RectTransform guiEntryTransform = guiEntry.GetComponent<RectTransform>();
+            //     guiEntryTransform.anchoredPosition = Vector2.zero;
+            //
+            //     GameObject iconObject = new GameObject("icon", typeof(RectTransform), typeof(Image));
+            //     iconObject.transform.SetParent(guiEntryTransform);
+            //     iconObject.GetComponent<RectTransform>().sizeDelta = new Vector2(64, 64);
+            //     iconObject.GetComponent<Image>().sprite = blueprint.m_piece.m_icon;
+            //
+            //     GameObject textObject = GUIManager.Instance.CreateText(blueprint.m_name, guiEntryTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(70f, 0f), GUIManager.Instance.AveriaSerifBold, 18, GUIManager.Instance.ValheimOrange, true, Color.black, 130f, 64f, false);
+            //     textObject.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
+            // }
+
+        }
+
+        private bool OnPlayerControllerTakeInput(On.PlayerController.orig_TakeInput orig, PlayerController self)
+        {
+            if (panel && panel.activeInHierarchy) {
+                return false;
+            }
+            return orig(self);
+        }
+
         private float originalPlaceDistance;
+        private  WorldBlueprintManager activeRunestone;
 
         private bool OnEquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
@@ -125,14 +209,14 @@ namespace PlanBuild.Blueprints
         {
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
-            if (!Directory.Exists(BlueprintPath))
+            if (!Directory.Exists(blueprintSaveDirectoryConfig.Value))
             {
-                Directory.CreateDirectory(BlueprintPath);
+                Directory.CreateDirectory(blueprintSaveDirectoryConfig.Value);
             }
 
             List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles(".", "*.vbuild", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
 
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
@@ -143,7 +227,7 @@ namespace PlanBuild.Blueprints
                 if (!m_blueprints.ContainsKey(name))
                 {
                     var bp = Blueprint.FromFile(relativeFilePath);
-                    if (bp.Load(relativeFilePath))
+                    if (bp.Load())
                     {
                         m_blueprints.Add(name, bp);
                     }
@@ -184,6 +268,12 @@ namespace PlanBuild.Blueprints
             planSwitchConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Rune mode toggle key", KeyCode.P,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
+            blueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Search directory", ".",
+                new ConfigDescription("Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location"));
+
+            blueprintSaveDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Save directory", "BepInEx/config/PlanBuild/blueprints",
+                new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
+             
             planSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
@@ -249,7 +339,8 @@ namespace PlanBuild.Blueprints
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
             {
-                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <= radius)
+                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <= radius
+                    && Blueprint.CanCapture(piece))
                 {
                     result.Add(piece);
                 }
@@ -322,7 +413,9 @@ namespace PlanBuild.Blueprints
                     ZDOID blueprintID = planPiece.GetBlueprintID();
                     if (blueprintID != ZDOID.None)
                     {
-                        RemoveBlueprint(blueprintID);
+                        int removedPieces = RemoveBlueprint(blueprintID);
+
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString())); 
                     }
                 }
             }
@@ -339,24 +432,28 @@ namespace PlanBuild.Blueprints
             }
 
             Vector3 deletePosition = player.m_placementMarkerInstance.transform.position;
-
+            int removedPieces = 0;
             foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, selectionRadius))
             {
                 if (pieceToRemove.TryGetComponent(out PlanPiece planPiece))
                 {
                     planPiece.m_wearNTear.Remove();
+                    removedPieces++;
                 }
             }
+            player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
         }
+
+
 
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
             Blueprint bp = Instance.m_blueprints[piece.m_name];
             var transform = player.m_placementGhost.transform;
-            var position = player.m_placementGhost.transform.position;
-            var rotation = player.m_placementGhost.transform.rotation;
+            var position = transform.position;
+            var rotation = transform.rotation;
 
             bool placeDirect = ZInput.GetButton("Crouch");
             if (placeDirect && !allowDirectBuildConfig.Value)
@@ -375,22 +472,21 @@ namespace PlanBuild.Blueprints
             uint maxEffects = 10u;
 
             GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.BlueprintPrefabName);
+
             GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
 
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
-            ZDOIDSet createdPlans = new ZDOIDSet();
+            ZDOIDSet createdPlans = new ZDOIDSet(); 
 
             for (int i = 0; i < bp.m_pieceEntries.Length; i++)
             {
                 PieceEntry entry = bp.m_pieceEntries[i];
                 // Final position
-                Vector3 entryPosition = position + transform.forward * entry.posZ + transform.right * entry.posX + new Vector3(0, entry.posY, 0);
+                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
                 // Final rotation
-                Quaternion entryQuat = new Quaternion(entry.rotX, entry.rotY, entry.rotZ, entry.rotW);
-                entryQuat.eulerAngles += rotation.eulerAngles;
-
+                Quaternion entryQuat = transform.rotation * entry.GetRotation();
                 // Get the prefab of the piece or the plan piece
                 string prefabName = entry.name;
                 if (!placeDirect)
@@ -583,12 +679,14 @@ namespace PlanBuild.Blueprints
             return ZDOIDSet.From(new ZPackage(data));
         }
 
-        private void RemoveBlueprint(ZDOID blueprintID)
+        private int RemoveBlueprint(ZDOID blueprintID)
         {
+            int removedPieces = 0;
             Jotunn.Logger.LogInfo("Removing all pieces of blueprint " + blueprintID);
             foreach (PlanPiece planPiece in GetPlanPiecesForBlueprint(blueprintID))
             {
                 planPiece.Remove();
+                removedPieces++;
             }
 
             GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
@@ -596,6 +694,7 @@ namespace PlanBuild.Blueprints
             {
                 ZNetScene.instance.Destroy(blueprintObject);
             }
+            return removedPieces;
         }
 
         public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
@@ -650,7 +749,7 @@ namespace PlanBuild.Blueprints
                         if (scrollWheel != 0f)
                         {
 
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                             }
@@ -694,12 +793,12 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
-                            else if (Input.GetKey(KeyCode.LeftControl))
+                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
                                 UpdatePlacementOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
@@ -716,7 +815,7 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
                         {
-                            if (Input.GetKey(KeyCode.LeftShift))
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
@@ -793,22 +892,19 @@ namespace PlanBuild.Blueprints
 
         private void UpdatePlacementOffset(float scrollWheel)
         {
-            if (Input.GetKey(KeyCode.LeftControl))
+            bool scrollingDown = scrollWheel < 0f;
+            if (invertPlacementOffsetScrollConfig.Value)
             {
-                bool scrollingDown = scrollWheel < 0f;
-                if (invertPlacementOffsetScrollConfig.Value)
-                {
-                    scrollingDown = !scrollingDown;
-                }
-                if (scrollingDown)
-                {
-                    Instance.placementOffset -= placementOffsetIncrementConfig.Value;
-                }
-                else
-                {
-                    Instance.placementOffset += placementOffsetIncrementConfig.Value;
-                } 
+                scrollingDown = !scrollingDown;
             }
+            if (scrollingDown)
+            {
+                Instance.placementOffset -= placementOffsetIncrementConfig.Value;
+            }
+            else
+            {
+                Instance.placementOffset += placementOffsetIncrementConfig.Value;
+            }  
         }
 
         private void UndoRotation(Player player, float scrollWheel)

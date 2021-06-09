@@ -41,11 +41,11 @@ namespace Pulleys
 #if DEBUG
             Jotunn.Logger.LogInfo(m_nview.m_zdo.m_uid + " Creating MoveableBaseRoot");
 #endif 
-            m_baseControllerObject = Object.Instantiate(PrefabManager.Instance.GetPrefab(PulleyManager.MoveableBaseRootName), transform.position, transform.rotation); 
+            m_baseControllerObject = Object.Instantiate(PrefabManager.Instance.GetPrefab(PulleyManager.MoveableBaseRootName), transform.position, transform.rotation, ZNetScene.instance.transform); 
             m_baseRoot = m_baseControllerObject.GetComponent<MoveableBaseRoot>();
 			m_baseRoot.SetBaseSync(this);
         }
-		   
+
         public void Update()
         {
 			if (!m_nview || !m_nview.IsValid())

@@ -1,0 +1,46 @@
+ManifestFileVersion: 0
+CRC: 695457359
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 1acf1cfa344c1b9f050e9730446a32ea
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: f6e4f0ffad1698cdd88f0e42f0ff02e3
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 2094620348, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1521249158, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1109157524, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 120
+  Script: {instanceID: 0}
+- Class: 205
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Pulleys/piece_pulley_support.prefab
+- Assets/Pulleys/pulley_support_icon.png
+- Assets/Pulleys/pulley_base_icon.png
+- Assets/Pulleys/moveable_base_sync.prefab
+- Assets/Pulleys/moveable_base_root.prefab
+- Assets/Pulleys/piece_pulley_base.prefab
+Dependencies: []

@@ -129,6 +129,7 @@ namespace Pulleys
 #endif
             m_shipControlls = pulleyControlls;
             m_controlGuiPos = pulleyControlls.m_pulley.m_controlGuiPos;
+			pulleyControlls.SetMoveableBase(this);
         }
 
         private ZDOID GetZDOID()

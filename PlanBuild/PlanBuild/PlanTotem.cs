@@ -75,7 +75,9 @@ namespace PlanBuild.PlanBuild
                 }
             }
             return result.AsEnumerable()
-                .OrderBy(pair => pair.Value)
+                .OrderByDescending(pair => pair.Key.m_maxSupport)
+                .ThenBy(pair => pair.Key.transform.position.y)
+                .ThenBy(pair => pair.Value)
                 .Select(pair => pair.Key)
                 .ToList();
         }
@@ -90,6 +92,7 @@ namespace PlanBuild.PlanBuild
             m_connectedPieces.Clear();
             m_remainingRequirements.Clear();
             m_missingCraftingStations.Clear();
+            
             foreach (var planPiece in FindPlanPiecesInRange())
             {
                 if(planPiece.hasSupport)
@@ -99,7 +102,10 @@ namespace PlanBuild.PlanBuild
 
                 if (m_nview.IsOwner() && planPiece.hasSupport)
                 {
-                    planPiece.AddAllMaterials(m_inventory);
+                    if (m_inventory.m_inventory.Count != 0)
+                    {
+                        planPiece.AddAllMaterials(m_inventory);
+                    }
                     if (planPiece.HasAllResources())
                     {
                         if (planPiece.HasRequiredCraftingStationInRange())

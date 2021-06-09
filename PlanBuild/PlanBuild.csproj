@@ -53,6 +53,9 @@
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Gizmo">
+      <HintPath>..\libraries\pub\Gizmo.dll</HintPath>
+    </Reference>
     <Reference Include="Jotunn, Version=2.0.12.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.0.12\lib\net462\Jotunn.dll</HintPath>
     </Reference>
@@ -91,6 +94,7 @@
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
+    <Compile Include="Blueprints\WorldBlueprintManager.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="KitBash\KitBashConfig.cs" />
@@ -99,6 +103,7 @@
     <Compile Include="KitBash\KitBashSourceConfig.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
+    <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
     <Compile Include="PlanBuild\PlanPiece.cs" />

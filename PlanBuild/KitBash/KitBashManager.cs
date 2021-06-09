@@ -11,11 +11,13 @@ namespace PlanBuild.KitBash
     {
         public static KitBashManager Instance = new KitBashManager();
         private GameObject kitBashRoot;
+        private int pieceLayer;
         private readonly List<KitBashObject> kitBashObjects = new List<KitBashObject>();
 
         private KitBashManager()
         {
             kitBashRoot = new GameObject("KitBashRoot");
+            pieceLayer = LayerMask.NameToLayer("piece");
             Object.DontDestroyOnLoad(kitBashRoot);
             kitBashRoot.SetActive(false);
 
@@ -84,6 +86,12 @@ namespace PlanBuild.KitBash
                 return false;
             }
             GameObject kitBashObject = Object.Instantiate(sourceGameObject, parentTransform);
+
+            foreach(Transform transform in kitBashObject.GetComponentsInChildren<Transform>())
+            {
+                transform.gameObject.layer = pieceLayer;
+            }
+
             kitBashObject.name = config.name;
             kitBashObject.transform.localPosition = config.position;
             kitBashObject.transform.localRotation = config.rotation;

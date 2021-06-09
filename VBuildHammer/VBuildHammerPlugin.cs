@@ -23,8 +23,7 @@ namespace VBuildHammer
 
         private void Awake()
         {
-
-            ItemManager.OnVanillaItemsAvailable += AddCustomPrefabs;
+             
         }
 
 #if DEBUG

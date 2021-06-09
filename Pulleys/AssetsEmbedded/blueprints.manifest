@@ -1,0 +1,80 @@
+ManifestFileVersion: 0
+CRC: 1509303586
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d0dc61992ab947bca42663620253f583
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 34c6fa203831b12ab5b851f3cd7c50f6
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 23
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 33
+  Script: {instanceID: 0}
+- Class: 43
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 54
+  Script: {instanceID: 0}
+- Class: 65
+  Script: {instanceID: 0}
+- Class: 108
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 2094620348, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1521249158, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 1109157524, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: 825357479, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 114
+  Script: {fileID: -946862589, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 135
+  Script: {instanceID: 0}
+- Class: 212
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Blueprints/Textures/runestone_LP_Material_AlbedoTransparency.png
+- Assets/Blueprints/Icons/BlueprintSnapIconWorld.png
+- Assets/Blueprints/make_blueprint.prefab
+- Assets/Blueprints/Icons/BlueprintCenterIcon.png
+- Assets/Blueprints/_BlueprintPieceTable.prefab
+- Assets/Blueprints/Icons/BlueprintIcon.png
+- Assets/Blueprints/Icons/BlueprintCopyIcon.png
+- Assets/Blueprints/delete_plans.prefab
+- Assets/Blueprints/Materials/RuneMaterial.mat
+- Assets/Blueprints/piece_blueprint_snappoint.prefab
+- Assets/Blueprints/Textures/runestone_LP_Material_Emission.png
+- Assets/Blueprints/Materials/BlueprintSnapIconMaterial.mat
+- Assets/Blueprints/Icons/BlueprintSnapIcon.png
+- Assets/Blueprints/piece_blueprint_centerpoint.prefab
+- Assets/Blueprints/BlueprintRune.prefab
+- Assets/Blueprints/Icons/BlueprintUndoIcon.png
+- Assets/Blueprints/Mesh/RuneStoneLow.mesh
+- Assets/Blueprints/Textures/runestone_LP_Material_Normal.png
+- Assets/Blueprints/piece_blueprint.prefab
+- Assets/Blueprints/Icons/DeletePlansIcon.png
+- Assets/Blueprints/undo_blueprint.prefab
+- Assets/Blueprints/Icons/BlueprintRuneIcon.png
+- Assets/Blueprints/Icons/BlueprintCenterIconWorld.png
+- Assets/Blueprints/Textures/BlueprintSnap_mat.png
+Dependencies: []

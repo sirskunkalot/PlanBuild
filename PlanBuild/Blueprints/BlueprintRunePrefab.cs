@@ -16,6 +16,7 @@ namespace PlanBuild.Blueprints
 
         public const string BlueprintSnapPointName = "piece_blueprint_snappoint"; 
         public const string BlueprintCenterPointName = "piece_blueprint_centerpoint";
+        public const string BlueprintStandingBlueprintRune = "piece_standing_blueprint_rune";
         public const string MakeBlueprintName = "make_blueprint";
         public const string UndoBlueprintName = "undo_blueprint";
         public const string DeletePlansName = "delete_plans";

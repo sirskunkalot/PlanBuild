@@ -28,7 +28,7 @@ namespace PlanBuild.Plans
             Piece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
             Piece.m_comfort = 0;
             Piece.m_canBeRemoved = true; 
-             
+            
             Piece.m_category = originalPiece.m_category;
             Piece.m_groundOnly = originalPiece.m_groundOnly;
             Piece.m_groundPiece = originalPiece.m_groundPiece;
@@ -39,7 +39,9 @@ namespace PlanBuild.Plans
             Piece.m_dlc = originalPiece.m_dlc;
             Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
-             
+            Piece.m_randomTarget = false;
+            Piece.m_primaryTarget = false;
+
             this.PieceTable = PlanHammerPieceTableName;  
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
@@ -47,6 +49,7 @@ namespace PlanBuild.Plans
             { 
                 wearNTear = PiecePrefab.AddComponent<WearNTear>();
             }
+            
             
             wearNTear.m_noSupportWear = true;
             wearNTear.m_noRoofWear = false;

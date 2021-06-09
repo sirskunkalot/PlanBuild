@@ -45,6 +45,7 @@ namespace PlanBuild.Plans
             if(originalPiece.TryGetComponent(out WearNTear wearNTear))
             {
                 m_minSupport = wearNTear.GetMinSupport();
+                m_maxSupport = wearNTear.GetMaxSupport();
             }
 
             m_planPieces.Add(this);
@@ -225,6 +226,7 @@ namespace PlanBuild.Plans
         private float m_lastUseTime = -9999f;
         private float m_holdRepeatInterval = 1f;
         private float m_minSupport = 0f;
+        public float m_maxSupport;
 
         public string GetHoverText()
         {
