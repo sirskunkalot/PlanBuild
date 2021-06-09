@@ -1,5 +1,4 @@
 ﻿using BepInEx.Configuration;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -9,18 +8,18 @@ namespace PlanBuild
     public class ShaderHelper
     {
         public enum ShaderState
-        { 
+        {
             Supported,
             Floating,
             Skuld
         }
 
-        private static readonly Dictionary<string, Material> originalMaterialDict = new Dictionary<string, Material>(); 
+        private static readonly Dictionary<string, Material> originalMaterialDict = new Dictionary<string, Material>();
         public static Shader planShader;
         public static ConfigEntry<Color> unsupportedColorConfig;
         public static ConfigEntry<Color> supportedPlanColorConfig;
-        internal static ConfigEntry<float> transparencyConfig; 
-          
+        internal static ConfigEntry<float> transparencyConfig;
+
         public static Texture2D GetTexture(Color color)
         {
             Texture2D texture2D = new Texture2D(1, 1);
@@ -30,10 +29,9 @@ namespace PlanBuild
 
         public static void UpdateTextures(GameObject m_placementplan, ShaderState shaderState)
         {
-            
             Color unsupportedColor = unsupportedColorConfig.Value;
-            Color supportedColor = supportedPlanColorConfig.Value; 
-            float transparency = transparencyConfig.Value;  
+            Color supportedColor = supportedPlanColorConfig.Value;
+            float transparency = transparencyConfig.Value;
             transparency *= transparency; //x² mapping for finer control
             MeshRenderer[] meshRenderers = m_placementplan.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer meshRenderer in meshRenderers)
@@ -41,7 +39,7 @@ namespace PlanBuild
                 if (!(meshRenderer.sharedMaterial == null))
                 {
                     Material[] sharedMaterials = meshRenderer.sharedMaterials;
-                    UpdateMaterials(shaderState,  unsupportedColor, supportedColor, transparency, sharedMaterials);
+                    UpdateMaterials(shaderState, unsupportedColor, supportedColor, transparency, sharedMaterials);
 
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -54,7 +52,7 @@ namespace PlanBuild
                 if (!(meshRenderer.sharedMaterial == null))
                 {
                     Material[] sharedMaterials = meshRenderer.sharedMaterials;
-                    UpdateMaterials(shaderState,  unsupportedColor, supportedColor, transparency, sharedMaterials);
+                    UpdateMaterials(shaderState, unsupportedColor, supportedColor, transparency, sharedMaterials);
 
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -63,7 +61,7 @@ namespace PlanBuild
         }
 
         private static void UpdateMaterials(ShaderState shaderState, Color planColor, Color supportedPlanColor, float transparency, Material[] sharedMaterials)
-        { 
+        {
             for (int j = 0; j < sharedMaterials.Length; j++)
             {
                 Material originalMaterial = sharedMaterials[j];
@@ -74,12 +72,13 @@ namespace PlanBuild
                 if (!originalMaterialDict.ContainsKey(material.name))
                 {
                     originalMaterialDict[material.name] = originalMaterial;
-                } 
-                switch(shaderState)
+                }
+                switch (shaderState)
                 {
                     case ShaderState.Skuld:
                         material = originalMaterialDict[originalMaterial.name];
                         break;
+
                     default:
                         material.SetOverrideTag("RenderType", "Transparent");
                         material.shader = planShader;
@@ -91,7 +90,6 @@ namespace PlanBuild
                         break;
                 }
                 sharedMaterials[j] = material;
-
             }
         }
 
@@ -118,9 +116,9 @@ namespace PlanBuild
 
         private static void SetEmissionColor(Material[] sharedMaterials, Color color)
         {
-            foreach(Material material in sharedMaterials)
+            foreach (Material material in sharedMaterials)
             {
-                if(material.HasProperty("_EmissionColor"))
+                if (material.HasProperty("_EmissionColor"))
                 {
                     material.SetColor("_EmissionColor", color);
                 }
@@ -238,7 +236,6 @@ namespace PlanBuild
                         }
                     }
                 }
-
             }
 
             // apply colour array to texture

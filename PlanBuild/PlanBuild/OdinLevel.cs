@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace PlanBuild 
+namespace PlanBuild
 {
-    class OdinLevel : MonoBehaviour, Interactable, Hoverable
+    internal class OdinLevel : MonoBehaviour, Interactable, Hoverable
     {
         public string GetHoverName()
         {
@@ -20,7 +15,7 @@ namespace PlanBuild
         }
 
         public bool Interact(Humanoid user, bool hold)
-        {  
+        {
             return true;
         }
 

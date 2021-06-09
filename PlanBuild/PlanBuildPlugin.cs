@@ -1,13 +1,11 @@
 ﻿// PlanBuild
 // a Valheim mod skeleton using Jötunn
-// 
+//
 // File:    PlanBuild.cs
 // Project: PlanBuild
 
 using BepInEx;
 using BepInEx.Configuration;
-using Jotunn.Configs;
-using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
@@ -36,7 +34,7 @@ namespace PlanBuild
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> showAllPieces;
-        public static ConfigEntry<bool> configTransparentGhostPlacement; 
+        public static ConfigEntry<bool> configTransparentGhostPlacement;
 
         internal PlanCrystalPrefab planCrystalPrefab;
         internal BlueprintRunePrefab blueprintRunePrefab;
@@ -76,7 +74,7 @@ namespace PlanBuild
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
 
             ItemManager.OnItemsRegistered += OnItemsRegistered;
-            On.Player.Awake += OnPlayerAwake; 
+            On.Player.Awake += OnPlayerAwake;
         }
 
         private void SetupConfig()
@@ -85,7 +83,7 @@ namespace PlanBuild
             PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
-             
+
             configTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
             ShaderHelper.unsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
             ShaderHelper.supportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
@@ -220,7 +218,7 @@ namespace PlanBuild
         {
             ScanHammer(true);
         }
-          
+
         internal bool ScanHammer(bool lateAdd)
         {
             Jotunn.Logger.LogDebug("Scanning Hammer PieceTable for Pieces");
@@ -320,7 +318,7 @@ namespace PlanBuild
                 Logger.LogWarning(" Not registered in ZNetScene.m_namedPrefabs! Adding now");
                 ZNetScene.instance.m_namedPrefabs[piece.gameObject.name.GetStableHashCode()] = piece.gameObject;
             }
-            //Prefab was added incorrectly, make sure the game doesn't delete it when logging out 
+            //Prefab was added incorrectly, make sure the game doesn't delete it when logging out
             GameObject prefabParent = piece.gameObject.transform.parent?.gameObject;
             if (!prefabParent)
             {
@@ -438,6 +436,5 @@ namespace PlanBuild
             }
             return text;
         }
-
     }
 }

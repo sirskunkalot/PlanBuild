@@ -1,18 +1,18 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using Jotunn.Managers;
+using PlanBuild.Blueprints;
+using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using PlanBuild.Plans;
 using static PlanBuild.ShaderHelper;
-using PlanBuild.Blueprints;
 
 namespace PlanBuild
 {
-    class Patches
+    internal class Patches
     {
-        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera"; 
+        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string gizmoGUID = "com.rolopogo.Gizmo";
 
@@ -20,14 +20,14 @@ namespace PlanBuild
 
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
-        static void PieceManager_RegisterInPieceTables_Prefix()
+        private static void PieceManager_RegisterInPieceTables_Prefix()
         {
             PlanBuildPlugin.Instance.InitialScanHammer();
         }
 
         [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
         [HarmonyPrefix]
-        static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
+        private static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
         {
             if (PlanBuildPlugin.showAllPieces.Value)
             {
@@ -40,15 +40,15 @@ namespace PlanBuild
             }
             return true;
         }
-          
+
         private static bool interceptGetPrefab = true;
         private static HashSet<int> checkedHashes = new HashSet<int>();
 
         [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
         [HarmonyPostfix]
-        static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
+        private static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
         {
-            if(__result == null
+            if (__result == null
                 && interceptGetPrefab
                 && !checkedHashes.Contains(hash))
             {
@@ -57,7 +57,7 @@ namespace PlanBuild
                 PlanBuildPlugin.Instance.ScanHammer(true);
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
-            } 
+            }
         }
 
         internal static void Apply()
@@ -88,7 +88,7 @@ namespace PlanBuild
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
-            if(!PlanBuildPlugin.showRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            if (!PlanBuildPlugin.showRealTextures && self.TryGetComponent(out PlanPiece planPiece))
             {
                 planPiece.Highlight();
                 return;
@@ -100,15 +100,16 @@ namespace PlanBuild
         {
             PlanPiece.m_forceDisableInit = true;
             orig(self);
-            if(self.m_placementGhost)
+            if (self.m_placementGhost)
             {
-                if(PlanBuildPlugin.showRealTextures)
+                if (PlanBuildPlugin.showRealTextures)
                 {
                     UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
-                } else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
-                    && (self.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
-                        || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
-                    )
+                }
+                else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
+                  && (self.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
+                      || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                  )
                 {
                     UpdateTextures(self.m_placementGhost, ShaderState.Supported);
                 }

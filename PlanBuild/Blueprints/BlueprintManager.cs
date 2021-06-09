@@ -7,15 +7,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using static WearNTear;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintManager
-    { 
-
+    {
         public const string PanelName = "BlueprintManagerGUI";
         public const string ZDOBlueprintName = "BlueprintName";
 
@@ -32,15 +29,16 @@ namespace PlanBuild.Blueprints
 
         internal void SetActiveRunestone(WorldBlueprintManager worldBlueprintManager)
         {
-             activeRunestone = worldBlueprintManager;
-             if (!panel) {
-                 CreateBlueprintManagerPanel();
-             }
-             panel.SetActive(activeRunestone);
+            activeRunestone = worldBlueprintManager;
+            if (!panel)
+            {
+                CreateBlueprintManagerPanel();
+            }
+            panel.SetActive(activeRunestone);
         }
 
-        const float HighlightTimeout = 1f;
-        float m_lastHightlight = 0;
+        private const float HighlightTimeout = 1f;
+        private float m_lastHightlight = 0;
 
         internal Piece lastHoveredPiece;
 
@@ -86,7 +84,7 @@ namespace PlanBuild.Blueprints
             //Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
-            // Hooks 
+            // Hooks
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
             On.Player.PlacePiece += BeforePlaceBlueprintPiece;
             On.GameCamera.UpdateCamera += AdjustCameraHeight;
@@ -94,9 +92,9 @@ namespace PlanBuild.Blueprints
             On.Player.PieceRayTest += OnPieceRayTest;
             On.Humanoid.EquipItem += OnEquipItem;
             On.Humanoid.UnequipItem += OnUnequipItem;
-           // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
-           // On.Player.TakeInput += OnPlayerTakeInput;
-           // On.PlayerController.TakeInput += OnPlayerControllerTakeInput; 
+            // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
+            // On.Player.TakeInput += OnPlayerTakeInput;
+            // On.PlayerController.TakeInput += OnPlayerControllerTakeInput;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
@@ -149,24 +147,24 @@ namespace PlanBuild.Blueprints
             //     GameObject textObject = GUIManager.Instance.CreateText(blueprint.m_name, guiEntryTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(70f, 0f), GUIManager.Instance.AveriaSerifBold, 18, GUIManager.Instance.ValheimOrange, true, Color.black, 130f, 64f, false);
             //     textObject.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
             // }
-
         }
 
         private bool OnPlayerControllerTakeInput(On.PlayerController.orig_TakeInput orig, PlayerController self)
         {
-            if (panel && panel.activeInHierarchy) {
+            if (panel && panel.activeInHierarchy)
+            {
                 return false;
             }
             return orig(self);
         }
 
         private float originalPlaceDistance;
-        private  WorldBlueprintManager activeRunestone;
+        private WorldBlueprintManager activeRunestone;
 
         private bool OnEquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             bool result = orig(self, item, triggerEquipEffects);
-            if (Player.m_localPlayer && result && 
+            if (Player.m_localPlayer && result &&
                 item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
             {
                 originalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
@@ -179,7 +177,7 @@ namespace PlanBuild.Blueprints
         private void OnUnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             orig(self, item, triggerEquipEffects);
-            if(Player.m_localPlayer && 
+            if (Player.m_localPlayer &&
                 item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = originalPlaceDistance;
@@ -273,7 +271,7 @@ namespace PlanBuild.Blueprints
 
             blueprintSaveDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Save directory", "BepInEx/config/PlanBuild/blueprints",
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
-             
+
             planSwitchButton = new ButtonConfig
             {
                 Name = "Rune mode toggle key",
@@ -365,8 +363,6 @@ namespace PlanBuild.Blueprints
         {
             Instance.cameraOffset = 5f;
             Instance.placementOffset = 0f;
-
-
         }
 
         /// <summary>
@@ -415,7 +411,7 @@ namespace PlanBuild.Blueprints
                     {
                         int removedPieces = RemoveBlueprint(blueprintID);
 
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString())); 
+                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
                     }
                 }
             }
@@ -446,8 +442,6 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
-
-
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
             Blueprint bp = Instance.m_blueprints[piece.m_name];
@@ -477,7 +471,7 @@ namespace PlanBuild.Blueprints
 
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
-            ZDOIDSet createdPlans = new ZDOIDSet(); 
+            ZDOIDSet createdPlans = new ZDOIDSet();
 
             for (int i = 0; i < bp.m_pieceEntries.Length; i++)
             {
@@ -587,7 +581,6 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
-
         /// <summary>
         ///     Add some camera height while planting a blueprint
         /// </summary>
@@ -607,7 +600,6 @@ namespace PlanBuild.Blueprints
                     self.transform.position += new Vector3(0, Instance.cameraOffset, 0);
                 }
             }
-
         }
 
         public void HighlightPieces(Vector3 startPosition, float radius, Color color)
@@ -715,7 +707,7 @@ namespace PlanBuild.Blueprints
             if (planPieces == null || planPieces.Count() == 0)
             {
                 GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                if(blueprintObject)
+                if (blueprintObject)
                 {
                     ZNetScene.instance.Destroy(blueprintObject);
                 }
@@ -744,11 +736,10 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-                         
+
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-
                             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
@@ -779,10 +770,9 @@ namespace PlanBuild.Blueprints
                         }
 
                         HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, Color.green);
-
                     }
                     else if (piece.name.StartsWith(Blueprint.BlueprintPrefabName))
-                    { 
+                    {
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
                         {
@@ -811,7 +801,7 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-                         
+
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
                         {
@@ -825,7 +815,6 @@ namespace PlanBuild.Blueprints
                                 UpdateSelectionRadius(scrollWheel);
                             }
                         }
-
 
                         var circleProjector = self.m_placementMarkerInstance.GetComponent<CircleProjector>();
                         if (circleProjector == null)
@@ -883,7 +872,7 @@ namespace PlanBuild.Blueprints
                         {
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
-                         
+
                         Reset();
                     }
                 }
@@ -904,7 +893,7 @@ namespace PlanBuild.Blueprints
             else
             {
                 Instance.placementOffset += placementOffsetIncrementConfig.Value;
-            }  
+            }
         }
 
         private void UndoRotation(Player player, float scrollWheel)
@@ -942,7 +931,7 @@ namespace PlanBuild.Blueprints
         private void UpdateSelectionRadius(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
-            if(invertSelectionScrollConfig.Value)
+            if (invertSelectionScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }

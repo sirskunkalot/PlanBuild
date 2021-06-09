@@ -5,18 +5,14 @@ using PlanBuild.KitBash;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace PlanBuild
 {
-    class OdinLevelPrefab
+    internal class OdinLevelPrefab
     {
-
         public OdinLevelPrefab(AssetBundle planbuildBundle)
         {
-
             odinLevelPrefab = KitBashManager.Instance.KitBash(planbuildBundle.LoadAsset<GameObject>("piece_odin_level"), new KitBashConfig
             {
                 KitBashSources = new List<KitBashSourceConfig>
@@ -29,7 +25,7 @@ namespace PlanBuild
                         scale = Vector3.one * 0.1104584f
                     }
                 }
-            }) ;
+            });
             odinLevelPrefab.KitBashApplied += InitLaserGrid;
             CustomPiece odinLevelPiece = new CustomPiece(odinLevelPrefab.Prefab, new PieceConfig
             {
@@ -40,9 +36,9 @@ namespace PlanBuild
              }
             });
             PieceManager.Instance.AddPiece(odinLevelPiece);
-            odinLevelPiece.PiecePrefab.AddComponent<OdinLevel>(); 
+            odinLevelPiece.PiecePrefab.AddComponent<OdinLevel>();
         }
-         
+
         private int radius = 10;
         private float distance = 1f;
         private KitBashObject odinLevelPrefab;
@@ -55,12 +51,12 @@ namespace PlanBuild
             int i = 0;
             for (int x = -2; x <= 2; x++)
             {
-                for (int y = -2; y <= 2;  y++)
-                { 
+                for (int y = -2; y <= 2; y++)
+                {
                     Color color = (x == 0 && y == 0) ? Color.red : Color.gray;
                     laserGrid.Add(CreateLaser(i++, new Vector3(-2, x, y), new Vector3(2, x, y), defaultLine, color));
                     laserGrid.Add(CreateLaser(i++, new Vector3(x, -2, y), new Vector3(x, 2, y), defaultLine, color));
-                    laserGrid.Add(CreateLaser(i++, new Vector3(x, y, -2), new Vector3(x, y, 2), defaultLine, color)); 
+                    laserGrid.Add(CreateLaser(i++, new Vector3(x, y, -2), new Vector3(x, y, 2), defaultLine, color));
                 }
             }
         }
