@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace SurtlingCoreOverclocking
 {
-    class SurtlingCoreOverclocking : MonoBehaviour, Interactable, Hoverable
+    internal class SurtlingCoreOverclocking : MonoBehaviour, Interactable, Hoverable
     {
         public const string oldSpeedCoreKey = "$overclockSpeedCore";
         public const string oldProductivityCoreKey = "$overclockProductivityCore";
@@ -24,7 +24,7 @@ namespace SurtlingCoreOverclocking
         public const string maxSlotsReached = "message_overclock_core_max_slots_reached";
 
         private ZNetView m_nview;
-        string m_hoverText = "";
+        private string m_hoverText = "";
 
         public static ConfigEntry<double> m_speedCoreSpeedMultiplier;
         public static ConfigEntry<double> m_speedCoreEfficiencyPenalty;
@@ -45,7 +45,6 @@ namespace SurtlingCoreOverclocking
 
         public void Awake()
         {
-
             m_nview = GetComponent<ZNetView>();
             m_nview.Register<string>("AddCore", RPC_AddCore);
             m_nview.Register("DropCores", RPC_DropCores);
@@ -56,7 +55,6 @@ namespace SurtlingCoreOverclocking
             if (!smelter)
             {
                 Debug.LogError("No smelter attached?! @ " + base.transform.position);
-
             }
             else
             {
@@ -80,7 +78,7 @@ namespace SurtlingCoreOverclocking
         private void MigrateKey(string oldKey, string newKey)
         {
             int oldCount = GetCoreCount(oldKey);
-            if(oldCount > 0)
+            if (oldCount > 0)
             {
                 int newCount = GetCoreCount("$" + newKey);
                 newCount += oldCount;
@@ -174,6 +172,7 @@ namespace SurtlingCoreOverclocking
             double bonus = productivityCores * m_productivityCoreProductivityBonus.Value;
             return 1.0 + bonus;
         }
+
         private void UpdateHoverText()
         {
             int usedCoreSlots = GetUsedCoreSlotCount();
@@ -231,7 +230,7 @@ namespace SurtlingCoreOverclocking
 
         private void UpdateSmelterValues()
         {
-            if(!this.m_nview.IsValid())
+            if (!this.m_nview.IsValid())
             {
                 return;
             }
@@ -284,7 +283,6 @@ namespace SurtlingCoreOverclocking
         {
             if (hold)
             {
-
                 if (m_holdRepeatInterval <= 0f)
                 {
                     return false;
@@ -373,11 +371,10 @@ namespace SurtlingCoreOverclocking
         private void RPC_AddCore(long sender, string coreName)
         {
             if (m_nview.IsOwner())
-            { 
+            {
                 SetCoreCount(coreName, GetCoreCount(coreName) + 1);
                 UpdateSmelterValues();
             }
-
         }
 
         internal int OnSpawn(string ore)
@@ -387,22 +384,22 @@ namespace SurtlingCoreOverclocking
             {
                 return 0;
             }
-            double producticityMultiplier = GetProductivityMultiplier(productivityCores); 
+            double producticityMultiplier = GetProductivityMultiplier(productivityCores);
             float currentPartial = GetPartial(ore);
             if (currentPartial < 0f)
             {
                 currentPartial = 0f;
             }
 
-            float additionalPartial = (float)(producticityMultiplier - 1.0f); 
-            float newPartial = currentPartial + additionalPartial; 
+            float additionalPartial = (float)(producticityMultiplier - 1.0f);
+            float newPartial = currentPartial + additionalPartial;
             int additional = 0;
             while (newPartial > 1)
             {
                 additional += 1;
                 newPartial -= 1f;
             }
-            SetPartial(ore, newPartial); 
+            SetPartial(ore, newPartial);
             return additional;
         }
 

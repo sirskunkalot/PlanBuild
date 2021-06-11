@@ -1,6 +1,6 @@
 ﻿// TransparentSails
 // a Valheim mod skeleton using Jötunn
-// 
+//
 // File:    TransparentSails.cs
 // Project: TransparentSails
 
@@ -64,7 +64,6 @@ namespace TransparentSails
                 harmony.PatchAll(typeof(ValheimRAFT_Patch));
             }
             nexusID = Config.Bind<int>("General", "NexusID", 924, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 924 })));
-
 
             configWhen = Config.Bind<When>("General", "When should the sails be transparent", When.CurrentBoat, new ConfigDescription("When should the sails be transparent?"));
             configToggleHotKey = Config.Bind<string>("General", "Toggle Hotkey", "H", new ConfigDescription("Hotkey to toggle transparency", new AcceptableValueList<string>(GetAcceptableKeyCodes())));
@@ -151,7 +150,6 @@ namespace TransparentSails
                 Name = hideButton,
                 Key = (KeyCode)Enum.Parse(typeof(KeyCode), configToggleHotKey.Value)
             });
-
         }
 
         private void OnPrefabsLoaded()
@@ -173,7 +171,6 @@ namespace TransparentSails
 
         private static Texture2D ReadableTexture(Texture2D texture)
         {
-
             // Create a temporary RenderTexture of the same size as the texture
             RenderTexture tmp = RenderTexture.GetTemporary(
                                 texture.width,
@@ -181,7 +178,6 @@ namespace TransparentSails
                                 0,
                                 RenderTextureFormat.Default,
                                 RenderTextureReadWrite.Default);
-
 
             // Backup the currently set RenderTexture
             RenderTexture previous = RenderTexture.active;
@@ -216,7 +212,6 @@ namespace TransparentSails
                 return texture;
             }
 
-
             float transparency = configShaderTransparency.Value;
 
             Texture2D transparentTexture = new Texture2D(texture.width, texture.height, TextureFormat.RGBA32, false);
@@ -241,7 +236,6 @@ namespace TransparentSails
                         {
                             a = originalColor.a * transparency;
                         }
-
                     }
                     transparentTexture.SetPixel(x, y, new Color(originalColor.r, originalColor.g, originalColor.b, a));
                 }
@@ -250,7 +244,6 @@ namespace TransparentSails
             transparentTexture.name = texture.name;
             return transparentTexture;
         }
-
 
         private static void SaveOriginalTexture(Ship ship)
         {
@@ -267,7 +260,6 @@ namespace TransparentSails
                         originalTextures[texture.name] = texture;
                         return;
                     }
-
                 }
             }
         }
@@ -308,17 +300,16 @@ namespace TransparentSails
                         {
                             material.mainTexture = originalTextures[texture.name];
                         }
-
                     }
                 }
             }
         }
 
         [HarmonyPatch(typeof(Ship), "Awake")]
-        class Ship_Awake_Patch
+        private class Ship_Awake_Patch
         {
             //Reset any broken textures
-            static void Prefix(Ship __instance, Cloth ___m_sailCloth)
+            private static void Prefix(Ship __instance, Cloth ___m_sailCloth)
             {
                 GameObject sailObject = __instance.m_sailObject;
 
@@ -338,9 +329,9 @@ namespace TransparentSails
         }
 
         [HarmonyPatch(typeof(Ship), "UpdateSailSize")]
-        class Ship_UpdateSailSize_Patch
+        private class Ship_UpdateSailSize_Patch
         {
-            static void Postfix(Ship __instance, Cloth ___m_sailCloth)
+            private static void Postfix(Ship __instance, Cloth ___m_sailCloth)
             {
                 if (Player.m_localPlayer == null)
                 {
@@ -353,7 +344,6 @@ namespace TransparentSails
 
                 UpdateSail(instanceId, shouldBeTransparent, sailObject);
             }
-
         }
 
         public static bool ShouldBeTransparent(Ship ship, Cloth m_sailCloth)
@@ -370,6 +360,7 @@ namespace TransparentSails
                         return false;
                     }
                     break;
+
                 case When.CurrentBoat:
                     if (!ship.IsPlayerInBoat(Player.m_localPlayer))
                     {
@@ -379,6 +370,5 @@ namespace TransparentSails
             }
             return m_sailCloth.enabled;
         }
-
     }
 }

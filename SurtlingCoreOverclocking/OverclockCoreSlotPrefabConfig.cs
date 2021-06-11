@@ -7,7 +7,7 @@ namespace SurtlingCoreOverclocking
 {
     public partial class SurtlingCoreOverclockingMod
     {
-        class OverclockCoreSlotPrefabConfig : CustomItem
+        private class OverclockCoreSlotPrefabConfig : CustomItem
         {
             private readonly Sprite sprite;
             private ItemDrop.ItemData.SharedData sharedData;
@@ -67,7 +67,5 @@ namespace SurtlingCoreOverclocking
                 );
             }
         }
-
     }
-
 }

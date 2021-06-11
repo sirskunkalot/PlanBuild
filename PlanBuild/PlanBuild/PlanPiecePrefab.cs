@@ -60,18 +60,6 @@ namespace PlanBuild.Plans
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = originalPiece;
             planToOriginalMap.Add(Piece, originalPiece);
-            if (logComponents)
-            {
-                StringBuilder sb = new StringBuilder("Components in prefab: " + PiecePrefab.name + "\n");
-                sb.Append("Components in prefab: " + PiecePrefab.name + "\n");
-                sb.Append($" Prefab: {PiecePrefab.name} -> {PiecePrefab.gameObject}\n");
-                foreach (Component component in PiecePrefab.GetComponents<Component>())
-                {
-                    sb.Append($" {component.GetType()} -> {component.name}\n");
-                }
-                Jotunn.Logger.LogWarning(sb.ToString());
-            }
-
             DisablePiece(PiecePrefab);
         }
 

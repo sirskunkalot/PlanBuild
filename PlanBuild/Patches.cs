@@ -1,10 +1,13 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using Jotunn.Managers;
+using Mono.Cecil.Cil;
+using MonoMod.Cil;
 using PlanBuild.Blueprints;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using static PlanBuild.ShaderHelper;
 
@@ -14,10 +17,9 @@ namespace PlanBuild
     {
         public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
-        public const string gizmoGUID = "com.rolopogo.Gizmo";
-
+        public const string gizmoGUID = "com.rolopogo.Gizmo"; 
         private static Harmony harmony;
-
+          
         [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
         [HarmonyPrefix]
         private static void PieceManager_RegisterInPieceTables_Prefix()
@@ -64,6 +66,7 @@ namespace PlanBuild
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
+            // IL.Plant.HaveGrowSpace += ILHaveGrowSpace;
 
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
@@ -85,6 +88,32 @@ namespace PlanBuild
                 harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
             }
         }
+      //
+      //private static void ILHaveGrowSpace(ILContext il)
+      //{
+      //    ILCursor cContinue = new ILCursor(il);
+      //    ILLabel lblContinueTarget = null;
+      //    cContinue.GotoNext(
+      //        zz => zz.MatchBrtrue(out lblContinueTarget) //Capture the label to continue to
+      //        );        
+      //
+      //    ILCursor c = new ILCursor(il);
+      //    c.GotoNext(MoveType.Before,
+      //        zz => zz.MatchBr(out lblContinueTarget),                              
+      //        zz => zz.MatchLdloc(0),                                               
+      //        zz => zz.MatchLdloc(1),
+      //        zz => zz.MatchLdelemRef(),
+      //        zz => zz.MatchCallOrCallvirt<Component>("GetComponent")             //Find the Object.Instantiate function
+      //    );
+      //    c.Emit(OpCodes.Ldloc, 0);
+      //    c.Emit(OpCodes.Ldloc, 1);
+      //    c.Emit(OpCodes.Ldelem_Ref);
+      //    c.Emit(OpCodes.Call, typeof(Component).GetMethod("GetComponent").MakeGenericMethod(typeof(PlanPiece)));
+      //
+      //
+      //    // c.Emit(OpCodes.Ldloc, resultLoc);                                       //Load the instantiated object for ...
+      //    // c.Emit(OpCodes.Call, typeof(PulleyManager).GetMethod("PlacedPiece"));   //my hook :D
+      //}
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {

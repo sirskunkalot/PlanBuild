@@ -40,10 +40,8 @@ namespace PlanBuild.Blueprints
             });
             ItemManager.Instance.AddRecipe(runeRecipe);
 
-            GameObject makebp_prefab = assetBundle.LoadAsset<GameObject>(MakeBlueprintName);
-            PrefabManager.Instance.AddPrefab(makebp_prefab);
-            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
-            PrefabManager.Instance.AddPrefab(placebp_prefab);
+            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(MakeBlueprintName));
+            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintSnapPointName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintCenterPointName));
             PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(UndoBlueprintName));

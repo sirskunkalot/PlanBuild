@@ -1,5 +1,4 @@
-﻿
-using BepInEx.Configuration;
+﻿using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
 using System;
@@ -10,12 +9,11 @@ using Random = UnityEngine.Random;
 
 namespace SeedTotem
 {
-    class SeedTotem : MonoBehaviour, Interactable, Hoverable
+    internal class SeedTotem : MonoBehaviour, Interactable, Hoverable
     {
-
         public static ManualLogSource logger;
 
-        const string m_name = "Seed totem";
+        private const string m_name = "Seed totem";
 
         private const string ZDO_queued = "queued";
         private const string ZDO_total = "total";
@@ -42,7 +40,6 @@ namespace SeedTotem
         internal static ConfigEntry<int> configMaxSeeds;
 
         //TODO: Keep list of previous valid plant locations, to avoid raycasting all the time
-        
 
         public static Dictionary<string, ItemConversion> seedPrefabMap = new Dictionary<string, ItemConversion>();
 
@@ -57,7 +54,7 @@ namespace SeedTotem
                 return $"{seedDrop.m_itemData.m_shared.m_name} -> {plant.m_name}";
             }
         }
-         
+
         private ZNetView m_nview;
 
         public CircleProjector m_areaMarker;
@@ -70,7 +67,7 @@ namespace SeedTotem
 
         public void Awake()
         {
-            if(m_spaceMask == 0)
+            if (m_spaceMask == 0)
             {
                 m_spaceMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid");
             }
@@ -112,7 +109,6 @@ namespace SeedTotem
 
                         if (plant)
                         {
-
                             Piece.Requirement[] requirements = piece.m_resources;
                             if (requirements.Length > 1)
                             {
@@ -143,10 +139,9 @@ namespace SeedTotem
         }
 
         [HarmonyPatch(typeof(WearNTear), "Damage")]
-        class WearNTear_RPC_Damage_Patch
+        private class WearNTear_RPC_Damage_Patch
         {
-
-            static bool Prefix(WearNTear __instance, HitData hit)
+            private static bool Prefix(WearNTear __instance, HitData hit)
             {
                 if (hit.GetTotalDamage() > 0)
                 {
@@ -212,7 +207,6 @@ namespace SeedTotem
                     logger.LogInfo("Updating color");
                     material.SetColor("_EmissionColor", color);
                 }
-
             }
 
             foreach (EffectList.EffectData effectData in m_disperseEffects.m_effectPrefabs)
@@ -298,7 +292,7 @@ namespace SeedTotem
             return m_name;
         }
 
-        string m_hoverText = "";
+        private string m_hoverText = "";
 
         public string GetHoverText()
         {
@@ -329,7 +323,7 @@ namespace SeedTotem
         private void UpdateHoverText()
         {
             StringBuilder sb = new StringBuilder(GetHoverName() + " (" + GetTotalSeedCount());
-            if(configMaxSeeds.Value > 0)
+            if (configMaxSeeds.Value > 0)
             {
                 sb.Append("/" + configMaxSeeds.Value);
             }
@@ -368,12 +362,15 @@ namespace SeedTotem
                         case PlacementStatus.Init:
                             //Show nothing for new seeds
                             break;
+
                         case PlacementStatus.NoRoom:
                             sb.Append(" <color=grey>[</color><color=green>$message_seed_totem_status_looking_for_space</color><color=grey>]</color>");
                             break;
+
                         case PlacementStatus.Planting:
                             sb.Append(" <color=grey>[</color><color=green>$message_seed_totem_status_planting</color><color=grey>]</color>");
                             break;
+
                         case PlacementStatus.WrongBiome:
                             sb.Append(" <color=grey>[</color><color=red>$message_seed_totem_status_wrong_biome</color><color=grey>]</color>");
                             break;
@@ -417,9 +414,7 @@ namespace SeedTotem
                 int remainingItems = amount;
                 int maxStackSize = seedDrop.m_itemData.m_shared.m_maxStackSize;
 
-
                 logger.LogDebug("Dropping " + remainingItems + " in stacks of " + maxStackSize);
-
 
                 do
                 {
@@ -437,7 +432,6 @@ namespace SeedTotem
                     remainingItems -= itemsToDrop;
 
                     logger.LogDebug("Dropped " + itemsToDrop + ", " + remainingItems + " left to go");
-
                 } while (remainingItems > 0);
             }
         }
@@ -483,6 +477,7 @@ namespace SeedTotem
 
         private float m_holdRepeatInterval = 1f;
         private float m_lastUseTime;
+
         public bool Interact(Humanoid user, bool hold)
         {
             if (Player.m_localPlayer.InPlaceMode())
@@ -492,7 +487,6 @@ namespace SeedTotem
 
             if (hold)
             {
-
                 if (m_holdRepeatInterval <= 0f)
                 {
                     return false;
@@ -527,10 +521,10 @@ namespace SeedTotem
                 return false;
             }
 
-            if(configMaxSeeds.Value > 0)
+            if (configMaxSeeds.Value > 0)
             {
                 int currentSeeds = GetTotalSeedCount();
-                if(currentSeeds >= configMaxSeeds.Value)
+                if (currentSeeds >= configMaxSeeds.Value)
                 {
                     user.Message(MessageHud.MessageType.Center, "$msg_itsfull");
                     return false;
@@ -543,7 +537,6 @@ namespace SeedTotem
             user.Message(MessageHud.MessageType.Center, "$msg_added " + seedName);
 
             return true;
-
         }
 
         private bool AddAllSeeds(Humanoid user)
@@ -560,11 +553,11 @@ namespace SeedTotem
 
                 logger.LogDebug("Looking for seed " + seedName);
                 int amount = user.GetInventory().CountItems(seedName);
-                if(configMaxSeeds.Value > 0)
+                if (configMaxSeeds.Value > 0)
                 {
                     int currentSeedsCount = GetTotalSeedCount();
                     int spaceLeft = configMaxSeeds.Value - currentSeedsCount;
-                    if(spaceLeft < 0)
+                    if (spaceLeft < 0)
                     {
                         if (added)
                         {
@@ -680,7 +673,6 @@ namespace SeedTotem
 
                 if (!HasGrowSpace(position, conversion.plant.m_growRadius))
                 {
-
                     result = PlacementStatus.NoRoom;
                     continue;
                 }
@@ -701,7 +693,6 @@ namespace SeedTotem
                     logger.LogWarning("No object returned?");
                 }
                 break;
-
             } while (tried <= maxRetries);
 
             logger.LogDebug("Max retries reached, result " + result);
@@ -795,7 +786,6 @@ namespace SeedTotem
 
         private void MoveToEndOfQueue(string currentSeed, int currentCount, PlacementStatus status)
         {
-
             logger.LogDebug("Moving " + currentSeed + " to end of queue");
             DumpQueueDetails();
 
@@ -804,8 +794,8 @@ namespace SeedTotem
 
             logger.LogDebug("After move");
             DumpQueueDetails();
-
         }
+
         private bool HasGrowSpace(Vector3 position, float m_growRadius)
         {
             if (m_spaceMask == 0)
@@ -881,7 +871,6 @@ namespace SeedTotem
 
         private void RemoveOneSeed()
         {
-
             logger.LogDebug("--Removing 1 seed--");
 
             int queueSize = GetQueueSize();
@@ -928,7 +917,7 @@ namespace SeedTotem
             }
 
             queueSize--;
-            
+
             m_nview.GetZDO().Set(ZDO_queued, queueSize);
         }
 
@@ -958,9 +947,9 @@ namespace SeedTotem
                 DropAllSeeds();
             }
         }
+
         private void RPC_AddSeed(long sender, string seedName, int amount)
         {
-
             if (m_nview.IsOwner())
             {
                 QueueSeed(seedName, amount);
@@ -990,7 +979,6 @@ namespace SeedTotem
                     }
                 }
                 logger.LogDebug("Restricted to " + restrict);
-
             }
         }
 
