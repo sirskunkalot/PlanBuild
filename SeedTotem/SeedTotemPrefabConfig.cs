@@ -4,7 +4,6 @@ using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using SimpleJson;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,7 +13,7 @@ using Object = UnityEngine.Object;
 
 namespace SeedTotem
 {
-    class SeedTotemPrefabConfig
+    internal class SeedTotemPrefabConfig
     {
         public static ManualLogSource logger;
 
@@ -28,7 +27,7 @@ namespace SeedTotem
         internal static ConfigEntry<SeedTotemMod.PieceLocation> configLocation;
         private PieceTable pieceTable;
         private Piece piece;
-        
+
         private GameObject currentPiece;
 
         public SeedTotemPrefabConfig()
@@ -91,7 +90,6 @@ namespace SeedTotem
             {
                 return defaultRecipe;
             }
-
         }
 
         private static Dictionary<string, int> ReadDict(string assetPath)
@@ -162,12 +160,11 @@ namespace SeedTotem
 
             CustomPiece customPiece = new CustomPiece(Prefab, pieceConfig);
 
-            PieceManager.Instance.AddPiece(customPiece); 
+            PieceManager.Instance.AddPiece(customPiece);
         }
 
         internal void UpdatePieceLocation()
         {
-
             logger.LogInfo("Moving Seed Totem to " + configLocation.Value);
             foreach (PieceLocation location in Enum.GetValues(typeof(PieceLocation)))
             {
@@ -220,8 +217,6 @@ namespace SeedTotem
             }
             return null;
         }
-
-
 
         private GameObject RemovePieceFromPieceTable(PieceLocation location, string pieceName)
         {

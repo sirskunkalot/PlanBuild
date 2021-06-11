@@ -1,5 +1,4 @@
-﻿
-using Jotunn.Configs;
+﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Utils;
 using UnityEngine;
@@ -8,7 +7,7 @@ namespace SurtlingCoreOverclocking
 {
     public partial class SurtlingCoreOverclockingMod
     {
-        class OverclockProductivityCorePrefabConfig : CustomItem
+        private class OverclockProductivityCorePrefabConfig : CustomItem
         {
             private readonly Sprite sprite;
             private ItemDrop.ItemData.SharedData sharedData;
@@ -58,9 +57,6 @@ namespace SurtlingCoreOverclocking
                     )
                 );
             }
-
         }
-
     }
-
 }

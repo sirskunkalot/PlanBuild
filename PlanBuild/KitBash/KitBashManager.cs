@@ -7,7 +7,7 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.KitBash
 {
-    class KitBashManager
+    internal class KitBashManager
     {
         public static KitBashManager Instance = new KitBashManager();
         private GameObject kitBashRoot;
@@ -28,7 +28,6 @@ namespace PlanBuild.KitBash
         {
             try
             {
-
                 if (kitBashObjects.Count == 0)
                 {
                     return;
@@ -57,7 +56,7 @@ namespace PlanBuild.KitBash
         }
 
         public KitBashObject KitBash(GameObject embeddedPrefab, KitBashConfig kitBashConfig)
-        { 
+        {
             GameObject kitbashedPrefab = Object.Instantiate(embeddedPrefab, kitBashRoot.transform);
             kitbashedPrefab.name = embeddedPrefab.name + "_kitbash";
             KitBashObject kitBashObject = new KitBashObject
@@ -87,7 +86,7 @@ namespace PlanBuild.KitBash
             }
             GameObject kitBashObject = Object.Instantiate(sourceGameObject, parentTransform);
 
-            foreach(Transform transform in kitBashObject.GetComponentsInChildren<Transform>())
+            foreach (Transform transform in kitBashObject.GetComponentsInChildren<Transform>())
             {
                 transform.gameObject.layer = pieceLayer;
             }
@@ -131,7 +130,6 @@ namespace PlanBuild.KitBash
                     targetMeshRenderer.sharedMaterials = sourceMaterials;
                     targetMeshRenderer.materials = sourceMaterials;
                 }
-
             }
             return true;
         }

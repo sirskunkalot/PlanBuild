@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlanBuild.KitBash
 {
-    class KitBashObject
+    internal class KitBashObject
     {
         internal Action KitBashApplied;
 
@@ -15,7 +15,7 @@ namespace PlanBuild.KitBash
             Jotunn.Logger.LogDebug("Applying KitBash for " + Prefab);
             foreach (KitBashSourceConfig config in Config.KitBashSources)
             {
-                if(!KitBashManager.Instance.KitBash(Prefab, config))
+                if (!KitBashManager.Instance.KitBash(Prefab, config))
                 {
                     return false;
                 }

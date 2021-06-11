@@ -10,7 +10,7 @@ using System.Reflection;
 namespace SurtlingCoreOverclocking
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid)] 
+    [BepInDependency(Jotunn.Main.ModGuid)]
     public partial class SurtlingCoreOverclockingMod : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.SurtlingCoreOverclocking";
@@ -47,7 +47,6 @@ namespace SurtlingCoreOverclocking
             SurtlingCoreOverclocking.m_speedCoreSpeedMultiplier.SettingChanged += UpdateDescriptionCallback;
             SurtlingCoreOverclocking.m_speedCoreEfficiencyPenalty.SettingChanged += UpdateDescriptionCallback;
 
-
             SurtlingCoreOverclocking.m_efficiencyCoreEfficiencyBonus.SettingChanged += UpdateDescriptionCallback;
             SurtlingCoreOverclocking.m_efficiencyCoreSpeedPenalty.SettingChanged += UpdateDescriptionCallback;
 
@@ -61,17 +60,17 @@ namespace SurtlingCoreOverclocking
             ItemManager.OnItemsRegistered += UpdateDescription;
 
             harmony.PatchAll();
-
         }
+
         private void AddClonedItems(On.ObjectDB.orig_CopyOtherDB orig, ObjectDB self, ObjectDB other)
         {
             // You want that to run only once, JotunnLib has the item cached for the game session
             if (!clonedItemsProcessed)
             {
-              coreSlot = new OverclockCoreSlotPrefabConfig(); 
+                coreSlot = new OverclockCoreSlotPrefabConfig();
                 ItemManager.Instance.AddItem(coreSlot);
                 coreSlot.PrefabCreated();
-                speedCore = new OverclockSpeedCorePrefabConfig(); 
+                speedCore = new OverclockSpeedCorePrefabConfig();
                 ItemManager.Instance.AddItem(speedCore);
                 speedCore.PrefabCreated();
                 efficiencyCore = new OverclockEfficiencyCorePrefabConfig();
@@ -114,37 +113,36 @@ namespace SurtlingCoreOverclocking
                 }
             }
             return text;
-        } 
+        }
 
         private void UpdateDescriptionCallback(object sender, EventArgs e)
         {
             UpdateDescription();
         }
-         
+
         public void UpdateDescription()
         {
             Logger.LogInfo("Updating description of items");
             coreSlot.UpdateDescription();
             speedCore.UpdateDescription();
             efficiencyCore.UpdateDescription();
-            productivityCore.UpdateDescription(); 
+            productivityCore.UpdateDescription();
         }
 
         public static string InsertWords(string text, params string[] words)
-        { 
+        {
             for (int i = 0; i < words.Length; i++)
             {
                 string newValue = words[i];
-                text = text.Replace("$" + (i + 1), newValue); 
+                text = text.Replace("$" + (i + 1), newValue);
             }
             return text;
         }
 
         [HarmonyPatch(typeof(Smelter), "Awake")]
-        class Smelter_Awake_Patch
+        private class Smelter_Awake_Patch
         {
-
-            static void Prefix(Smelter __instance)
+            private static void Prefix(Smelter __instance)
             {
                 SurtlingCoreOverclocking surtlingCoreOverclocking = __instance.GetComponentInParent<SurtlingCoreOverclocking>();
                 if (surtlingCoreOverclocking == null)
@@ -156,10 +154,9 @@ namespace SurtlingCoreOverclocking
         }
 
         [HarmonyPatch(typeof(Smelter), "Spawn")]
-        class Smelter_Spawn_Patch
+        private class Smelter_Spawn_Patch
         {
-
-            static void Prefix(Smelter __instance, string ore, ref int stack)
+            private static void Prefix(Smelter __instance, string ore, ref int stack)
             {
                 SurtlingCoreOverclocking surtlingCoreOverclocking = __instance.GetComponentInParent<SurtlingCoreOverclocking>();
                 if (surtlingCoreOverclocking)
@@ -174,12 +171,10 @@ namespace SurtlingCoreOverclocking
             }
         }
 
-
         [HarmonyPatch(typeof(Smelter), "GetFuel")]
-        class Smelter_GetFuel_Patch
+        private class Smelter_GetFuel_Patch
         {
-
-            static void Postfix(Smelter __instance, float __result)
+            private static void Postfix(Smelter __instance, float __result)
             {
                 SurtlingCoreOverclocking surtlingCoreOverclocking = __instance.GetComponentInParent<SurtlingCoreOverclocking>();
                 if (surtlingCoreOverclocking)
@@ -193,12 +188,10 @@ namespace SurtlingCoreOverclocking
             }
         }
 
-
         [HarmonyPatch(typeof(Smelter), "SetFuel")]
-        class Smelter_SetFuel_Patch
+        private class Smelter_SetFuel_Patch
         {
-
-            static void Prefix(Smelter __instance, ref float fuel)
+            private static void Prefix(Smelter __instance, ref float fuel)
             {
                 SurtlingCoreOverclocking surtlingCoreOverclocking = __instance.GetComponentInParent<SurtlingCoreOverclocking>();
                 if (surtlingCoreOverclocking)
@@ -211,7 +204,5 @@ namespace SurtlingCoreOverclocking
                 }
             }
         }
-
-
     }
 }

@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace PlanBuild.Plans
 {
-    class PlanCrystalPrefab : CustomItem
+    internal class PlanCrystalPrefab : CustomItem
     {
-        public const string prefabName = "PlanCrystal";  
+        public const string prefabName = "PlanCrystal";
         private const string localizationName = "plan_crystal";
         private string iconPath = "icons/plan_crystal.png";
         public static GameObject startPlanCrystalEffectPrefab;
@@ -15,13 +15,12 @@ namespace PlanBuild.Plans
 
         public PlanCrystalPrefab() : base(prefabName, "Ruby")
         {
-            
             Recipe = new CustomRecipe(new RecipeConfig()
             {
                 Item = prefabName,
                 Name = "$item_" + localizationName,
                 CraftingStation = "piece_workbench",
-                Requirements = new RequirementConfig[] 
+                Requirements = new RequirementConfig[]
                 {
                     new RequirementConfig()
                     {
@@ -36,7 +35,7 @@ namespace PlanBuild.Plans
                 }
             });
         }
-         
+
         public void Setup()
         {
             Jotunn.Logger.LogDebug("Configuring item drop for PlanCrystal");
@@ -86,17 +85,14 @@ namespace PlanBuild.Plans
             sharedData.m_maxQuality = 1;
         }
 
-         public void FixShader()
+        public void FixShader()
         {
-           
             ShaderHelper.UpdateTextures(ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
-
         }
     }
 
-   public  class StartPlanCrystalStatusEffect : MonoBehaviour
+    public class StartPlanCrystalStatusEffect : MonoBehaviour
     {
-
         public void Awake()
         {
             bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
@@ -109,14 +105,10 @@ namespace PlanBuild.Plans
                 PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
-
     }
-     
-
 
     public class StopPlanCrystalStatusEffect : MonoBehaviour
     {
-
         public void Awake()
         {
             bool attachedPlayer = gameObject.GetComponent<ZNetView>().IsOwner();
@@ -129,7 +121,5 @@ namespace PlanBuild.Plans
                 PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
-
     }
-     
 }

@@ -1,22 +1,14 @@
-﻿using BepInEx.Logging;
-using HarmonyLib;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
+﻿using HarmonyLib;
 using ValheimRAFT;
 
 namespace TransparentSails
 {
-    class ValheimRAFT_Patch
+    internal class ValheimRAFT_Patch
     {
-
         [HarmonyPatch(typeof(Ship), "UpdateSailSize")]
         [HarmonyPostfix]
         private static void Ship_UpdateSailSize(Ship __instance)
-        { 
+        {
             MoveableBaseShipSync mb = __instance.GetComponent<MoveableBaseShipSync>();
             if (!mb || !mb.m_baseRoot)
             {
@@ -31,6 +23,5 @@ namespace TransparentSails
                 }
             }
         }
-
     }
 }

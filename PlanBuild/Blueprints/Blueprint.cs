@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Jotunn.Configs;
+using Jotunn.Entities;
+using Jotunn.Managers;
+using PlanBuild.Plans;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using Jotunn;
-using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using Object = UnityEngine.Object;
-using PlanBuild.Plans;
 using UnityEngine.Rendering;
 using Logger = Jotunn.Logger;
+using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -54,6 +53,7 @@ namespace PlanBuild.Blueprints
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;m_name&gt;)"
         /// </summary>
         private string m_prefabname;
+
         public string m_description = "";
         public Piece m_piece;
 
@@ -63,7 +63,6 @@ namespace PlanBuild.Blueprints
         /// <param name="name"></param>
         private Blueprint()
         {
-
         }
 
         public static Blueprint FromWorld(string name)
@@ -206,7 +205,6 @@ namespace PlanBuild.Blueprints
                 if (pieceName.EndsWith(PlanPiecePrefab.PlannedSuffix))
                 {
                     pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
-
                 }
                 m_pieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
@@ -374,9 +372,11 @@ namespace PlanBuild.Blueprints
                                 case ".vbuild":
                                     pieceEntry = PieceEntry.FromVBuild(line);
                                     break;
+
                                 case ".blueprint":
                                     pieceEntry = PieceEntry.FromBlueprint(line);
                                     break;
+
                                 default:
                                     if (logLoading)
                                     {
@@ -421,8 +421,6 @@ namespace PlanBuild.Blueprints
                 Logger.LogWarning("No pieces loaded");
                 return;
             }
-
-
         }
 
         public bool CreatePrefab()
@@ -747,7 +745,6 @@ namespace PlanBuild.Blueprints
                 }
             }
 
-
             public IEnumerator AddBlueprint()
             {
                 bool oldHud = DisableHud();
@@ -775,7 +772,6 @@ namespace PlanBuild.Blueprints
                 Logger.LogInfo("Blueprint created");
 
                 newbp = null;
-
             }
 
             private bool DisableHud()
@@ -789,8 +785,6 @@ namespace PlanBuild.Blueprints
 
                 return oldHud;
             }
-
-
         }
     }
 }

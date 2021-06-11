@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using Logger = Jotunn.Logger;
+using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -51,10 +51,10 @@ namespace PlanBuild.Blueprints
             if (groundPrefab)
             {
                 var forward = -1f;
-                while (forward < maxZ+1f)
+                while (forward < maxZ + 1f)
                 {
                     var right = -1f;
-                    while (right < maxX+1f)
+                    while (right < maxX + 1f)
                     {
                         if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
                         {
@@ -66,7 +66,6 @@ namespace PlanBuild.Blueprints
                     }
 
                     forward++;
-
                 }
             }
         }

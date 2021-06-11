@@ -1,6 +1,6 @@
 ﻿// SeedTotem
 // a Valheim mod skeleton using Jötunn
-// 
+//
 // File:    SeedTotem.cs
 // Project: SeedTotem
 
@@ -29,7 +29,6 @@ namespace SeedTotem
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
         private Harmony harmony;
-
 
         public enum PieceLocation
         {
@@ -71,7 +70,7 @@ namespace SeedTotem
             SeedTotem.configCheckBiome = Config.Bind("Server", "Check for correct biome", defaultValue: true, new ConfigDescription("Should the Seed totem also check for the correct biome?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             SeedTotem.configCustomRecipe = Config.Bind("Server", "Custom piece requirements", false, new ConfigDescription("Load custom piece requirements from " + SeedTotemPrefabConfig.requirementsFile + "?", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
             SeedTotem.configMaxSeeds = Config.Bind("Server", "Max seeds in totem (0 is no limit)", defaultValue: 0, new ConfigDescription("Maximum number of seeds in each totem, 0 is no limit", null, new ConfigurationManagerAttributes { IsAdminOnly = true }));
-             
+
             //client configs
             SeedTotem.configShowQueue = Config.Bind<bool>("UI", "Show queue", defaultValue: true, new ConfigDescription("Show the current queue on hover"));
             SeedTotem.configGlowColor = Config.Bind<Color>("Graphical", "Glow lines color", new Color(0f, 0.8f, 0f, 1f), new ConfigDescription("Color of the glowing lines on the Seed totem"));
@@ -83,6 +82,7 @@ namespace SeedTotem
 
             SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Cultivator, "In which build menu is the Seed totem located");
         }
+
         private void OnPiecesRegistered()
         {
             seedTotemPrefabConfig.UpdatePieceLocation();
@@ -96,7 +96,7 @@ namespace SeedTotem
         private void AddCustomPrefabs()
         {
             try
-            { 
+            {
                 seedTotemPrefabConfig = new SeedTotemPrefabConfig();
 
                 var seedTotemPrefab = PrefabManager.Instance.CreateClonedPrefab(SeedTotemPrefabConfig.prefabName, "guard_stone");
@@ -111,7 +111,6 @@ namespace SeedTotem
                 ItemManager.OnVanillaItemsAvailable -= AddCustomPrefabs;
             }
         }
-
 
         private void UpdatePieceLocation(object sender, EventArgs e)
         {

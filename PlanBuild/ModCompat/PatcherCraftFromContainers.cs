@@ -1,41 +1,41 @@
 ﻿using HarmonyLib;
-using System;
 using PlanBuild.Plans;
+using System;
 
 namespace PlanBuild.ModCompat
 {
-    class PatcherCraftFromContainers
-    { 
+    internal class PatcherCraftFromContainers
+    {
         [HarmonyPatch(typeof(PlanPiece), "PlayerHaveResource")]
         [HarmonyPostfix]
-        static void PlanPiece_PlayerHaveResource_Postfix(Humanoid player, string resourceName, ref bool __result)
+        private static void PlanPiece_PlayerHaveResource_Postfix(Humanoid player, string resourceName, ref bool __result)
         {
-            if(!CraftFromContainers.BepInExPlugin.modEnabled.Value)
+            if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
             {
                 return;
             }
-            if(__result == false)
+            if (__result == false)
             {
-                foreach(Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
+                foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
                 {
-                    if(container.GetInventory().HaveItem(resourceName))
+                    if (container.GetInventory().HaveItem(resourceName))
                     {
                         __result = true;
                         return;
-                    }   
+                    }
                 }
             }
         }
 
         [HarmonyPatch(typeof(PlanPiece), "PlayerGetResourceCount")]
         [HarmonyPostfix]
-        static void PlanPiece_PlayerGetResourceCount_Postfix(Humanoid player, string resourceName, ref int __result)
+        private static void PlanPiece_PlayerGetResourceCount_Postfix(Humanoid player, string resourceName, ref int __result)
         {
             if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
             {
                 return;
             }
-            
+
             foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
             {
                 __result += container.GetInventory().CountItems(resourceName);
@@ -44,7 +44,7 @@ namespace PlanBuild.ModCompat
 
         [HarmonyPatch(typeof(PlanPiece), "PlayerRemoveResource")]
         [HarmonyPrefix]
-        static bool PlanPiece_PlayerRemoveResource_Prefix(Humanoid player, string resourceName, int amount)
+        private static bool PlanPiece_PlayerRemoveResource_Prefix(Humanoid player, string resourceName, int amount)
         {
             if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
             {
@@ -54,7 +54,7 @@ namespace PlanBuild.ModCompat
             int amountToRemove = Math.Min(amount, playerResourceCount);
             player.GetInventory().RemoveItem(resourceName, amountToRemove);
             int remaining = amount - amountToRemove;
-            if(remaining > 0)
+            if (remaining > 0)
             {
                 foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
                 {
@@ -62,7 +62,7 @@ namespace PlanBuild.ModCompat
                     amountToRemove = Math.Min(remaining, containerResourceCount);
                     container.GetInventory().RemoveItem(resourceName, amountToRemove);
                     remaining -= amountToRemove;
-                    if(remaining < 0)
+                    if (remaining < 0)
                     {
                         break;
                     }
@@ -70,6 +70,5 @@ namespace PlanBuild.ModCompat
             }
             return false;
         }
-
     }
 }

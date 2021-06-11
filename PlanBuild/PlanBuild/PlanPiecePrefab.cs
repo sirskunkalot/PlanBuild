@@ -1,6 +1,4 @@
-﻿using BepInEx.Logging; 
-using Jotunn.Entities;
-using PlanBuild.Blueprints;
+﻿using Jotunn.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,9 +15,9 @@ namespace PlanBuild.Plans
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
+
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PlanHammerPieceTableName)
-        { 
-            
+        {
             this.originalPiece = piece;
             Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", originalPiece.m_name);
             Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", originalPiece.m_name);
@@ -27,8 +25,8 @@ namespace PlanBuild.Plans
             Piece.m_craftingStation = null;
             Piece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
             Piece.m_comfort = 0;
-            Piece.m_canBeRemoved = true; 
-            
+            Piece.m_canBeRemoved = true;
+
             Piece.m_category = originalPiece.m_category;
             Piece.m_groundOnly = originalPiece.m_groundOnly;
             Piece.m_groundPiece = originalPiece.m_groundPiece;
@@ -42,15 +40,14 @@ namespace PlanBuild.Plans
             Piece.m_randomTarget = false;
             Piece.m_primaryTarget = false;
 
-            this.PieceTable = PlanHammerPieceTableName;  
+            this.PieceTable = PlanHammerPieceTableName;
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
             if (wearNTear == null)
-            { 
+            {
                 wearNTear = PiecePrefab.AddComponent<WearNTear>();
             }
-            
-            
+
             wearNTear.m_noSupportWear = true;
             wearNTear.m_noRoofWear = false;
             wearNTear.m_autoCreateFragments = false;
@@ -63,18 +60,6 @@ namespace PlanBuild.Plans
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = originalPiece;
             planToOriginalMap.Add(Piece, originalPiece);
-            if (logComponents)
-            {
-                StringBuilder sb = new StringBuilder("Components in prefab: " + PiecePrefab.name + "\n");
-                sb.Append("Components in prefab: " + PiecePrefab.name + "\n");
-                sb.Append($" Prefab: {PiecePrefab.name} -> {PiecePrefab.gameObject}\n");
-                foreach (Component component in PiecePrefab.GetComponents<Component>())
-                {
-                    sb.Append($" {component.GetType()} -> {component.name}\n");
-                }
-                Jotunn.Logger.LogWarning(sb.ToString());
-            }
-
             DisablePiece(PiecePrefab);
         }
 
@@ -83,7 +68,7 @@ namespace PlanBuild.Plans
                 typeof(GuidePoint),
                 typeof(Light),
                 typeof(LightLod),
-                typeof(LightFlicker), 
+                typeof(LightFlicker),
                 typeof(Smelter),
                 typeof(Interactable),
                 typeof(Hoverable)
@@ -91,13 +76,13 @@ namespace PlanBuild.Plans
 
         public static int planLayer = LayerMask.NameToLayer("piece_nonsolid");
         public static int m_placeRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle");
-         
+
         public void DisablePiece(GameObject gameObject)
         {
             gameObject.layer = planLayer;
             Transform playerBaseTransform = gameObject.transform.Find("PlayerBase");
             if (playerBaseTransform)
-            { 
+            {
                 Object.Destroy(playerBaseTransform.gameObject);
             }
 
@@ -135,8 +120,6 @@ namespace PlanBuild.Plans
             {
                 componentsInChildren10[i].gameObject.SetActive(value: false);
             }
-
-        } 
+        }
     }
-
 }

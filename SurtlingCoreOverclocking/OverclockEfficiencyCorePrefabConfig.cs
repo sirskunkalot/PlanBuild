@@ -1,5 +1,4 @@
-﻿
-using Jotunn.Configs;
+﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Utils;
 using UnityEngine;
@@ -8,7 +7,7 @@ namespace SurtlingCoreOverclocking
 {
     public partial class SurtlingCoreOverclockingMod
     {
-        class OverclockEfficiencyCorePrefabConfig : CustomItem
+        private class OverclockEfficiencyCorePrefabConfig : CustomItem
         {
             private readonly Sprite sprite;
             private ItemDrop.ItemData.SharedData sharedData;
@@ -55,11 +54,9 @@ namespace SurtlingCoreOverclocking
                     InsertWords(descriptionTemplate,
                          SurtlingCoreOverclocking.GetPercentageString(SurtlingCoreOverclocking.m_efficiencyCoreEfficiencyBonus.Value),
                          SurtlingCoreOverclocking.GetPercentageString(SurtlingCoreOverclocking.m_efficiencyCoreSpeedPenalty.Value)
-                    ) 
+                    )
                 );
             }
-             
         }
     }
-
 }
