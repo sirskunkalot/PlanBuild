@@ -32,24 +32,24 @@ namespace PlanBuild.Blueprints
         public void ParseBlueprint_V1()
         {
             Blueprint.logLoading = false;
-            Blueprint blueprint = Blueprint.FromFile("resources/TestBox_V1.blueprint");
-            Assert.AreEqual(blueprint.m_name, "TestBox_V1");
+            Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V1.blueprint");
+            Assert.AreEqual(blueprint.Name, "TestBox_V1");
             Assert.IsTrue(blueprint.Load());
-            Assert.AreEqual(blueprint.m_snapPoints.Length, 0);
-            Assert.AreEqual(blueprint.m_pieceEntries.Length, 6);
+            Assert.AreEqual(blueprint.SnapPoints.Length, 0);
+            Assert.AreEqual(blueprint.PieceEntries.Length, 6);
         }
          
         [TestMethod]
         public void ParseBlueprint_V2()
         {
             Blueprint.logLoading = false;
-            Blueprint blueprint = Blueprint.FromFile("resources/TestBox_V2.blueprint");
-            Assert.AreEqual(blueprint.m_name, "TestBox_V2");
+            Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V2.blueprint");
+            Assert.AreEqual(blueprint.Name, "TestBox_V2");
             Assert.IsTrue(blueprint.Load());
-            Assert.AreEqual(blueprint.m_name, "Custom Name");
-            Assert.AreEqual(blueprint.m_description, "Description with\nnewlines and such :)"); 
-            Assert.AreEqual(blueprint.m_snapPoints.Length, 0);
-            Assert.AreEqual(blueprint.m_pieceEntries.Length, 6);
+            Assert.AreEqual(blueprint.Name, "Custom Name");
+            Assert.AreEqual(blueprint.Description, "Description with\nnewlines and such :)"); 
+            Assert.AreEqual(blueprint.SnapPoints.Length, 0);
+            Assert.AreEqual(blueprint.PieceEntries.Length, 6);
         }
 
     }

@@ -224,7 +224,7 @@ namespace PlanBuild.Blueprints
                 string name = Path.GetFileNameWithoutExtension(relativeFilePath);
                 if (!m_blueprints.ContainsKey(name))
                 {
-                    var bp = Blueprint.FromFile(relativeFilePath);
+                    var bp = Blueprint.FromPath(relativeFilePath);
                     if (bp.Load())
                     {
                         m_blueprints.Add(name, bp);
@@ -459,7 +459,7 @@ namespace PlanBuild.Blueprints
             if (ZInput.GetButton("AltPlace"))
             {
                 Vector2 extent = bp.GetExtent();
-                FlattenTerrain.FlattenForBlueprint(transform, extent.x, extent.y, bp.m_pieceEntries);
+                FlattenTerrain.FlattenForBlueprint(transform, extent.x, extent.y, bp.PieceEntries);
             }
 
             uint cntEffects = 0u;
@@ -470,12 +470,12 @@ namespace PlanBuild.Blueprints
             GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
 
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(ZDOBlueprintName, bp.m_name);
+            blueprintZDO.Set(ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
 
-            for (int i = 0; i < bp.m_pieceEntries.Length; i++)
+            for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
-                PieceEntry entry = bp.m_pieceEntries[i];
+                PieceEntry entry = bp.PieceEntries[i];
                 // Final position
                 Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
@@ -491,7 +491,7 @@ namespace PlanBuild.Blueprints
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (!prefab)
                 {
-                    Jotunn.Logger.LogWarning(entry.name + " not found, you are probably missing a dependency for blueprint " + bp.m_name + ", not placing @ " + entryPosition);
+                    Jotunn.Logger.LogWarning(entry.name + " not found, you are probably missing a dependency for blueprint " + bp.Name + ", not placing @ " + entryPosition);
                     continue;
                 }
 
@@ -565,7 +565,7 @@ namespace PlanBuild.Blueprints
             var bpname = $"blueprint{Instance.m_blueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
-            var bp = Blueprint.FromWorld(bpname);
+            var bp = new Blueprint();
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
             if (bp.Capture(capturePosition, Instance.selectionRadius))
             {
