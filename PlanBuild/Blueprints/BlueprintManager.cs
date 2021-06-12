@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
@@ -96,7 +97,18 @@ namespace PlanBuild.Blueprints
             // On.Player.TakeInput += OnPlayerTakeInput;
             // On.PlayerController.TakeInput += OnPlayerControllerTakeInput;
 
+            GUIManager.OnPixelFixCreated += CreateBlueprintGUI;
+
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        private void CreateBlueprintGUI()
+        {
+            // Init GUI
+            if (SceneManager.GetActiveScene().name == "main")
+            {
+                GUIManager.PixelFix.AddComponent<BlueprintGUI>();
+            }
         }
 
         private void GameCamera_UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
