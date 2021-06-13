@@ -2,7 +2,6 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using PlanBuild.KitBash;
 using PlanBuild.PlanBuild;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,50 +12,50 @@ namespace PlanBuild.Plans
     internal class PlanTotemPrefab
     {
         internal static ConfigEntry<Color> glowColorConfig;
-        private KitBashObject planTotemKitBash;
+        private KitbashObject planTotemKitbash;
 
         public PlanTotemPrefab(AssetBundle planbuildBundle)
         {
-            planTotemKitBash = KitBashManager.Instance.KitBash(planbuildBundle.LoadAsset<GameObject>("piece_plan_totem"), new KitBashConfig
+            planTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>("piece_plan_totem"), new KitbashConfig
             {
                 FixReferences = true,
-                KitBashSources = new List<KitBashSourceConfig> {
-                    new KitBashSourceConfig
+                KitbashSources = new List<KitbashSourceConfig> {
+                    new KitbashSourceConfig
                     {
-                        name = "totem",
-                        targetParentPath = "new",
-                        sourcePrefab = "guard_stone",
-                        sourcePath = "new/default",
-                        scale = Vector3.one * 0.6f
+                        Name = "totem",
+                        TargetParentPath = "new",
+                        SourcePrefab = "guard_stone",
+                        SourcePath = "new/default",
+                        Scale = Vector3.one * 0.6f
                     },
-                    new KitBashSourceConfig
+                    new KitbashSourceConfig
                     {
-                        name= "chest",
-                        targetParentPath = "new",
-                        sourcePrefab = "piece_chest_private",
-                        sourcePath = "New",
-                        position = new Vector3(0,0, 0.591f),
-                        scale = Vector3.one * 0.9f,
-                        rotation = Quaternion.Euler(180f, 180f, 180f)
+                        Name= "chest",
+                        TargetParentPath = "new",
+                        SourcePrefab = "piece_chest_private",
+                        SourcePath = "New",
+                        Position = new Vector3(0,0, 0.591f),
+                        Scale = Vector3.one * 0.9f,
+                        Rotation = Quaternion.Euler(180f, 180f, 180f)
                     },
-                    new KitBashSourceConfig
+                    new KitbashSourceConfig
                     {
-                        name = "hammer",
-                        targetParentPath = "new/pivot",
-                        sourcePrefab= "Hammer",
-                        sourcePath = "attach/hammer",
-                        position = new Vector3(0.07f, 1.9f, 0f),
-                        rotation = Quaternion.Euler(0f, 0f, 20f),
-                        scale = Vector3.one * 0.3f
+                        Name = "hammer",
+                        TargetParentPath = "new/pivot",
+                        SourcePrefab= "Hammer",
+                        SourcePath = "attach/hammer",
+                        Position = new Vector3(0.07f, 1.9f, 0f),
+                        Rotation = Quaternion.Euler(0f, 0f, 20f),
+                        Scale = Vector3.one * 0.3f
                     }
                 }
             });
-            planTotemKitBash.KitBashApplied += () =>
+            planTotemKitbash.OnKitbashApplied += () =>
             {
                 GameObject connectionPrefab = PrefabManager.Instance.GetPrefab("forge_ext1").GetComponent<StationExtension>().m_connectionPrefab;
                 GameObject planBuildConnectionPrefab = PrefabManager.Instance.CreateClonedPrefab("vfx_PlanBuildConnection", connectionPrefab);
 
-                GameObject planTotemPrefab = planTotemKitBash.Prefab;
+                GameObject planTotemPrefab = planTotemKitbash.Prefab;
 
                 ShaderHelper.UpdateTextures(planTotemPrefab.transform.Find("new/pivot/hammer").gameObject, ShaderHelper.ShaderState.Supported);
 
@@ -76,11 +75,11 @@ namespace PlanBuild.Plans
                     .SetColor("_EmissionColor", glowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
-                circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
+                circleProjector.m_prefab = PrefabManager.Cache.GetPrefab<GameObject>("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
                 circleProjector.m_radius = PlanTotem.radiusConfig.Value;
             };
 
-            CustomPiece planTotemPiece = new CustomPiece(planTotemKitBash.Prefab, new PieceConfig()
+            CustomPiece planTotemPiece = new CustomPiece(planTotemKitbash.Prefab, new PieceConfig()
             {
                 PieceTable = "Hammer",
                 Requirements = new RequirementConfig[]
@@ -95,7 +94,7 @@ namespace PlanBuild.Plans
 
         internal void SettingsUpdated()
         {
-            UpdateGlowColor(planTotemKitBash.Prefab);
+            UpdateGlowColor(planTotemKitbash.Prefab);
         }
 
         public static void UpdateGlowColor(GameObject prefab)

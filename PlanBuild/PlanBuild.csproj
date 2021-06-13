@@ -101,10 +101,6 @@
     <Compile Include="Blueprints\WorldBlueprintManager.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="KitBash\KitBashConfig.cs" />
-    <Compile Include="KitBash\KitBashManager.cs" />
-    <Compile Include="KitBash\KitBashObject.cs" />
-    <Compile Include="KitBash\KitBashSourceConfig.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
     <Compile Include="ModCompat\PatcherGizmo.cs" />

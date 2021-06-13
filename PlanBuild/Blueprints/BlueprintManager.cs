@@ -82,8 +82,11 @@ namespace PlanBuild.Blueprints
             // Load Blueprints
             LoadKnownBlueprints();
 
-            //Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
+            // Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
+
+            // Register in GUIManager to create the BlueprintGUI
+            GUIManager.OnPixelFixCreated += CreateBlueprintGUI;
 
             // Hooks
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
@@ -96,8 +99,6 @@ namespace PlanBuild.Blueprints
             // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
             // On.Player.TakeInput += OnPlayerTakeInput;
             // On.PlayerController.TakeInput += OnPlayerControllerTakeInput;
-
-            GUIManager.OnPixelFixCreated += CreateBlueprintGUI;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
