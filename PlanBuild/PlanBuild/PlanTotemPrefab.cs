@@ -75,7 +75,7 @@ namespace PlanBuild.Plans
                     .SetColor("_EmissionColor", glowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
-                circleProjector.m_prefab = PrefabManager.Cache.GetPrefab<GameObject>("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
+                circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
                 circleProjector.m_radius = PlanTotem.radiusConfig.Value;
             };
 
