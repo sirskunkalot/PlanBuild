@@ -48,6 +48,7 @@
     <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="CraftFromContainers">
       <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
@@ -55,6 +56,7 @@
     </Reference>
     <Reference Include="Gizmo">
       <HintPath>..\libraries\pub\Gizmo.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Jotunn, Version=2.0.12.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.0.12\lib\net462\Jotunn.dll</HintPath>

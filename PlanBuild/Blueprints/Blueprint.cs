@@ -519,7 +519,7 @@ namespace PlanBuild.Blueprints
 
             if (!table.m_pieces.Contains(Prefab))
             {
-                Logger.LogDebug($"Adding {Prefabname} to {BlueprintRunePrefab.BlueprintRuneName}"); 
+                Logger.LogDebug($"Adding {PrefabName} to {BlueprintRunePrefab.BlueprintRuneName}"); 
                 table.m_pieces.Add(Prefab);
             }
         }
@@ -541,7 +541,7 @@ namespace PlanBuild.Blueprints
 
             if (table.m_pieces.Contains(Prefab))
             {
-                Logger.LogInfo($"Removing {Prefabname} from {BlueprintRunePrefab.BlueprintRuneName}");
+                Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
 
                 table.m_pieces.Remove(Prefab);
             }
