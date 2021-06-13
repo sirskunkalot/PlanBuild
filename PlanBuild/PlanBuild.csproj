@@ -107,8 +107,6 @@
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
     <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
-    <Compile Include="PlanBuild\OdinLevelPrefab.cs" />
-    <Compile Include="PlanBuild\OdinLevel.cs" />
     <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
     <Compile Include="PlanBuild\PlanPiece.cs" />
     <Compile Include="PlanBuild\PlanPiecePrefab.cs" />

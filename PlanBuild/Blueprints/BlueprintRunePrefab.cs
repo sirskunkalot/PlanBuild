@@ -9,67 +9,70 @@ namespace PlanBuild.Blueprints
     internal class BlueprintRunePrefab
     {
         public const string PieceTableName = "_BlueprintPieceTable";
+        public const string CategoryTools = "Tools";
+        public const string CategoryBlueprints = "Blueprints";
+
         public const string BlueprintRuneName = "BlueprintRune";
-        public const string BlueprintSnapPointName = "piece_blueprint_snappoint";
+
+        public const string BlueprintSnapPointName = "piece_blueprint_snappoint"; 
         public const string BlueprintCenterPointName = "piece_blueprint_centerpoint";
         public const string BlueprintStandingBlueprintRune = "piece_standing_blueprint_rune";
         public const string MakeBlueprintName = "make_blueprint";
         public const string UndoBlueprintName = "undo_blueprint";
         public const string DeletePlansName = "delete_plans";
-        public const string OdinLevelName = "piece_odin_level";
+
         public static string BlueprintRuneItemName;
         public GameObject runeprefab;
 
         public BlueprintRunePrefab(AssetBundle assetBundle)
         {
-            PieceManager.Instance.AddPieceTable(assetBundle.LoadAsset<GameObject>(PieceTableName));
-
-            runeprefab = assetBundle.LoadAsset<GameObject>(BlueprintRuneName);
-            CustomItem rune = new CustomItem(runeprefab, fixReference: false);
-            ItemManager.Instance.AddItem(rune);
-            BlueprintRuneItemName = rune.ItemDrop.m_itemData.m_shared.m_name;
-            rune.ItemDrop.m_itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-            CustomRecipe runeRecipe = new CustomRecipe(new RecipeConfig()
+            // Rune piece table
+            CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
             {
-                Item = BlueprintRuneName,
+                UseCategories = false,
+                UseCustomCategories = true,
+                CustomCategories = new string[]
+                {
+                    "Tools", "Blueprints"
+                }
+            });
+            PieceManager.Instance.AddPieceTable(table);
+
+            // Rune item
+            GameObject runeprefab = assetBundle.LoadAsset<GameObject>(BlueprintRuneName);
+            CustomItem item = new CustomItem(runeprefab, false, new ItemConfig
+            {
                 Amount = 1,
                 Requirements = new RequirementConfig[]
                 {
                     new RequirementConfig {Item = "Stone", Amount = 1}
                 }
-            });
-            ItemManager.Instance.AddRecipe(runeRecipe);
+            }); 
+            ItemManager.Instance.AddItem(item); 
+            BlueprintRuneItemName = item.ItemDrop.m_itemData.m_shared.m_name;
+            item.ItemDrop.m_itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
 
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(MakeBlueprintName));
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName));
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintSnapPointName));
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintCenterPointName));
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(UndoBlueprintName));
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(DeletePlansName));
-
-            /*
-            CustomPiece blueprintRunestone = new CustomPiece(assetBundle.LoadAsset<GameObject>(BlueprintStandingBlueprintRune), new PieceConfig
+            // Tool pieces
+            CustomPiece piece;
+            GameObject prefab;
+            foreach (string pieceName in new string[]
             {
-                PieceTable = "Hammer",
-                Requirements = new RequirementConfig[] {
-                    new RequirementConfig
-                    {
-                        Item = "Stone",
-                        Amount = 10,
-                        Recover = true
-                    },
-                    new RequirementConfig
-                    {
-                        Item = "SurtlingCore",
-                        Recover = true
-                    }
-                }
-            });
-            PieceManager.Instance.AddPiece(blueprintRunestone);
-            blueprintRunestone.PiecePrefab.AddComponent<WorldBlueprintManager>();
+                MakeBlueprintName, BlueprintSnapPointName, BlueprintCenterPointName,
+                UndoBlueprintName, DeletePlansName
+            })
+            {
+                prefab = assetBundle.LoadAsset<GameObject>(pieceName);
+                piece = new CustomPiece(prefab, new PieceConfig
+                {
+                    PieceTable = PieceTableName,
+                    Category = CategoryTools
+                });
+                PieceManager.Instance.AddPiece(piece);
+            }
 
-            PrefabManager.Instance.AddPrefab(assetBundle.LoadAsset<GameObject>(BlueprintManager.PanelName));
-            */
+            // Blueprint stub
+            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
+            PrefabManager.Instance.AddPrefab(placebp_prefab);
         }
     }
 }
