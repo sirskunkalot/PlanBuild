@@ -124,12 +124,12 @@ namespace PlanBuild.Blueprints
                     Name = line.Substring(HeaderName.Length);
                     continue;
                 }
-                if (line == HeaderCreator)
+                if (line.StartsWith(HeaderCreator))
                 {
                     Creator = line.Substring(HeaderCreator.Length);
                     continue;
                 }
-                if (line == HeaderDescription)
+                if (line.StartsWith(HeaderDescription))
                 {
                     Description = line.Substring(HeaderDescription.Length);
                     continue;
@@ -751,6 +751,7 @@ namespace PlanBuild.Blueprints
             {
                 newbp.Name = text;
                 newbp.PrefabName = $"{BlueprintPrefabName} ({newbp.Name})";
+                newbp.Creator = Player.m_localPlayer.GetPlayerName();
                 newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.Name + ".blueprint");
                 if (newbp.Save())
                 {

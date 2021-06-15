@@ -185,10 +185,12 @@ namespace PlanBuild.Blueprints
                     try { 
                         var bp = Blueprint.FromPath(relativeFilePath);
                         Blueprints.Add(name, bp);
+
+                        Jotunn.Logger.LogDebug($"Loaded blueprint {name}");
                     }
                     catch (Exception ex)
                     {
-                        Jotunn.Logger.LogWarning($"Could not load blueprint: {ex}");
+                        Jotunn.Logger.LogWarning($"Could not load blueprint {name}: {ex}");
                     }
                 }
             }
@@ -223,7 +225,34 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintSnapPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_snappoint" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintCenterPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_centerpoint" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
 
@@ -235,7 +264,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_delete_plans" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
 
@@ -247,7 +276,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_undo_blueprint" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
             foreach (var entry in Blueprints)

@@ -36,6 +36,8 @@
   "hud_bpdirect": "Direct build (no plan)",
   "hud_bprotate": "Rotate (Shift: Camera distance, Ctrl: Placement height)",
   "msg_direct_build_disabled": "Direct build disabled",
+  "hud_bp_snappoint": "Place snap point",
+  "hud_bp_centerpoint": "Place center point",
   "hud_bp_undo_blueprint": "Remove plans from blueprint",
   "hud_bp_delete_plans": "Remove plans",
   "msg_removed_plans": "Removed $1 plans"
