@@ -758,12 +758,12 @@ namespace PlanBuild.Blueprints
                 newbp.FileLocation = Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, newbp.Name + ".blueprint");
                 if (newbp.Save())
                 {
-                    if (BlueprintManager.Instance.m_blueprints.ContainsKey(newbp.Name))
+                    if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.Name))
                     {
-                        Blueprint oldbp = BlueprintManager.Instance.m_blueprints[newbp.Name];
+                        Blueprint oldbp = BlueprintManager.Instance.Blueprints[newbp.Name];
                         oldbp.Destroy();
                         oldbp.RemoveKeyHint();
-                        BlueprintManager.Instance.m_blueprints.Remove(newbp.Name);
+                        BlueprintManager.Instance.Blueprints.Remove(newbp.Name);
                     }
 
                     PlanBuildPlugin.Instance.StartCoroutine(AddBlueprint());
@@ -792,7 +792,7 @@ namespace PlanBuild.Blueprints
 
                 Player.m_localPlayer.UpdateKnownRecipesList();
                 Player.m_localPlayer.UpdateAvailablePiecesList();
-                BlueprintManager.Instance.m_blueprints.Add(newbp.Name, newbp);
+                BlueprintManager.Instance.Blueprints.Add(newbp.Name, newbp);
 
                 Logger.LogInfo("Blueprint created");
 

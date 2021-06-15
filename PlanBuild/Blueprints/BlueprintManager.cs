@@ -17,11 +17,11 @@ namespace PlanBuild.Blueprints
         public const string PanelName = "BlueprintManagerGUI";
         public const string ZDOBlueprintName = "BlueprintName";
 
-        internal float selectionRadius = 10.0f;
-        internal float placementOffset = 0f;
+        internal float SelectionRadius = 10.0f;
+        internal float PlacementOffset = 0f;
 
-        internal float cameraOffset = 5.0f;
-        internal bool updateCamera = true;
+        internal float CameraOffset = 5.0f;
+        internal bool UpdateCamera = true;
 
         internal bool ActiveRunestone(WorldBlueprintManager worldBlueprintManager)
         {
@@ -39,12 +39,12 @@ namespace PlanBuild.Blueprints
         }
 
         private const float HighlightTimeout = 1f;
-        private float m_lastHightlight = 0;
+        private float LastHightlight = 0;
 
-        internal Piece lastHoveredPiece;
+        internal Piece LastHoveredPiece;
 
-        internal readonly Dictionary<string, Blueprint> m_blueprints = new Dictionary<string, Blueprint>();
-        internal readonly Dictionary<int, List<PlanPiece>> m_worldBlueprints = new Dictionary<int, List<PlanPiece>>();
+        internal readonly Dictionary<string, Blueprint> Blueprints = new Dictionary<string, Blueprint>();
+        internal readonly Dictionary<int, List<PlanPiece>> WorldBlueprints = new Dictionary<int, List<PlanPiece>>();
 
         internal static ConfigEntry<float> rayDistanceConfig;
         private ConfigEntry<float> cameraOffsetIncrementConfig;
@@ -201,10 +201,10 @@ namespace PlanBuild.Blueprints
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            lastHoveredPiece = piece;
-            if (result && placementOffset != 0)
+            LastHoveredPiece = piece;
+            if (result && PlacementOffset != 0)
             {
-                point += new Vector3(0, placementOffset, 0);
+                point += new Vector3(0, PlacementOffset, 0);
             }
             return result;
         }
@@ -235,12 +235,12 @@ namespace PlanBuild.Blueprints
             foreach (var relativeFilePath in blueprintFiles)
             {
                 string name = Path.GetFileNameWithoutExtension(relativeFilePath);
-                if (!m_blueprints.ContainsKey(name))
+                if (!Blueprints.ContainsKey(name))
                 {
                     var bp = Blueprint.FromPath(relativeFilePath);
                     if (bp.Load())
                     {
-                        m_blueprints.Add(name, bp);
+                        Blueprints.Add(name, bp);
                     }
                     else
                     {
@@ -339,7 +339,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" },
                 }
             });
-            foreach (var entry in m_blueprints)
+            foreach (var entry in Blueprints)
             {
                 entry.Value.CreateKeyHint();
             }
@@ -365,7 +365,7 @@ namespace PlanBuild.Blueprints
             if (!ZNet.instance.IsDedicated())
             {
                 // Create prefabs for all known blueprints
-                foreach (var bp in Instance.m_blueprints.Values)
+                foreach (var bp in Instance.Blueprints.Values)
                 {
                     bp.CreatePrefab();
                 }
@@ -374,8 +374,8 @@ namespace PlanBuild.Blueprints
 
         private void Reset()
         {
-            Instance.cameraOffset = 5f;
-            Instance.placementOffset = 0f;
+            Instance.CameraOffset = 5f;
+            Instance.PlacementOffset = 0f;
         }
 
         /// <summary>
@@ -415,9 +415,9 @@ namespace PlanBuild.Blueprints
 
         private bool UndoBlueprint()
         {
-            if (lastHoveredPiece)
+            if (LastHoveredPiece)
             {
-                if (lastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                 {
                     ZDOID blueprintID = planPiece.GetBlueprintID();
                     if (blueprintID != ZDOID.None)
@@ -442,7 +442,7 @@ namespace PlanBuild.Blueprints
 
             Vector3 deletePosition = player.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
-            foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, selectionRadius))
+            foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, SelectionRadius))
             {
                 if (pieceToRemove.TryGetComponent(out PlanPiece planPiece))
                 {
@@ -457,7 +457,7 @@ namespace PlanBuild.Blueprints
 
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
-            Blueprint bp = Instance.m_blueprints[piece.m_name];
+            Blueprint bp = Instance.Blueprints[piece.m_name];
             var transform = player.m_placementGhost.transform;
             var position = transform.position;
             var rotation = transform.rotation;
@@ -575,12 +575,12 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(circleProjector);
             }
 
-            var bpname = $"blueprint{Instance.m_blueprints.Count() + 1:000}";
+            var bpname = $"blueprint{Instance.Blueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
             var bp = new Blueprint();
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
-            if (bp.Capture(capturePosition, Instance.selectionRadius))
+            if (bp.Capture(capturePosition, Instance.SelectionRadius))
             {
                 TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
                 TextInput.instance.Show($"Save Blueprint ({bp.GetPieceCount()} pieces captured)", bpname, 50);
@@ -601,7 +601,7 @@ namespace PlanBuild.Blueprints
         {
             orig(self, dt);
 
-            if (updateCamera
+            if (UpdateCamera
                 && Player.m_localPlayer
                 && Player.m_localPlayer.InPlaceMode()
                 && Player.m_localPlayer.m_placementGhost)
@@ -610,14 +610,14 @@ namespace PlanBuild.Blueprints
                 if (pieceName.StartsWith("make_blueprint")
                     || pieceName.StartsWith("piece_blueprint"))
                 {
-                    self.transform.position += new Vector3(0, Instance.cameraOffset, 0);
+                    self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
             }
         }
 
         public void HighlightPieces(Vector3 startPosition, float radius, Color color)
         {
-            if (Time.time < m_lastHightlight + HighlightTimeout)
+            if (Time.time < LastHightlight + HighlightTimeout)
             {
                 return;
             }
@@ -628,7 +628,7 @@ namespace PlanBuild.Blueprints
                     wearNTear.Highlight(color);
                 }
             }
-            m_lastHightlight = Time.time;
+            LastHightlight = Time.time;
             return;
         }
 
@@ -774,15 +774,15 @@ namespace PlanBuild.Blueprints
                             circleProjector.Start();
                         }
 
-                        if (circleProjector.m_radius != Instance.selectionRadius)
+                        if (circleProjector.m_radius != Instance.SelectionRadius)
                         {
-                            circleProjector.m_radius = Instance.selectionRadius;
+                            circleProjector.m_radius = Instance.SelectionRadius;
                             circleProjector.m_nrOfSegments = (int)circleProjector.m_radius * 4;
                             circleProjector.Update();
-                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
+                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
                         }
 
-                        HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, Color.green);
+                        HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                     }
                     else if (piece.name.StartsWith(Blueprint.BlueprintPrefabName))
                     {
@@ -840,18 +840,18 @@ namespace PlanBuild.Blueprints
                             circleProjector.Start();
                         }
 
-                        if (circleProjector.m_radius != Instance.selectionRadius)
+                        if (circleProjector.m_radius != Instance.SelectionRadius)
                         {
-                            circleProjector.m_radius = Instance.selectionRadius;
+                            circleProjector.m_radius = Instance.SelectionRadius;
                             circleProjector.m_nrOfSegments = (int)circleProjector.m_radius * 4;
                             circleProjector.Update();
-                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.selectionRadius}");
+                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
                         }
 
-                        if (Time.time > m_lastHightlight + HighlightTimeout)
+                        if (Time.time > LastHightlight + HighlightTimeout)
                         {
-                            HighlightPlans(self.m_placementMarkerInstance.transform.position, Instance.selectionRadius, Color.red);
-                            m_lastHightlight = Time.time;
+                            HighlightPlans(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
+                            LastHightlight = Time.time;
                         }
                     }
                     else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
@@ -862,11 +862,11 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        if (Time.time > m_lastHightlight + HighlightTimeout)
+                        if (Time.time > LastHightlight + HighlightTimeout)
                         {
-                            if (lastHoveredPiece)
+                            if (LastHoveredPiece)
                             {
-                                if (lastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                                 {
                                     ZDOID blueprintID = planPiece.GetBlueprintID();
                                     if (blueprintID != ZDOID.None)
@@ -875,7 +875,7 @@ namespace PlanBuild.Blueprints
                                     }
                                 }
                             }
-                            m_lastHightlight = Time.time;
+                            LastHightlight = Time.time;
                         }
                     }
                     else
@@ -901,11 +901,11 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.placementOffset -= placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset -= placementOffsetIncrementConfig.Value;
             }
             else
             {
-                Instance.placementOffset += placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset += placementOffsetIncrementConfig.Value;
             }
         }
 
@@ -933,11 +933,11 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.cameraOffset = Mathf.Clamp(Instance.cameraOffset += cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset += cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
             else
             {
-                Instance.cameraOffset = Mathf.Clamp(Instance.cameraOffset -= cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset -= cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
         }
 
@@ -950,15 +950,15 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.selectionRadius -= selectionIncrementConfig.Value;
-                if (Instance.selectionRadius < 2f)
+                Instance.SelectionRadius -= selectionIncrementConfig.Value;
+                if (Instance.SelectionRadius < 2f)
                 {
-                    Instance.selectionRadius = 2f;
+                    Instance.SelectionRadius = 2f;
                 }
             }
             else
             {
-                Instance.selectionRadius += selectionIncrementConfig.Value;
+                Instance.SelectionRadius += selectionIncrementConfig.Value;
             }
         }
     }

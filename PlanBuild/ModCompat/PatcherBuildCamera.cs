@@ -19,9 +19,9 @@ namespace PlanBuild.ModCompat
 
         internal static void UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
         {
-            BlueprintManager.Instance.updateCamera = !Valheim_Build_Camera.Valheim_Build_Camera.InBuildMode();
+            BlueprintManager.Instance.UpdateCamera = !Valheim_Build_Camera.Valheim_Build_Camera.InBuildMode();
             orig(self, dt);
-            BlueprintManager.Instance.updateCamera = true;
+            BlueprintManager.Instance.UpdateCamera = true;
         }
     }
 }
