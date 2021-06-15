@@ -14,27 +14,43 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
-    public class Blueprint
+    internal class Blueprint
     {
         public const string BlueprintPrefabName = "piece_blueprint";
         public const string PlaceColliderName = "place_collider";
 
-        private const string HeaderName = "#Name: ";
-        private const string HeaderDescription = "#Description";
+        private const string HeaderName = "#Name:";
+        private const string HeaderCreator = "#Creator:";
+        private const string HeaderDescription = "#Description:";
         private const string HeaderSnapPoints = "#SnapPoints";
         private const string HeaderPieces = "#Pieces";
-        
-        public static bool logLoading = true;
+
+        public enum Format
+        {
+            VBuild,
+            Blueprint
+        }
+
+        private enum ParserState
+        {
+            SnapPoints,
+            Pieces
+        }
 
         /// <summary>
         ///     File location of this blueprint instance.
         /// </summary>
-        internal string FileLocation;
+        public string FileLocation;
 
         /// <summary>
         ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
         /// </summary>
         public string Name;
+
+        /// <summary>
+        ///     Name of the player who created this blueprint.
+        /// </summary>
+        public string Creator;
 
         /// <summary>
         ///     Optional description for this blueprint
@@ -49,7 +65,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Array of the snappoints of this blueprint
         /// </summary>
-        public Vector3[] SnapPoints;
+        public SnapPoint[] SnapPoints;
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -57,33 +73,130 @@ namespace PlanBuild.Blueprints
         private GameObject Prefab;
 
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;m_name&gt;)"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;Name&gt;)"
         /// </summary>
         private string PrefabName;
 
-        public Blueprint()
+        public Blueprint(string name)
         {
-
+            Name = name;
+            PrefabName = $"{BlueprintPrefabName} ({name})";
         }
 
         public static Blueprint FromPath(string fileLocation)
         {
             string name = Path.GetFileNameWithoutExtension(fileLocation);
-            return new Blueprint
+            string extension = Path.GetExtension(fileLocation).ToLowerInvariant();
+            
+            Format format;
+            switch (extension)
             {
-                FileLocation = fileLocation,
-                Name = name,
-                PrefabName = $"{BlueprintPrefabName} ({name})"
-            };
+                case ".vbuild":
+                    format = Format.VBuild;
+                    break;
+                case ".blueprint":
+                    format = Format.Blueprint;
+                    break;
+                default:
+                    throw new Exception($"Format {extension} not recognized");
+            }
+
+            string[] lines = File.ReadAllLines(fileLocation);
+
+            Blueprint ret = new Blueprint(name);
+            ret.FileLocation = fileLocation;
+            ret.Parse(lines, format);
+
+            return ret;
         }
 
-        public static bool CanCapture(Piece piece)
+        public void Parse(string[] lines, Format format)
         {
-            if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+            List<PieceEntry> pieceEntries = new List<PieceEntry>();
+            List<SnapPoint> snapPoints = new List<SnapPoint>();
+
+            ParserState state = ParserState.Pieces;
+
+            foreach (var line in lines)
             {
-                return true;
+                if (line.StartsWith(HeaderName))
+                {
+                    Name = line.Substring(HeaderName.Length);
+                    continue;
+                }
+                if (line == HeaderCreator)
+                {
+                    Creator = line.Substring(HeaderCreator.Length);
+                    continue;
+                }
+                if (line == HeaderDescription)
+                {
+                    Description = line.Substring(HeaderDescription.Length);
+                    continue;
+                }
+                if (line == HeaderSnapPoints)
+                {
+                    state = ParserState.SnapPoints;
+                    continue;
+                }
+                if (line == HeaderPieces)
+                {
+                    state = ParserState.Pieces;
+                    continue;
+                }
+                switch (state)
+                {
+                    case ParserState.SnapPoints:
+                        snapPoints.Add(new SnapPoint(line));
+                        continue;
+                    case ParserState.Pieces:
+                        switch (format)
+                        {
+                            case Format.VBuild:
+                                pieceEntries.Add(PieceEntry.FromVBuild(line));
+                                break;
+
+                            case Format.Blueprint:
+                                pieceEntries.Add(PieceEntry.FromBlueprint(line));
+                                break;
+                        }
+                        continue;
+                }
             }
-            return piece.GetComponent<PlanPiece>() != null || PlanBuildPlugin.CanCreatePlan(piece);
+
+            PieceEntries = pieceEntries.ToArray();
+            SnapPoints = snapPoints.ToArray();
+        }
+
+        public string[] ToArray()
+        {
+            if (PieceEntries == null)
+            {
+                return null;
+            }
+            else
+            {
+                List<string> ret = new List<string>();
+
+                ret.Add(HeaderName + Name);
+                ret.Add(HeaderCreator + Creator);
+                ret.Add(HeaderDescription + Description);
+                if (SnapPoints.Count() > 0)
+                {
+                    ret.Add(HeaderSnapPoints);
+                    foreach (SnapPoint snapPoint in SnapPoints)
+                    {
+                        ret.Add(snapPoint.line);
+                    }
+                }
+                ret.Add(HeaderPieces);
+                foreach (var piece in PieceEntries)
+                {
+                    ret.Add(piece.line);
+                }
+
+                return ret.ToArray();
+            }
         }
 
         /// <summary>
@@ -142,9 +255,9 @@ namespace PlanBuild.Blueprints
                     wearNTear.Remove();
                     continue;
                 }
-                if (!CanCapture(piece))
+                if (!BlueprintManager.CanCapture(piece))
                 {
-                    Jotunn.Logger.LogWarning("Ignoring piece " + piece + ", not able to make Plan");
+                    Logger.LogWarning("Ignoring piece " + piece + ", not able to make Plan");
                     continue;
                 }
                 piece.GetComponent<WearNTear>()?.Highlight();
@@ -158,8 +271,8 @@ namespace PlanBuild.Blueprints
             }
 
             Logger.LogDebug($"Found {numPieces} in a radius of {radius:F2}");
-            Vector3 center;
 
+            Vector3 center;
             if (centerPiece == null)
             {
                 // Relocate Z
@@ -189,6 +302,7 @@ namespace PlanBuild.Blueprints
                     .ThenBy(x => x.transform.position.x)
                     .ThenBy(x => x.transform.position.z);
 
+            // create instance piece entries
             if (PieceEntries == null)
             {
                 PieceEntries = new PieceEntry[pieces.Count()];
@@ -217,13 +331,20 @@ namespace PlanBuild.Blueprints
                 PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
+            // create instance snap points
             if (SnapPoints == null)
             {
-                SnapPoints = new Vector3[snapPoints.Count()];
+                SnapPoints = new SnapPoint[snapPoints.Count()];
             }
+            else if (SnapPoints.Length > 0)
+            {
+                Array.Clear(SnapPoints, 0, SnapPoints.Length - 1);
+                Array.Resize(ref SnapPoints, snapPoints.Count());
+            }
+
             for (int j = 0; j < snapPoints.Count(); j++)
             {
-                SnapPoints[j] = snapPoints[j] - center;
+                SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
             }
 
             return true;
@@ -272,7 +393,7 @@ namespace PlanBuild.Blueprints
             Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
 
             // Save to file
-            File.WriteAllBytes(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, Name + ".png"), thumbnail.EncodeToPNG());
+            File.WriteAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png"), thumbnail.EncodeToPNG());
 
             // Destroy properly
             Object.Destroy(screenShot);
@@ -280,7 +401,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Save this instance as a blueprint file to m_fileLocation
+        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>
         /// </summary>
         /// <returns></returns>
         public bool Save()
@@ -294,21 +415,9 @@ namespace PlanBuild.Blueprints
             {
                 using (TextWriter tw = new StreamWriter(FileLocation))
                 {
-                    // tw.WriteLine(HeaderName + m_name);
-                    // tw.WriteLine(HeaderDescription);
-                    // tw.WriteLine(m_description);
-                    if (SnapPoints.Count() > 0)
+                    foreach (string line in ToArray())
                     {
-                        tw.WriteLine(HeaderSnapPoints);
-                        foreach (Vector3 pos in SnapPoints)
-                        {
-                            tw.WriteLine(string.Join(";", PieceEntry.InvariantString(pos.x), PieceEntry.InvariantString(pos.y), PieceEntry.InvariantString(pos.z)));
-                        }
-                    }
-                    tw.WriteLine(HeaderPieces);
-                    foreach (var piece in PieceEntries)
-                    {
-                        tw.WriteLine(piece.line);
+                        tw.WriteLine(line);
                     }
 
                     Logger.LogDebug("Wrote " + PieceEntries.Length + " pieces to " + FileLocation);
@@ -316,117 +425,6 @@ namespace PlanBuild.Blueprints
             }
 
             return true;
-        }
-
-        private enum ParserState
-        {
-            Description,
-            SnapPoints,
-            Pieces
-        }
-
-        /// <summary>
-        ///     Load a blueprint file from m_fileLocation
-        /// </summary>
-        /// <returns></returns>
-        public bool Load()
-        {
-            try
-            {
-                string extension = Path.GetExtension(FileLocation).ToLowerInvariant();
-
-                var lines = File.ReadAllLines(FileLocation).ToList();
-                if (logLoading)
-                {
-                    Logger.LogDebug("read " + lines.Count + " pieces from " + FileLocation);
-                }
-
-                List<PieceEntry> pieceEntries = new List<PieceEntry>();
-                List<Vector3> snapPoints = new List<Vector3>();
-
-                ParserState state = ParserState.Pieces;
-
-                foreach (var line in lines)
-                {
-                    if (line.StartsWith(HeaderName))
-                    {
-                        Name = line.Substring(HeaderName.Length);
-                        continue;
-                    }
-                    if (line == HeaderDescription)
-                    {
-                        state = ParserState.Description;
-                        continue;
-                    }
-                    if (line == HeaderSnapPoints)
-                    {
-                        state = ParserState.SnapPoints;
-                        continue;
-                    }
-                    if (line == HeaderPieces)
-                    {
-                        state = ParserState.Pieces;
-                        continue;
-                    }
-                    switch (state)
-                    {
-                        case ParserState.Description:
-                            if (Description.Length != 0)
-                            {
-                                Description += "\n";
-                            }
-                            Description += line;
-                            continue;
-                        case ParserState.SnapPoints:
-                            snapPoints.Add(ParsePosition(line));
-                            continue;
-                        case ParserState.Pieces:
-                            PieceEntry pieceEntry;
-                            switch (extension)
-                            {
-                                case ".vbuild":
-                                    pieceEntry = PieceEntry.FromVBuild(line);
-                                    break;
-
-                                case ".blueprint":
-                                    pieceEntry = PieceEntry.FromBlueprint(line);
-                                    break;
-
-                                default:
-                                    if (logLoading)
-                                    {
-                                        Logger.LogWarning("Unknown extension " + extension);
-                                    }
-                                    return false;
-                            }
-                            pieceEntries.Add(pieceEntry);
-                            continue;
-                    }
-                }
-
-                PieceEntries = pieceEntries.ToArray();
-                SnapPoints = snapPoints.ToArray();
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                if (logLoading)
-                {
-                    Logger.LogError(e);
-                }
-                else
-                {
-                    throw e;
-                }
-                return false;
-            }
-        }
-
-        private Vector3 ParsePosition(string line)
-        {
-            string[] parts = line.Split(';');
-            return new Vector3(PieceEntry.InvariantFloat(parts[0]), PieceEntry.InvariantFloat(parts[1]), PieceEntry.InvariantFloat(parts[2]));
         }
 
         public void CalculateCost()
@@ -468,11 +466,10 @@ namespace PlanBuild.Blueprints
 
             Piece piece = Prefab.GetComponent<Piece>();
 
-            if (File.Exists(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, Name + ".png")))
+            if (File.Exists(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png")))
             {
                 var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, Name + ".png")));
-
+                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png")));
                 piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
 
@@ -487,8 +484,7 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            // Add to known prefabs
-
+            // Add to known pieces
             CustomPiece CP = new CustomPiece(Prefab, new PieceConfig
             {
                 PieceTable = BlueprintRunePrefab.PieceTableName,
@@ -567,7 +563,7 @@ namespace PlanBuild.Blueprints
                 var maxX = pieces.Max(x => x.posX);
                 var maxZ = pieces.Max(x => x.posZ);
 
-                foreach (Vector3 snapPoint in SnapPoints)
+                foreach (SnapPoint snapPoint in SnapPoints)
                 {
                     GameObject snapPointObject = new GameObject
                     {
@@ -576,7 +572,7 @@ namespace PlanBuild.Blueprints
                         tag = "snappoint"
                     };
                     snapPointObject.SetActive(false);
-                    Object.Instantiate(snapPointObject, snapPoint, Quaternion.identity, baseObject.transform);
+                    Object.Instantiate(snapPointObject, snapPoint.GetPosition(), Quaternion.identity, baseObject.transform);
                 }
 
                 //Tiny collider for accurate placement
@@ -755,7 +751,7 @@ namespace PlanBuild.Blueprints
             {
                 newbp.Name = text;
                 newbp.PrefabName = $"{BlueprintPrefabName} ({newbp.Name})";
-                newbp.FileLocation = Path.Combine(BlueprintManager.blueprintSaveDirectoryConfig.Value, newbp.Name + ".blueprint");
+                newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.Name + ".blueprint");
                 if (newbp.Save())
                 {
                     if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.Name))

@@ -5,6 +5,18 @@ namespace PlanBuild.Blueprints
 {
     public class PieceEntry
     {
+        public string line { get; set; }
+        public string name { get; set; }
+        public string category { get; set; }
+        public float posX { get; set; }
+        public float posY { get; set; }
+        public float posZ { get; set; }
+        public float rotX { get; set; }
+        public float rotY { get; set; }
+        public float rotZ { get; set; }
+        public float rotW { get; set; }
+        public string additionalInfo { get; set; }
+
         public static PieceEntry FromBlueprint(string line)
         {
             // backwards compatibility
@@ -65,18 +77,6 @@ namespace PlanBuild.Blueprints
                 InvariantString(rotX), InvariantString(rotY), InvariantString(rotZ), InvariantString(rotW),
                 this.additionalInfo);
         }
-
-        public string line { get; set; }
-        public string name { get; set; }
-        public string category { get; set; }
-        public float posX { get; set; }
-        public float posY { get; set; }
-        public float posZ { get; set; }
-        public float rotX { get; set; }
-        public float rotY { get; set; }
-        public float rotZ { get; set; }
-        public float rotW { get; set; }
-        public string additionalInfo { get; set; }
 
         public Vector3 GetPosition()
         {

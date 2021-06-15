@@ -14,55 +14,7 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintManager
     {
-        public const string PanelName = "BlueprintManagerGUI";
-        public const string ZDOBlueprintName = "BlueprintName";
-
-        internal float SelectionRadius = 10.0f;
-        internal float PlacementOffset = 0f;
-
-        internal float CameraOffset = 5.0f;
-        internal bool UpdateCamera = true;
-
-        internal bool ActiveRunestone(WorldBlueprintManager worldBlueprintManager)
-        {
-            return worldBlueprintManager == activeRunestone;
-        }
-
-        internal void SetActiveRunestone(WorldBlueprintManager worldBlueprintManager)
-        {
-            activeRunestone = worldBlueprintManager;
-            if (!panel)
-            {
-                CreateBlueprintManagerPanel();
-            }
-            panel.SetActive(activeRunestone);
-        }
-
-        private const float HighlightTimeout = 1f;
-        private float LastHightlight = 0;
-
-        internal Piece LastHoveredPiece;
-
-        internal readonly Dictionary<string, Blueprint> Blueprints = new Dictionary<string, Blueprint>();
-        internal readonly Dictionary<int, List<PlanPiece>> WorldBlueprints = new Dictionary<int, List<PlanPiece>>();
-
-        internal static ConfigEntry<float> rayDistanceConfig;
-        private ConfigEntry<float> cameraOffsetIncrementConfig;
-        private ConfigEntry<float> placementOffsetIncrementConfig;
-        private ConfigEntry<float> selectionIncrementConfig;
-        internal static ConfigEntry<bool> allowDirectBuildConfig;
-        private ConfigEntry<bool> invertCameraOffsetScrollConfig;
-        private ConfigEntry<bool> invertPlacementOffsetScrollConfig;
-        private ConfigEntry<bool> invertSelectionScrollConfig;
-        internal static ConfigEntry<KeyCode> planSwitchConfig;
-        public static ConfigEntry<string> blueprintSearchDirectoryConfig;
-        public static ConfigEntry<string> blueprintSaveDirectoryConfig;
-        internal static ButtonConfig planSwitchButton;
-
         private static BlueprintManager _instance;
-
-        private GameObject panel;
-
         public static BlueprintManager Instance
         {
             get
@@ -72,15 +24,39 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        internal static ButtonConfig planSwitchButton;
+
+        public const string PanelName = "BlueprintManagerGUI";
+        public const string ZDOBlueprintName = "BlueprintName";
+
+        internal float SelectionRadius = 10.0f;
+        internal float PlacementOffset = 0f;
+
+        internal float CameraOffset = 5.0f;
+        internal bool UpdateCamera = true;
+
+        internal float OriginalPlaceDistance;
+
+        private const float HighlightTimeout = 1f;
+        private float LastHightlight = 0;
+
+        internal Piece LastHoveredPiece;
+
+        internal readonly BlueprintList Blueprints = new BlueprintList();
+        internal readonly Dictionary<int, List<PlanPiece>> WorldBlueprints = new Dictionary<int, List<PlanPiece>>();
+
         internal void Init()
         {
             //TODO: Client only - how to do? or just ignore - there are no bps and maybe someday there will be a server-wide directory of blueprints for sharing :)
 
-            // KeyHints
-            CreateCustomKeyHints();
-
+            // Init config
+            BlueprintConfig.Init();
+            
             // Load Blueprints
             LoadKnownBlueprints();
+
+            // Create KeyHints
+            CreateCustomKeyHints();
 
             // Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
@@ -96,11 +72,42 @@ namespace PlanBuild.Blueprints
             On.Player.PieceRayTest += OnPieceRayTest;
             On.Humanoid.EquipItem += OnEquipItem;
             On.Humanoid.UnequipItem += OnUnequipItem;
-            // On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
-            // On.Player.TakeInput += OnPlayerTakeInput;
-            // On.PlayerController.TakeInput += OnPlayerControllerTakeInput;
 
             Jotunn.Logger.LogInfo("BlueprintManager Initialized");
+        }
+
+        /// <summary>
+        ///     Determine if a piece can be captured in a blueprint
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <returns></returns>
+        public static bool CanCapture(Piece piece)
+        {
+            if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+            {
+                return true;
+            }
+            return piece.GetComponent<PlanPiece>() != null || PlanBuildPlugin.CanCreatePlan(piece);
+        }
+
+        /// <summary>
+        ///     Get all pieces on a given position in a given radius
+        /// </summary>
+        /// <param name="position"></param>
+        /// <param name="radius"></param>
+        /// <returns></returns>
+        public static List<Piece> GetPiecesInRadius(Vector3 position, float radius)
+        {
+            List<Piece> result = new List<Piece>();
+            foreach (var piece in Piece.m_allPieces)
+            {
+                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <= radius
+                    && CanCapture(piece))
+                {
+                    result.Add(piece);
+                }
+            }
+            return result;
         }
 
         private void CreateBlueprintGUI()
@@ -112,76 +119,14 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void GameCamera_UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
-        {
-            if (panel && panel.activeInHierarchy)
-            {
-                return;
-            }
-            orig(self, dt);
-        }
-
-        private bool OnPlayerTakeInput(On.Player.orig_TakeInput orig, Player self)
-        {
-            if (panel && panel.activeInHierarchy)
-            {
-                return false;
-            }
-            return orig(self);
-        }
-
-        private void CreateBlueprintManagerPanel()
-        {
-            Jotunn.Logger.LogInfo("Creating Blueprint Manager panel");
-            var prefabPanel = PrefabManager.Instance.GetPrefab(PanelName);
-            panel = GUIManager.Instance.CreateWoodpanel(GUIManager.PixelFix.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 0f), 800f, 600f);
-            panel.SetActive(false);
-            prefabPanel.transform.SetParent(panel.transform);
-
-            // panel.SetActive(false);
-            // panel.name = PanelName;
-            // GameObject scrollView = GUIManager.Instance.CreateScrollView(panel.transform, false, true, 3f, 3f, ColorBlock.defaultColorBlock, Color.clear, 200f, 290f);
-            // ScrollRect scrollRect = scrollView.GetComponentInChildren<ScrollRect>();
-            //
-            // int i = 0;
-            // foreach (Blueprint blueprint in m_blueprints.Values) {
-            //     i++;
-            //     var guiEntry = new GameObject("blueprint_entry_" + i, typeof(RectTransform), typeof(LayoutElement));
-            //     guiEntry.GetComponent<LayoutElement>().preferredHeight = 64f;
-            //     guiEntry.transform.SetParent(scrollRect.content.transform);
-            //     RectTransform guiEntryTransform = guiEntry.GetComponent<RectTransform>();
-            //     guiEntryTransform.anchoredPosition = Vector2.zero;
-            //
-            //     GameObject iconObject = new GameObject("icon", typeof(RectTransform), typeof(Image));
-            //     iconObject.transform.SetParent(guiEntryTransform);
-            //     iconObject.GetComponent<RectTransform>().sizeDelta = new Vector2(64, 64);
-            //     iconObject.GetComponent<Image>().sprite = blueprint.m_piece.m_icon;
-            //
-            //     GameObject textObject = GUIManager.Instance.CreateText(blueprint.m_name, guiEntryTransform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(70f, 0f), GUIManager.Instance.AveriaSerifBold, 18, GUIManager.Instance.ValheimOrange, true, Color.black, 130f, 64f, false);
-            //     textObject.GetComponent<Text>().alignment = TextAnchor.MiddleLeft;
-            // }
-        }
-
-        private bool OnPlayerControllerTakeInput(On.PlayerController.orig_TakeInput orig, PlayerController self)
-        {
-            if (panel && panel.activeInHierarchy)
-            {
-                return false;
-            }
-            return orig(self);
-        }
-
-        private float originalPlaceDistance;
-        private WorldBlueprintManager activeRunestone;
-
         private bool OnEquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             bool result = orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer && result &&
                 item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
             {
-                originalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
-                Player.m_localPlayer.m_maxPlaceDistance = rayDistanceConfig.Value;
+                OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
+                Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.rayDistanceConfig.Value;
                 Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
             }
             return result;
@@ -193,7 +138,7 @@ namespace PlanBuild.Blueprints
             if (Player.m_localPlayer &&
                 item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
             {
-                Player.m_localPlayer.m_maxPlaceDistance = originalPlaceDistance;
+                Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
                 Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
             }
         }
@@ -220,14 +165,14 @@ namespace PlanBuild.Blueprints
         {
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
-            if (!Directory.Exists(blueprintSaveDirectoryConfig.Value))
+            if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
             {
-                Directory.CreateDirectory(blueprintSaveDirectoryConfig.Value);
+                Directory.CreateDirectory(BlueprintConfig.blueprintSaveDirectoryConfig.Value);
             }
 
             List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles(blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
 
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
@@ -237,14 +182,13 @@ namespace PlanBuild.Blueprints
                 string name = Path.GetFileNameWithoutExtension(relativeFilePath);
                 if (!Blueprints.ContainsKey(name))
                 {
-                    var bp = Blueprint.FromPath(relativeFilePath);
-                    if (bp.Load())
-                    {
+                    try { 
+                        var bp = Blueprint.FromPath(relativeFilePath);
                         Blueprints.Add(name, bp);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}");
+                        Jotunn.Logger.LogWarning($"Could not load blueprint: {ex}");
                     }
                 }
             }
@@ -252,43 +196,10 @@ namespace PlanBuild.Blueprints
 
         private void CreateCustomKeyHints()
         {
-            allowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials", null, new object[] { new ConfigurationManagerAttributes() { IsAdminOnly = true } }));
-
-            invertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert camera offset scroll", false,
-                new ConfigDescription("Invert the direction of camera offset scrolling"));
-
-            invertPlacementOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert placement height change scroll", false,
-                new ConfigDescription("Invert the direction of placement offset scrolling"));
-
-            invertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Invert selection scroll", false,
-                new ConfigDescription("Invert the direction of selection scrolling"));
-
-            rayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Place distance", 50f,
-                new ConfigDescription("Place distance while using the Blueprint Rune", new AcceptableValueRange<float>(8f, 80f)));
-
-            cameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Camera offset increment", 2f,
-                new ConfigDescription("Camera height change when holding Shift and scrolling while in Blueprint mode"));
-
-            placementOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Placement offset increment", 0.1f,
-                new ConfigDescription("Placement height change when holding Ctrl and scrolling while in Blueprint mode"));
-
-            selectionIncrementConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Selection increment", 1f,
-                new ConfigDescription("Selection radius increment when scrolling while in Blueprint mode"));
-
-            planSwitchConfig = PlanBuildPlugin.Instance.Config.Bind("Blueprint Rune", "Rune mode toggle key", KeyCode.P,
-                new ConfigDescription("Hotkey to switch between rune modes"));
-
-            blueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Search directory", ".",
-                new ConfigDescription("Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location"));
-
-            blueprintSaveDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind("Directories", "Save directory", "BepInEx/config/PlanBuild/blueprints",
-                new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
-
             planSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
-                Config = planSwitchConfig,
+                Config = BlueprintConfig.planSwitchConfig,
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
 
@@ -343,20 +254,6 @@ namespace PlanBuild.Blueprints
             {
                 entry.Value.CreateKeyHint();
             }
-        }
-
-        public static List<Piece> GetPiecesInRadius(Vector3 position, float radius)
-        {
-            List<Piece> result = new List<Piece>();
-            foreach (var piece in Piece.m_allPieces)
-            {
-                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <= radius
-                    && Blueprint.CanCapture(piece))
-                {
-                    result.Add(piece);
-                }
-            }
-            return result;
         }
 
         private void RegisterKnownBlueprints()
@@ -463,7 +360,7 @@ namespace PlanBuild.Blueprints
             var rotation = transform.rotation;
 
             bool placeDirect = ZInput.GetButton("Crouch");
-            if (placeDirect && !allowDirectBuildConfig.Value)
+            if (placeDirect && !BlueprintConfig.allowDirectBuildConfig.Value)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
@@ -578,7 +475,7 @@ namespace PlanBuild.Blueprints
             var bpname = $"blueprint{Instance.Blueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
-            var bp = new Blueprint();
+            var bp = new Blueprint(bpname);
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
             if (bp.Capture(capturePosition, Instance.SelectionRadius))
             {
@@ -895,17 +792,17 @@ namespace PlanBuild.Blueprints
         private void UpdatePlacementOffset(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
-            if (invertPlacementOffsetScrollConfig.Value)
+            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                Instance.PlacementOffset -= placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset -= BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
             else
             {
-                Instance.PlacementOffset += placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset += BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
         }
 
@@ -927,30 +824,30 @@ namespace PlanBuild.Blueprints
             float minOffset = 2f;
             float maxOffset = 20f;
             bool scrollingDown = scrollWheel < 0f;
-            if (invertCameraOffsetScrollConfig.Value)
+            if (BlueprintConfig.invertCameraOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset += cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset += BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
             else
             {
-                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset -= cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset -= BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
         }
 
         private void UpdateSelectionRadius(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
-            if (invertSelectionScrollConfig.Value)
+            if (BlueprintConfig.invertSelectionScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                Instance.SelectionRadius -= selectionIncrementConfig.Value;
+                Instance.SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
                 if (Instance.SelectionRadius < 2f)
                 {
                     Instance.SelectionRadius = 2f;
@@ -958,7 +855,7 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                Instance.SelectionRadius += selectionIncrementConfig.Value;
+                Instance.SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
             }
         }
     }

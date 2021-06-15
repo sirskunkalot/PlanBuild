@@ -93,12 +93,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\BlueprintConfig.cs" />
     <Compile Include="Blueprints\BlueprintGUI.cs" />
+    <Compile Include="Blueprints\BlueprintList.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
-    <Compile Include="Blueprints\WorldBlueprintManager.cs" />
+    <Compile Include="Blueprints\SnapPoint.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
