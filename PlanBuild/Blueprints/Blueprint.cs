@@ -43,7 +43,12 @@ namespace PlanBuild.Blueprints
         public string FileLocation;
 
         /// <summary>
-        ///     Name of the blueprint instance. Translates to &lt;m_name&gt;.blueprint in the filesystem
+        ///     ID of the blueprint instance. Translates to &lt;ID&gt;.blueprint in the filesystem
+        /// </summary>
+        public string ID;
+
+        /// <summary>
+        ///     Name of the blueprint instance.
         /// </summary>
         public string Name;
 
@@ -77,10 +82,8 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private string PrefabName;
 
-        public Blueprint(string name)
+        public Blueprint()
         {
-            Name = name;
-            PrefabName = $"{BlueprintPrefabName} ({name})";
         }
 
         public static Blueprint FromPath(string fileLocation)
@@ -103,15 +106,38 @@ namespace PlanBuild.Blueprints
 
             string[] lines = File.ReadAllLines(fileLocation);
 
-            Blueprint ret = new Blueprint(name);
+            Blueprint ret = FromArray(name, lines, format);
             ret.FileLocation = fileLocation;
-            ret.Parse(lines, format);
+            if (string.IsNullOrEmpty(ret.Name))
+            {
+                ret.Name = name;
+                ret.PrefabName = $"{BlueprintPrefabName} ({name})";
+            }
 
             return ret;
         }
 
-        public void Parse(string[] lines, Format format)
+        public static Blueprint FromBlob(string id, byte[] payload)
         {
+            List<string> lines = new List<string>();
+            using (MemoryStream m = new MemoryStream(payload))
+            {
+                using (BinaryReader reader = new BinaryReader(m))
+                {
+                    lines.Add(reader.ReadString());
+                    reader.ReadChar();
+                }
+            }
+
+            Blueprint ret = FromArray(id, lines.ToArray(), Format.Blueprint);
+            return ret;
+        }
+
+        public static Blueprint FromArray(string id, string[] lines, Format format)
+        {
+            Blueprint ret = new Blueprint();
+            ret.ID = id;
+
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
 
@@ -121,17 +147,18 @@ namespace PlanBuild.Blueprints
             {
                 if (line.StartsWith(HeaderName))
                 {
-                    Name = line.Substring(HeaderName.Length);
+                    ret.Name = line.Substring(HeaderName.Length);
+                    ret.PrefabName = $"{BlueprintPrefabName} ({ret.Name})";
                     continue;
                 }
                 if (line.StartsWith(HeaderCreator))
                 {
-                    Creator = line.Substring(HeaderCreator.Length);
+                    ret.Creator = line.Substring(HeaderCreator.Length);
                     continue;
                 }
                 if (line.StartsWith(HeaderDescription))
                 {
-                    Description = line.Substring(HeaderDescription.Length);
+                    ret.Description = line.Substring(HeaderDescription.Length);
                     continue;
                 }
                 if (line == HeaderSnapPoints)
@@ -164,8 +191,10 @@ namespace PlanBuild.Blueprints
                 }
             }
 
-            PieceEntries = pieceEntries.ToArray();
-            SnapPoints = snapPoints.ToArray();
+            ret.PieceEntries = pieceEntries.ToArray();
+            ret.SnapPoints = snapPoints.ToArray();
+
+            return ret;
         }
 
         public string[] ToArray()
@@ -196,6 +225,28 @@ namespace PlanBuild.Blueprints
                 }
 
                 return ret.ToArray();
+            }
+        }
+
+        public byte[] ToBlob()
+        {
+            string[] lines = ToArray();
+            if (lines == null)
+            {
+                return null;
+            }
+
+            using (MemoryStream m = new MemoryStream())
+            {
+                using (BinaryWriter writer = new BinaryWriter(m))
+                {
+                    foreach (string line in lines)
+                    {
+                        writer.Write(line);
+                        writer.Write('\r');
+                    }
+                }
+                return m.ToArray();
             }
         }
 
@@ -393,7 +444,7 @@ namespace PlanBuild.Blueprints
             Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
 
             // Save to file
-            File.WriteAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png"), thumbnail.EncodeToPNG());
+            File.WriteAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png"), thumbnail.EncodeToPNG());
 
             // Destroy properly
             Object.Destroy(screenShot);
@@ -749,18 +800,19 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
+                newbp.ID = $"{Player.m_localPlayer.GetPlayerName()}_{text}";
                 newbp.Name = text;
                 newbp.PrefabName = $"{BlueprintPrefabName} ({newbp.Name})";
                 newbp.Creator = Player.m_localPlayer.GetPlayerName();
-                newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.Name + ".blueprint");
+                newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 if (newbp.Save())
                 {
-                    if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.Name))
+                    if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.ID))
                     {
-                        Blueprint oldbp = BlueprintManager.Instance.Blueprints[newbp.Name];
+                        Blueprint oldbp = BlueprintManager.Instance.Blueprints[newbp.ID];
                         oldbp.Destroy();
                         oldbp.RemoveKeyHint();
-                        BlueprintManager.Instance.Blueprints.Remove(newbp.Name);
+                        BlueprintManager.Instance.Blueprints.Remove(newbp.ID);
                     }
 
                     PlanBuildPlugin.Instance.StartCoroutine(AddBlueprint());

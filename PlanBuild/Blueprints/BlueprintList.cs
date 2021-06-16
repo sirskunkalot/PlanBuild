@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintList : Dictionary<string, Blueprint>
     {
-/*
+
         /// <summary>
         ///     Create a <see cref="BlueprintList" /> from a <see cref="ZPackage" />
         /// </summary>
@@ -16,34 +13,19 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public static BlueprintList FromZPackage(ZPackage zpkg)
         {
-            Jotunn.Logger.LogDebug("Deserializing portal list from ZPackage");
+            Jotunn.Logger.LogDebug("Deserializing blueprint list from ZPackage");
 
             var ret = new BlueprintList();
 
             var numBlueprints = zpkg.ReadInt();
-
             while (numBlueprints > 0)
             {
-                var portalPosition = zpkg.ReadVector3();
-                var portalName = zpkg.ReadString();
-
-                Jotunn.Logger.LogDebug($"{portalName}@{portalPosition}");
-                ret.Add(new Portal(portalPosition, portalName, true));
-
+                string id = zpkg.ReadString();
+                Blueprint bp = Blueprint.FromBlob(id, zpkg.ReadByteArray());
+                ret.Add(id, bp);
                 numBlueprints--;
-            }
 
-            var numUnconnectedPortals = zpkg.ReadInt();
-
-            while (numUnconnectedPortals > 0)
-            {
-                var portalPosition = zpkg.ReadVector3();
-                var portalName = zpkg.ReadString();
-
-                Logger.LogDebug($"{portalName}@{portalPosition}");
-                ret.Add(new Portal(portalPosition, portalName, false));
-
-                numUnconnectedPortals--;
+                Jotunn.Logger.LogDebug(id);
             }
 
             return ret;
@@ -55,31 +37,20 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public ZPackage ToZPackage()
         {
-            Jotunn.Logger.LogDebug("Serializing portal list to ZPackage");
+            Jotunn.Logger.LogDebug("Serializing blueprint list to ZPackage");
 
-            var package = new ZPackage();
+            ZPackage package = new ZPackage();
 
-            var connected = this.Where(x => x.m_con);
-
-            package.Write(connected.Count());
-            foreach (var connectedPortal in connected)
+            package.Write(this.Count());
+            foreach (var entry in this)
             {
-                Jotunn.Logger.LogDebug($"{connectedPortal.m_tag}@{connectedPortal.m_pos}");
-                package.Write(connectedPortal.m_pos);
-                package.Write(connectedPortal.m_tag);
-            }
+                Jotunn.Logger.LogDebug($"{entry.Key}");
 
-            var unconnected = this.Where(x => !x.m_con);
-
-            package.Write(unconnected.Count());
-            foreach (var unconnectedPortal in unconnected)
-            {
-                Jotunn.Logger.LogDebug($"{unconnectedPortal.m_tag}@{unconnectedPortal.m_pos}");
-                package.Write(unconnectedPortal.m_pos);
-                package.Write(unconnectedPortal.m_tag);
+                package.Write(entry.Key);
+                package.Write(entry.Value.ToBlob());
             }
 
             return package;
-        }*/
+        }
     }
 }
