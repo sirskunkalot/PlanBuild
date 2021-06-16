@@ -278,7 +278,7 @@ namespace PlanBuild.Blueprints
         {
             orig(self, takeInput, dt);
 
-            if (self.m_placementGhost)
+            if (self.m_placementGhost && takeInput)
             {
                 var piece = self.m_placementGhost.GetComponent<Piece>();
                 if (piece != null)
