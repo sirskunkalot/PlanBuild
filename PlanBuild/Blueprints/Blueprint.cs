@@ -89,7 +89,7 @@ namespace PlanBuild.Blueprints
         /// <returns><see cref="Blueprint"/> instance, ID equals file name</returns>
         public static Blueprint FromPath(string fileLocation)
         {
-            string name = Path.GetFileNameWithoutExtension(fileLocation);
+            string filename = Path.GetFileNameWithoutExtension(fileLocation);
             string extension = Path.GetExtension(fileLocation).ToLowerInvariant();
             
             Format format;
@@ -107,13 +107,8 @@ namespace PlanBuild.Blueprints
 
             string[] lines = File.ReadAllLines(fileLocation);
 
-            Blueprint ret = FromArray(name, lines, format);
+            Blueprint ret = FromArray(filename, lines, format);
             ret.FileLocation = fileLocation;
-            if (string.IsNullOrEmpty(ret.Name))
-            {
-                ret.Name = name;
-                ret.PrefabName = $"{BlueprintPrefabName} ({name})";
-            }
 
             return ret;
         }
@@ -151,6 +146,7 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret = new Blueprint();
             ret.ID = id;
+            ret.PrefabName = $"{BlueprintPrefabName}:{id}";
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -162,7 +158,6 @@ namespace PlanBuild.Blueprints
                 if (line.StartsWith(HeaderName))
                 {
                     ret.Name = line.Substring(HeaderName.Length);
-                    ret.PrefabName = $"{BlueprintPrefabName} ({ret.Name})";
                     continue;
                 }
                 if (line.StartsWith(HeaderCreator))
@@ -203,6 +198,11 @@ namespace PlanBuild.Blueprints
                         }
                         continue;
                 }
+            }
+
+            if (string.IsNullOrEmpty(ret.Name))
+            {
+                ret.Name = ret.ID;
             }
 
             ret.PieceEntries = pieceEntries.ToArray();
@@ -537,17 +537,17 @@ namespace PlanBuild.Blueprints
             ZNetView.m_forceDisableInit = false;
             Prefab.name = PrefabName;
 
+            // Set piece information
             Piece piece = Prefab.GetComponent<Piece>();
-
-            if (File.Exists(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png")))
-            {
-                var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png")));
-                piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-            }
-
             piece.m_name = Name;
             piece.m_enabled = true;
+
+            if (File.Exists(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")))
+            {
+                var tex = new Texture2D(2, 2);
+                tex.LoadImage(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")));
+                piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            }
 
             // Instantiate child objects
             if (!GhostInstantiate(Prefab))
@@ -830,9 +830,9 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
-                newbp.ID = $"{Player.m_localPlayer.GetPlayerName()}_{text}";
+                newbp.ID = $"{Player.m_localPlayer.GetPlayerName()}_{string.Concat(text.Split(Path.GetInvalidFileNameChars()))}".Trim();
+                newbp.PrefabName = $"{BlueprintPrefabName}:{newbp.ID}";
                 newbp.Name = text;
-                newbp.PrefabName = $"{BlueprintPrefabName} ({newbp.Name})";
                 newbp.Creator = Player.m_localPlayer.GetPlayerName();
                 newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 if (newbp.Save())
@@ -871,7 +871,7 @@ namespace PlanBuild.Blueprints
 
                 Player.m_localPlayer.UpdateKnownRecipesList();
                 Player.m_localPlayer.UpdateAvailablePiecesList();
-                BlueprintManager.Instance.Blueprints.Add(newbp.Name, newbp);
+                BlueprintManager.Instance.Blueprints.Add(newbp.ID, newbp);
 
                 Logger.LogInfo("Blueprint created");
 

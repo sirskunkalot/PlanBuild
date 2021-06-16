@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -126,19 +127,21 @@ namespace PlanBuild.Blueprints
             // Try to load all saved blueprints
             foreach (var relativeFilePath in blueprintFiles)
             {
-                string name = Path.GetFileNameWithoutExtension(relativeFilePath);
-                if (!Blueprints.ContainsKey(name))
+                try
                 {
-                    try { 
-                        var bp = Blueprint.FromPath(relativeFilePath);
-                        Blueprints.Add(name, bp);
+                    string filename = Path.GetFileNameWithoutExtension(relativeFilePath);
+                    Blueprint bp = Blueprint.FromPath(relativeFilePath);
 
-                        Jotunn.Logger.LogDebug($"Loaded blueprint {name}");
-                    }
-                    catch (Exception ex)
+                    if (!Blueprints.ContainsKey(bp.ID))
                     {
-                        Jotunn.Logger.LogWarning($"Could not load blueprint {name}: {ex}");
+                        Blueprints.Add(bp.ID, bp);
+
+                        Jotunn.Logger.LogDebug($"Loaded blueprint {relativeFilePath}");
                     }
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
                 }
             }
         }
@@ -624,7 +627,8 @@ namespace PlanBuild.Blueprints
 
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
-            Blueprint bp = Instance.Blueprints[piece.m_name];
+            string id = piece.gameObject.name.Substring(Blueprint.BlueprintPrefabName.Length+1);
+            Blueprint bp = Instance.Blueprints[id];
             var transform = player.m_placementGhost.transform;
             var position = transform.position;
             var rotation = transform.rotation;
