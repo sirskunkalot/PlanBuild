@@ -43,7 +43,7 @@ namespace PlanBuild.Blueprints
         public string FileLocation;
 
         /// <summary>
-        ///     ID of the blueprint instance. Translates to &lt;ID&gt;.blueprint in the filesystem
+        ///     ID of the blueprint instance.
         /// </summary>
         public string ID;
 
@@ -82,10 +82,11 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private string PrefabName;
 
-        public Blueprint()
-        {
-        }
-
+        /// <summary>
+        ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files.
+        /// </summary>
+        /// <param name="fileLocation">Absolute path to the blueprint file</param>
+        /// <returns><see cref="Blueprint"/> instance, ID equals file name</returns>
         public static Blueprint FromPath(string fileLocation)
         {
             string name = Path.GetFileNameWithoutExtension(fileLocation);
@@ -117,6 +118,12 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
+        /// <summary>
+        ///     Create a blueprint instance with a given ID from a BLOB.
+        /// </summary>
+        /// <param name="id">The unique blueprint ID</param>
+        /// <param name="payload">BLOB with blurprint data</param>
+        /// <returns></returns>
         public static Blueprint FromBlob(string id, byte[] payload)
         {
             List<string> lines = new List<string>();
@@ -133,6 +140,13 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
+        /// <summary>
+        ///     Create a blueprint instance with a given ID from a string array holding blueprint information.
+        /// </summary>
+        /// <param name="id">The unique blueprint ID</param>
+        /// <param name="lines">String array with either VBuild or Blueprint format information</param>
+        /// <param name="format"><see cref="Format"/> of the blueprint lines</param>
+        /// <returns></returns>
         public static Blueprint FromArray(string id, string[] lines, Format format)
         {
             Blueprint ret = new Blueprint();
@@ -197,6 +211,10 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
+        /// <summary>
+        ///     Creates a string array of this blueprint instance in Blueprint <see cref="Format"/>.
+        /// </summary>
+        /// <returns></returns>
         public string[] ToArray()
         {
             if (PieceEntries == null)
@@ -228,6 +246,10 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Creates a BLOB of this blueprint instance in Blueprint <see cref="Format"/>.
+        /// </summary>
+        /// <returns></returns>
         public byte[] ToBlob()
         {
             string[] lines = ToArray();
