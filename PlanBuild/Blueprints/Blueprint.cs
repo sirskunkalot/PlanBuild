@@ -539,10 +539,10 @@ namespace PlanBuild.Blueprints
 
             Piece piece = Prefab.GetComponent<Piece>();
 
-            if (File.Exists(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png")))
+            if (File.Exists(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png")))
             {
                 var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, Name + ".png")));
+                tex.LoadImage(File.ReadAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png")));
                 piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
 
@@ -563,7 +563,15 @@ namespace PlanBuild.Blueprints
                 PieceTable = BlueprintRunePrefab.PieceTableName,
                 Category = BlueprintRunePrefab.CategoryBlueprints
             });
-            CP.Piece.m_description += "\nFile location: " + Path.GetFullPath(FileLocation);
+            CP.Piece.m_description += "\nFile name: " + Path.GetFileName(FileLocation);
+            if (!string.IsNullOrEmpty(Creator))
+            {
+                CP.Piece.m_description += "\nCreator: " + Creator;
+            }
+            if (!string.IsNullOrEmpty(Description))
+            {
+                CP.Piece.m_description += "\nDescription: " + Description;
+            }
             PieceManager.Instance.AddPiece(CP);
             //PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
             AddToPieceTable();
