@@ -537,18 +537,6 @@ namespace PlanBuild.Blueprints
             ZNetView.m_forceDisableInit = false;
             Prefab.name = PrefabName;
 
-            // Set piece information
-            Piece piece = Prefab.GetComponent<Piece>();
-            piece.m_name = Name;
-            piece.m_enabled = true;
-
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")))
-            {
-                var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")));
-                piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
-            }
-
             // Instantiate child objects
             if (!GhostInstantiate(Prefab))
             {
@@ -557,48 +545,31 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            // Add to known pieces
-            CustomPiece CP = new CustomPiece(Prefab, new PieceConfig
-            {
-                PieceTable = BlueprintRunePrefab.PieceTableName,
-                Category = BlueprintRunePrefab.CategoryBlueprints
-            });
-            CP.Piece.m_description += "\nFile name: " + Path.GetFileName(FileLocation);
+            // Set piece information
+            Piece piece = Prefab.GetComponent<Piece>();
+            piece.m_name = Name;
+            piece.m_enabled = true;
+            piece.m_description += "\nFile name: " + Path.GetFileName(FileLocation);
             if (!string.IsNullOrEmpty(Creator))
             {
-                CP.Piece.m_description += "\nCreator: " + Creator;
+                piece.m_description += "\nCreator: " + Creator;
             }
             if (!string.IsNullOrEmpty(Description))
             {
-                CP.Piece.m_description += "\nDescription: " + Description;
+                piece.m_description += "\nDescription: " + Description;
             }
-            PieceManager.Instance.AddPiece(CP);
-            //PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName).m_pieces.Add(m_prefab);
-            AddToPieceTable();
-            PrefabManager.Instance.RegisterToZNetScene(Prefab);
+            if (File.Exists(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")))
+            {
+                var tex = new Texture2D(2, 2);
+                tex.LoadImage(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")));
+                piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+            }
+
+            // Add to known pieces
+            PieceManager.Instance.RegisterPieceInPieceTable(
+                Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
 
             return true;
-        }
-
-        public void AddToPieceTable()
-        {
-            if (Prefab == null)
-            {
-                return;
-            }
-
-            var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if (table == null)
-            {
-                Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
-                return;
-            }
-
-            if (!table.m_pieces.Contains(Prefab))
-            {
-                Logger.LogDebug($"Adding {PrefabName} to {BlueprintRunePrefab.BlueprintRuneName}"); 
-                table.m_pieces.Add(Prefab);
-            }
         }
 
         public void Destroy()
@@ -864,8 +835,6 @@ namespace PlanBuild.Blueprints
                 yield return new WaitForEndOfFrame();
 
                 newbp.CreatePrefab();
-
-                newbp.AddToPieceTable();
 
                 newbp.CreateKeyHint();
 
