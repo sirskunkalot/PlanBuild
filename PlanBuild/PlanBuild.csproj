@@ -119,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="assets\Translations\Deutsch\PlanBuild.Deutsch.json" />
+    <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
     <None Include="assets\Translations\English\PlanBuild.English.json" />
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
