@@ -201,7 +201,6 @@ namespace PlanBuild.Blueprints
                             {
                                 Blueprint oldbp = BlueprintManager.Instance.Blueprints[blueprint.ID];
                                 oldbp.Destroy();
-                                oldbp.RemoveKeyHint();
                                 BlueprintManager.Instance.Blueprints.Remove(blueprint.ID);
                             }
 
