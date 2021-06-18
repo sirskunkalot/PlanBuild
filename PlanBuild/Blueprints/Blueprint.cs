@@ -1,5 +1,4 @@
 ﻿using Jotunn.Configs;
-using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Plans;
 using System;
@@ -43,6 +42,11 @@ namespace PlanBuild.Blueprints
         public string FileLocation;
 
         /// <summary>
+        ///     File location of this blueprints icon.
+        /// </summary>
+        public string IconLocation;
+
+        /// <summary>
         ///     ID of the blueprint instance.
         /// </summary>
         public string ID;
@@ -78,6 +82,11 @@ namespace PlanBuild.Blueprints
         private GameObject Prefab;
 
         /// <summary>
+        ///     Dynamically generated KeyHint for this blueprint
+        /// </summary>
+        private KeyHintConfig KeyHint;
+
+        /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;Name&gt;)"
         /// </summary>
         private string PrefabName;
@@ -109,6 +118,7 @@ namespace PlanBuild.Blueprints
 
             Blueprint ret = FromArray(filename, lines, format);
             ret.FileLocation = fileLocation;
+            ret.IconLocation = fileLocation.Replace(extension, ".png");
 
             return ret;
         }
@@ -117,7 +127,7 @@ namespace PlanBuild.Blueprints
         ///     Create a blueprint instance with a given ID from a BLOB.
         /// </summary>
         /// <param name="id">The unique blueprint ID</param>
-        /// <param name="payload">BLOB with blurprint data</param>
+        /// <param name="payload">BLOB with blueprint data</param>
         /// <returns></returns>
         public static Blueprint FromBlob(string id, byte[] payload)
         {
@@ -126,8 +136,14 @@ namespace PlanBuild.Blueprints
             {
                 using (BinaryReader reader = new BinaryReader(m))
                 {
-                    lines.Add(reader.ReadString());
-                    reader.ReadChar();
+                    try
+                    {
+                        while (true)
+                        {
+                            lines.Add(reader.ReadString());
+                        }
+                    }
+                    catch (EndOfStreamException) { }
                 }
             }
 
@@ -147,6 +163,8 @@ namespace PlanBuild.Blueprints
             Blueprint ret = new Blueprint();
             ret.ID = id;
             ret.PrefabName = $"{BlueprintPrefabName}:{id}";
+            ret.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, id + ".blueprint");
+            ret.IconLocation = ret.FileLocation.Replace(".blueprint", ".png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -212,7 +230,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a string array of this blueprint instance in Blueprint <see cref="Format"/>.
+        ///     Creates a string array of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
         /// <returns></returns>
         public string[] ToArray()
@@ -247,7 +265,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a BLOB of this blueprint instance in Blueprint <see cref="Format"/>.
+        ///     Creates a BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
         /// <returns></returns>
         public byte[] ToBlob()
@@ -265,7 +283,6 @@ namespace PlanBuild.Blueprints
                     foreach (string line in lines)
                     {
                         writer.Write(line);
-                        writer.Write('\r');
                     }
                 }
                 return m.ToArray();
@@ -466,7 +483,7 @@ namespace PlanBuild.Blueprints
             Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
 
             // Save to file
-            File.WriteAllBytes(Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, ID + ".png"), thumbnail.EncodeToPNG());
+            File.WriteAllBytes(IconLocation, thumbnail.EncodeToPNG());
 
             // Destroy properly
             Object.Destroy(screenShot);
@@ -498,15 +515,6 @@ namespace PlanBuild.Blueprints
             }
 
             return true;
-        }
-
-        public void CalculateCost()
-        {
-            if (PieceEntries == null)
-            {
-                Logger.LogWarning("No pieces loaded");
-                return;
-            }
         }
 
         public bool CreatePrefab()
@@ -558,10 +566,10 @@ namespace PlanBuild.Blueprints
             {
                 piece.m_description += "\nDescription: " + Description;
             }
-            if (File.Exists(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")))
+            if (File.Exists(IconLocation))
             {
                 var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(Path.Combine(Path.GetDirectoryName(FileLocation), ID + ".png")));
+                tex.LoadImage(File.ReadAllBytes(IconLocation));
                 piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
             }
 
@@ -569,34 +577,56 @@ namespace PlanBuild.Blueprints
             PieceManager.Instance.RegisterPieceInPieceTable(
                 Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
 
+            // Create KeyHint
+            CreateKeyHint();
+
             return true;
         }
 
         public void Destroy()
         {
-            if (Prefab == null)
+            if (Prefab != null)
             {
-                return;
+                // Remove from PieceTable
+                var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+                if (table == null)
+                {
+                    Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
+                    return;
+                }
+
+                if (table.m_pieces.Contains(Prefab))
+                {
+                    Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
+
+                    table.m_pieces.Remove(Prefab);
+                }
+
+                // Remove from prefabs
+                PieceManager.Instance.RemovePiece(PrefabName);
+                PrefabManager.Instance.DestroyPrefab(PrefabName);
+
+                // Reload table
+                if (Player.m_localPlayer)
+                {
+                    Player.m_localPlayer.UpdateKnownRecipesList();
+                }
             }
 
-            // Remove from PieceTable
-            var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if (table == null)
+            if (KeyHint != null)
             {
-                Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
-                return;
+                RemoveKeyHint();
             }
 
-            if (table.m_pieces.Contains(Prefab))
+            // Delete files
+            if (File.Exists(FileLocation))
             {
-                Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
-
-                table.m_pieces.Remove(Prefab);
+                File.Delete(FileLocation);
             }
-
-            // Remove from prefabs
-            PieceManager.Instance.RemovePiece(PrefabName);
-            PrefabManager.Instance.DestroyPrefab(PrefabName);
+            if (File.Exists(IconLocation))
+            {
+                File.Delete(IconLocation);
+            }
         }
 
         /// <summary>
@@ -753,30 +783,32 @@ namespace PlanBuild.Blueprints
 
         internal void CreateKeyHint()
         {
-            KeyHintConfig KHC = new KeyHintConfig
+            if (KeyHint == null)
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = PrefabName,
-                ButtonConfigs = new[]
+                KeyHint = new KeyHintConfig
                 {
+                    Item = BlueprintRunePrefab.BlueprintRuneName,
+                    Piece = PrefabName,
+                    ButtonConfigs = new[]
+                    {
                     new ButtonConfig { Name = BlueprintManager.planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
                 }
-            };
-            GUIManager.Instance.AddKeyHint(KHC);
+                };
+                GUIManager.Instance.AddKeyHint(KeyHint);
+            }
         }
 
         internal void RemoveKeyHint()
         {
-            KeyHintConfig KHC = new KeyHintConfig
+            if (KeyHint != null)
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = PrefabName
-            };
-            GUIManager.Instance.RemoveKeyHint(KHC);
+                GUIManager.Instance.RemoveKeyHint(KeyHint);
+                KeyHint = null;
+            }
         }
 
         /// <summary>
@@ -806,13 +838,13 @@ namespace PlanBuild.Blueprints
                 newbp.Name = text;
                 newbp.Creator = Player.m_localPlayer.GetPlayerName();
                 newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
+                newbp.IconLocation = newbp.FileLocation.Replace(".blueprint", ".png");
                 if (newbp.Save())
                 {
                     if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.ID))
                     {
                         Blueprint oldbp = BlueprintManager.Instance.Blueprints[newbp.ID];
                         oldbp.Destroy();
-                        oldbp.RemoveKeyHint();
                         BlueprintManager.Instance.Blueprints.Remove(newbp.ID);
                     }
 
@@ -835,11 +867,7 @@ namespace PlanBuild.Blueprints
                 yield return new WaitForEndOfFrame();
 
                 newbp.CreatePrefab();
-
-                newbp.CreateKeyHint();
-
                 Player.m_localPlayer.UpdateKnownRecipesList();
-                Player.m_localPlayer.UpdateAvailablePiecesList();
                 BlueprintManager.Instance.Blueprints.Add(newbp.ID, newbp);
 
                 Logger.LogInfo("Blueprint created");

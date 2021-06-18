@@ -49,6 +49,9 @@ namespace PlanBuild.Blueprints
 
             // Init config
             BlueprintConfig.Init();
+
+            // Init BP sync
+            BlueprintSync.Init();
             
             // Load Blueprints
             LoadKnownBlueprints();
@@ -108,7 +111,7 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
-        private void LoadKnownBlueprints()
+        internal void LoadKnownBlueprints()
         {
             Jotunn.Logger.LogMessage("Loading known blueprints");
 
@@ -141,6 +144,21 @@ namespace PlanBuild.Blueprints
                 catch (Exception ex)
                 {
                     Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
+                }
+            }
+        }
+
+        internal void RegisterKnownBlueprints()
+        {
+            // Client only
+            if (ZNet.instance != null && !ZNet.instance.IsDedicated())
+            {
+                Jotunn.Logger.LogMessage("Registering known blueprints");
+
+                // Create prefabs for all known blueprints
+                foreach (var bp in Instance.Blueprints.Values)
+                {
+                    bp.CreatePrefab();
                 }
             }
         }
@@ -228,24 +246,6 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
-
-            foreach (var entry in Blueprints)
-            {
-                entry.Value.CreateKeyHint();
-            }
-        }
-
-        private void RegisterKnownBlueprints()
-        {
-            // Client only
-            if (!ZNet.instance.IsDedicated())
-            {
-                // Create prefabs for all known blueprints
-                foreach (var bp in Instance.Blueprints.Values)
-                {
-                    bp.CreatePrefab();
-                }
-            }
         }
 
         private void CreateBlueprintGUI()

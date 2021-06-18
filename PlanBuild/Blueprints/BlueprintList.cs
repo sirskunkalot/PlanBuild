@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace PlanBuild.Blueprints
 {
@@ -51,6 +52,18 @@ namespace PlanBuild.Blueprints
             }
 
             return package;
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"{Count} blueprints");
+            foreach (var entry in this)
+            {
+                sb.AppendLine($"{entry.Key} ({entry.Value.GetPieceCount()} pieces)");
+            }
+
+            return sb.ToString();
         }
     }
 }
