@@ -131,7 +131,6 @@ namespace PlanBuild.Blueprints
             {
                 try
                 {
-                    string filename = Path.GetFileNameWithoutExtension(relativeFilePath);
                     Blueprint bp = Blueprint.FromPath(relativeFilePath);
 
                     if (!Blueprints.ContainsKey(bp.ID))
