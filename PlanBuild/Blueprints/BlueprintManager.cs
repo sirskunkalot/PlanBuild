@@ -45,8 +45,6 @@ namespace PlanBuild.Blueprints
 
         internal void Init()
         {
-            //TODO: Client only - how to do? or just ignore - there are no bps and maybe someday there will be a server-wide directory of blueprints for sharing :)
-
             // Init config
             BlueprintConfig.Init();
 
@@ -131,13 +129,11 @@ namespace PlanBuild.Blueprints
             {
                 try
                 {
-                    Blueprint bp = Blueprint.FromPath(relativeFilePath);
-
-                    if (!Blueprints.ContainsKey(bp.ID))
+                    string id = Path.GetFileNameWithoutExtension(relativeFilePath);
+                    if (!Blueprints.ContainsKey(id))
                     {
+                        Blueprint bp = Blueprint.FromFile(relativeFilePath);
                         Blueprints.Add(bp.ID, bp);
-
-                        Jotunn.Logger.LogDebug($"Loaded blueprint {relativeFilePath}");
                     }
                 }
                 catch (Exception ex)

@@ -1,5 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
+using Jotunn.Utils;
 using PlanBuild.Plans;
 using System;
 using System.Collections;
@@ -77,6 +78,11 @@ namespace PlanBuild.Blueprints
         public SnapPoint[] SnapPoints;
 
         /// <summary>
+        ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
+        /// </summary>
+        public Texture2D Thumbnail;
+
+        /// <summary>
         ///     Dynamically generated prefab for this blueprint
         /// </summary>
         private GameObject Prefab;
@@ -87,16 +93,17 @@ namespace PlanBuild.Blueprints
         private KeyHintConfig KeyHint;
 
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;Name&gt;)"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
         /// </summary>
         private string PrefabName;
 
         /// <summary>
-        ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files.
+        ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files. 
+        ///     Reads an optional thumbnail from a PNG file with the same name as the blueprint.
         /// </summary>
         /// <param name="fileLocation">Absolute path to the blueprint file</param>
-        /// <returns><see cref="Blueprint"/> instance, ID equals file name</returns>
-        public static Blueprint FromPath(string fileLocation)
+        /// <returns><see cref="Blueprint"/> instance with an optional thumbnail, ID equals file name</returns>
+        public static Blueprint FromFile(string fileLocation)
         {
             string filename = Path.GetFileNameWithoutExtension(fileLocation);
             string extension = Path.GetExtension(fileLocation).ToLowerInvariant();
@@ -115,10 +122,17 @@ namespace PlanBuild.Blueprints
             }
 
             string[] lines = File.ReadAllLines(fileLocation);
+            Logger.LogDebug($"Read {lines.Length} lines from {fileLocation}");
 
             Blueprint ret = FromArray(filename, lines, format);
             ret.FileLocation = fileLocation;
             ret.IconLocation = fileLocation.Replace(extension, ".png");
+            
+            if (File.Exists(ret.IconLocation))
+            {
+                ret.Thumbnail = AssetUtils.LoadTexture(ret.IconLocation, relativePath: false);
+                Logger.LogDebug($"Read thumbnail data from {ret.IconLocation}");
+            }
 
             return ret;
         }
@@ -128,26 +142,32 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="id">The unique blueprint ID</param>
         /// <param name="payload">BLOB with blueprint data</param>
-        /// <returns></returns>
+        /// <returns><see cref="Blueprint"/> instance with an optional thumbnail</returns>
         public static Blueprint FromBlob(string id, byte[] payload)
         {
+            Blueprint ret;
             List<string> lines = new List<string>();
             using (MemoryStream m = new MemoryStream(payload))
             {
                 using (BinaryReader reader = new BinaryReader(m))
                 {
-                    try
+                    int numLines = reader.ReadInt32();
+                    for (int i = 0; i < numLines; i++)
                     {
-                        while (true)
-                        {
-                            lines.Add(reader.ReadString());
-                        }
+                        lines.Add(reader.ReadString());
                     }
-                    catch (EndOfStreamException) { }
+                    ret = FromArray(id, lines.ToArray(), Format.Blueprint);
+
+                    int numBytes = reader.ReadInt32();
+                    if (numBytes > 0)
+                    {
+                        byte[] thumbnailBytes = reader.ReadBytes(numBytes);
+                        ret.Thumbnail = new Texture2D(1, 1);
+                        ret.Thumbnail.LoadImage(thumbnailBytes);
+                    }
                 }
             }
 
-            Blueprint ret = FromArray(id, lines.ToArray(), Format.Blueprint);
             return ret;
         }
 
@@ -157,7 +177,7 @@ namespace PlanBuild.Blueprints
         /// <param name="id">The unique blueprint ID</param>
         /// <param name="lines">String array with either VBuild or Blueprint format information</param>
         /// <param name="format"><see cref="Format"/> of the blueprint lines</param>
-        /// <returns></returns>
+        /// <returns><see cref="Blueprint"/> instance built from the given lines without a thumbnail and the default filesystem paths</returns>
         public static Blueprint FromArray(string id, string[] lines, Format format)
         {
             Blueprint ret = new Blueprint();
@@ -230,48 +250,46 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a string array of this blueprint instance as <see cref="Format.Blueprint"/>.
+        ///     Creates a string array of this blueprint instance in format <see cref="Format.Blueprint"/>.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A string array representation of this blueprint without the thumbnail</returns>
         public string[] ToArray()
         {
             if (PieceEntries == null)
             {
                 return null;
             }
-            else
+
+            List<string> ret = new List<string>();
+
+            ret.Add(HeaderName + Name);
+            ret.Add(HeaderCreator + Creator);
+            ret.Add(HeaderDescription + Description);
+            if (SnapPoints.Count() > 0)
             {
-                List<string> ret = new List<string>();
-
-                ret.Add(HeaderName + Name);
-                ret.Add(HeaderCreator + Creator);
-                ret.Add(HeaderDescription + Description);
-                if (SnapPoints.Count() > 0)
+                ret.Add(HeaderSnapPoints);
+                foreach (SnapPoint snapPoint in SnapPoints)
                 {
-                    ret.Add(HeaderSnapPoints);
-                    foreach (SnapPoint snapPoint in SnapPoints)
-                    {
-                        ret.Add(snapPoint.line);
-                    }
+                    ret.Add(snapPoint.line);
                 }
-                ret.Add(HeaderPieces);
-                foreach (var piece in PieceEntries)
-                {
-                    ret.Add(piece.line);
-                }
-
-                return ret.ToArray();
             }
+            ret.Add(HeaderPieces);
+            foreach (var piece in PieceEntries)
+            {
+                ret.Add(piece.line);
+            }
+
+            return ret.ToArray();
         }
 
         /// <summary>
         ///     Creates a BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A byte array representation of this blueprint including the thumbnail</returns>
         public byte[] ToBlob()
         {
             string[] lines = ToArray();
-            if (lines == null)
+            if (lines == null || lines.Length == 0)
             {
                 return null;
             }
@@ -280,13 +298,55 @@ namespace PlanBuild.Blueprints
             {
                 using (BinaryWriter writer = new BinaryWriter(m))
                 {
+                    writer.Write(lines.Length);
                     foreach (string line in lines)
                     {
                         writer.Write(line);
                     }
+
+                    if (Thumbnail == null)
+                    {
+                        writer.Write(0);
+                    }
+                    else
+                    {
+                        byte[] thumbBytes = Thumbnail.EncodeToPNG();
+                        writer.Write(thumbBytes.Length);
+                        writer.Write(thumbBytes);
+                    }
                 }
                 return m.ToArray();
             }
+        }
+
+        /// <summary>
+        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>
+        /// </summary>
+        /// <returns>true if the blueprint could be saved</returns>
+        public bool ToFile()
+        {
+            string[] lines = ToArray();
+            if (lines == null || lines.Length == 0)
+            {
+                return false;
+            }
+
+            using (TextWriter tw = new StreamWriter(FileLocation))
+            {
+                foreach (string line in lines)
+                {
+                    tw.WriteLine(line);
+                }
+                Logger.LogDebug($"Wrote {PieceEntries.Length} pieces to {FileLocation}");
+            }
+
+            if (Thumbnail != null)
+            {
+                File.WriteAllBytes(IconLocation, Thumbnail.EncodeToPNG());
+                Logger.LogDebug($"Wrote thumbnail data to {IconLocation}");
+            }
+
+            return true;
         }
 
         /// <summary>
@@ -386,13 +446,13 @@ namespace PlanBuild.Blueprints
                 center = centerPiece.position;
             }
 
-            // select and order instance piece entries
+            // Select and order instance piece entries
             var pieces = collected
                     .OrderBy(x => x.transform.position.y)
                     .ThenBy(x => x.transform.position.x)
                     .ThenBy(x => x.transform.position.z);
 
-            // create instance piece entries
+            // Create instance piece entries
             if (PieceEntries == null)
             {
                 PieceEntries = new PieceEntry[pieces.Count()];
@@ -421,7 +481,7 @@ namespace PlanBuild.Blueprints
                 PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
-            // create instance snap points
+            // Create instance snap points
             if (SnapPoints == null)
             {
                 SnapPoints = new SnapPoint[snapPoints.Count()];
@@ -441,82 +501,10 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Scale down a Texture2D
+        ///     Creates a prefab from this blueprint, instantiating the stub piece and all pieces
+        ///     used in this blueprint. Adds it to the <see cref="ZNetScene"/> and rune <see cref="PieceTable"/>.
         /// </summary>
-        /// <param name="orig">Original texture</param>
-        /// <param name="width">New width</param>
-        /// <param name="height">New height</param>
-        /// <returns></returns>
-        public Texture2D ScaleTexture(Texture2D orig, int width, int height)
-        {
-            var result = new Texture2D(width, height);
-            for (var y = 0; y < height; y++)
-            {
-                for (var x = 0; x < width; x++)
-                {
-                    var xp = 1f * x / width;
-                    var yp = 1f * y / height;
-                    var xo = (int)Mathf.Round(xp * orig.width); //Other X pos
-                    var yo = (int)Mathf.Round(yp * orig.height); //Other Y pos
-                    Color origPixel = orig.GetPixel(xo, yo);
-                    origPixel.a = 1f;
-                    result.SetPixel(x, y, origPixel);
-                }
-            }
-
-            result.Apply();
-            return result;
-        }
-
-        /// <summary>
-        ///     Save thumbnail
-        /// </summary>
-        public void RecordFrame()
-        {
-            // Get a screenshot
-            var screenShot = ScreenCapture.CaptureScreenshotAsTexture();
-
-            // Calculate proper height
-            var height = (int)Math.Round(160f * screenShot.height / screenShot.width);
-
-            // Create thumbnail image from screenShot
-            Texture2D thumbnail = ScaleTexture(screenShot, 160, height);
-
-            // Save to file
-            File.WriteAllBytes(IconLocation, thumbnail.EncodeToPNG());
-
-            // Destroy properly
-            Object.Destroy(screenShot);
-            Object.Destroy(thumbnail);
-        }
-
-        /// <summary>
-        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>
-        /// </summary>
-        /// <returns></returns>
-        public bool Save()
-        {
-            if (PieceEntries == null)
-            {
-                Logger.LogWarning("No pieces stored to save");
-                return false;
-            }
-            else
-            {
-                using (TextWriter tw = new StreamWriter(FileLocation))
-                {
-                    foreach (string line in ToArray())
-                    {
-                        tw.WriteLine(line);
-                    }
-
-                    Logger.LogDebug("Wrote " + PieceEntries.Length + " pieces to " + FileLocation);
-                }
-            }
-
-            return true;
-        }
-
+        /// <returns>true if the prefab could be created</returns>
         public bool CreatePrefab()
         {
             if (Prefab != null)
@@ -566,11 +554,12 @@ namespace PlanBuild.Blueprints
             {
                 piece.m_description += "\nDescription: " + Description;
             }
-            if (File.Exists(IconLocation))
+            //if (File.Exists(IconLocation))
+            if (Thumbnail != null)
             {
-                var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(IconLocation));
-                piece.m_icon = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero);
+                /*var tex = new Texture2D(2, 2);
+                tex.LoadImage(File.ReadAllBytes(IconLocation));*/
+                piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
             }
 
             // Add to known pieces
@@ -578,13 +567,30 @@ namespace PlanBuild.Blueprints
                 Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
 
             // Create KeyHint
-            CreateKeyHint();
+            KeyHint = new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = PrefabName,
+                ButtonConfigs = new[]
+                    {
+                    new ButtonConfig { Name = BlueprintManager.planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
+                    new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
+                    new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
+                }
+            };
+            GUIManager.Instance.AddKeyHint(KeyHint);
 
             return true;
         }
 
+        /// <summary>
+        ///     Removes and destroys this blueprints prefab, KeyHint and files from the game and filesystem.
+        /// </summary>
         public void Destroy()
         {
+            // Remove and destroy prefab
             if (Prefab != null)
             {
                 // Remove from PieceTable
@@ -613,9 +619,11 @@ namespace PlanBuild.Blueprints
                 }
             }
 
+            // Remove KeyHint
             if (KeyHint != null)
             {
-                RemoveKeyHint();
+                GUIManager.Instance.RemoveKeyHint(KeyHint);
+                KeyHint = null;
             }
 
             // Delete files
@@ -781,36 +789,6 @@ namespace PlanBuild.Blueprints
             // ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating);
         }
 
-        internal void CreateKeyHint()
-        {
-            if (KeyHint == null)
-            {
-                KeyHint = new KeyHintConfig
-                {
-                    Item = BlueprintRunePrefab.BlueprintRuneName,
-                    Piece = PrefabName,
-                    ButtonConfigs = new[]
-                    {
-                    new ButtonConfig { Name = BlueprintManager.planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
-                    new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
-                    new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
-                }
-                };
-                GUIManager.Instance.AddKeyHint(KeyHint);
-            }
-        }
-
-        internal void RemoveKeyHint()
-        {
-            if (KeyHint != null)
-            {
-                GUIManager.Instance.RemoveKeyHint(KeyHint);
-                KeyHint = null;
-            }
-        }
-
         /// <summary>
         ///     Helper class for naming and saving a captured blueprint via GUI
         ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
@@ -833,13 +811,16 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
-                newbp.ID = $"{Player.m_localPlayer.GetPlayerName()}_{string.Concat(text.Split(Path.GetInvalidFileNameChars()))}".Trim();
+                string playerName = Player.m_localPlayer.GetPlayerName();
+                string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
+                
+                newbp.ID = $"{playerName}_{fileName}".Trim();
                 newbp.PrefabName = $"{BlueprintPrefabName}:{newbp.ID}";
                 newbp.Name = text;
-                newbp.Creator = Player.m_localPlayer.GetPlayerName();
+                newbp.Creator = playerName;
                 newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 newbp.IconLocation = newbp.FileLocation.Replace(".blueprint", ".png");
-                if (newbp.Save())
+                if (newbp.ToFile())
                 {
                     if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.ID))
                     {
@@ -852,13 +833,17 @@ namespace PlanBuild.Blueprints
                 }
             }
 
+            /// <summary>
+            ///     Take screenshot, create the prefab and add the blueprint to the manager as a <see cref="Coroutine"/>.
+            /// </summary>
+            /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
             public IEnumerator AddBlueprint()
             {
                 bool oldHud = DisableHud();
                 yield return new WaitForEndOfFrame();
                 yield return new WaitForEndOfFrame();
 
-                newbp.RecordFrame();
+                RecordFrame();
 
                 Hud.instance.m_userHidden = oldHud;
                 Hud.instance.SetVisible(true);
@@ -875,6 +860,10 @@ namespace PlanBuild.Blueprints
                 newbp = null;
             }
 
+            /// <summary>
+            ///     Disable the HUD for the thumbnail screenshot
+            /// </summary>
+            /// <returns>The bool state of the current HUD</returns>
             private bool DisableHud()
             {
                 Console.instance.m_chatWindow.gameObject.SetActive(false);
@@ -886,6 +875,43 @@ namespace PlanBuild.Blueprints
 
                 return oldHud;
             }
+
+            /// <summary>
+            ///     Capture and save a thumbnail
+            /// </summary>
+            private void RecordFrame()
+            {
+                // Get a screenshot
+                Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
+
+                // Calculate proper height
+                int width = 160;
+                int height = (int)Math.Round(160f * screenshot.height / screenshot.width);
+
+                // Create thumbnail image from screenshot
+                newbp.Thumbnail = new Texture2D(width, height);
+                for (var y = 0; y < height; y++)
+                {
+                    for (var x = 0; x < width; x++)
+                    {
+                        var xp = 1f * x / width;
+                        var yp = 1f * y / height;
+                        var xo = (int)Mathf.Round(xp * screenshot.width); // Other X pos
+                        var yo = (int)Mathf.Round(yp * screenshot.height); // Other Y pos
+                        Color origPixel = screenshot.GetPixel(xo, yo);
+                        origPixel.a = 1f;
+                        newbp.Thumbnail.SetPixel(x, y, origPixel);
+                    }
+                }
+                newbp.Thumbnail.Apply();
+
+                // Save to file
+                File.WriteAllBytes(newbp.IconLocation, newbp.Thumbnail.EncodeToPNG());
+
+                // Destroy properly
+                Object.Destroy(screenshot);
+            }
+
         }
     }
 }

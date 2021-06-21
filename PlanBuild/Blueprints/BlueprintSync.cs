@@ -112,11 +112,6 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (BlueprintManager.Instance.Blueprints.Count() == 0)
-                {
-                    Console.instance.Print("No blueprints available");
-                    return;
-                }
                 BlueprintManager.Instance.LoadKnownBlueprints();
                 BlueprintManager.Instance.RegisterKnownBlueprints();
                 Console.instance.Print(BlueprintManager.Instance.Blueprints.ToString());
@@ -195,7 +190,7 @@ namespace PlanBuild.Blueprints
                 GetServerList(() => {
                     if (ServerList != null && ServerList.TryGetValue(args[0], out var blueprint))
                     {
-                        if (blueprint.Save())
+                        if (blueprint.ToFile())
                         {
                             if (BlueprintManager.Instance.Blueprints.ContainsKey(blueprint.ID))
                             {
