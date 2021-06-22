@@ -249,7 +249,7 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>");
+                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
                     return;
                 }
 
@@ -259,7 +259,7 @@ namespace PlanBuild.Blueprints
                     BlueprintManager.Instance.Blueprints[id].Destroy();
                     BlueprintManager.Instance.Blueprints.Remove(id);
 
-                    Console.instance.Print($"Removed blueprint {id}");
+                    Console.instance.Print($"Removed blueprint {id}\n");
                 }
             }
         }
@@ -277,12 +277,12 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>");
+                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
                     return;
                 }
                 if (!ZNet.instance || ZNet.instance.IsServer())
                 {
-                    Console.instance.Print("Not connected");
+                    Console.instance.Print("Not connected\n");
                     return;
                 }
 
@@ -291,11 +291,11 @@ namespace PlanBuild.Blueprints
                 {
                     if (!success)
                     {
-                        Console.instance.Print($"Could not upload blueprint: {message}");
+                        Console.instance.Print($"Could not upload blueprint: {message}\n");
                     }
                     else
                     {
-                        Console.instance.Print($"Blueprint {id} uploaded");
+                        Console.instance.Print($"Blueprint {id} uploaded\n");
                     }
                 });
             }
@@ -314,14 +314,14 @@ namespace PlanBuild.Blueprints
             {
                 if (!ZNet.instance || ZNet.instance.IsServer())
                 {
-                    Console.instance.Print("Not connected");
+                    Console.instance.Print("Not connected\n");
                     return;
                 }
                 GetServerList((bool success, string message) => 
                 {
                     if (!success)
                     {
-                        Console.instance.Print($"Could not get server list: {message}"); 
+                        Console.instance.Print($"Could not get server list: {message}\n"); 
                     }
                     else
                     {
@@ -345,12 +345,12 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>");
+                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
                     return;
                 }
                 if (!ZNet.instance || ZNet.instance.IsServer())
                 {
-                    Console.instance.Print("Not connected");
+                    Console.instance.Print("Not connected\n");
                     return;
                 }
 
@@ -359,11 +359,11 @@ namespace PlanBuild.Blueprints
                 {
                     if (!success) 
                     {
-                        Console.instance.Print($"Could not load blueprint: {message}");
+                        Console.instance.Print($"Could not load blueprint: {message}\n");
                     }
                     else if (SaveBlueprint(id))
                     {
-                        Console.instance.Print($"Loaded blueprint {id} from server.");
+                        Console.instance.Print($"Loaded blueprint {id} from server\n");
                     }
                 });
             }

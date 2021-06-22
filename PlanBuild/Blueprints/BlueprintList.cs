@@ -55,7 +55,7 @@ namespace PlanBuild.Blueprints
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"{Count} blueprints");
-            foreach (var entry in this)
+            foreach (var entry in this.OrderBy(x => x.Key))
             {
                 sb.AppendLine($"{entry.Key} ({entry.Value.GetPieceCount()} pieces)");
             }
