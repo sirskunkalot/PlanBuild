@@ -138,6 +138,18 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
+        ///     Create a blueprint instance from a <see cref="ZPackage"/>.
+        /// </summary>
+        /// <param name="pkg"></param>
+        /// <returns><see cref="Blueprint"/> instance with an optional thumbnail, ID comes from the <see cref="ZPackage"/></returns>
+        public static Blueprint FromZPackage(ZPackage pkg)
+        {
+            string id = pkg.ReadString();
+            Blueprint bp = FromBlob(id, pkg.ReadByteArray());
+            return bp;
+        }
+
+        /// <summary>
         ///     Create a blueprint instance with a given ID from a BLOB.
         /// </summary>
         /// <param name="id">The unique blueprint ID</param>
@@ -317,6 +329,18 @@ namespace PlanBuild.Blueprints
                 }
                 return m.ToArray();
             }
+        }
+
+        /// <summary>
+        ///     Creates a <see cref="ZPackage"/> from this blueprint including the ID and the instance.
+        /// </summary>
+        /// <returns></returns>
+        public ZPackage ToZPackage()
+        {
+            ZPackage package = new ZPackage();
+            package.Write(ID);
+            package.Write(ToBlob());
+            return package;
         }
 
         /// <summary>
@@ -600,7 +624,6 @@ namespace PlanBuild.Blueprints
                     Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
                     return;
                 }
-
                 if (table.m_pieces.Contains(Prefab))
                 {
                     Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
@@ -609,7 +632,10 @@ namespace PlanBuild.Blueprints
                 }
 
                 // Remove from prefabs
-                PieceManager.Instance.RemovePiece(PrefabName);
+                if (PieceManager.Instance.GetPiece(PrefabName) != null)
+                {
+                    PieceManager.Instance.RemovePiece(PrefabName);
+                }
                 PrefabManager.Instance.DestroyPrefab(PrefabName);
 
                 // Reload table

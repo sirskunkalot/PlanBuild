@@ -21,12 +21,11 @@ namespace PlanBuild.Blueprints
             var numBlueprints = zpkg.ReadInt();
             while (numBlueprints > 0)
             {
-                string id = zpkg.ReadString();
-                Blueprint bp = Blueprint.FromBlob(id, zpkg.ReadByteArray());
-                ret.Add(id, bp);
+                Blueprint bp = Blueprint.FromZPackage(zpkg.ReadPackage());
+                ret.Add(bp.ID, bp);
                 numBlueprints--;
 
-                Jotunn.Logger.LogDebug(id);
+                Jotunn.Logger.LogDebug(bp.ID);
             }
 
             return ret;
@@ -46,9 +45,7 @@ namespace PlanBuild.Blueprints
             foreach (var entry in this)
             {
                 Jotunn.Logger.LogDebug($"{entry.Key}");
-
-                package.Write(entry.Key);
-                package.Write(entry.Value.ToBlob());
+                package.Write(entry.Value.ToZPackage());
             }
 
             return package;
