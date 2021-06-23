@@ -154,11 +154,10 @@ namespace PlanBuild.Blueprints
                     }
                     
                     // Invoke answer response
-                    ZPackage ret = new ZPackage();
-                    ret.Write(success);
-                    ret.Write(message);
-                    ZRoutedRpc.instance.InvokeRoutedRPC(
-                        sender, nameof(RPC_PlanBuild_PushBlueprint), ret);
+                    ZPackage package = new ZPackage();
+                    package.Write(success);
+                    package.Write(message);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(sender, nameof(RPC_PlanBuild_PushBlueprint), package);
                 }
             }
             // Client receive
