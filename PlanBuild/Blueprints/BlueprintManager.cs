@@ -1,5 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
+using Jotunn.Utils;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
@@ -45,11 +46,16 @@ namespace PlanBuild.Blueprints
 
         internal void Init()
         {
+            Jotunn.Logger.LogInfo("Initializing BlueprintManager");
+
             // Init config
             BlueprintConfig.Init();
 
-            // Init BP sync
+            // Init sync
             BlueprintSync.Init();
+            
+            // Init GUI
+            BlueprintGUI.Init();
             
             // Load Blueprints
             LoadKnownBlueprints();
@@ -60,9 +66,6 @@ namespace PlanBuild.Blueprints
             // Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
-            // Register in GUIManager to create the BlueprintGUI
-            GUIManager.OnPixelFixCreated += CreateBlueprintGUI;
-
             // Hooks
             On.PieceTable.UpdateAvailable += OnUpdateAvailable;
             On.Player.UpdatePlacement += OnUpdatePlacement;
@@ -71,8 +74,6 @@ namespace PlanBuild.Blueprints
             On.Player.PieceRayTest += OnPieceRayTest;
             On.Humanoid.EquipItem += OnEquipItem;
             On.Humanoid.UnequipItem += OnUnequipItem;
-
-            Jotunn.Logger.LogInfo("BlueprintManager Initialized");
         }
 
         /// <summary>
@@ -243,14 +244,6 @@ namespace PlanBuild.Blueprints
             });
         }
 
-        private void CreateBlueprintGUI()
-        {
-            // Init GUI
-            if (SceneManager.GetActiveScene().name == "main")
-            {
-                GUIManager.PixelFix.AddComponent<BlueprintGUI>();
-            }
-        }
 
         private void Reset()
         {

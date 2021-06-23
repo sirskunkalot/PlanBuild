@@ -72,7 +72,6 @@ namespace PlanBuild
 
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
-
             ItemManager.OnItemsRegistered += OnItemsRegistered;
             On.Player.Awake += OnPlayerAwake;
         }
@@ -105,9 +104,13 @@ namespace PlanBuild
 
         public void Update()
         {
+            if (BlueprintGUI.Instance != null && Input.GetKeyDown(KeyCode.G))
+            {
+                BlueprintGUI.Instance.Toggle();
+            }
+            
             Player player = Player.m_localPlayer;
-            if (ZInput.instance == null
-                || player == null)
+            if (ZInput.instance == null || player == null)
             {
                 return;
             }
