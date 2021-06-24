@@ -49,38 +49,44 @@ namespace PlanBuild.Blueprints
         {
             Jotunn.Logger.LogInfo("Initializing BlueprintManager");
 
-            // Init lists
-            LocalBlueprints = new BlueprintDictionary(BlueprintLocation.Local);
-            ServerBlueprints = new BlueprintDictionary(BlueprintLocation.Server);
+            try
+            {
+                // Init lists
+                LocalBlueprints = new BlueprintDictionary(BlueprintLocation.Local);
+                ServerBlueprints = new BlueprintDictionary(BlueprintLocation.Server);
 
-            // Init config
-            BlueprintConfig.Init();
+                // Init config
+                BlueprintConfig.Init();
 
-            // Init sync
-            BlueprintSync.Init();
-            
-            // Init GUI
-            BlueprintGUI.Init();
+                // Init sync
+                BlueprintSync.Init();
 
-            // Create KeyHints and register GUI when PixelFix is created
-            GUIManager.OnPixelFixCreated += BlueprintGUI.Instance.Register;
-            GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
+                // Init GUI
+                BlueprintGUI.Init();
 
-            // Load Blueprints after game load
-            ItemManager.OnVanillaItemsAvailable += LoadKnownBlueprints;
+                // Create KeyHints if and when PixelFix is created
+                GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
 
-            // Create blueprint prefabs when all pieces were registered
-            // Some may still fail, these will be retried every time the blueprint rune is opened
-            PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
+                // Load Blueprints after game load
+                LoadKnownBlueprints();
 
-            // Hooks
-            On.PieceTable.UpdateAvailable += OnUpdateAvailable;
-            On.Player.UpdatePlacement += OnUpdatePlacement;
-            On.Player.PlacePiece += BeforePlaceBlueprintPiece;
-            On.GameCamera.UpdateCamera += AdjustCameraHeight;
-            On.Player.PieceRayTest += OnPieceRayTest;
-            On.Humanoid.EquipItem += OnEquipItem;
-            On.Humanoid.UnequipItem += OnUnequipItem;
+                // Create blueprint prefabs when all pieces were registered
+                // Some may still fail, these will be retried every time the blueprint rune is opened
+                PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
+
+                // Hooks
+                On.PieceTable.UpdateAvailable += OnUpdateAvailable;
+                On.Player.UpdatePlacement += OnUpdatePlacement;
+                On.Player.PlacePiece += BeforePlaceBlueprintPiece;
+                On.GameCamera.UpdateCamera += AdjustCameraHeight;
+                On.Player.PieceRayTest += OnPieceRayTest;
+                On.Humanoid.EquipItem += OnEquipItem;
+                On.Humanoid.UnequipItem += OnUnequipItem;
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogError($"{ex.StackTrace}");
+            }
         }
 
         /// <summary>
@@ -133,7 +139,7 @@ namespace PlanBuild.Blueprints
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
             // Try to load all saved blueprints
-            foreach (var relativeFilePath in blueprintFiles)
+            foreach (var relativeFilePath in blueprintFiles.OrderBy(x => Path.GetFileNameWithoutExtension(x)))
             {
                 try
                 {
@@ -149,6 +155,9 @@ namespace PlanBuild.Blueprints
                     Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
                 }
             }
+
+            ItemManager.OnVanillaItemsAvailable -= LoadKnownBlueprints;
+            ItemManager.OnVanillaItemsAvailable -= LoadKnownBlueprints;
         }
 
         internal void RegisterKnownBlueprints()

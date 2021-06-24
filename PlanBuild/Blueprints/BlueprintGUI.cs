@@ -39,7 +39,7 @@ namespace PlanBuild.Blueprints
 
         public BlueprintTab CurrentTab { get; set; }
 
-        public BlueprintTab MyTab { get; set; } = new BlueprintTab();
+        public BlueprintTab LocalTab { get; set; } = new BlueprintTab();
 
         public BlueprintTab ServerTab { get; set; } = new BlueprintTab();
 
@@ -47,17 +47,20 @@ namespace PlanBuild.Blueprints
         {
             if (!GUIManager.IsHeadless())
             {
-                if (Instance == null)
-                {
-                    Instance = new BlueprintGUI();
-                }
-
+                Instance = new BlueprintGUI();
                 AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
                 Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 Instance.IconPrefab = bundle.LoadAsset<GameObject>("BPIcon");
                 bundle.Unload(false);
+
+                GUIManager.OnPixelFixCreated += Instance.Register;
             }
+        }
+
+        public static bool IsAvailable()
+        {
+            return Instance != null && Instance.Window != null;
         }
 
         public void Register()
@@ -96,14 +99,14 @@ namespace PlanBuild.Blueprints
 
                     try
                     {
-                        MyTab.TabElements.Register(Window.transform, tabName: "MyTab", buttonSearchName: "MyTabButton");
-                        MyTab.ListDisplay.Register(MyTab.TabElements.TabTransform, ContainerPrefab, TabsEnum.MyBlueprints);
-                        MyTab.DetailDisplay.Register(MyTab.TabElements.TabTransform, ContainerPrefab, TabsEnum.MyBlueprints);
-                        MyTab.TabElements.TabButton.onClick.AddListener(() =>
+                        LocalTab.TabElements.Register(Window.transform, tabName: "MyTab", buttonSearchName: "MyTabButton");
+                        LocalTab.ListDisplay.Register(LocalTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Local);
+                        LocalTab.DetailDisplay.Register(LocalTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Local);
+                        LocalTab.TabElements.TabButton.onClick.AddListener(() =>
                         {
-                            CurrentTab = MyTab;
+                            CurrentTab = LocalTab;
                         });
-                        CurrentTab = MyTab;
+                        CurrentTab = LocalTab;
                     }
                     catch (Exception ex)
                     {
@@ -113,8 +116,8 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         ServerTab.TabElements.Register(Window.transform, tabName: "ServerTab", buttonSearchName: "ServerTabButton");
-                        ServerTab.ListDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, TabsEnum.ServerBlueprints);
-                        ServerTab.DetailDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, TabsEnum.ServerBlueprints);
+                        ServerTab.ListDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Server);
+                        ServerTab.DetailDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Server);
                         ServerTab.TabElements.TabButton.onClick.AddListener(() =>
                         {
                             CurrentTab = ServerTab;
@@ -124,6 +127,9 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogDebug("Failed in ServerTab");
                     }
+
+                    // Initially read local blueprints
+                    ReloadBlueprints(BlueprintLocation.Local);
                 }
                 catch (Exception ex)
                 {
@@ -132,15 +138,35 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void SetActiveDetails(BlueprintDetailContent blueprint, TabsEnum tab)
+        public void ReloadBlueprints(BlueprintLocation location)
+        {
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            {
+                LocalTab.ListDisplay.Blueprints.Clear();
+                foreach (var entry in BlueprintManager.LocalBlueprints)
+                {
+                    LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                }
+            }
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            {
+                ServerTab.ListDisplay.Blueprints.Clear();
+                foreach (var entry in BlueprintManager.ServerBlueprints)
+                {
+                    ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                }
+            }
+        }
+
+        public static void SetActiveDetails(BlueprintDetailContent blueprint, BlueprintLocation tab)
         {
             BlueprintTab tabToUse = null;
             switch (tab)
             {
-                case TabsEnum.MyBlueprints:
-                    tabToUse = Instance.MyTab;
+                case BlueprintLocation.Local:
+                    tabToUse = Instance.LocalTab;
                     break;
-                case TabsEnum.ServerBlueprints:
+                case BlueprintLocation.Server:
                     tabToUse = Instance.ServerTab;
                     break;
                 default:
@@ -150,17 +176,17 @@ namespace PlanBuild.Blueprints
             tabToUse.DetailDisplay.SetActive(blueprint);
         }
 
-        public static void PushBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
+        public static void PushBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
         {
             BlueprintTab tabToUse = null;
             switch (originTab)
             {
                 // Switch to the other tab.
-                case TabsEnum.MyBlueprints:
+                case BlueprintLocation.Local:
                     tabToUse = Instance.ServerTab;
                     break;
-                case TabsEnum.ServerBlueprints:
-                    tabToUse = Instance.MyTab;
+                case BlueprintLocation.Server:
+                    tabToUse = Instance.LocalTab;
                     break;
                 default:
                     break;
@@ -169,16 +195,16 @@ namespace PlanBuild.Blueprints
             //tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
         }
 
-        public static void SyncBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
+        public static void SyncBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
         {
             // Probably don't need this..
             BlueprintTab tabToUse = null;
             switch (originTab)
             {
-                case TabsEnum.MyBlueprints:
-                    tabToUse = Instance.MyTab;
+                case BlueprintLocation.Local:
+                    tabToUse = Instance.LocalTab;
                     break;
-                case TabsEnum.ServerBlueprints:
+                case BlueprintLocation.Server:
                     tabToUse = Instance.ServerTab;
                     break;
                 default:
@@ -189,15 +215,15 @@ namespace PlanBuild.Blueprints
             // Save it off.
         }
 
-        public static void DeleteBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
+        public static void DeleteBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
         {
             BlueprintTab tabToUse = null;
             switch (originTab)
             {
-                case TabsEnum.MyBlueprints:
-                    tabToUse = Instance.MyTab;
+                case BlueprintLocation.Local:
+                    tabToUse = Instance.LocalTab;
                     break;
-                case TabsEnum.ServerBlueprints:
+                case BlueprintLocation.Server:
                     tabToUse = Instance.ServerTab;
                     break;
                 default:
@@ -208,7 +234,6 @@ namespace PlanBuild.Blueprints
         }
     }
 
-    public enum TabsEnum { MyBlueprints, ServerBlueprints }
     internal class BlueprintMenuElements
     {
         public Button CloseButton { get; set; }
@@ -252,7 +277,7 @@ namespace PlanBuild.Blueprints
 
     internal class BlueprintListDisplay
     {
-        public TabsEnum TabType { get; set; } = TabsEnum.MyBlueprints;
+        public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
 
         private GameObject BlueprintDetailPrefab { get; set; }
 
@@ -391,7 +416,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public void Register(Transform tabTrans, GameObject uiBlueprintDetailPrefab, TabsEnum tabType)
+        public void Register(Transform tabTrans, GameObject uiBlueprintDetailPrefab, BlueprintLocation tabType)
         {
             TabType = tabType;
             try
@@ -411,7 +436,7 @@ namespace PlanBuild.Blueprints
 
     internal class BlueprintDetailDisplay
     {
-        public TabsEnum TabType { get; set; } = TabsEnum.MyBlueprints;
+        public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
 
         private GameObject BlueprintIconPrefab { get; set; }
 
@@ -466,7 +491,7 @@ namespace PlanBuild.Blueprints
             });
         }
 
-        public void Register(Transform tabTrans, GameObject uiBlueprintIconPrefab, TabsEnum tabType)
+        public void Register(Transform tabTrans, GameObject uiBlueprintIconPrefab, BlueprintLocation tabType)
         {
             TabType = tabType;
             try

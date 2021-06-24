@@ -69,12 +69,12 @@ namespace PlanBuild.Blueprints
             base.Add(id, blueprint);
 
             // If the GUI is instantiated, also add the Blueprint to it
-            if (BlueprintGUI.Instance != null)
+            if (BlueprintGUI.IsAvailable())
             {
                 switch (Location)
                 {
                     case BlueprintLocation.Local:
-                        BlueprintGUI.Instance.MyTab.ListDisplay.AddBlueprint(id, blueprint);
+                        BlueprintGUI.Instance.LocalTab.ListDisplay.AddBlueprint(id, blueprint);
                         break;
                     case BlueprintLocation.Server:
                         BlueprintGUI.Instance.ServerTab.ListDisplay.AddBlueprint(id, blueprint);
@@ -90,12 +90,12 @@ namespace PlanBuild.Blueprints
             base.Remove(id);
 
             // If the GUI is instantiated, also remove the BP from there
-            if (BlueprintGUI.Instance != null)
+            if (BlueprintGUI.IsAvailable())
             {
                 switch (Location)
                 {
                     case BlueprintLocation.Local:
-                        BlueprintGUI.Instance.MyTab.ListDisplay.RemoveBlueprint(id);
+                        BlueprintGUI.Instance.LocalTab.ListDisplay.RemoveBlueprint(id);
                         break;
                     case BlueprintLocation.Server:
                         BlueprintGUI.Instance.ServerTab.ListDisplay.RemoveBlueprint(id);
