@@ -1206,7 +1206,7 @@ GameObject:
   - component: {fileID: 1493748416601079915}
   - component: {fileID: 5840150498378773746}
   m_Layer: 5
-  m_Name: RefreshButton
+  m_Name: SyncButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3015,7 +3015,7 @@ GameObject:
   - component: {fileID: 4184175240093612373}
   - component: {fileID: 1872687076777830190}
   m_Layer: 5
-  m_Name: SaveButton
+  m_Name: SyncButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

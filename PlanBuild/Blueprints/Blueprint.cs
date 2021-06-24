@@ -373,6 +373,16 @@ namespace PlanBuild.Blueprints
             return true;
         }
 
+        public override string ToString()
+        {
+            return $"{ID} ({GetPieceCount()} pieces)";
+        }
+
+        public string ToGUIString()
+        {
+            return $"<b>{ID}</b>\n({GetPieceCount()} pieces)";
+        }
+
         /// <summary>
         ///     Number of pieces currently stored in this blueprint
         /// </summary>

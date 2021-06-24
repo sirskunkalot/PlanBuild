@@ -84,7 +84,7 @@ namespace PlanBuild.Blueprints
 
                     // Simple drag and drop script. -- allows for drag/drop of any ui component.
                     Window.AddComponent<UIDragDrop>();
-                    Debug.Log($"Blueprint menu ui position was set: {windowRectTrans.anchoredPosition.x}, {windowRectTrans.anchoredPosition.y}");
+                    Jotunn.Logger.LogDebug($"Blueprint menu ui position was set: {windowRectTrans.anchoredPosition.x}, {windowRectTrans.anchoredPosition.y}");
 
                     try
                     {
@@ -93,7 +93,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log("Failed in the menu elements");
+                        Jotunn.Logger.LogDebug("Failed in the menu elements");
                     }
 
                     try
@@ -109,7 +109,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log("Failed in myTab");
+                        Jotunn.Logger.LogDebug("Failed in myTab");
                     }
 
                     try
@@ -124,12 +124,18 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log("Failed in ServerTab");
+                        Jotunn.Logger.LogDebug("Failed in ServerTab");
+                    }
+
+                    // temp add local blueprints
+                    foreach (var entry in BlueprintManager.Instance.Blueprints.OrderBy(x => x.Key))
+                    {
+                        MyTab.ListDisplay.AddBlueprint(entry.Key, entry.Value.ToGUIString());
                     }
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log($"Failed to load Blueprint Window. {ex}");
+                    Jotunn.Logger.LogDebug($"Failed to load Blueprint Window. {ex}");
                 }
             }
         }
@@ -171,7 +177,7 @@ namespace PlanBuild.Blueprints
             tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
         }
 
-        public static void SaveBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
+        public static void SyncBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
         {
             // Probably don't need this..
             BlueprintTab tabToUse = null;
@@ -247,7 +253,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Debug.Log("Failed in BlueprintTabElements");
+                Jotunn.Logger.LogDebug("Failed in BlueprintTabElements");
             }
         }
     }
@@ -270,7 +276,7 @@ namespace PlanBuild.Blueprints
         {
             if (Blueprints.Any(i => i.Id == id))
             {
-                Debug.Log($"blueprint already exists here.");
+                Jotunn.Logger.LogDebug($"blueprint already exists here.");
                 return null;
             }
 
@@ -296,7 +302,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Debug.Log($"Failed to load new blueprint. {ex}");
+                Jotunn.Logger.LogDebug($"Failed to load new blueprint. {ex}");
             }
             return newBp;
         }
@@ -403,7 +409,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Debug.Log("Failed in BlueprintListDisplay");
+                Jotunn.Logger.LogDebug("Failed in BlueprintListDisplay");
             }
         }
     }
@@ -419,12 +425,12 @@ namespace PlanBuild.Blueprints
 
         // Inputs Fields.
         public InputField Name { get; set; }
+        public InputField Creator { get; set; }
         public InputField Description { get; set; }
 
         // Main Action Buttons
-        public Button SaveButton { get; set; }
+        public Button SyncButton { get; set; }
         public Button PushButton { get; set; }
-        public Text PushButtonText { get; set; }
         public Button DeleteButton { get; set; }
 
         // Overlay screens, for confirmations.
@@ -444,13 +450,13 @@ namespace PlanBuild.Blueprints
             Name.text = blueprint.Description.text;
             Description.text = blueprint.Description.text;
 
-            SaveButton.onClick.RemoveAllListeners();
+            SyncButton.onClick.RemoveAllListeners();
             PushButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
 
-            SaveButton.onClick.AddListener(() =>
+            SyncButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.SaveBlueprint(blueprint, TabType);
+                BlueprintGUI.SyncBlueprint(blueprint, TabType);
             });
 
             PushButton.onClick.AddListener(() =>
@@ -478,28 +484,16 @@ namespace PlanBuild.Blueprints
                 ConfirmationOverlay.Register(overlayParent);
 
                 Name = tabTrans.Find("Name").GetComponent<InputField>();
+                Creator = tabTrans.Find("Creator").GetComponent<InputField>();
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
-                SaveButton = tabTrans.Find("SaveButton").GetComponent<Button>();
+                SyncButton = tabTrans.Find("SyncButton").GetComponent<Button>();
                 PushButton = tabTrans.Find("PushButton").GetComponent<Button>();
-                PushButtonText = tabTrans.Find("PushButton/Text").GetComponent<Text>();
-                switch (TabType)
-                {
-                    case TabsEnum.MyBlueprints:
-                        PushButtonText.text = "Push (to Server)";
-                        break;
-                    case TabsEnum.ServerBlueprints:
-                        PushButtonText.text = "Push (to Local)";
-                        break;
-                    default:
-                        break;
-                }
-
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
             }
             catch (Exception ex)
             {
-                Debug.Log("Failed in BlueprintDetailDisplay");
+                Jotunn.Logger.LogDebug("Failed in BlueprintDetailDisplay");
             }
         }
     }
