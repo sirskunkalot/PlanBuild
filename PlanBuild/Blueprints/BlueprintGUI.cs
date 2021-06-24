@@ -45,20 +45,18 @@ namespace PlanBuild.Blueprints
 
         public static void Init()
         {
-            if (Instance == null)
-            {
-                Instance = new BlueprintGUI();
-            }
-
             if (!GUIManager.IsHeadless())
             {
+                if (Instance == null)
+                {
+                    Instance = new BlueprintGUI();
+                }
+
                 AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
                 Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 Instance.IconPrefab = bundle.LoadAsset<GameObject>("BPIcon");
                 bundle.Unload(false);
-
-                GUIManager.OnPixelFixCreated += Instance.Register;
             }
         }
 
@@ -126,12 +124,6 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogDebug("Failed in ServerTab");
                     }
-
-                    // temp add local blueprints
-                    foreach (var entry in BlueprintManager.Instance.Blueprints.OrderBy(x => x.Key))
-                    {
-                        MyTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
-                    }
                 }
                 catch (Exception ex)
                 {
@@ -140,7 +132,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void SetActiveDetails(BluePrintDetailContent blueprint, TabsEnum tab)
+        public static void SetActiveDetails(BlueprintDetailContent blueprint, TabsEnum tab)
         {
             BlueprintTab tabToUse = null;
             switch (tab)
@@ -158,7 +150,7 @@ namespace PlanBuild.Blueprints
             tabToUse.DetailDisplay.SetActive(blueprint);
         }
 
-        public static void PushBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
+        public static void PushBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
         {
             BlueprintTab tabToUse = null;
             switch (originTab)
@@ -177,7 +169,7 @@ namespace PlanBuild.Blueprints
             //tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
         }
 
-        public static void SyncBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
+        public static void SyncBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
         {
             // Probably don't need this..
             BlueprintTab tabToUse = null;
@@ -197,7 +189,7 @@ namespace PlanBuild.Blueprints
             // Save it off.
         }
 
-        public static void DeleteBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
+        public static void DeleteBlueprint(BlueprintDetailContent blueprint, TabsEnum originTab)
         {
             BlueprintTab tabToUse = null;
             switch (originTab)
@@ -270,9 +262,9 @@ namespace PlanBuild.Blueprints
         public UIConfirmationOverlay ConfirmationOverlay { get; set; } = new UIConfirmationOverlay();
 
         // All the blueprints that exist in this tab's list.
-        public List<BluePrintDetailContent> Blueprints { get; set; } = new List<BluePrintDetailContent>();
+        public List<BlueprintDetailContent> Blueprints { get; set; } = new List<BlueprintDetailContent>();
 
-        public BluePrintDetailContent AddBlueprint(string id, Blueprint bp)
+        public BlueprintDetailContent AddBlueprint(string id, Blueprint bp)
         {
             if (Blueprints.Any(i => i.Id == id))
             {
@@ -280,7 +272,7 @@ namespace PlanBuild.Blueprints
                 return null;
             }
 
-            BluePrintDetailContent newBp = new BluePrintDetailContent();
+            BlueprintDetailContent newBp = new BlueprintDetailContent();
             newBp.Id = id;
             try
             {
@@ -310,9 +302,9 @@ namespace PlanBuild.Blueprints
             return newBp;
         }
 
-        public BluePrintDetailContent RemoveBlueprint(string id)
+        public BlueprintDetailContent RemoveBlueprint(string id)
         {
-            BluePrintDetailContent blueprintToRemove = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent blueprintToRemove = Blueprints.FirstOrDefault(i => i.Id == id);
             if (blueprintToRemove != null)
             {
                 Blueprints.Remove(blueprintToRemove);
@@ -326,29 +318,29 @@ namespace PlanBuild.Blueprints
 
         public void MoveUp(string id)
         {
-            BluePrintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
             if (toMoveup == null) return;
 
             int indexOfBp = Blueprints.IndexOf(toMoveup);
             if (indexOfBp == 0) return;
 
-            BluePrintDetailContent detailToSwapWith = Blueprints[indexOfBp - 1];
+            BlueprintDetailContent detailToSwapWith = Blueprints[indexOfBp - 1];
             Swap(toMoveup, detailToSwapWith);
         }
 
         public void MoveDown(string id)
         {
-            BluePrintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
             if (toMoveup == null) return;
 
             int indexOfBp = Blueprints.IndexOf(toMoveup);
             if (indexOfBp >= Blueprints.Count) return;
 
-            BluePrintDetailContent detailToSwapWith = Blueprints[indexOfBp + 1];
+            BlueprintDetailContent detailToSwapWith = Blueprints[indexOfBp + 1];
             Swap(toMoveup, detailToSwapWith);
         }
 
-        private void Swap(BluePrintDetailContent from, BluePrintDetailContent to)
+        private void Swap(BlueprintDetailContent from, BlueprintDetailContent to)
         {
             string idCopy = from.Id;
             Sprite spriteToCopy = from.Icon.sprite;
@@ -385,13 +377,13 @@ namespace PlanBuild.Blueprints
                 });
             }
 
-            BluePrintDetailContent firstPrintDetailContent = Blueprints.FirstOrDefault();
+            BlueprintDetailContent firstPrintDetailContent = Blueprints.FirstOrDefault();
             if (firstPrintDetailContent != null)
             {
                 // Set the first to not have sort down (enable the sort down button).
                 firstPrintDetailContent.SortUpButton.gameObject.SetActive(false);
             }
-            BluePrintDetailContent lastBlueprintDetail = Blueprints.LastOrDefault();
+            BlueprintDetailContent lastBlueprintDetail = Blueprints.LastOrDefault();
             if (lastBlueprintDetail != null)
             {
                 // Set the first to not have sort down (enable the sort down button).
@@ -424,7 +416,7 @@ namespace PlanBuild.Blueprints
         private GameObject BlueprintIconPrefab { get; set; }
 
         //Use Id passed to link more details or whatever..
-        public BluePrintDetailContent SelectedBlueprintDetail { get; set; }
+        public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
         // Inputs Fields.
         public InputField Name { get; set; }
@@ -446,7 +438,7 @@ namespace PlanBuild.Blueprints
         // Images of the Blueprint Selected.
         public List<Sprite> Icons { get; set; } = new List<Sprite>();
 
-        public void SetActive(BluePrintDetailContent blueprint)
+        public void SetActive(BlueprintDetailContent blueprint)
         {
             // Grab additional details from the id..or append model.
             SelectedBlueprintDetail = blueprint;
@@ -502,7 +494,7 @@ namespace PlanBuild.Blueprints
         }
     }
 
-    internal class BluePrintDetailContent
+    internal class BlueprintDetailContent
     {
         public GameObject ContentHolder { get; set; }
         public string Id { get; set; }

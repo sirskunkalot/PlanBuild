@@ -858,11 +858,11 @@ namespace PlanBuild.Blueprints
                 newbp.IconLocation = newbp.FileLocation.Replace(".blueprint", ".png");
                 if (newbp.ToFile())
                 {
-                    if (BlueprintManager.Instance.Blueprints.ContainsKey(newbp.ID))
+                    if (BlueprintManager.LocalBlueprints.ContainsKey(newbp.ID))
                     {
-                        Blueprint oldbp = BlueprintManager.Instance.Blueprints[newbp.ID];
+                        Blueprint oldbp = BlueprintManager.LocalBlueprints[newbp.ID];
                         oldbp.Destroy();
-                        BlueprintManager.Instance.Blueprints.Remove(newbp.ID);
+                        BlueprintManager.LocalBlueprints.Remove(newbp.ID);
                     }
 
                     PlanBuildPlugin.Instance.StartCoroutine(AddBlueprint());
@@ -889,7 +889,7 @@ namespace PlanBuild.Blueprints
 
                 newbp.CreatePrefab();
                 Player.m_localPlayer.UpdateKnownRecipesList();
-                BlueprintManager.Instance.Blueprints.Add(newbp.ID, newbp);
+                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
 
                 Logger.LogInfo("Blueprint created");
 

@@ -93,11 +93,12 @@
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintConfig.cs" />
-    <Compile Include="Blueprints\BlueprintList.cs" />
+    <Compile Include="Blueprints\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\BlueprintSync.cs" />
     <Compile Include="Blueprints\FlattenTerrain.cs" />
+    <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
     <Compile Include="Blueprints\UIDragDrop.cs" />

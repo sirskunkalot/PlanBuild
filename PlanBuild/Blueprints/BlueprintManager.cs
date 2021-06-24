@@ -26,8 +26,11 @@ namespace PlanBuild.Blueprints
 
         internal static ButtonConfig planSwitchButton;
 
-        public const string PanelName = "BlueprintManagerGUI";
-        public const string ZDOBlueprintName = "BlueprintName";
+        internal static BlueprintDictionary LocalBlueprints;
+        internal static BlueprintDictionary ServerBlueprints;
+
+        internal const string PanelName = "BlueprintManagerGUI";
+        internal const string ZDOBlueprintName = "BlueprintName";
 
         internal float SelectionRadius = 10.0f;
         internal float PlacementOffset = 0f;
@@ -42,11 +45,13 @@ namespace PlanBuild.Blueprints
 
         internal Piece LastHoveredPiece;
 
-        internal readonly BlueprintList Blueprints = new BlueprintList();
-
         internal void Init()
         {
             Jotunn.Logger.LogInfo("Initializing BlueprintManager");
+
+            // Init lists
+            LocalBlueprints = new BlueprintDictionary(BlueprintLocation.Local);
+            ServerBlueprints = new BlueprintDictionary(BlueprintLocation.Server);
 
             // Init config
             BlueprintConfig.Init();
@@ -56,14 +61,16 @@ namespace PlanBuild.Blueprints
             
             // Init GUI
             BlueprintGUI.Init();
-            
-            // Load Blueprints
-            LoadKnownBlueprints();
 
-            // Create KeyHints
-            CreateCustomKeyHints();
+            // Create KeyHints and register GUI when PixelFix is created
+            GUIManager.OnPixelFixCreated += BlueprintGUI.Instance.Register;
+            GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
 
-            // Preload blueprints, some may still fail, these will be retried every time the blueprint rune is opened
+            // Load Blueprints after game load
+            ItemManager.OnVanillaItemsAvailable += LoadKnownBlueprints;
+
+            // Create blueprint prefabs when all pieces were registered
+            // Some may still fail, these will be retried every time the blueprint rune is opened
             PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
             // Hooks
@@ -131,10 +138,10 @@ namespace PlanBuild.Blueprints
                 try
                 {
                     string id = Path.GetFileNameWithoutExtension(relativeFilePath);
-                    if (!Blueprints.ContainsKey(id))
+                    if (!LocalBlueprints.ContainsKey(id))
                     {
                         Blueprint bp = Blueprint.FromFile(relativeFilePath);
-                        Blueprints.Add(bp.ID, bp);
+                        LocalBlueprints.Add(bp.ID, bp);
                     }
                 }
                 catch (Exception ex)
@@ -152,7 +159,7 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogMessage("Registering known blueprints");
 
                 // Create prefabs for all known blueprints
-                foreach (var bp in Instance.Blueprints.Values)
+                foreach (var bp in LocalBlueprints.Values)
                 {
                     bp.CreatePrefab();
                 }
@@ -242,6 +249,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
+
+            GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
 
 
@@ -593,7 +602,7 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(circleProjector);
             }
 
-            var bpname = $"blueprint{Instance.Blueprints.Count() + 1:000}";
+            var bpname = $"blueprint{LocalBlueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
             var bp = new Blueprint();
@@ -615,7 +624,7 @@ namespace PlanBuild.Blueprints
         private static bool PlaceBlueprint(Player player, Piece piece)
         {
             string id = piece.gameObject.name.Substring(Blueprint.BlueprintPrefabName.Length+1);
-            Blueprint bp = Instance.Blueprints[id];
+            Blueprint bp = LocalBlueprints[id];
             var transform = player.m_placementGhost.transform;
             var position = transform.position;
             var rotation = transform.rotation;
