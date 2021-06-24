@@ -380,7 +380,7 @@ namespace PlanBuild.Blueprints
 
         public string ToGUIString()
         {
-            return $"<b>{ID}</b>\n({GetPieceCount()} pieces)";
+            return $"<b>{Name}</b>\n({GetPieceCount()} pieces)";
         }
 
         /// <summary>

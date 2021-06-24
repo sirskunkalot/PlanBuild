@@ -130,7 +130,7 @@ namespace PlanBuild.Blueprints
                     // temp add local blueprints
                     foreach (var entry in BlueprintManager.Instance.Blueprints.OrderBy(x => x.Key))
                     {
-                        MyTab.ListDisplay.AddBlueprint(entry.Key, entry.Value.ToGUIString());
+                        MyTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
                     }
                 }
                 catch (Exception ex)
@@ -174,7 +174,7 @@ namespace PlanBuild.Blueprints
                     break;
             }
             if (tabToUse == null) return;
-            tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
+            //tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
         }
 
         public static void SyncBlueprint(BluePrintDetailContent blueprint, TabsEnum originTab)
@@ -217,12 +217,12 @@ namespace PlanBuild.Blueprints
     }
 
     public enum TabsEnum { MyBlueprints, ServerBlueprints }
-    public class BlueprintMenuElements
+    internal class BlueprintMenuElements
     {
         public Button CloseButton { get; set; }
     }
 
-    public class BlueprintTab
+    internal class BlueprintTab
     {
         // Moved things out to seperate classes to make it easier to understand the flow.
         public BlueprintTabElements TabElements { get; set; } = new BlueprintTabElements();
@@ -234,7 +234,7 @@ namespace PlanBuild.Blueprints
         public BlueprintDetailDisplay DetailDisplay { get; set; } = new BlueprintDetailDisplay();
     }
 
-    public class BlueprintTabElements
+    internal class BlueprintTabElements
     {
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
@@ -258,7 +258,7 @@ namespace PlanBuild.Blueprints
         }
     }
 
-    public class BlueprintListDisplay
+    internal class BlueprintListDisplay
     {
         public TabsEnum TabType { get; set; } = TabsEnum.MyBlueprints;
 
@@ -272,11 +272,11 @@ namespace PlanBuild.Blueprints
         // All the blueprints that exist in this tab's list.
         public List<BluePrintDetailContent> Blueprints { get; set; } = new List<BluePrintDetailContent>();
 
-        public BluePrintDetailContent AddBlueprint(string id, string description)
+        public BluePrintDetailContent AddBlueprint(string id, Blueprint bp)
         {
             if (Blueprints.Any(i => i.Id == id))
             {
-                Jotunn.Logger.LogDebug($"blueprint already exists here.");
+                Jotunn.Logger.LogDebug($"blueprint {id} already exists here.");
                 return null;
             }
 
@@ -289,9 +289,12 @@ namespace PlanBuild.Blueprints
                 newBp.Icon = newBp.ContentHolder.transform.Find("IconButton/BPImage").GetComponent<Image>();
                 newBp.SortUpButton = newBp.ContentHolder.transform.Find("SortUpButton").GetComponent<Button>();
                 newBp.SortDownButton = newBp.ContentHolder.transform.Find("SortDownButton").GetComponent<Button>();
-                newBp.Description = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
-                // Set the description text
-                newBp.Description.text = description;
+                newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
+                // Set the texts
+                newBp.Name = bp.Name;
+                newBp.Creator = bp.Creator;
+                newBp.Description = bp.Description;
+                newBp.Text.text = bp.ToGUIString();
                 newBp.IconButton.onClick.AddListener(() =>
                 {
                     BlueprintGUI.SetActiveDetails(newBp, TabType);
@@ -349,15 +352,15 @@ namespace PlanBuild.Blueprints
         {
             string idCopy = from.Id;
             Sprite spriteToCopy = from.Icon.sprite;
-            string descriptionToCopy = from.Description.text;
+            string descriptionToCopy = from.Text.text;
 
             from.Id = to.Id;
             from.Icon.sprite = to.Icon.sprite;
-            from.Description.text = to.Description.text;
+            from.Text.text = to.Text.text;
 
             from.Id = idCopy;
             from.Icon.sprite = spriteToCopy;
-            to.Description.text = descriptionToCopy;
+            to.Text.text = descriptionToCopy;
         }
 
         public void FixSortButtons()
@@ -414,7 +417,7 @@ namespace PlanBuild.Blueprints
         }
     }
 
-    public class BlueprintDetailDisplay
+    internal class BlueprintDetailDisplay
     {
         public TabsEnum TabType { get; set; } = TabsEnum.MyBlueprints;
 
@@ -447,8 +450,9 @@ namespace PlanBuild.Blueprints
         {
             // Grab additional details from the id..or append model.
             SelectedBlueprintDetail = blueprint;
-            Name.text = blueprint.Description.text;
-            Description.text = blueprint.Description.text;
+            Name.text = blueprint.Name;
+            Creator.text = blueprint.Creator;
+            Description.text = blueprint.Description;
 
             SyncButton.onClick.RemoveAllListeners();
             PushButton.onClick.RemoveAllListeners();
@@ -498,12 +502,15 @@ namespace PlanBuild.Blueprints
         }
     }
 
-    public class BluePrintDetailContent
+    internal class BluePrintDetailContent
     {
         public GameObject ContentHolder { get; set; }
         public string Id { get; set; }
         // UI Elements.
-        public Text Description { get; set; }
+        public string Name { get; set; }
+        public string Creator { get; set; }
+        public string Description { get; set; }
+        public Text Text { get; set; }
         public Image Icon { get; set; }
         // Use this as select button.
         public Button IconButton { get; set; }
@@ -511,7 +518,7 @@ namespace PlanBuild.Blueprints
         public Button SortDownButton { get; set; }
     }
 
-    public class UIConfirmationOverlay
+    internal class UIConfirmationOverlay
     {
         public Transform ContentHolder { get; set; }
         public Text ConfirmationDisplayText { get; set; }
