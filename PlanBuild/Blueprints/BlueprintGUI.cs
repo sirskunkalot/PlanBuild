@@ -103,6 +103,8 @@ namespace PlanBuild.Blueprints
         {
             if (!Window)
             {
+                Jotunn.Logger.LogDebug("Recreating BlueprintGUI");
+
                 // Assigning the main window, so we can disable/enable it as we please.
                 Window = UnityEngine.Object.Instantiate(MenuPrefab, GUIManager.PixelFix.transform);
                 Window.SetActive(false);
@@ -121,7 +123,7 @@ namespace PlanBuild.Blueprints
 
                     // Simple drag and drop script. -- allows for drag/drop of any ui component.
                     Window.AddComponent<UIDragDrop>();
-                    Jotunn.Logger.LogDebug($"Blueprint menu ui position was set: {windowRectTrans.anchoredPosition.x}, {windowRectTrans.anchoredPosition.y}");
+                    Jotunn.Logger.LogDebug($"BlueprintGUI position was set: {windowRectTrans.anchoredPosition.x}, {windowRectTrans.anchoredPosition.y}");
 
                     try
                     {
@@ -130,7 +132,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Jotunn.Logger.LogDebug("Failed in the menu elements");
+                        Jotunn.Logger.LogDebug($"Failed in the menu elements: {ex}");
                     }
 
                     try
@@ -146,7 +148,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Jotunn.Logger.LogDebug("Failed in myTab");
+                        Jotunn.Logger.LogDebug($"Failed in myTab: {ex}");
                     }
 
                     try
@@ -161,19 +163,24 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception ex)
                     {
-                        Jotunn.Logger.LogDebug("Failed in ServerTab");
+                        Jotunn.Logger.LogDebug($"Failed in ServerTab: {ex}");
                     }
 
-                    // Initially read local blueprints
+                    // Init blueprint lists
                     ReloadBlueprints(BlueprintLocation.Local);
+                    ClearBlueprints(BlueprintLocation.Server);
                 }
                 catch (Exception ex)
                 {
-                    Jotunn.Logger.LogDebug($"Failed to load Blueprint Window. {ex}");
+                    Jotunn.Logger.LogDebug($"Failed to load Blueprint Window: {ex}");
                 }
             }
         }
 
+        /// <summary>
+        ///     Loop through the tab displays and DestroyImmediate all <see cref="BlueprintListDisplay"/> instances
+        /// </summary>
+        /// <param name="location"></param>
         public void ClearBlueprints(BlueprintLocation location)
         {
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
@@ -345,7 +352,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogDebug("Failed in BlueprintTabElements");
+                Jotunn.Logger.LogDebug($"Failed in BlueprintTabElements: {ex}");
             }
         }
     }
@@ -368,7 +375,7 @@ namespace PlanBuild.Blueprints
         {
             if (Blueprints.Any(i => i.ID == id))
             {
-                Jotunn.Logger.LogDebug($"blueprint {id} already exists here.");
+                Jotunn.Logger.LogDebug($"Blueprint {id} already exists in {this}.");
                 return null;
             }
 
@@ -382,7 +389,7 @@ namespace PlanBuild.Blueprints
                 newBp.SortUpButton = newBp.ContentHolder.transform.Find("SortUpButton").GetComponent<Button>();
                 newBp.SortDownButton = newBp.ContentHolder.transform.Find("SortDownButton").GetComponent<Button>();
                 newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
-                // Set the texts
+                
                 newBp.Name = bp.Name;
                 newBp.Creator = bp.Creator;
                 newBp.Description = bp.Description;
@@ -401,7 +408,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogDebug($"Failed to load new blueprint. {ex}");
+                Jotunn.Logger.LogDebug($"Failed to load new blueprint: {ex}");
             }
             return newBp;
         }
@@ -508,7 +515,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogDebug("Failed in BlueprintListDisplay");
+                Jotunn.Logger.LogDebug($"Failed in BlueprintListDisplay: {ex}");
             }
         }
     }
@@ -583,7 +590,7 @@ namespace PlanBuild.Blueprints
                 SendButton = tabTrans.Find("SendButton").GetComponent<Button>();
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
 
-                // Server tab gets a global listener
+                // Server tab gets a global listener for the refresh
                 if (tabType == BlueprintLocation.Server)
                 {
                     SyncButton.onClick.AddListener(() =>
@@ -594,7 +601,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogDebug("Failed in BlueprintDetailDisplay");
+                Jotunn.Logger.LogDebug($"Failed in BlueprintDetailDisplay: {ex}");
             }
         }
     }
