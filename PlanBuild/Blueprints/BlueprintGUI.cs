@@ -19,20 +19,56 @@ namespace PlanBuild.Blueprints
         public GameObject Window { get; set; }
         public void Toggle(bool shutWindow = false, bool openWindow = false)
         {
+            bool newState = true;
+
             // Requesting window shut.
             if (shutWindow)
             {
-                Window.SetActive(false);
-                return;
+                //Window.SetActive(false);
+                newState = false;
             }
             // Requesting open window.
-            if (openWindow)
+            else if (openWindow)
             {
-                Window.SetActive(true);
-                return;
+                //Window.SetActive(true);
+                newState = true;
             }
             // Toggle current state
-            Window.SetActive(!Window.activeSelf);
+            else
+            {
+                //Window.SetActive(!Window.activeSelf);
+                newState = !Window.activeSelf;
+            }
+            Window.SetActive(newState);
+
+            // Disable input
+            if (newState)
+            {
+                On.Player.TakeInput += Player_TakeInput;
+                On.PlayerController.TakeInput += PlayerController_TakeInput;
+            }
+            else
+            {
+                On.Player.TakeInput -= Player_TakeInput;
+                On.PlayerController.TakeInput -= PlayerController_TakeInput;
+            }
+            if (GameCamera.instance)
+            {
+                GameCamera.instance.m_mouseCapture = !newState;
+                GameCamera.instance.UpdateMouseCapture();
+            }
+        }
+
+        private bool PlayerController_TakeInput(On.PlayerController.orig_TakeInput orig, PlayerController self)
+        {
+            orig(self);
+            return false;
+        }
+
+        private bool Player_TakeInput(On.Player.orig_TakeInput orig, Player self)
+        {
+            orig(self);
+            return false;
         }
 
         public BlueprintMenuElements MenuElements { get; set; }
@@ -351,6 +387,10 @@ namespace PlanBuild.Blueprints
                 newBp.Creator = bp.Creator;
                 newBp.Description = bp.Description;
                 newBp.Text.text = bp.ToGUIString();
+                if (bp.Thumbnail != null)
+                {
+                    newBp.Icon.sprite = Sprite.Create(bp.Thumbnail, new Rect(0f, 0f, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
+                }
                 newBp.IconButton.onClick.AddListener(() =>
                 {
                     BlueprintGUI.SetActiveDetails(newBp, TabType);
@@ -477,8 +517,6 @@ namespace PlanBuild.Blueprints
     {
         public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
 
-        private GameObject BlueprintIconPrefab { get; set; }
-
         //Use Id passed to link more details or whatever..
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
@@ -494,9 +532,6 @@ namespace PlanBuild.Blueprints
 
         // Overlay screens, for confirmations.
         public UIConfirmationOverlay ConfirmationOverlay { get; set; } = new UIConfirmationOverlay();
-
-        // Parent for the Content Holder - Where we push new things.
-        public Transform IconScrollContentParent { get; set; }
 
         // Managed Lists
         // Images of the Blueprint Selected.
@@ -535,9 +570,6 @@ namespace PlanBuild.Blueprints
             TabType = tabType;
             try
             {
-                BlueprintIconPrefab = uiBlueprintIconPrefab;
-                IconScrollContentParent = tabTrans.Find("IconScrollView");
-
                 // Registering confirmation overlay.
                 ConfirmationOverlay = new UIConfirmationOverlay();
                 Transform overlayParent = tabTrans.Find("ConfirmationOverlay");
