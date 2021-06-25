@@ -14,12 +14,11 @@ namespace PlanBuild.Blueprints
 
         private GameObject MenuPrefab;
         private GameObject ContainerPrefab;
-        private GameObject IconPrefab;
 
         public GameObject Window { get; set; }
         public void Toggle(bool shutWindow = false, bool openWindow = false)
         {
-            bool newState = true;
+            bool newState;
 
             // Requesting window shut.
             if (shutWindow)
@@ -42,33 +41,7 @@ namespace PlanBuild.Blueprints
             Window.SetActive(newState);
 
             // Disable input
-            if (newState)
-            {
-                On.Player.TakeInput += Player_TakeInput;
-                On.PlayerController.TakeInput += PlayerController_TakeInput;
-            }
-            else
-            {
-                On.Player.TakeInput -= Player_TakeInput;
-                On.PlayerController.TakeInput -= PlayerController_TakeInput;
-            }
-            if (GameCamera.instance)
-            {
-                GameCamera.instance.m_mouseCapture = !newState;
-                GameCamera.instance.UpdateMouseCapture();
-            }
-        }
-
-        private bool PlayerController_TakeInput(On.PlayerController.orig_TakeInput orig, PlayerController self)
-        {
-            orig(self);
-            return false;
-        }
-
-        private bool Player_TakeInput(On.Player.orig_TakeInput orig, Player self)
-        {
-            orig(self);
-            return false;
+            GUIManager.BlockInput(newState);
         }
 
         public BlueprintMenuElements MenuElements { get; set; }
@@ -87,7 +60,6 @@ namespace PlanBuild.Blueprints
                 AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
                 Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
-                Instance.IconPrefab = bundle.LoadAsset<GameObject>("BPIcon");
                 bundle.Unload(false);
 
                 GUIManager.OnPixelFixCreated += Instance.Register;
@@ -107,7 +79,18 @@ namespace PlanBuild.Blueprints
 
                 // Assigning the main window, so we can disable/enable it as we please.
                 Window = UnityEngine.Object.Instantiate(MenuPrefab, GUIManager.PixelFix.transform);
-                Window.SetActive(false);
+
+                // Setting some vanilla styles
+                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
+                {
+                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                    if (txt.GetComponentsInParent<InputField>(true) == null)
+                    {
+                        var outline = txt.gameObject.AddComponent<Outline>();
+                        outline.effectColor = Color.black;
+                    }
+                }
+
                 try
                 {
                     RectTransform windowRectTrans = Window.GetComponent<RectTransform>();
@@ -174,6 +157,9 @@ namespace PlanBuild.Blueprints
                 {
                     Jotunn.Logger.LogDebug($"Failed to load Blueprint Window: {ex}");
                 }
+                
+                // Dont display directly
+                Window.SetActive(false);
             }
         }
 
@@ -201,6 +187,10 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Loop through the tab display, clear them and reload from the blueprint dictionary
+        /// </summary>
+        /// <param name="location"></param>
         public void ReloadBlueprints(BlueprintLocation location)
         {
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
@@ -221,6 +211,11 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Display the details of a blueprint values on the content side
+        /// </summary>
+        /// <param name="blueprint"></param>
+        /// <param name="tab"></param>
         public static void SetActiveDetails(BlueprintDetailContent blueprint, BlueprintLocation tab)
         {
             BlueprintTab tabToUse = null;
@@ -237,6 +232,27 @@ namespace PlanBuild.Blueprints
             }
             if (tabToUse == null) return;
             tabToUse.DetailDisplay.SetActive(blueprint);
+        }
+
+        public static void RefreshBlueprints(BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Get the local blueprint list
+                    BlueprintSync.GetLocalBlueprints();
+                    break;
+                case BlueprintLocation.Server:
+                    // Get the server blueprint list
+                    Instance.ServerTab.DetailDisplay.SyncButton.interactable = false;
+                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
+                    {
+                        Instance.ServerTab.DetailDisplay.SyncButton.interactable = true;
+                    }, useCache: false);
+                    break;
+                default:
+                    break;
+            }
         }
 
         public static void SyncBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
@@ -533,6 +549,7 @@ namespace PlanBuild.Blueprints
         public InputField Description { get; set; }
 
         // Main Action Buttons
+        public Button RefreshButton { get; set; }
         public Button SyncButton { get; set; }
         public Button SendButton { get; set; }
         public Button DeleteButton { get; set; }
@@ -586,18 +603,22 @@ namespace PlanBuild.Blueprints
                 Creator = tabTrans.Find("Creator").GetComponent<InputField>();
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
+                RefreshButton = tabTrans.Find("RefreshButton").GetComponent<Button>();
                 SyncButton = tabTrans.Find("SyncButton").GetComponent<Button>();
                 SendButton = tabTrans.Find("SendButton").GetComponent<Button>();
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
 
-                // Server tab gets a global listener for the refresh
-                if (tabType == BlueprintLocation.Server)
+                // Add valheim refresh icon
+                var img = RefreshButton.transform.Find("Image").GetComponent<Image>();
+                img.sprite = GUIManager.Instance.GetSprite("refresh_icon");
+                var outline = img.gameObject.AddComponent<Outline>();
+                outline.effectColor = Color.black;
+
+                // Refresh button is global
+                RefreshButton.onClick.AddListener(() =>
                 {
-                    SyncButton.onClick.AddListener(() =>
-                    {
-                        BlueprintGUI.SyncBlueprint(null, TabType);
-                    });
-                }
+                    BlueprintGUI.RefreshBlueprints(TabType);
+                });
             }
             catch (Exception ex)
             {
