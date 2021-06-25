@@ -242,8 +242,8 @@ namespace PlanBuild.Blueprints
                     {
                         if (bp.Name != detail.Name || bp.Description != detail.Description)
                         {
-                            bp.Name = detail.Name != null ? detail.Name : bp.Name;
-                            bp.Description = detail.Description != null ? detail.Description : bp.Description;
+                            bp.Name = detail.Name ?? bp.Name;
+                            bp.Description = detail.Description ?? bp.Description;
                             bp.ToFile();
                         }
                     }
