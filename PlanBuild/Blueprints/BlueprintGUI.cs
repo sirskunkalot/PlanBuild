@@ -138,11 +138,31 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public void ClearBlueprints(BlueprintLocation location)
+        {
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            {
+                foreach (var detail in LocalTab.ListDisplay.Blueprints)
+                {
+                    GameObject.DestroyImmediate(detail.ContentHolder);
+                }
+                LocalTab.ListDisplay.Blueprints.Clear();
+            }
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            {
+                foreach (var detail in ServerTab.ListDisplay.Blueprints)
+                {
+                    GameObject.DestroyImmediate(detail.ContentHolder);
+                }
+                ServerTab.ListDisplay.Blueprints.Clear();
+            }
+        }
+
         public void ReloadBlueprints(BlueprintLocation location)
         {
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
             {
-                LocalTab.ListDisplay.Blueprints.Clear();
+                ClearBlueprints(location);
                 foreach (var entry in BlueprintManager.LocalBlueprints)
                 {
                     LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
@@ -150,7 +170,7 @@ namespace PlanBuild.Blueprints
             }
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
             {
-                ServerTab.ListDisplay.Blueprints.Clear();
+                ClearBlueprints(location);
                 foreach (var entry in BlueprintManager.ServerBlueprints)
                 {
                     ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
@@ -195,24 +215,33 @@ namespace PlanBuild.Blueprints
             //tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
         }
 
-        public static void SyncBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
+        public static void SyncBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
         {
-            // Probably don't need this..
-            BlueprintTab tabToUse = null;
             switch (originTab)
             {
                 case BlueprintLocation.Local:
-                    tabToUse = Instance.LocalTab;
+                    // Save the blueprint changes
+                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bp))
+                    {
+                        if (bp.Name != detail.Name || bp.Description != detail.Description)
+                        {
+                            bp.Name = detail.Name != null ? detail.Name : bp.Name;
+                            bp.Description = detail.Description != null ? detail.Description : bp.Description;
+                            bp.ToFile();
+                        }
+                    }
                     break;
                 case BlueprintLocation.Server:
-                    tabToUse = Instance.ServerTab;
+                    // Get the server blueprint list
+                    Instance.ServerTab.DetailDisplay.SyncButton.interactable = false;
+                    BlueprintSync.GetServerBlueprints((bool success, string message) => 
+                    {
+                        Instance.ServerTab.DetailDisplay.SyncButton.interactable = true;
+                    }, useCache: false);
                     break;
                 default:
                     break;
             }
-            if (tabToUse == null) return;
-            // tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
-            // Save it off.
         }
 
         public static void DeleteBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
@@ -230,7 +259,7 @@ namespace PlanBuild.Blueprints
                     break;
             }
             if (tabToUse == null) return;
-            tabToUse.ListDisplay.RemoveBlueprint(blueprint.Id);
+            tabToUse.ListDisplay.RemoveBlueprint(blueprint.ID);
         }
     }
 
@@ -291,14 +320,14 @@ namespace PlanBuild.Blueprints
 
         public BlueprintDetailContent AddBlueprint(string id, Blueprint bp)
         {
-            if (Blueprints.Any(i => i.Id == id))
+            if (Blueprints.Any(i => i.ID == id))
             {
                 Jotunn.Logger.LogDebug($"blueprint {id} already exists here.");
                 return null;
             }
 
             BlueprintDetailContent newBp = new BlueprintDetailContent();
-            newBp.Id = id;
+            newBp.ID = id;
             try
             {
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintDetailPrefab, ScrollContentParent);
@@ -329,7 +358,7 @@ namespace PlanBuild.Blueprints
 
         public BlueprintDetailContent RemoveBlueprint(string id)
         {
-            BlueprintDetailContent blueprintToRemove = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent blueprintToRemove = Blueprints.FirstOrDefault(i => i.ID == id);
             if (blueprintToRemove != null)
             {
                 Blueprints.Remove(blueprintToRemove);
@@ -343,7 +372,7 @@ namespace PlanBuild.Blueprints
 
         public void MoveUp(string id)
         {
-            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.ID == id);
             if (toMoveup == null) return;
 
             int indexOfBp = Blueprints.IndexOf(toMoveup);
@@ -355,7 +384,7 @@ namespace PlanBuild.Blueprints
 
         public void MoveDown(string id)
         {
-            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.Id == id);
+            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.ID == id);
             if (toMoveup == null) return;
 
             int indexOfBp = Blueprints.IndexOf(toMoveup);
@@ -367,15 +396,15 @@ namespace PlanBuild.Blueprints
 
         private void Swap(BlueprintDetailContent from, BlueprintDetailContent to)
         {
-            string idCopy = from.Id;
+            string idCopy = from.ID;
             Sprite spriteToCopy = from.Icon.sprite;
             string descriptionToCopy = from.Text.text;
 
-            from.Id = to.Id;
+            from.ID = to.ID;
             from.Icon.sprite = to.Icon.sprite;
             from.Text.text = to.Text.text;
 
-            from.Id = idCopy;
+            from.ID = idCopy;
             from.Icon.sprite = spriteToCopy;
             to.Text.text = descriptionToCopy;
         }
@@ -393,12 +422,12 @@ namespace PlanBuild.Blueprints
 
                 blueprintDetail.SortUpButton.onClick.AddListener(() =>
                 {
-                    MoveUp(blueprintDetail.Id);
+                    MoveUp(blueprintDetail.ID);
                 });
 
                 blueprintDetail.SortDownButton.onClick.AddListener(() =>
                 {
-                    MoveDown(blueprintDetail.Id);
+                    MoveDown(blueprintDetail.ID);
                 });
             }
 
@@ -511,6 +540,15 @@ namespace PlanBuild.Blueprints
                 SyncButton = tabTrans.Find("SyncButton").GetComponent<Button>();
                 PushButton = tabTrans.Find("PushButton").GetComponent<Button>();
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
+
+                // Server tab gets a global listener
+                if (tabType == BlueprintLocation.Server)
+                {
+                    SyncButton.onClick.AddListener(() =>
+                    {
+                        BlueprintGUI.SyncBlueprint(null, TabType);
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -522,7 +560,7 @@ namespace PlanBuild.Blueprints
     internal class BlueprintDetailContent
     {
         public GameObject ContentHolder { get; set; }
-        public string Id { get; set; }
+        public string ID { get; set; }
         // UI Elements.
         public string Name { get; set; }
         public string Creator { get; set; }

@@ -67,9 +67,6 @@ namespace PlanBuild.Blueprints
                 // Create KeyHints if and when PixelFix is created
                 GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
 
-                // Load Blueprints after game load
-                LoadKnownBlueprints();
-
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
@@ -121,43 +118,6 @@ namespace PlanBuild.Blueprints
                 }
             }
             return result;
-        }
-
-        internal void LoadKnownBlueprints()
-        {
-            Jotunn.Logger.LogMessage("Loading known blueprints");
-
-            if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
-            {
-                Directory.CreateDirectory(BlueprintConfig.blueprintSaveDirectoryConfig.Value);
-            }
-
-            List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
-
-            blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
-
-            // Try to load all saved blueprints
-            foreach (var relativeFilePath in blueprintFiles.OrderBy(x => Path.GetFileNameWithoutExtension(x)))
-            {
-                try
-                {
-                    string id = Path.GetFileNameWithoutExtension(relativeFilePath);
-                    if (!LocalBlueprints.ContainsKey(id))
-                    {
-                        Blueprint bp = Blueprint.FromFile(relativeFilePath);
-                        LocalBlueprints.Add(bp.ID, bp);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
-                }
-            }
-
-            ItemManager.OnVanillaItemsAvailable -= LoadKnownBlueprints;
-            ItemManager.OnVanillaItemsAvailable -= LoadKnownBlueprints;
         }
 
         internal void RegisterKnownBlueprints()

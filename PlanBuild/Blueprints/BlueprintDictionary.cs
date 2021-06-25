@@ -68,7 +68,7 @@ namespace PlanBuild.Blueprints
         {
             base.Add(id, blueprint);
 
-            // If the GUI is instantiated, also add the Blueprint to it
+            // If the GUI is available, also add the Blueprint to it
             if (BlueprintGUI.IsAvailable())
             {
                 switch (Location)
@@ -89,7 +89,7 @@ namespace PlanBuild.Blueprints
         {
             base.Remove(id);
 
-            // If the GUI is instantiated, also remove the BP from there
+            // If the GUI is available, also remove the BP from there
             if (BlueprintGUI.IsAvailable())
             {
                 switch (Location)
@@ -106,13 +106,23 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public new void Clear()
+        {
+            base.Clear();
+
+            if (BlueprintGUI.IsAvailable())
+            {
+                BlueprintGUI.Instance.ClearBlueprints(Location);
+            }
+        }
+
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"{Count} blueprint{(Count == 1 ? "" : "s")}");
             foreach (var entry in this.OrderBy(x => x.Key))
             {
-                sb.AppendLine(entry.Value.ToGUIString());
+                sb.AppendLine(entry.Value.ToString());
             }
 
             return sb.ToString();

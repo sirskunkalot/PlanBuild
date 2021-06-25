@@ -1,6 +1,8 @@
 ﻿using Jotunn.Entities;
 using Jotunn.Managers;
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace PlanBuild.Blueprints
@@ -11,6 +13,7 @@ namespace PlanBuild.Blueprints
         
         internal static void Init()
         {
+            GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
             CommandManager.Instance.AddConsoleCommand(new GetLocalListCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteBlueprintCommand());
@@ -22,8 +25,43 @@ namespace PlanBuild.Blueprints
         private static void RegisterRPC(On.Game.orig_Start orig, Game self)
         {
             orig(self);
-            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerList), new Action<long, ZPackage>(RPC_PlanBuild_GetServerList));
+            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
+        }
+
+        internal static void GetLocalBlueprints()
+        {
+            Jotunn.Logger.LogMessage("Loading known blueprints");
+
+            if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
+            {
+                Directory.CreateDirectory(BlueprintConfig.blueprintSaveDirectoryConfig.Value);
+            }
+
+            List<string> blueprintFiles = new List<string>();
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
+
+            blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
+
+            // Try to load all saved blueprints
+            //BlueprintManager.LocalBlueprints.Clear();
+            foreach (var relativeFilePath in blueprintFiles.OrderBy(x => Path.GetFileNameWithoutExtension(x)))
+            {
+                try
+                {
+                    string id = Path.GetFileNameWithoutExtension(relativeFilePath);
+                    if (!BlueprintManager.LocalBlueprints.ContainsKey(id))
+                    {
+                        Blueprint bp = Blueprint.FromFile(relativeFilePath);
+                        BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
+                }
+            }
         }
 
         /// <summary>
@@ -32,11 +70,11 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="callback">Delegate method which gets called when the server list was received</param>
         /// <param name="useCache">Return the internal cached list after loading, defaults to true</param>
-        internal static void GetServerList(Action<bool, string> callback, bool useCache = true)
+        internal static void GetServerBlueprints(Action<bool, string> callback, bool useCache = true)
         {
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
-                if (useCache && BlueprintManager.ServerBlueprints != null)
+                if (useCache && BlueprintManager.ServerBlueprints.Count() > 0)
                 {
                     Jotunn.Logger.LogMessage("Getting server blueprint list from cache");
                     callback?.Invoke(true, string.Empty);
@@ -44,12 +82,13 @@ namespace PlanBuild.Blueprints
                 else
                 {
                     Jotunn.Logger.LogMessage("Requesting server blueprint list");
-
-                    BlueprintManager.ServerBlueprints = null;
                     OnAnswerReceived += callback;
-
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_GetServerList), new ZPackage());
+                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_GetServerBlueprints), new ZPackage());
                 }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
             }
         }
 
@@ -58,7 +97,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="pkg"></param>
-        private static void RPC_PlanBuild_GetServerList(long sender, ZPackage pkg)
+        private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
         {
             // Server receive (local game and dedicated)
             if (ZNet.instance.IsServer())
@@ -70,9 +109,9 @@ namespace PlanBuild.Blueprints
                     Jotunn.Logger.LogDebug($"Sending blueprint data to peer #{sender}");
 
                     // Reload and send current blueprint list in BlueprintManager back to the original sender
-                    BlueprintManager.Instance.LoadKnownBlueprints();
+                    GetLocalBlueprints();
                     ZRoutedRpc.instance.InvokeRoutedRPC(
-                        sender, nameof(RPC_PlanBuild_GetServerList), BlueprintManager.LocalBlueprints.ToZPackage());
+                        sender, nameof(RPC_PlanBuild_GetServerBlueprints), BlueprintManager.LocalBlueprints.ToZPackage());
                 }
             }
             // Client receive
@@ -86,6 +125,7 @@ namespace PlanBuild.Blueprints
                     // Deserialize list, call delegates and finally clear delegates
                     try
                     {
+                        BlueprintManager.ServerBlueprints.Clear();
                         BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
                         OnAnswerReceived?.Invoke(true, string.Empty);
                     }
@@ -114,11 +154,13 @@ namespace PlanBuild.Blueprints
                 if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
                 {
                     Jotunn.Logger.LogMessage($"Sending blueprint {id} to server");
-
                     OnAnswerReceived += callback;
-
                     ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
                 }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
             }
         }
 
@@ -171,7 +213,7 @@ namespace PlanBuild.Blueprints
                     string message = pkg.ReadString();
                     try
                     {
-                        if (success && BlueprintManager.ServerBlueprints != null && BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp))
+                        if (success && BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp))
                         {
                             BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
                         }
@@ -190,7 +232,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        internal static bool SaveBlueprint(string id)
+        internal static bool PullBlueprint(string id)
         {
             if (BlueprintManager.ServerBlueprints == null)
             {
@@ -228,7 +270,7 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                BlueprintManager.Instance.LoadKnownBlueprints();
+                GetLocalBlueprints();
                 BlueprintManager.Instance.RegisterKnownBlueprints();
                 Console.instance.Print(BlueprintManager.LocalBlueprints.ToString());
             }
@@ -278,11 +320,6 @@ namespace PlanBuild.Blueprints
                     Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
                     return;
                 }
-                if (!ZNet.instance || ZNet.instance.IsServer())
-                {
-                    Console.instance.Print("Not connected\n");
-                    return;
-                }
 
                 var id = args[0];
                 PushBlueprint(id, (bool success, string message) =>
@@ -310,12 +347,7 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!ZNet.instance || ZNet.instance.IsServer())
-                {
-                    Console.instance.Print("Not connected\n");
-                    return;
-                }
-                GetServerList((bool success, string message) => 
+                GetServerBlueprints((bool success, string message) => 
                 {
                     if (!success)
                     {
@@ -323,7 +355,7 @@ namespace PlanBuild.Blueprints
                     }
                     else
                     {
-                        Console.instance.Print(BlueprintManager.ServerBlueprints?.ToString());
+                        Console.instance.Print(BlueprintManager.ServerBlueprints.ToString());
                     }
                 }, useCache: args.Length == 0
                 );
@@ -346,20 +378,15 @@ namespace PlanBuild.Blueprints
                     Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
                     return;
                 }
-                if (!ZNet.instance || ZNet.instance.IsServer())
-                {
-                    Console.instance.Print("Not connected\n");
-                    return;
-                }
 
                 var id = args[0];
-                GetServerList((bool success, string message) => 
+                GetServerBlueprints((bool success, string message) => 
                 {
                     if (!success) 
                     {
                         Console.instance.Print($"Could not load blueprint: {message}\n");
                     }
-                    else if (SaveBlueprint(id))
+                    else if (PullBlueprint(id))
                     {
                         Console.instance.Print($"Loaded blueprint {id} from server\n");
                     }
