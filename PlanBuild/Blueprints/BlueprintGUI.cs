@@ -196,25 +196,6 @@ namespace PlanBuild.Blueprints
             tabToUse.DetailDisplay.SetActive(blueprint);
         }
 
-        public static void PushBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
-        {
-            BlueprintTab tabToUse = null;
-            switch (originTab)
-            {
-                // Switch to the other tab.
-                case BlueprintLocation.Local:
-                    tabToUse = Instance.ServerTab;
-                    break;
-                case BlueprintLocation.Server:
-                    tabToUse = Instance.LocalTab;
-                    break;
-                default:
-                    break;
-            }
-            if (tabToUse == null) return;
-            //tabToUse.ListDisplay.AddBlueprint(blueprint.Id, blueprint.Description.text);
-        }
-
         public static void SyncBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
         {
             switch (originTab)
@@ -234,7 +215,7 @@ namespace PlanBuild.Blueprints
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
                     Instance.ServerTab.DetailDisplay.SyncButton.interactable = false;
-                    BlueprintSync.GetServerBlueprints((bool success, string message) => 
+                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
                     {
                         Instance.ServerTab.DetailDisplay.SyncButton.interactable = true;
                     }, useCache: false);
@@ -244,22 +225,51 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void DeleteBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
+        public static void SendBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
         {
-            BlueprintTab tabToUse = null;
             switch (originTab)
             {
                 case BlueprintLocation.Local:
-                    tabToUse = Instance.LocalTab;
+                    // Push local blueprint to the server
+                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bp))
+                    {
+                        Instance.LocalTab.DetailDisplay.SendButton.interactable = false;
+                        BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
+                        {
+                            Instance.LocalTab.DetailDisplay.SendButton.interactable = true;
+                        });
+                    }
                     break;
                 case BlueprintLocation.Server:
-                    tabToUse = Instance.ServerTab;
+                    // Save server blueprint locally
+                    if (detail != null)
+                    {
+                        BlueprintSync.PullBlueprint(detail.ID);
+                    }
                     break;
                 default:
                     break;
             }
-            if (tabToUse == null) return;
-            tabToUse.ListDisplay.RemoveBlueprint(blueprint.ID);
+        }
+
+        public static void DeleteBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Remove local blueprint
+                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
+                    {
+                        BlueprintManager.LocalBlueprints[detail.ID].Destroy();
+                        BlueprintManager.LocalBlueprints.Remove(detail.ID);
+                    }
+                    break;
+                case BlueprintLocation.Server:
+                    // TODO: Remove server blueprint when admin
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -479,7 +489,7 @@ namespace PlanBuild.Blueprints
 
         // Main Action Buttons
         public Button SyncButton { get; set; }
-        public Button PushButton { get; set; }
+        public Button SendButton { get; set; }
         public Button DeleteButton { get; set; }
 
         // Overlay screens, for confirmations.
@@ -501,7 +511,7 @@ namespace PlanBuild.Blueprints
             Description.text = blueprint.Description;
 
             SyncButton.onClick.RemoveAllListeners();
-            PushButton.onClick.RemoveAllListeners();
+            SendButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
 
             SyncButton.onClick.AddListener(() =>
@@ -509,9 +519,9 @@ namespace PlanBuild.Blueprints
                 BlueprintGUI.SyncBlueprint(blueprint, TabType);
             });
 
-            PushButton.onClick.AddListener(() =>
+            SendButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.PushBlueprint(blueprint, TabType);
+                BlueprintGUI.SendBlueprint(blueprint, TabType);
             });
 
             DeleteButton.onClick.AddListener(() =>
@@ -538,7 +548,7 @@ namespace PlanBuild.Blueprints
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
                 SyncButton = tabTrans.Find("SyncButton").GetComponent<Button>();
-                PushButton = tabTrans.Find("PushButton").GetComponent<Button>();
+                SendButton = tabTrans.Find("SendButton").GetComponent<Button>();
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
 
                 // Server tab gets a global listener

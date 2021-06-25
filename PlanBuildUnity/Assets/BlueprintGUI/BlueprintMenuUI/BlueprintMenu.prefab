@@ -1010,7 +1010,7 @@ GameObject:
   - component: {fileID: 2616877679223458974}
   - component: {fileID: 2027042278574679770}
   m_Layer: 5
-  m_Name: PushButton
+  m_Name: SendButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -6438,7 +6438,7 @@ GameObject:
   - component: {fileID: 4452450182319093310}
   - component: {fileID: 4107349068201485513}
   m_Layer: 5
-  m_Name: PushButton
+  m_Name: SendButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
