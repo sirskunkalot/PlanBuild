@@ -15,6 +15,9 @@ namespace PlanBuild.Blueprints
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
+            On.ZNet.SendPeerInfo += InitServerBlueprints;
+            On.ZNet.OnDestroy += ResetServerBlueprints;
+
             CommandManager.Instance.AddConsoleCommand(new GetLocalListCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new PushBlueprintCommand());
@@ -27,6 +30,18 @@ namespace PlanBuild.Blueprints
             orig(self);
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
+        }
+
+        private static void InitServerBlueprints(On.ZNet.orig_SendPeerInfo orig, ZNet self, ZRpc rpc, string password)
+        {
+            orig(self, rpc, password);
+            GetServerBlueprints(null);
+        }
+
+        private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
+        {
+            BlueprintManager.ServerBlueprints?.Clear();
+            orig(self);
         }
 
         internal static void GetLocalBlueprints()
@@ -62,6 +77,22 @@ namespace PlanBuild.Blueprints
                     Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
                 }
             }
+        }
+
+        internal static bool SaveLocalBlueprint(string id)
+        {
+            if (BlueprintManager.LocalBlueprints == null)
+            {
+                return false;
+            }
+            if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
+            {
+                return false;
+            }
+
+            Jotunn.Logger.LogMessage($"Saving local blueprint {id}");
+
+            return blueprint.ToFile();
         }
 
         /// <summary>
@@ -227,6 +258,23 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        internal static void SaveServerBlueprint(string id, Action<bool, string> callback)
+        {
+            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
+            {
+                if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
+                {
+                    Jotunn.Logger.LogMessage($"Saving blueprint {id} on server");
+                    OnAnswerReceived += callback;
+                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
+                }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
+            }
+        }
+
         /// <summary>
         ///     Save a blueprint from the internal server list as a local blueprint and add it to the <see cref="BlueprintManager"/>.
         /// </summary>
@@ -243,7 +291,7 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            Jotunn.Logger.LogMessage($"Saving server blueprint {id}");
+            Jotunn.Logger.LogDebug($"Saving server blueprint {id}");
 
             if (BlueprintManager.LocalBlueprints.ContainsKey(id))
             {

@@ -104,7 +104,7 @@ namespace PlanBuild
 
         public void Update()
         {
-            if (BlueprintGUI.Instance != null && Input.GetKeyDown(KeyCode.G))
+            if (BlueprintGUI.IsAvailable() && Input.GetKeyDown(KeyCode.End))
             {
                 BlueprintGUI.Instance.Toggle();
             }

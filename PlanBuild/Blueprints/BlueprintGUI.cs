@@ -40,9 +40,11 @@ namespace PlanBuild.Blueprints
             }
             Window.SetActive(newState);
 
-            // Disable input
+            // Toggle input
             GUIManager.BlockInput(newState);
         }
+
+        public ActionAppliedOverlay ActionAppliedOverlay { get; set; }
 
         public BlueprintMenuElements MenuElements { get; set; }
 
@@ -110,6 +112,16 @@ namespace PlanBuild.Blueprints
 
                     try
                     {
+                        ActionAppliedOverlay = new ActionAppliedOverlay();
+                        ActionAppliedOverlay.Register(Window.transform.Find("ActionAppliedOverlay"));
+                    }
+                    catch (Exception ex)
+                    {
+                        Jotunn.Logger.LogDebug($"Failed in the action overlay: {ex}");
+                    }
+
+                    try
+                    {
                         MenuElements = new BlueprintMenuElements();
                         MenuElements.CloseButton = Window.transform.Find("CloseButton").GetComponent<Button>();
                     }
@@ -150,8 +162,7 @@ namespace PlanBuild.Blueprints
                     }
 
                     // Init blueprint lists
-                    ReloadBlueprints(BlueprintLocation.Local);
-                    ClearBlueprints(BlueprintLocation.Server);
+                    ReloadBlueprints(BlueprintLocation.Both);
                 }
                 catch (Exception ex)
                 {
@@ -193,9 +204,10 @@ namespace PlanBuild.Blueprints
         /// <param name="location"></param>
         public void ReloadBlueprints(BlueprintLocation location)
         {
+            ClearBlueprints(location);
+
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
             {
-                ClearBlueprints(location);
                 foreach (var entry in BlueprintManager.LocalBlueprints)
                 {
                     LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
@@ -203,7 +215,6 @@ namespace PlanBuild.Blueprints
             }
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
             {
-                ClearBlueprints(location);
                 foreach (var entry in BlueprintManager.ServerBlueprints)
                 {
                     ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
@@ -244,10 +255,10 @@ namespace PlanBuild.Blueprints
                     break;
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
-                    Instance.ServerTab.DetailDisplay.SyncButton.interactable = false;
+                    Instance.ActionAppliedOverlay.Toggle();
                     BlueprintSync.GetServerBlueprints((bool success, string message) =>
                     {
-                        Instance.ServerTab.DetailDisplay.SyncButton.interactable = true;
+                        Instance.ActionAppliedOverlay.Toggle();
                     }, useCache: false);
                     break;
                 default:
@@ -255,53 +266,62 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void SyncBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        public static void SaveBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
         {
             switch (originTab)
             {
                 case BlueprintLocation.Local:
                     // Save the blueprint changes
-                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bp))
+                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
                     {
-                        if (bp.Name != detail.Name || bp.Description != detail.Description)
+                        if (bplocal.Name != detail.Name || bplocal.Description != detail.Description)
                         {
-                            bp.Name = detail.Name ?? bp.Name;
-                            bp.Description = detail.Description ?? bp.Description;
-                            bp.ToFile();
+                            bplocal.Name = detail.Name ?? bplocal.Name;
+                            bplocal.Description = detail.Description ?? bplocal.Description;
+                            BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                         }
                     }
                     break;
                 case BlueprintLocation.Server:
-                    // Get the server blueprint list
-                    Instance.ServerTab.DetailDisplay.SyncButton.interactable = false;
-                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
+                    // Upload the blueprint to the server again to save the changes
+                    if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
                     {
-                        Instance.ServerTab.DetailDisplay.SyncButton.interactable = true;
-                    }, useCache: false);
+                        if (bpserver.Name != detail.Name || bpserver.Description != detail.Description)
+                        {
+                            bpserver.Name = detail.Name ?? bpserver.Name;
+                            bpserver.Description = detail.Description ?? bpserver.Description;
+                            
+                            Instance.ActionAppliedOverlay.Toggle();
+                            BlueprintSync.SaveServerBlueprint(bpserver.ID, (bool success, string message) =>
+                            {
+                                Instance.ActionAppliedOverlay.Toggle();
+                            });
+                        }
+                    }
                     break;
                 default:
                     break;
             }
         }
 
-        public static void SendBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        public static void TransferBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
         {
             switch (originTab)
             {
                 case BlueprintLocation.Local:
                     // Push local blueprint to the server
-                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bp))
+                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
-                        Instance.LocalTab.DetailDisplay.SendButton.interactable = false;
+                        Instance.ActionAppliedOverlay.Toggle();
                         BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
                         {
-                            Instance.LocalTab.DetailDisplay.SendButton.interactable = true;
+                            Instance.ActionAppliedOverlay.Toggle();
                         });
                     }
                     break;
                 case BlueprintLocation.Server:
                     // Save server blueprint locally
-                    if (detail != null)
+                    if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
                     {
                         BlueprintSync.PullBlueprint(detail.ID);
                     }
@@ -550,8 +570,8 @@ namespace PlanBuild.Blueprints
 
         // Main Action Buttons
         public Button RefreshButton { get; set; }
-        public Button SyncButton { get; set; }
-        public Button SendButton { get; set; }
+        public Button SaveButton { get; set; }
+        public Button TransferButton { get; set; }
         public Button DeleteButton { get; set; }
 
         // Overlay screens, for confirmations.
@@ -569,18 +589,18 @@ namespace PlanBuild.Blueprints
             Creator.text = blueprint.Creator;
             Description.text = blueprint.Description;
 
-            SyncButton.onClick.RemoveAllListeners();
-            SendButton.onClick.RemoveAllListeners();
+            SaveButton.onClick.RemoveAllListeners();
+            TransferButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
 
-            SyncButton.onClick.AddListener(() =>
+            SaveButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.SyncBlueprint(blueprint, TabType);
+                BlueprintGUI.SaveBlueprint(blueprint, TabType);
             });
 
-            SendButton.onClick.AddListener(() =>
+            TransferButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.SendBlueprint(blueprint, TabType);
+                BlueprintGUI.TransferBlueprint(blueprint, TabType);
             });
 
             DeleteButton.onClick.AddListener(() =>
@@ -604,8 +624,8 @@ namespace PlanBuild.Blueprints
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
                 RefreshButton = tabTrans.Find("RefreshButton").GetComponent<Button>();
-                SyncButton = tabTrans.Find("SyncButton").GetComponent<Button>();
-                SendButton = tabTrans.Find("SendButton").GetComponent<Button>();
+                SaveButton = tabTrans.Find("SaveButton").GetComponent<Button>();
+                TransferButton = tabTrans.Find("TransferButton").GetComponent<Button>();
                 DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
 
                 // Add valheim refresh icon
@@ -656,6 +676,23 @@ namespace PlanBuild.Blueprints
             ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
             CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
             ConfirmButton = overlayTransform.Find("ConfirmationButton").GetComponent<Button>();
+        }
+    }
+
+    internal class ActionAppliedOverlay
+    {
+        public Transform ContentHolder { get; set; }
+        public Text DisplayText { get; set; }
+
+        public void Toggle()
+        {
+            ContentHolder.gameObject.SetActive(!ContentHolder.gameObject.activeSelf);
+        }
+
+        public void Register(Transform overlayTransform)
+        {
+            ContentHolder = overlayTransform;
+            DisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
         }
     }
 }
