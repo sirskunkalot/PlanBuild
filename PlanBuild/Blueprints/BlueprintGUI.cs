@@ -274,29 +274,25 @@ namespace PlanBuild.Blueprints
                     // Save the blueprint changes
                     if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
                     {
-                        if (bplocal.Name != detail.Name || bplocal.Description != detail.Description)
-                        {
-                            bplocal.Name = detail.Name ?? bplocal.Name;
-                            bplocal.Description = detail.Description ?? bplocal.Description;
-                            BlueprintSync.SaveLocalBlueprint(bplocal.ID);
-                        }
+                        bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
+                        bplocal.Creator = string.IsNullOrEmpty(detail.Creator) ? bplocal.Creator : detail.Creator;
+                        bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
+                        BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                     }
                     break;
                 case BlueprintLocation.Server:
                     // Upload the blueprint to the server again to save the changes
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
                     {
-                        if (bpserver.Name != detail.Name || bpserver.Description != detail.Description)
+                        bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
+                        bpserver.Creator = string.IsNullOrEmpty(detail.Creator) ? bpserver.Creator : detail.Creator;
+                        bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
+
+                        Instance.ActionAppliedOverlay.Toggle();
+                        BlueprintSync.SaveServerBlueprint(bpserver.ID, (bool success, string message) =>
                         {
-                            bpserver.Name = detail.Name ?? bpserver.Name;
-                            bpserver.Description = detail.Description ?? bpserver.Description;
-                            
                             Instance.ActionAppliedOverlay.Toggle();
-                            BlueprintSync.SaveServerBlueprint(bpserver.ID, (bool success, string message) =>
-                            {
-                                Instance.ActionAppliedOverlay.Toggle();
-                            });
-                        }
+                        });
                     }
                     break;
                 default:
@@ -416,7 +412,6 @@ namespace PlanBuild.Blueprints
             }
 
             BlueprintDetailContent newBp = new BlueprintDetailContent();
-            newBp.ID = id;
             try
             {
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintDetailPrefab, ScrollContentParent);
@@ -425,7 +420,8 @@ namespace PlanBuild.Blueprints
                 newBp.SortUpButton = newBp.ContentHolder.transform.Find("SortUpButton").GetComponent<Button>();
                 newBp.SortDownButton = newBp.ContentHolder.transform.Find("SortDownButton").GetComponent<Button>();
                 newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
-                
+
+                newBp.ID = bp.ID;
                 newBp.Name = bp.Name;
                 newBp.Creator = bp.Creator;
                 newBp.Description = bp.Description;
@@ -564,6 +560,7 @@ namespace PlanBuild.Blueprints
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
         // Inputs Fields.
+        public Text ID { get; set; }
         public InputField Name { get; set; }
         public InputField Creator { get; set; }
         public InputField Description { get; set; }
@@ -585,9 +582,19 @@ namespace PlanBuild.Blueprints
         {
             // Grab additional details from the id..or append model.
             SelectedBlueprintDetail = blueprint;
+
+            Name.onEndEdit.RemoveAllListeners();
+            Creator.onEndEdit.RemoveAllListeners();
+            Description.onEndEdit.RemoveAllListeners();
+
+            ID.text = blueprint.ID;
             Name.text = blueprint.Name;
             Creator.text = blueprint.Creator;
             Description.text = blueprint.Description;
+
+            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; });
+            Creator.onEndEdit.AddListener((string text) => { blueprint.Creator = text; });
+            Description.onEndEdit.AddListener((string text) => { blueprint.Description = text; });
 
             SaveButton.onClick.RemoveAllListeners();
             TransferButton.onClick.RemoveAllListeners();
@@ -619,6 +626,7 @@ namespace PlanBuild.Blueprints
                 Transform overlayParent = tabTrans.Find("ConfirmationOverlay");
                 ConfirmationOverlay.Register(overlayParent);
 
+                ID = tabTrans.Find("ID").GetComponent<Text>();
                 Name = tabTrans.Find("Name").GetComponent<InputField>();
                 Creator = tabTrans.Find("Creator").GetComponent<InputField>();
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
@@ -651,7 +659,6 @@ namespace PlanBuild.Blueprints
     {
         public GameObject ContentHolder { get; set; }
         public string ID { get; set; }
-        // UI Elements.
         public string Name { get; set; }
         public string Creator { get; set; }
         public string Description { get; set; }

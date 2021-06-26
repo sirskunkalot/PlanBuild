@@ -15,7 +15,7 @@ namespace PlanBuild.Blueprints
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
-            On.ZNet.SendPeerInfo += InitServerBlueprints;
+            //On.ZNet.SendPeerInfo += InitServerBlueprints;
             On.ZNet.OnDestroy += ResetServerBlueprints;
 
             CommandManager.Instance.AddConsoleCommand(new GetLocalListCommand());
