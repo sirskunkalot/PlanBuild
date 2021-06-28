@@ -55,7 +55,6 @@ namespace PlanBuild.Blueprints
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
             // Try to load all saved blueprints
-            //BlueprintManager.LocalBlueprints.Clear();
             foreach (var relativeFilePath in blueprintFiles.OrderBy(x => Path.GetFileNameWithoutExtension(x)))
             {
                 try
@@ -133,9 +132,23 @@ namespace PlanBuild.Blueprints
                     string message = string.Empty;
                     try
                     {
-                        Blueprint blueprint = Blueprint.FromZPackage(pkg);
-                        success = blueprint.ToFile();
-                        message = blueprint.ID;
+                        Blueprint bp = Blueprint.FromZPackage(pkg);
+                        if (bp.ToFile())
+                        {
+                            if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
+                            {
+                                BlueprintManager.LocalBlueprints.Remove(bp.ID);
+                            }
+                            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+
+                            success = true;
+                            message = bp.ID;
+                        }
+                        else
+                        {
+                            success = false;
+                            message = "Could not save blueprint";
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -162,14 +175,18 @@ namespace PlanBuild.Blueprints
                     string message = pkg.ReadString();
                     try
                     {
-                        if (success && BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp))
+                        if (success)
                         {
-                            BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
+                            if (!BlueprintManager.ServerBlueprints.ContainsKey(message))
+                            {
+                                BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp);
+                                BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
+                            }
                         }
-                        OnAnswerReceived?.Invoke(success, message);
                     }
                     finally
                     {
+                        OnAnswerReceived?.Invoke(success, message);
                         OnAnswerReceived = null;
                     }
                 }
@@ -235,18 +252,21 @@ namespace PlanBuild.Blueprints
                     Jotunn.Logger.LogDebug("Received blueprints from server");
 
                     // Deserialize list, call delegates and finally clear delegates
+                    bool success = true;
+                    string message = string.Empty;
                     try
                     {
                         BlueprintManager.ServerBlueprints.Clear();
                         BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
-                        OnAnswerReceived?.Invoke(true, string.Empty);
                     }
                     catch (Exception ex)
                     {
-                        OnAnswerReceived?.Invoke(false, ex.ToString());
+                        success = false;
+                        message = ex.ToString();
                     }
                     finally
                     {
+                        OnAnswerReceived?.Invoke(success, message);
                         OnAnswerReceived = null;
                     }
                 }

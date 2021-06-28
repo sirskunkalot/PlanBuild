@@ -254,13 +254,15 @@ namespace PlanBuild.Blueprints
                 case BlueprintLocation.Local:
                     // Get the local blueprint list
                     BlueprintSync.GetLocalBlueprints();
+                    Instance.ReloadBlueprints(BlueprintLocation.Local);
                     break;
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
-                    Instance.ActionAppliedOverlay.Toggle();
+                    Instance.ActionAppliedOverlay.Show();
                     BlueprintSync.GetServerBlueprints((bool success, string message) =>
                     {
-                        Instance.ActionAppliedOverlay.Toggle();
+                        Instance.ActionAppliedOverlay.SetResult(success, message);
+                        Instance.ReloadBlueprints(BlueprintLocation.Server);
                     }, useCache: false);
                     break;
                 default:
@@ -279,6 +281,7 @@ namespace PlanBuild.Blueprints
                         bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
                         bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
+                        Instance.ReloadBlueprints(BlueprintLocation.Local);
                     }
                     break;
                 case BlueprintLocation.Server:
@@ -288,10 +291,11 @@ namespace PlanBuild.Blueprints
                         bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
                         bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
 
-                        Instance.ActionAppliedOverlay.Toggle();
+                        Instance.ActionAppliedOverlay.Show();
                         BlueprintSync.SaveServerBlueprint(bpserver.ID, (bool success, string message) =>
                         {
-                            Instance.ActionAppliedOverlay.Toggle();
+                            Instance.ActionAppliedOverlay.SetResult(success, message);
+                            Instance.ReloadBlueprints(BlueprintLocation.Server);
                         });
                     }
                     break;
@@ -308,10 +312,10 @@ namespace PlanBuild.Blueprints
                     // Push local blueprint to the server
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
-                        Instance.ActionAppliedOverlay.Toggle();
+                        Instance.ActionAppliedOverlay.Show();
                         BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
                         {
-                            Instance.ActionAppliedOverlay.Toggle();
+                            Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
                     }
                     break;
@@ -688,16 +692,42 @@ namespace PlanBuild.Blueprints
     {
         public Transform ContentHolder { get; set; }
         public Text DisplayText { get; set; }
+        public Button OKButton { get; set; }
 
-        public void Toggle()
+        public void Show()
         {
-            ContentHolder.gameObject.SetActive(!ContentHolder.gameObject.activeSelf);
+            ContentHolder.gameObject.SetActive(true);
+            OKButton.interactable = false;
+            DisplayText.text = "Working";
+        }
+
+        public void SetResult(bool success, string message)
+        {
+            if (success)
+            {
+                Close();
+            }
+            else
+            {
+                OKButton.interactable = true;
+                DisplayText.text = message;
+            }
+        }
+
+        public void Close()
+        {
+            ContentHolder.gameObject.SetActive(false);
         }
 
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
-            DisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
+            DisplayText = overlayTransform.Find("DisplayText").GetComponent<Text>();
+            OKButton = overlayTransform.Find("OKButton").GetComponent<Button>();
+            OKButton.onClick.AddListener(() =>
+            {
+                Close();
+            });
         }
     }
 }
