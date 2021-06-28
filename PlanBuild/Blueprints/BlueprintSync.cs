@@ -133,22 +133,16 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         Blueprint bp = Blueprint.FromZPackage(pkg);
-                        if (bp.ToFile())
+                        if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
                         {
-                            if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
-                            {
-                                BlueprintManager.LocalBlueprints.Remove(bp.ID);
-                            }
-                            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
-
-                            success = true;
-                            message = bp.ID;
+                            throw new Exception($"Blueprint ID {bp.ID} already exists on this server");
                         }
-                        else
+                        if (!bp.ToFile())
                         {
-                            success = false;
-                            message = "Could not save blueprint";
+                            throw new Exception("Could not save blueprint");
                         }
+                        BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+                        message = bp.ID;
                     }
                     catch (Exception ex)
                     {
