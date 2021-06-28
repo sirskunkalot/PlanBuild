@@ -1,5 +1,6 @@
 ﻿using BepInEx.Configuration;
 using Jotunn.Configs;
+using Jotunn.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints

@@ -1,5 +1,6 @@
 ﻿using Jotunn.Entities;
 using Jotunn.Managers;
+using Jotunn.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,19 +11,13 @@ namespace PlanBuild.Blueprints
     internal class BlueprintSync
     {
         private static Action<bool, string> OnAnswerReceived;
-        
-        internal static void Init()
+
+        public static void Init()
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
             //On.ZNet.SendPeerInfo += InitServerBlueprints;
             On.ZNet.OnDestroy += ResetServerBlueprints;
-
-            CommandManager.Instance.AddConsoleCommand(new GetLocalListCommand());
-            CommandManager.Instance.AddConsoleCommand(new DeleteBlueprintCommand());
-            CommandManager.Instance.AddConsoleCommand(new PushBlueprintCommand());
-            CommandManager.Instance.AddConsoleCommand(new GetServerListCommand());
-            CommandManager.Instance.AddConsoleCommand(new PullBlueprintCommand());
         }
 
         private static void RegisterRPC(On.Game.orig_Start orig, Game self)
@@ -305,141 +300,6 @@ namespace PlanBuild.Blueprints
             BlueprintManager.LocalBlueprints.Add(blueprint.ID, blueprint);
 
             return true;
-        }
-
-        /// <summary>
-        ///     Console command which outputs the local blueprint list
-        /// </summary>
-        private class GetLocalListCommand : ConsoleCommand
-        {
-            public override string Name => "bp.local";
-
-            public override string Help => "Get the list of your local blueprints";
-
-            public override void Run(string[] args)
-            {
-                GetLocalBlueprints();
-                BlueprintManager.Instance.RegisterKnownBlueprints();
-                Console.instance.Print(BlueprintManager.LocalBlueprints.ToString());
-            }
-        }
-
-        /// <summary>
-        ///     Console command to delete a local blueprint
-        /// </summary>
-        private class DeleteBlueprintCommand : ConsoleCommand
-        {
-            public override string Name => "bp.remove";
-
-            public override string Help => "Remove a local blueprint";
-
-            public override void Run(string[] args)
-            {
-                if (args.Length != 1)
-                {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
-                    return;
-                }
-
-                var id = args[0];
-                if (BlueprintManager.LocalBlueprints.ContainsKey(id))
-                {
-                    BlueprintManager.LocalBlueprints[id].Destroy();
-                    BlueprintManager.LocalBlueprints.Remove(id);
-
-                    Console.instance.Print($"Removed blueprint {id}\n");
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Console command which uploads a blueprint to the server
-        /// </summary>
-        private class PushBlueprintCommand : ConsoleCommand
-        {
-            public override string Name => "bp.push";
-
-            public override string Help => "Upload a local blueprint to the current connected server";
-
-            public override void Run(string[] args)
-            {
-                if (args.Length != 1)
-                {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
-                    return;
-                }
-
-                var id = args[0];
-                PushBlueprint(id, (bool success, string message) =>
-                {
-                    if (!success)
-                    {
-                        Console.instance.Print($"Could not upload blueprint: {message}\n");
-                    }
-                    else
-                    {
-                        Console.instance.Print($"Blueprint {id} uploaded\n");
-                    }
-                });
-            }
-        }
-
-        /// <summary>
-        ///     Console command which queries and outputs the server blueprint list
-        /// </summary>
-        private class GetServerListCommand : ConsoleCommand
-        {
-            public override string Name => "bp.server";
-
-            public override string Help => "Get the list of the current connected servers blueprints";
-
-            public override void Run(string[] args)
-            {
-                GetServerBlueprints((bool success, string message) => 
-                {
-                    if (!success)
-                    {
-                        Console.instance.Print($"Could not get server list: {message}\n"); 
-                    }
-                    else
-                    {
-                        Console.instance.Print(BlueprintManager.ServerBlueprints.ToString());
-                    }
-                }, useCache: args.Length == 0
-                );
-            }
-        }
-
-        /// <summary>
-        ///     Console command which queries and saves a named blueprint from the server
-        /// </summary>
-        private class PullBlueprintCommand : ConsoleCommand
-        {
-            public override string Name => "bp.pull";
-
-            public override string Help => "Load a blueprint from the current connected server and add it to your local blueprints";
-
-            public override void Run(string[] args)
-            {
-                if (args.Length != 1)
-                {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
-                    return;
-                }
-
-                var id = args[0];
-                GetServerBlueprints((bool success, string message) => 
-                {
-                    if (!success) 
-                    {
-                        Console.instance.Print($"Could not load blueprint: {message}\n");
-                    }
-                    else if (PullBlueprint(id))
-                    {
-                        Console.instance.Print($"Loaded blueprint {id} from server\n");
-                    }
-                });
-            }
         }
     }
 }

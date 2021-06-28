@@ -61,6 +61,9 @@ namespace PlanBuild.Blueprints
                 // Init sync
                 BlueprintSync.Init();
 
+                // Init Commands
+                BlueprintCommands.Init();
+
                 // Init GUI
                 BlueprintGUI.Init();
 

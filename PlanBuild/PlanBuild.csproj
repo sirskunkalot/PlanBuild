@@ -92,6 +92,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\BlueprintCommands.cs" />
     <Compile Include="Blueprints\BlueprintConfig.cs" />
     <Compile Include="Blueprints\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
