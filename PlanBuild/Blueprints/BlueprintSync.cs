@@ -1,7 +1,4 @@
-﻿using Jotunn.Entities;
-using Jotunn.Managers;
-using Jotunn.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -147,7 +144,7 @@ namespace PlanBuild.Blueprints
                     catch (Exception ex)
                     {
                         success = false;
-                        message = ex.ToString();
+                        message = ex.Message;
                     }
                     
                     // Invoke answer response
@@ -256,7 +253,7 @@ namespace PlanBuild.Blueprints
                     catch (Exception ex)
                     {
                         success = false;
-                        message = ex.ToString();
+                        message = ex.Message;
                     }
                     finally
                     {
