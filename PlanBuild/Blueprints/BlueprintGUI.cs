@@ -421,8 +421,6 @@ namespace PlanBuild.Blueprints
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintDetailPrefab, ScrollContentParent);
                 newBp.IconButton = newBp.ContentHolder.transform.Find("IconButton").GetComponent<Button>();
                 newBp.Icon = newBp.ContentHolder.transform.Find("IconButton/BPImage").GetComponent<Image>();
-                newBp.SortUpButton = newBp.ContentHolder.transform.Find("SortUpButton").GetComponent<Button>();
-                newBp.SortDownButton = newBp.ContentHolder.transform.Find("SortDownButton").GetComponent<Button>();
                 newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
 
                 newBp.ID = bp.ID;
@@ -439,8 +437,6 @@ namespace PlanBuild.Blueprints
                     BlueprintGUI.SetActiveDetails(newBp, TabType);
                 });
                 Blueprints.Add(newBp);
-
-                FixSortButtons();
             }
             catch (Exception ex)
             {
@@ -457,85 +453,9 @@ namespace PlanBuild.Blueprints
                 Blueprints.Remove(blueprintToRemove);
                 // I said see-yah later.
                 GameObject.Destroy(blueprintToRemove.ContentHolder);
-                FixSortButtons();
                 return blueprintToRemove;
             }
             return null;
-        }
-
-        public void MoveUp(string id)
-        {
-            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.ID == id);
-            if (toMoveup == null) return;
-
-            int indexOfBp = Blueprints.IndexOf(toMoveup);
-            if (indexOfBp == 0) return;
-
-            BlueprintDetailContent detailToSwapWith = Blueprints[indexOfBp - 1];
-            Swap(toMoveup, detailToSwapWith);
-        }
-
-        public void MoveDown(string id)
-        {
-            BlueprintDetailContent toMoveup = Blueprints.FirstOrDefault(i => i.ID == id);
-            if (toMoveup == null) return;
-
-            int indexOfBp = Blueprints.IndexOf(toMoveup);
-            if (indexOfBp >= Blueprints.Count) return;
-
-            BlueprintDetailContent detailToSwapWith = Blueprints[indexOfBp + 1];
-            Swap(toMoveup, detailToSwapWith);
-        }
-
-        private void Swap(BlueprintDetailContent from, BlueprintDetailContent to)
-        {
-            string idCopy = from.ID;
-            Sprite spriteToCopy = from.Icon.sprite;
-            string descriptionToCopy = from.Text.text;
-
-            from.ID = to.ID;
-            from.Icon.sprite = to.Icon.sprite;
-            from.Text.text = to.Text.text;
-
-            from.ID = idCopy;
-            from.Icon.sprite = spriteToCopy;
-            to.Text.text = descriptionToCopy;
-        }
-
-        public void FixSortButtons()
-        {
-            foreach (var blueprintDetail in Blueprints)
-            {
-                blueprintDetail.SortUpButton.gameObject.SetActive(true);
-                blueprintDetail.SortDownButton.gameObject.SetActive(true);
-
-                // Remove any old listeners
-                blueprintDetail.SortDownButton.onClick.RemoveAllListeners();
-                blueprintDetail.SortUpButton.onClick.RemoveAllListeners();
-
-                blueprintDetail.SortUpButton.onClick.AddListener(() =>
-                {
-                    MoveUp(blueprintDetail.ID);
-                });
-
-                blueprintDetail.SortDownButton.onClick.AddListener(() =>
-                {
-                    MoveDown(blueprintDetail.ID);
-                });
-            }
-
-            BlueprintDetailContent firstPrintDetailContent = Blueprints.FirstOrDefault();
-            if (firstPrintDetailContent != null)
-            {
-                // Set the first to not have sort down (enable the sort down button).
-                firstPrintDetailContent.SortUpButton.gameObject.SetActive(false);
-            }
-            BlueprintDetailContent lastBlueprintDetail = Blueprints.LastOrDefault();
-            if (lastBlueprintDetail != null)
-            {
-                // Set the first to not have sort down (enable the sort down button).
-                lastBlueprintDetail.SortDownButton.gameObject.SetActive(false);
-            }
         }
 
         public void Register(Transform tabTrans, GameObject uiBlueprintDetailPrefab, BlueprintLocation tabType)
@@ -668,8 +588,6 @@ namespace PlanBuild.Blueprints
         public Image Icon { get; set; }
         // Use this as select button.
         public Button IconButton { get; set; }
-        public Button SortUpButton { get; set; }
-        public Button SortDownButton { get; set; }
     }
 
     internal class UIConfirmationOverlay
