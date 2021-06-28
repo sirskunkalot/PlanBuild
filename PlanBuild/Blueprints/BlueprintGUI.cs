@@ -23,19 +23,16 @@ namespace PlanBuild.Blueprints
             // Requesting window shut.
             if (shutWindow)
             {
-                //Window.SetActive(false);
                 newState = false;
             }
             // Requesting open window.
             else if (openWindow)
             {
-                //Window.SetActive(true);
                 newState = true;
             }
             // Toggle current state
             else
             {
-                //Window.SetActive(!Window.activeSelf);
                 newState = !Window.activeSelf;
             }
             Window.SetActive(newState);
@@ -71,6 +68,11 @@ namespace PlanBuild.Blueprints
         public static bool IsAvailable()
         {
             return Instance != null && Instance.Window != null;
+        }
+
+        public static bool IsVisible()
+        {
+            return IsAvailable() && Instance.Window.activeSelf;
         }
 
         public void Register()
@@ -275,7 +277,6 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
                     {
                         bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
-                        bplocal.Creator = string.IsNullOrEmpty(detail.Creator) ? bplocal.Creator : detail.Creator;
                         bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                     }
@@ -285,7 +286,6 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
                     {
                         bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
-                        bpserver.Creator = string.IsNullOrEmpty(detail.Creator) ? bpserver.Creator : detail.Creator;
                         bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
 
                         Instance.ActionAppliedOverlay.Toggle();
@@ -561,8 +561,8 @@ namespace PlanBuild.Blueprints
 
         // Inputs Fields.
         public Text ID { get; set; }
+        public Text Creator { get; set; }
         public InputField Name { get; set; }
-        public InputField Creator { get; set; }
         public InputField Description { get; set; }
 
         // Main Action Buttons
@@ -584,16 +584,14 @@ namespace PlanBuild.Blueprints
             SelectedBlueprintDetail = blueprint;
 
             Name.onEndEdit.RemoveAllListeners();
-            Creator.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
 
             ID.text = blueprint.ID;
-            Name.text = blueprint.Name;
             Creator.text = blueprint.Creator;
+            Name.text = blueprint.Name;
             Description.text = blueprint.Description;
 
-            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; });
-            Creator.onEndEdit.AddListener((string text) => { blueprint.Creator = text; });
+            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; SelectedBlueprintDetail.Name = text; });
             Description.onEndEdit.AddListener((string text) => { blueprint.Description = text; });
 
             SaveButton.onClick.RemoveAllListeners();
@@ -627,8 +625,8 @@ namespace PlanBuild.Blueprints
                 ConfirmationOverlay.Register(overlayParent);
 
                 ID = tabTrans.Find("ID").GetComponent<Text>();
+                Creator = tabTrans.Find("Creator").GetComponent<Text>();
                 Name = tabTrans.Find("Name").GetComponent<InputField>();
-                Creator = tabTrans.Find("Creator").GetComponent<InputField>();
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
                 RefreshButton = tabTrans.Find("RefreshButton").GetComponent<Button>();
