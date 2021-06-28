@@ -52,7 +52,7 @@ namespace PlanBuild.Blueprints
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
             // Try to load all saved blueprints
-            foreach (var relativeFilePath in blueprintFiles.OrderBy(x => Path.GetFileNameWithoutExtension(x)))
+            foreach (var relativeFilePath in blueprintFiles)
             {
                 try
                 {

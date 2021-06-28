@@ -210,14 +210,14 @@ namespace PlanBuild.Blueprints
 
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
             {
-                foreach (var entry in BlueprintManager.LocalBlueprints)
+                foreach (var entry in BlueprintManager.LocalBlueprints.OrderBy(x => x.Value.Name))
                 {
                     LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
                 }
             }
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
             {
-                foreach (var entry in BlueprintManager.ServerBlueprints)
+                foreach (var entry in BlueprintManager.ServerBlueprints.OrderBy(x => x.Value.Name))
                 {
                     ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
                 }
