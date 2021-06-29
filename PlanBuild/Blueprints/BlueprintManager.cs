@@ -79,6 +79,7 @@ namespace PlanBuild.Blueprints
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
+                On.ZNet.OnDestroy += ResetServerBlueprints;
             }
             catch (Exception ex)
             {
@@ -855,6 +856,12 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
             }
             return result;
+        }
+
+        private void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
+        {
+            BlueprintManager.ServerBlueprints?.Clear();
+            orig(self);
         }
     }
 }

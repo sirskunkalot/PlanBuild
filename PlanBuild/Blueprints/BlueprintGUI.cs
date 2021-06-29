@@ -297,7 +297,7 @@ namespace PlanBuild.Blueprints
                         bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
 
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.SaveServerBlueprint(bpserver.ID, (bool success, string message) =>
+                        BlueprintSync.PushBlueprint(bpserver.ID, (bool success, string message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                             Instance.ReloadBlueprints(BlueprintLocation.Server);

@@ -5,6 +5,14 @@ using System.Linq;
 
 namespace PlanBuild.Blueprints
 {
+    internal static class ZNetExtension
+    {
+        public static bool IsAdmin(this ZNet znet, long uid)
+        {
+            return znet.m_adminList.Contains(znet.GetPeer(uid).m_socket.GetHostName());
+        }
+    }
+
     internal class BlueprintSync
     {
         private static Action<bool, string> OnAnswerReceived;
@@ -13,7 +21,6 @@ namespace PlanBuild.Blueprints
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
-            On.ZNet.OnDestroy += ResetServerBlueprints;
         }
 
         private static void RegisterRPC(On.Game.orig_Start orig, Game self)
@@ -21,12 +28,6 @@ namespace PlanBuild.Blueprints
             orig(self);
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
-        }
-
-        private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
-        {
-            BlueprintManager.ServerBlueprints?.Clear();
-            orig(self);
         }
 
         internal static void GetLocalBlueprints()
@@ -132,9 +133,9 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         Blueprint bp = Blueprint.FromZPackage(pkg);
-                        if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
+                        if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID) && !ZNet.instance.IsAdmin(sender))
                         {
-                            throw new Exception($"Blueprint ID {bp.ID} already exists on this server");
+                            throw new Exception($"Only admins can alter server blueprints");
                         }
                         if (!bp.ToFile())
                         {
@@ -291,27 +292,6 @@ namespace PlanBuild.Blueprints
                         OnAnswerReceived = null;
                     }
                 }
-            }
-        }
-
-        internal static void SaveServerBlueprint(string id, Action<bool, string> callback)
-        {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
-            {
-                callback?.Invoke(false, "Server blueprints disabled");
-            }
-            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
-            {
-                if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
-                {
-                    Jotunn.Logger.LogMessage($"Saving blueprint {id} on server");
-                    OnAnswerReceived += callback;
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
-                }
-            }
-            else
-            {
-                callback?.Invoke(false, "Not connected");
             }
         }
 
