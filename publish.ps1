@@ -62,7 +62,7 @@ if ($Target.Equals("Debug")) {
     $assets = "$ProjectPath\assets"
     if (Test-Path -Path "$assets") {
         Write-Host "Copy assets to $plug"
-        Copy-Item -Path "$assets\*" -Destination "$plug" -Force -ErrorAction SilentlyContinue
+        Copy-Item -Path "$assets\*" -Destination "$plug" -Recurse -Force -ErrorAction SilentlyContinue
     }
 
     $dedi = "$ValheimPath\..\Valheim dedicated server"
@@ -79,7 +79,7 @@ if ($Target.Equals("Debug")) {
         
         if (Test-Path -Path "$assets") {
             Write-Host "Copy assets to $dediplug"
-            Copy-Item -Path "$assets\*" -Destination "$dediplug" -Force -ErrorAction SilentlyContinue
+            Copy-Item -Path "$assets\*" -Destination "$dediplug" -Recurse -Force -ErrorAction SilentlyContinue
         }
       }
     }
