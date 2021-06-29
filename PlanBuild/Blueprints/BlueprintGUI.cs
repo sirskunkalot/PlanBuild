@@ -328,7 +328,7 @@ namespace PlanBuild.Blueprints
                     // Save server blueprint locally
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
                     {
-                        BlueprintSync.PullBlueprint(detail.ID);
+                        BlueprintSync.SaveServerBlueprint(detail.ID);
                     }
                     break;
                 default:

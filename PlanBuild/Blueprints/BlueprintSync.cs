@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Jotunn;
 
 namespace PlanBuild.Blueprints
 {
-    internal static class ZNetExtension
-    {
-        public static bool IsAdmin(this ZNet znet, long uid)
-        {
-            return znet.m_adminList.Contains(znet.GetPeer(uid).m_socket.GetHostName());
-        }
-    }
-
     internal class BlueprintSync
     {
         private static Action<bool, string> OnAnswerReceived;
@@ -30,9 +23,13 @@ namespace PlanBuild.Blueprints
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
         }
 
+        /// <summary>
+        ///     Load all local blueprints from disk. Searches recursively for .blueprint and .vbuild files inside 
+        ///     the directory configured in the mods config file.
+        /// </summary>
         internal static void GetLocalBlueprints()
         {
-            Jotunn.Logger.LogMessage("Loading known blueprints");
+            Logger.LogMessage("Loading known blueprints");
 
             if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
             {
@@ -59,11 +56,105 @@ namespace PlanBuild.Blueprints
                 }
                 catch (Exception ex)
                 {
-                    Jotunn.Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
+                    Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
                 }
             }
         }
 
+        /// <summary>
+        ///     When connected to a server clear current server list, register callback to the delegate and finally invoke the RPC.<br />
+        ///     Per default the server list gets cached after the first load. Set useCache to false to force a refresh from the server.
+        /// </summary>
+        /// <param name="callback">Delegate method which gets called when the server list was received</param>
+        /// <param name="useCache">Return the internal cached list after loading, defaults to true</param>
+        internal static void GetServerBlueprints(Action<bool, string> callback, bool useCache = true)
+        {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
+            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
+            {
+                if (useCache && BlueprintManager.ServerBlueprints.Count() > 0)
+                {
+                    Logger.LogMessage("Getting server blueprint list from cache");
+                    callback?.Invoke(true, string.Empty);
+                }
+                else
+                {
+                    Logger.LogMessage("Requesting server blueprint list");
+                    OnAnswerReceived += callback;
+                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_GetServerBlueprints), new ZPackage());
+                }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
+            }
+        }
+
+        /// <summary>
+        ///     RPC method for sending / receiving the actual blueprint lists.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="pkg"></param>
+        private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return;
+            }
+            // Server receive (local game and dedicated)
+            if (ZNet.instance.IsServer())
+            {
+                // Validate peer
+                var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
+                if (peer != null)
+                {
+                    Logger.LogDebug($"Sending blueprint data to peer #{sender}");
+
+                    // Reload and send current blueprint list in BlueprintManager back to the original sender
+                    GetLocalBlueprints();
+                    ZRoutedRpc.instance.InvokeRoutedRPC(
+                        sender, nameof(RPC_PlanBuild_GetServerBlueprints), BlueprintManager.LocalBlueprints.ToZPackage());
+                }
+            }
+            // Client receive
+            else
+            {
+                // Validate the message is from the server and not another client.
+                if (pkg != null && pkg.Size() > 0 && sender == ZNet.instance.GetServerPeer().m_uid)
+                {
+                    Logger.LogDebug("Received blueprints from server");
+
+                    // Deserialize list, call delegates and finally clear delegates
+                    bool success = true;
+                    string message = string.Empty;
+                    try
+                    {
+                        BlueprintManager.ServerBlueprints.Clear();
+                        BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
+                    }
+                    catch (Exception ex)
+                    {
+                        success = false;
+                        message = ex.Message;
+                    }
+                    finally
+                    {
+                        OnAnswerReceived?.Invoke(success, message);
+                        OnAnswerReceived = null;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Write the local blueprint to disk again
+        /// </summary>
+        /// <param name="id">ID of the blueprint</param>
+        /// <returns>true if the blueprint could be written to disk</returns>
         internal static bool SaveLocalBlueprint(string id)
         {
             if (BlueprintManager.LocalBlueprints == null)
@@ -75,9 +166,45 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            Jotunn.Logger.LogMessage($"Saving local blueprint {id}");
+            Logger.LogMessage($"Saving local blueprint {id}");
 
             return blueprint.ToFile();
+        }
+
+        /// <summary>
+        ///     Save a blueprint from the internal server list as a local blueprint and add it to the <see cref="BlueprintManager"/>.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal static bool SaveServerBlueprint(string id)
+        {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return false;
+            }
+            if (BlueprintManager.ServerBlueprints == null)
+            {
+                return false;
+            }
+            if (!BlueprintManager.ServerBlueprints.TryGetValue(id, out var bp))
+            {
+                return false;
+            }
+
+            Logger.LogDebug($"Saving server blueprint {id}");
+
+            if (BlueprintManager.LocalBlueprints.ContainsKey(id))
+            {
+                BlueprintManager.LocalBlueprints[id].Destroy();
+                BlueprintManager.LocalBlueprints.Remove(id);
+            }
+
+            bp.ToFile();
+            bp.CreatePrefab();
+            Player.m_localPlayer.UpdateKnownRecipesList();
+            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+
+            return true;
         }
 
         /// <summary>
@@ -96,7 +223,7 @@ namespace PlanBuild.Blueprints
             {
                 if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
                 {
-                    Jotunn.Logger.LogMessage($"Sending blueprint {id} to server");
+                    Logger.LogMessage($"Sending blueprint {id} to server");
                     OnAnswerReceived += callback;
                     ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
                 }
@@ -125,7 +252,7 @@ namespace PlanBuild.Blueprints
                 var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
                 if (peer != null)
                 {
-                    Jotunn.Logger.LogDebug($"Received blueprint from peer #{sender}");
+                    Logger.LogDebug($"Received blueprint from peer #{sender}");
 
                     // Deserialize blueprint
                     bool success = true;
@@ -162,7 +289,7 @@ namespace PlanBuild.Blueprints
             {
                 if (pkg != null && pkg.Size() > 0 && sender == ZNet.instance.GetServerPeer().m_uid)
                 {
-                    Jotunn.Logger.LogDebug($"Received push answer from server");
+                    Logger.LogDebug($"Received push answer from server");
 
                     // Check answer
                     bool success = pkg.ReadBool();
@@ -187,6 +314,11 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Delete a local blueprint from the game and filesystem
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         internal static bool RemoveLocalBlueprint(string id)
         {
             if (BlueprintManager.LocalBlueprints == null)
@@ -198,135 +330,10 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            Jotunn.Logger.LogDebug($"Removing local blueprint {id}");
+            Logger.LogDebug($"Removing local blueprint {id}");
 
             bp.Destroy();
             BlueprintManager.LocalBlueprints.Remove(id);
-
-            return true;
-        }
-
-        /// <summary>
-        ///     When connected to a server clear current server list, register callback to the delegate and finally invoke the RPC.<br />
-        ///     Per default the server list gets cached after the first load. Set useCache to false to force a refresh from the server.
-        /// </summary>
-        /// <param name="callback">Delegate method which gets called when the server list was received</param>
-        /// <param name="useCache">Return the internal cached list after loading, defaults to true</param>
-        internal static void GetServerBlueprints(Action<bool, string> callback, bool useCache = true)
-        {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
-            {
-                callback?.Invoke(false, "Server blueprints disabled");
-            }
-            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
-            {
-                if (useCache && BlueprintManager.ServerBlueprints.Count() > 0)
-                {
-                    Jotunn.Logger.LogMessage("Getting server blueprint list from cache");
-                    callback?.Invoke(true, string.Empty);
-                }
-                else
-                {
-                    Jotunn.Logger.LogMessage("Requesting server blueprint list");
-                    OnAnswerReceived += callback;
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_GetServerBlueprints), new ZPackage());
-                }
-            }
-            else
-            {
-                callback?.Invoke(false, "Not connected");
-            }
-        }
-
-        /// <summary>
-        ///     RPC method for sending / receiving the actual blueprint lists.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="pkg"></param>
-        private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
-        {
-            // Globally disabled
-            if (!BlueprintConfig.allowServerBlueprints.Value)
-            {
-                return;
-            }
-            // Server receive (local game and dedicated)
-            if (ZNet.instance.IsServer())
-            {
-                // Validate peer
-                var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
-                if (peer != null)
-                {
-                    Jotunn.Logger.LogDebug($"Sending blueprint data to peer #{sender}");
-
-                    // Reload and send current blueprint list in BlueprintManager back to the original sender
-                    GetLocalBlueprints();
-                    ZRoutedRpc.instance.InvokeRoutedRPC(
-                        sender, nameof(RPC_PlanBuild_GetServerBlueprints), BlueprintManager.LocalBlueprints.ToZPackage());
-                }
-            }
-            // Client receive
-            else
-            {
-                // Validate the message is from the server and not another client.
-                if (pkg != null && pkg.Size() > 0 && sender == ZNet.instance.GetServerPeer().m_uid)
-                {
-                    Jotunn.Logger.LogDebug("Received blueprints from server");
-
-                    // Deserialize list, call delegates and finally clear delegates
-                    bool success = true;
-                    string message = string.Empty;
-                    try
-                    {
-                        BlueprintManager.ServerBlueprints.Clear();
-                        BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
-                    }
-                    catch (Exception ex)
-                    {
-                        success = false;
-                        message = ex.Message;
-                    }
-                    finally
-                    {
-                        OnAnswerReceived?.Invoke(success, message);
-                        OnAnswerReceived = null;
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Save a blueprint from the internal server list as a local blueprint and add it to the <see cref="BlueprintManager"/>.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        internal static bool PullBlueprint(string id)
-        {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
-            {
-                return false;
-            }
-            if (BlueprintManager.ServerBlueprints == null)
-            {
-                return false;
-            }
-            if (!BlueprintManager.ServerBlueprints.TryGetValue(id, out var bp))
-            {
-                return false;
-            }
-
-            Jotunn.Logger.LogDebug($"Saving server blueprint {id}");
-
-            if (BlueprintManager.LocalBlueprints.ContainsKey(id))
-            {
-                BlueprintManager.LocalBlueprints[id].Destroy();
-                BlueprintManager.LocalBlueprints.Remove(id);
-            }
-
-            bp.ToFile();
-            bp.CreatePrefab();
-            Player.m_localPlayer.UpdateKnownRecipesList();
-            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
 
             return true;
         }

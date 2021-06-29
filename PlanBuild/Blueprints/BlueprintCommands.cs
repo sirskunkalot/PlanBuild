@@ -138,7 +138,7 @@ namespace PlanBuild.Blueprints
                     {
                         Console.instance.Print($"Could not load blueprint: {message}\n");
                     }
-                    else if (BlueprintSync.PullBlueprint(id))
+                    else if (BlueprintSync.SaveServerBlueprint(id))
                     {
                         Console.instance.Print($"Loaded blueprint {id} from server\n");
                     }
