@@ -340,8 +340,7 @@ namespace PlanBuild.Blueprints
                     // Remove local blueprint
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
-                        BlueprintManager.LocalBlueprints[detail.ID].Destroy();
-                        BlueprintManager.LocalBlueprints.Remove(detail.ID);
+                        BlueprintSync.RemoveLocalBlueprint(detail.ID);
                         Instance.LocalTab.DetailDisplay.Clear();
                     }
                     break;

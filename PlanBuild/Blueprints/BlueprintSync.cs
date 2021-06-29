@@ -13,7 +13,6 @@ namespace PlanBuild.Blueprints
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
-            //On.ZNet.SendPeerInfo += InitServerBlueprints;
             On.ZNet.OnDestroy += ResetServerBlueprints;
         }
 
@@ -22,12 +21,6 @@ namespace PlanBuild.Blueprints
             orig(self);
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
-        }
-
-        private static void InitServerBlueprints(On.ZNet.orig_SendPeerInfo orig, ZNet self, ZRpc rpc, string password)
-        {
-            orig(self, rpc, password);
-            GetServerBlueprints(null);
         }
 
         private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
@@ -191,6 +184,25 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
+        }
+
+        internal static bool RemoveLocalBlueprint(string id)
+        {
+            if (BlueprintManager.LocalBlueprints == null)
+            {
+                return false;
+            }
+            if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var bp))
+            {
+                return false;
+            }
+
+            Jotunn.Logger.LogDebug($"Removing local blueprint {id}");
+
+            bp.Destroy();
+            BlueprintManager.LocalBlueprints.Remove(id);
+
+            return true;
         }
 
         /// <summary>

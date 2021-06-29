@@ -50,11 +50,8 @@ namespace PlanBuild.Blueprints
                 }
 
                 var id = args[0];
-                if (BlueprintManager.LocalBlueprints.ContainsKey(id))
+                if (BlueprintSync.RemoveLocalBlueprint(id))
                 {
-                    BlueprintManager.LocalBlueprints[id].Destroy();
-                    BlueprintManager.LocalBlueprints.Remove(id);
-
                     Console.instance.Print($"Removed blueprint {id}\n");
                 }
             }
