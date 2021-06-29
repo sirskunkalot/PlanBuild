@@ -77,6 +77,7 @@ namespace PlanBuild.Blueprints
                     GameObject.DestroyImmediate(detail.ContentHolder);
                 }
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
+                Instance.LocalTab.DetailDisplay.Clear();
             }
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
             {
@@ -85,6 +86,7 @@ namespace PlanBuild.Blueprints
                     GameObject.DestroyImmediate(detail.ContentHolder);
                 }
                 Instance.ServerTab.ListDisplay.Blueprints.Clear();
+                Instance.ServerTab.DetailDisplay.Clear();
             }
         }
 
@@ -158,7 +160,6 @@ namespace PlanBuild.Blueprints
                 case BlueprintLocation.Local:
                     // Get the local blueprint list
                     BlueprintSync.GetLocalBlueprints();
-                    ReloadBlueprints(BlueprintLocation.Local);
                     break;
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
@@ -166,7 +167,6 @@ namespace PlanBuild.Blueprints
                     BlueprintSync.GetServerBlueprints((bool success, string message) =>
                     {
                         Instance.ActionAppliedOverlay.SetResult(success, message);
-                        ReloadBlueprints(BlueprintLocation.Server);
                     }, useCache: false);
                     break;
                 default:
@@ -209,7 +209,6 @@ namespace PlanBuild.Blueprints
                         bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
 
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
-                        ReloadBlueprints(BlueprintLocation.Local);
                     }
                     break;
                 case BlueprintLocation.Server:
@@ -220,10 +219,9 @@ namespace PlanBuild.Blueprints
                         bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
 
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushBlueprint(bpserver.ID, (bool success, string message) =>
+                        BlueprintSync.PushServerBlueprint(bpserver.ID, (bool success, string message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
-                            ReloadBlueprints(BlueprintLocation.Server);
                         });
                     }
                     break;
@@ -241,7 +239,7 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
+                        BlueprintSync.PushLocalBlueprint(detail.ID, (bool success, string message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
@@ -268,7 +266,6 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
                         BlueprintSync.RemoveLocalBlueprint(detail.ID);
-                        Instance.LocalTab.DetailDisplay.Clear();
                     }
                     break;
                 case BlueprintLocation.Server:

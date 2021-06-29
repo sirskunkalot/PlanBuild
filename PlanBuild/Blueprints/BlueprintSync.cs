@@ -59,6 +59,9 @@ namespace PlanBuild.Blueprints
                     Logger.LogWarning($"Could not load blueprint {relativeFilePath}: {ex}");
                 }
             }
+
+            // Reload GUI if available
+            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
         }
 
         /// <summary>
@@ -135,6 +138,7 @@ namespace PlanBuild.Blueprints
                     {
                         BlueprintManager.ServerBlueprints.Clear();
                         BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
+                        BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
                     }
                     catch (Exception ex)
                     {
@@ -168,7 +172,10 @@ namespace PlanBuild.Blueprints
 
             Logger.LogMessage($"Saving local blueprint {id}");
 
-            return blueprint.ToFile();
+            blueprint.ToFile();
+            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            
+            return true;
         }
 
         /// <summary>
@@ -203,6 +210,7 @@ namespace PlanBuild.Blueprints
             bp.CreatePrefab();
             Player.m_localPlayer.UpdateKnownRecipesList();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
         }
@@ -213,7 +221,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="id">ID of the blueprint</param>
         /// <param name="callback">Is called after the server responded</param>
-        internal static void PushBlueprint(string id, Action<bool, string> callback)
+        internal static void PushLocalBlueprint(string id, Action<bool, string> callback)
         {
             if (!BlueprintConfig.allowServerBlueprints.Value)
             {
@@ -221,7 +229,36 @@ namespace PlanBuild.Blueprints
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
+                // TODO: this needs a flag is it is local or server push
                 if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
+                {
+                    Logger.LogMessage($"Sending blueprint {id} to server");
+                    OnAnswerReceived += callback;
+                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
+                }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
+            }
+        }
+
+        /// <summary>
+        ///     When connected to a server, register a callback and invoke the RPC for uploading 
+        ///     a local blueprint to the server directory.
+        /// </summary>
+        /// <param name="id">ID of the blueprint</param>
+        /// <param name="callback">Is called after the server responded</param>
+        internal static void PushServerBlueprint(string id, Action<bool, string> callback)
+        {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
+            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
+            {
+                // TODO: this needs a flag is it is local or server push
+                if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
                 {
                     Logger.LogMessage($"Sending blueprint {id} to server");
                     OnAnswerReceived += callback;
@@ -262,11 +299,15 @@ namespace PlanBuild.Blueprints
                         Blueprint bp = Blueprint.FromZPackage(pkg);
                         if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID) && !ZNet.instance.IsAdmin(sender))
                         {
-                            throw new Exception($"Only admins can alter server blueprints");
+                            throw new Exception($"Only admins can overwrite server blueprints");
                         }
                         if (!bp.ToFile())
                         {
                             throw new Exception("Could not save blueprint");
+                        }
+                        if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
+                        {
+                            BlueprintManager.LocalBlueprints.Remove(bp.ID);
                         }
                         BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
                         message = bp.ID;
@@ -298,10 +339,12 @@ namespace PlanBuild.Blueprints
                     {
                         if (success)
                         {
+                            // TODO: this needs a flag if it was a local or server push
                             if (!BlueprintManager.ServerBlueprints.ContainsKey(message))
                             {
                                 BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp);
                                 BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
+                                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
                             }
                         }
                     }
@@ -334,6 +377,7 @@ namespace PlanBuild.Blueprints
 
             bp.Destroy();
             BlueprintManager.LocalBlueprints.Remove(id);
+            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
         }

@@ -64,58 +64,6 @@ namespace PlanBuild.Blueprints
             return package;
         }
 
-        public new void Add(string id, Blueprint blueprint) 
-        {
-            base.Add(id, blueprint);
-
-            // If the GUI is available, also add the Blueprint to it
-            if (BlueprintGUI.IsAvailable())
-            {
-                switch (Location)
-                {
-                    case BlueprintLocation.Local:
-                        BlueprintGUI.Instance.LocalTab.ListDisplay.AddBlueprint(id, blueprint);
-                        break;
-                    case BlueprintLocation.Server:
-                        BlueprintGUI.Instance.ServerTab.ListDisplay.AddBlueprint(id, blueprint);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        public new void Remove(string id)
-        {
-            base.Remove(id);
-
-            // If the GUI is available, also remove the BP from there
-            if (BlueprintGUI.IsAvailable())
-            {
-                switch (Location)
-                {
-                    case BlueprintLocation.Local:
-                        BlueprintGUI.Instance.LocalTab.ListDisplay.RemoveBlueprint(id);
-                        break;
-                    case BlueprintLocation.Server:
-                        BlueprintGUI.Instance.ServerTab.ListDisplay.RemoveBlueprint(id);
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        public new void Clear()
-        {
-            base.Clear();
-
-            if (BlueprintGUI.IsAvailable())
-            {
-                BlueprintGUI.ClearBlueprints(Location);
-            }
-        }
-
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();

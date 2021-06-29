@@ -74,7 +74,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 var id = args[0];
-                BlueprintSync.PushBlueprint(id, (bool success, string message) =>
+                BlueprintSync.PushLocalBlueprint(id, (bool success, string message) =>
                 {
                     if (!success)
                     {

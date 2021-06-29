@@ -890,6 +890,7 @@ namespace PlanBuild.Blueprints
                 newbp.CreatePrefab();
                 Player.m_localPlayer.UpdateKnownRecipesList();
                 BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
+                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
                 Logger.LogInfo("Blueprint created");
 
