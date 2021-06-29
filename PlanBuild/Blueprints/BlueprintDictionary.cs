@@ -112,7 +112,7 @@ namespace PlanBuild.Blueprints
 
             if (BlueprintGUI.IsAvailable())
             {
-                BlueprintGUI.Instance.ClearBlueprints(Location);
+                BlueprintGUI.ClearBlueprints(Location);
             }
         }
 

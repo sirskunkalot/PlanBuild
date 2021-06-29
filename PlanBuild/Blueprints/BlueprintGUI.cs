@@ -16,30 +16,6 @@ namespace PlanBuild.Blueprints
         private GameObject ContainerPrefab;
 
         public GameObject Window { get; set; }
-        public void Toggle(bool shutWindow = false, bool openWindow = false)
-        {
-            bool newState;
-
-            // Requesting window shut.
-            if (shutWindow)
-            {
-                newState = false;
-            }
-            // Requesting open window.
-            else if (openWindow)
-            {
-                newState = true;
-            }
-            // Toggle current state
-            else
-            {
-                newState = !Window.activeSelf;
-            }
-            Window.SetActive(newState);
-
-            // Toggle input
-            GUIManager.BlockInput(newState);
-        }
 
         public ActionAppliedOverlay ActionAppliedOverlay { get; set; }
 
@@ -65,14 +41,242 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Check availability
+        /// </summary>
+        /// <returns>true if the <see cref="Instance"/> and the <see cref="Window"/> are not null</returns>
         public static bool IsAvailable()
         {
             return Instance != null && Instance.Window != null;
         }
 
+        /// <summary>
+        ///     Check visibility
+        /// </summary>
+        /// <returns>true is the GUI is available and visible</returns>
         public static bool IsVisible()
         {
             return IsAvailable() && Instance.Window.activeSelf;
+        }
+
+        /// <summary>
+        ///     Loop through the tab displays and DestroyImmediate all <see cref="BlueprintDetailContent"/> instances
+        /// </summary>
+        /// <param name="location">Which tab should be cleared</param>
+        public static void ClearBlueprints(BlueprintLocation location)
+        {
+            if (!IsAvailable())
+            {
+                return;
+            }
+            
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            {
+                foreach (var detail in Instance.LocalTab.ListDisplay.Blueprints)
+                {
+                    GameObject.DestroyImmediate(detail.ContentHolder);
+                }
+                Instance.LocalTab.ListDisplay.Blueprints.Clear();
+            }
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            {
+                foreach (var detail in Instance.ServerTab.ListDisplay.Blueprints)
+                {
+                    GameObject.DestroyImmediate(detail.ContentHolder);
+                }
+                Instance.ServerTab.ListDisplay.Blueprints.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     Loop through the tab display, clear them and reload from the blueprint dictionary
+        /// </summary>
+        /// <param name="location">Which tab should be reloaded</param>
+        public static void ReloadBlueprints(BlueprintLocation location)
+        {
+            if (!IsAvailable())
+            {
+                return;
+            }
+
+            ClearBlueprints(location);
+
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            {
+                foreach (var entry in BlueprintManager.LocalBlueprints.OrderBy(x => x.Value.Name))
+                {
+                    Instance.LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                }
+            }
+            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            {
+                foreach (var entry in BlueprintManager.ServerBlueprints.OrderBy(x => x.Value.Name))
+                {
+                    Instance.ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Hide, open or toggle the main window
+        /// </summary>
+        /// <param name="shutWindow"></param>
+        /// <param name="openWindow"></param>
+        public void Toggle(bool shutWindow = false, bool openWindow = false)
+        {
+            bool newState;
+
+            // Requesting window shut.
+            if (shutWindow)
+            {
+                newState = false;
+            }
+            // Requesting open window.
+            else if (openWindow)
+            {
+                newState = true;
+            }
+            // Toggle current state
+            else
+            {
+                newState = !Window.activeSelf;
+            }
+            Window.SetActive(newState);
+
+            // Toggle input
+            GUIManager.BlockInput(newState);
+        }
+
+        /// <summary>
+        ///     Refreshes the blueprint dictionary from the disk or server and reloads the tab display
+        /// </summary>
+        /// <param name="originTab"></param>
+        public void RefreshBlueprints(BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Get the local blueprint list
+                    BlueprintSync.GetLocalBlueprints();
+                    ReloadBlueprints(BlueprintLocation.Local);
+                    break;
+                case BlueprintLocation.Server:
+                    // Get the server blueprint list
+                    Instance.ActionAppliedOverlay.Show();
+                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
+                    {
+                        Instance.ActionAppliedOverlay.SetResult(success, message);
+                        ReloadBlueprints(BlueprintLocation.Server);
+                    }, useCache: false);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        /// <summary>
+        ///     Display the details of a blueprint values on the content side
+        /// </summary>
+        /// <param name="blueprint"></param>
+        /// <param name="originTab"></param>
+        public void ShowBlueprint(BlueprintDetailContent blueprint, BlueprintLocation originTab)
+        {
+            BlueprintTab tabToUse = null;
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    tabToUse = Instance.LocalTab;
+                    break;
+                case BlueprintLocation.Server:
+                    tabToUse = Instance.ServerTab;
+                    break;
+                default:
+                    break;
+            }
+            if (tabToUse == null) return;
+            tabToUse.DetailDisplay.SetActive(blueprint);
+        }
+
+        public void SaveBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Save the blueprint changes
+                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
+                    {
+                        bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
+                        bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
+
+                        BlueprintSync.SaveLocalBlueprint(bplocal.ID);
+                        ReloadBlueprints(BlueprintLocation.Local);
+                    }
+                    break;
+                case BlueprintLocation.Server:
+                    // Upload the blueprint to the server again to save the changes
+                    if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
+                    {
+                        bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
+                        bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
+
+                        Instance.ActionAppliedOverlay.Show();
+                        BlueprintSync.PushBlueprint(bpserver.ID, (bool success, string message) =>
+                        {
+                            Instance.ActionAppliedOverlay.SetResult(success, message);
+                            ReloadBlueprints(BlueprintLocation.Server);
+                        });
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void TransferBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Push local blueprint to the server
+                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
+                    {
+                        Instance.ActionAppliedOverlay.Show();
+                        BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
+                        {
+                            Instance.ActionAppliedOverlay.SetResult(success, message);
+                        });
+                    }
+                    break;
+                case BlueprintLocation.Server:
+                    // Save server blueprint locally
+                    if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
+                    {
+                        BlueprintSync.SaveServerBlueprint(detail.ID);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public void DeleteBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
+        {
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    // Remove local blueprint
+                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
+                    {
+                        BlueprintSync.RemoveLocalBlueprint(detail.ID);
+                        Instance.LocalTab.DetailDisplay.Clear();
+                    }
+                    break;
+                case BlueprintLocation.Server:
+                    // TODO: Remove server blueprint when admin
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void Register()
@@ -166,7 +370,7 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogDebug($"Failed in ServerTab: {ex}");
                     }
-                    
+
                     // Init blueprint lists
                     ReloadBlueprints(BlueprintLocation.Both);
                 }
@@ -174,185 +378,9 @@ namespace PlanBuild.Blueprints
                 {
                     Jotunn.Logger.LogDebug($"Failed to load Blueprint Window: {ex}");
                 }
-                
+
                 // Dont display directly
                 Window.SetActive(false);
-            }
-        }
-
-        /// <summary>
-        ///     Loop through the tab displays and DestroyImmediate all <see cref="BlueprintListDisplay"/> instances
-        /// </summary>
-        /// <param name="location"></param>
-        public void ClearBlueprints(BlueprintLocation location)
-        {
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
-            {
-                foreach (var detail in LocalTab.ListDisplay.Blueprints)
-                {
-                    GameObject.DestroyImmediate(detail.ContentHolder);
-                }
-                LocalTab.ListDisplay.Blueprints.Clear();
-            }
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
-            {
-                foreach (var detail in ServerTab.ListDisplay.Blueprints)
-                {
-                    GameObject.DestroyImmediate(detail.ContentHolder);
-                }
-                ServerTab.ListDisplay.Blueprints.Clear();
-            }
-        }
-
-        /// <summary>
-        ///     Loop through the tab display, clear them and reload from the blueprint dictionary
-        /// </summary>
-        /// <param name="location"></param>
-        public void ReloadBlueprints(BlueprintLocation location)
-        {
-            ClearBlueprints(location);
-
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
-            {
-                foreach (var entry in BlueprintManager.LocalBlueprints.OrderBy(x => x.Value.Name))
-                {
-                    LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
-                }
-            }
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
-            {
-                foreach (var entry in BlueprintManager.ServerBlueprints.OrderBy(x => x.Value.Name))
-                {
-                    ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Display the details of a blueprint values on the content side
-        /// </summary>
-        /// <param name="blueprint"></param>
-        /// <param name="tab"></param>
-        public static void SetActiveDetails(BlueprintDetailContent blueprint, BlueprintLocation tab)
-        {
-            BlueprintTab tabToUse = null;
-            switch (tab)
-            {
-                case BlueprintLocation.Local:
-                    tabToUse = Instance.LocalTab;
-                    break;
-                case BlueprintLocation.Server:
-                    tabToUse = Instance.ServerTab;
-                    break;
-                default:
-                    break;
-            }
-            if (tabToUse == null) return;
-            tabToUse.DetailDisplay.SetActive(blueprint);
-        }
-
-        public static void RefreshBlueprints(BlueprintLocation originTab)
-        {
-            switch (originTab)
-            {
-                case BlueprintLocation.Local:
-                    // Get the local blueprint list
-                    BlueprintSync.GetLocalBlueprints();
-                    Instance.ReloadBlueprints(BlueprintLocation.Local);
-                    break;
-                case BlueprintLocation.Server:
-                    // Get the server blueprint list
-                    Instance.ActionAppliedOverlay.Show();
-                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
-                    {
-                        Instance.ActionAppliedOverlay.SetResult(success, message);
-                        Instance.ReloadBlueprints(BlueprintLocation.Server);
-                    }, useCache: false);
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public static void SaveBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
-        {
-            switch (originTab)
-            {
-                case BlueprintLocation.Local:
-                    // Save the blueprint changes
-                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
-                    {
-                        bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
-                        bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
-
-                        BlueprintSync.SaveLocalBlueprint(bplocal.ID);
-                        Instance.ReloadBlueprints(BlueprintLocation.Local);
-                    }
-                    break;
-                case BlueprintLocation.Server:
-                    // Upload the blueprint to the server again to save the changes
-                    if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
-                    {
-                        bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
-                        bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
-
-                        Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushBlueprint(bpserver.ID, (bool success, string message) =>
-                        {
-                            Instance.ActionAppliedOverlay.SetResult(success, message);
-                            Instance.ReloadBlueprints(BlueprintLocation.Server);
-                        });
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public static void TransferBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
-        {
-            switch (originTab)
-            {
-                case BlueprintLocation.Local:
-                    // Push local blueprint to the server
-                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
-                    {
-                        Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushBlueprint(detail.ID, (bool success, string message) =>
-                        {
-                            Instance.ActionAppliedOverlay.SetResult(success, message);
-                        });
-                    }
-                    break;
-                case BlueprintLocation.Server:
-                    // Save server blueprint locally
-                    if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
-                    {
-                        BlueprintSync.SaveServerBlueprint(detail.ID);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        public static void DeleteBlueprint(BlueprintDetailContent detail, BlueprintLocation originTab)
-        {
-            switch (originTab)
-            {
-                case BlueprintLocation.Local:
-                    // Remove local blueprint
-                    if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
-                    {
-                        BlueprintSync.RemoveLocalBlueprint(detail.ID);
-                        Instance.LocalTab.DetailDisplay.Clear();
-                    }
-                    break;
-                case BlueprintLocation.Server:
-                    // TODO: Remove server blueprint when admin
-                    break;
-                default:
-                    break;
             }
         }
     }
@@ -439,7 +467,7 @@ namespace PlanBuild.Blueprints
                 }
                 newBp.IconButton.onClick.AddListener(() =>
                 {
-                    BlueprintGUI.SetActiveDetails(newBp, TabType);
+                    BlueprintGUI.Instance.ShowBlueprint(newBp, TabType);
                 });
                 Blueprints.Add(newBp);
             }
@@ -529,17 +557,17 @@ namespace PlanBuild.Blueprints
 
             SaveButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.SaveBlueprint(blueprint, TabType);
+                BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
             });
 
             TransferButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.TransferBlueprint(blueprint, TabType);
+                BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
             });
 
             DeleteButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.DeleteBlueprint(blueprint, TabType);
+                BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
             });
         }
 
@@ -583,7 +611,7 @@ namespace PlanBuild.Blueprints
                 // Refresh button is global
                 RefreshButton.onClick.AddListener(() =>
                 {
-                    BlueprintGUI.RefreshBlueprints(TabType);
+                    BlueprintGUI.Instance.RefreshBlueprints(TabType);
                 });
             }
             catch (Exception ex)
