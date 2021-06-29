@@ -126,6 +126,10 @@ namespace PlanBuild.Blueprints
                     {
                         MenuElements = new BlueprintMenuElements();
                         MenuElements.CloseButton = Window.transform.Find("CloseButton").GetComponent<Button>();
+                        MenuElements.CloseButton.onClick.AddListener(() =>
+                        {
+                            Toggle();
+                        });
                     }
                     catch (Exception ex)
                     {
@@ -627,7 +631,8 @@ namespace PlanBuild.Blueprints
         public void Show()
         {
             ContentHolder.gameObject.SetActive(true);
-            OKButton.interactable = false;
+            //OKButton.interactable = false;
+            OKButton.gameObject.SetActive(false);
             DisplayText.text = "Working";
         }
 
@@ -639,7 +644,8 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                OKButton.interactable = true;
+                //OKButton.interactable = true;
+                OKButton.gameObject.SetActive(true);
                 DisplayText.text = message;
             }
         }
