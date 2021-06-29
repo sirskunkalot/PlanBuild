@@ -94,6 +94,10 @@ namespace PlanBuild.Blueprints
         /// <param name="callback">Is called after the server responded</param>
         internal static void PushBlueprint(string id, Action<bool, string> callback)
         {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
                 if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
@@ -116,6 +120,11 @@ namespace PlanBuild.Blueprints
         /// <param name="pkg"></param>
         private static void RPC_PlanBuild_PushBlueprint(long sender, ZPackage pkg)
         {
+            // Globally disabled
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return;
+            }
             // Server receive (local game and dedicated)
             if (ZNet.instance.IsServer())
             {
@@ -192,6 +201,10 @@ namespace PlanBuild.Blueprints
         /// <param name="useCache">Return the internal cached list after loading, defaults to true</param>
         internal static void GetServerBlueprints(Action<bool, string> callback, bool useCache = true)
         {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
                 if (useCache && BlueprintManager.ServerBlueprints.Count() > 0)
@@ -219,6 +232,11 @@ namespace PlanBuild.Blueprints
         /// <param name="pkg"></param>
         private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
         {
+            // Globally disabled
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return;
+            }
             // Server receive (local game and dedicated)
             if (ZNet.instance.IsServer())
             {
@@ -266,6 +284,10 @@ namespace PlanBuild.Blueprints
 
         internal static void SaveServerBlueprint(string id, Action<bool, string> callback)
         {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
                 if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
@@ -288,11 +310,15 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         internal static bool PullBlueprint(string id)
         {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return false;
+            }
             if (BlueprintManager.ServerBlueprints == null)
             {
                 return false;
             }
-            if (!BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
+            if (!BlueprintManager.ServerBlueprints.TryGetValue(id, out var bp))
             {
                 return false;
             }
@@ -305,10 +331,10 @@ namespace PlanBuild.Blueprints
                 BlueprintManager.LocalBlueprints.Remove(id);
             }
 
-            blueprint.ToFile();
-            blueprint.CreatePrefab();
+            bp.ToFile();
+            bp.CreatePrefab();
             Player.m_localPlayer.UpdateKnownRecipesList();
-            BlueprintManager.LocalBlueprints.Add(blueprint.ID, blueprint);
+            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
 
             return true;
         }

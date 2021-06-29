@@ -162,7 +162,7 @@ namespace PlanBuild.Blueprints
                     {
                         Jotunn.Logger.LogDebug($"Failed in ServerTab: {ex}");
                     }
-
+                    
                     // Init blueprint lists
                     ReloadBlueprints(BlueprintLocation.Both);
                 }
@@ -280,6 +280,7 @@ namespace PlanBuild.Blueprints
                     {
                         bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
                         bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
+
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                         Instance.ReloadBlueprints(BlueprintLocation.Local);
                     }
@@ -341,6 +342,7 @@ namespace PlanBuild.Blueprints
                     {
                         BlueprintManager.LocalBlueprints[detail.ID].Destroy();
                         BlueprintManager.LocalBlueprints.Remove(detail.ID);
+                        Instance.LocalTab.DetailDisplay.Clear();
                     }
                     break;
                 case BlueprintLocation.Server:
@@ -536,6 +538,17 @@ namespace PlanBuild.Blueprints
             {
                 BlueprintGUI.DeleteBlueprint(blueprint, TabType);
             });
+        }
+
+        public void Clear()
+        {
+            Name.onEndEdit.RemoveAllListeners();
+            Description.onEndEdit.RemoveAllListeners();
+
+            ID.text = "ID";
+            Creator.text = null;
+            Name.text = null;
+            Description.text = null;
         }
 
         public void Register(Transform tabTrans, GameObject uiBlueprintIconPrefab, BlueprintLocation tabType)
