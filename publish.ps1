@@ -45,15 +45,7 @@ if (Test-Path -Path "$pdb") {
 
 if ($Target.Equals("Debug")) {
     Write-Host "Updating local installation in $ValheimPath"
-      
-    $plug = New-Item -Type Directory -Path "$ValheimPath\BepInEx\plugins\$name" -Force
-    Write-Host "Copy $TargetAssembly to $plug"
-    Copy-Item -Path "$TargetPath\$name.dll" -Destination "$plug" -Force
-    Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$plug" -Force
-    Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$plug" -Force
-    #Write-Host "Copy dll's to $UnityAssembliesPath"
-    #Copy-Item -Path "$TargetPath\*.dll" -Destination "$UnityAssembliesPath" -Force 
-
+    
     $mono = "$ValheimPath\MonoBleedingEdge\EmbedRuntime";
     Write-Host "Copy mono-2.0-bdwgc.dll to $mono"
     if (!(Test-Path -Path "$mono\mono-2.0-bdwgc.dll.orig")) {
@@ -61,6 +53,18 @@ if ($Target.Equals("Debug")) {
     }
     Copy-Item -Path "$(Get-Location)\libraries\Debug\mono-2.0-bdwgc.dll" -Destination "$mono" -Force
     
+    $plug = New-Item -Type Directory -Path "$ValheimPath\BepInEx\plugins\$name" -Force
+    Write-Host "Copy $TargetAssembly to $plug"
+    Copy-Item -Path "$TargetPath\$name.dll" -Destination "$plug" -Force
+    Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$plug" -Force
+    Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$plug" -Force
+    
+    $assets = "$ProjectPath\assets"
+    if (Test-Path -Path "$assets") {
+        Write-Host "Copy assets to $plug"
+        Copy-Item -Path "$assets\*" -Destination "$plug" -Force -ErrorAction SilentlyContinue
+    }
+
     $dedi = "$ValheimPath\..\Valheim dedicated server"
     if (Test-Path -Path "$dedi") {
       if (Get-Process -Name 'valheim_server' -ErrorAction Ignore) {
@@ -72,9 +76,14 @@ if ($Target.Equals("Debug")) {
         Copy-Item -Path "$TargetPath\$name.dll" -Destination "$dediplug" -Force -ErrorAction SilentlyContinue
         Copy-Item -Path "$TargetPath\$name.pdb" -Destination "$dediplug" -Force -ErrorAction SilentlyContinue
         Copy-Item -Path "$TargetPath\$name.dll.mdb" -Destination "$dediplug" -Force -ErrorAction SilentlyContinue
+        
+        if (Test-Path -Path "$assets") {
+            Write-Host "Copy assets to $dediplug"
+            Copy-Item -Path "$assets\*" -Destination "$dediplug" -Force -ErrorAction SilentlyContinue
+        }
       }
     }
-
+    
     # Set dnspy debugger env - after a relog in Windows mono runtime listens on port 56000 instead of 55555
     #$dnspy = '--debugger-agent=transport=dt_socket,server=y,address=127.0.0.1:56000,suspend=n,no-hide-debugger'
     #[Environment]::SetEnvironmentVariable('DNSPY_UNITY_DBG2',$dnspy,'User')
