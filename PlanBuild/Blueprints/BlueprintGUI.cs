@@ -341,7 +341,7 @@ namespace PlanBuild.Blueprints
                     {
                         LocalTab.TabElements.Register(Window.transform, tabName: "MyTab", buttonSearchName: "MyTabButton");
                         LocalTab.ListDisplay.Register(LocalTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Local);
-                        LocalTab.DetailDisplay.Register(LocalTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Local);
+                        LocalTab.DetailDisplay.Register(LocalTab.TabElements.TabTransform, BlueprintLocation.Local);
                         LocalTab.TabElements.TabButton.onClick.AddListener(() =>
                         {
                             CurrentTab = LocalTab;
@@ -357,7 +357,7 @@ namespace PlanBuild.Blueprints
                     {
                         ServerTab.TabElements.Register(Window.transform, tabName: "ServerTab", buttonSearchName: "ServerTabButton");
                         ServerTab.ListDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Server);
-                        ServerTab.DetailDisplay.Register(ServerTab.TabElements.TabTransform, ContainerPrefab, BlueprintLocation.Server);
+                        ServerTab.DetailDisplay.Register(ServerTab.TabElements.TabTransform, BlueprintLocation.Server);
                         ServerTab.TabElements.TabButton.onClick.AddListener(() =>
                         {
                             CurrentTab = ServerTab;
@@ -528,12 +528,13 @@ namespace PlanBuild.Blueprints
         // Overlay screens, for confirmations.
         public UIConfirmationOverlay ConfirmationOverlay { get; set; } = new UIConfirmationOverlay();
 
-        // Managed Lists
-        // Images of the Blueprint Selected.
-        public List<Sprite> Icons { get; set; } = new List<Sprite>();
-
         public void SetActive(BlueprintDetailContent blueprint)
         {
+            if (ConfirmationOverlay.IsVisible())
+            {
+                return;
+            }
+
             // Grab additional details from the id..or append model.
             SelectedBlueprintDetail = blueprint;
 
@@ -545,7 +546,7 @@ namespace PlanBuild.Blueprints
             Name.text = blueprint.Name;
             Description.text = blueprint.Description;
 
-            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; SelectedBlueprintDetail.Name = text; });
+            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; });
             Description.onEndEdit.AddListener((string text) => { blueprint.Description = text; });
 
             SaveButton.onClick.RemoveAllListeners();
@@ -554,17 +555,26 @@ namespace PlanBuild.Blueprints
 
             SaveButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
+                ConfirmationOverlay.Show($"Saving blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
+                });
             });
 
             TransferButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
+                ConfirmationOverlay.Show($"Transfer {TabType} blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
+                });
             });
 
             DeleteButton.onClick.AddListener(() =>
             {
-                BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
+                ConfirmationOverlay.Show($"Delete {TabType} blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
+                });
             });
         }
 
@@ -579,7 +589,7 @@ namespace PlanBuild.Blueprints
             Description.text = null;
         }
 
-        public void Register(Transform tabTrans, GameObject uiBlueprintIconPrefab, BlueprintLocation tabType)
+        public void Register(Transform tabTrans, BlueprintLocation tabType)
         {
             TabType = tabType;
             try
@@ -627,7 +637,6 @@ namespace PlanBuild.Blueprints
         public string Description { get; set; }
         public Text Text { get; set; }
         public Image Icon { get; set; }
-        // Use this as select button.
         public Button IconButton { get; set; }
     }
 
@@ -638,12 +647,35 @@ namespace PlanBuild.Blueprints
         public Button CancelButton { get; set; }
         public Button ConfirmButton { get; set; }
 
+        public void Show(string displayText, Action confirmAction)
+        {
+            ContentHolder.gameObject.SetActive(true);
+            ConfirmationDisplayText.text = displayText;
+            ConfirmButton.onClick.AddListener(() => 
+            {
+                confirmAction?.Invoke();
+                Close();
+            });
+        }
+
+        public void Close()
+        {
+            ContentHolder.gameObject.SetActive(false);
+            ConfirmButton.onClick.RemoveAllListeners();
+        }
+
+        public bool IsVisible()
+        {
+            return ContentHolder.gameObject.activeSelf;
+        }
+
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
             ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
-            CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
             ConfirmButton = overlayTransform.Find("ConfirmationButton").GetComponent<Button>();
+            CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
+            CancelButton.onClick.AddListener(() => { Close(); });
         }
     }
 
@@ -656,7 +688,6 @@ namespace PlanBuild.Blueprints
         public void Show()
         {
             ContentHolder.gameObject.SetActive(true);
-            //OKButton.interactable = false;
             OKButton.gameObject.SetActive(false);
             DisplayText.text = "Working";
         }
@@ -669,7 +700,6 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                //OKButton.interactable = true;
                 OKButton.gameObject.SetActive(true);
                 DisplayText.text = message;
             }
