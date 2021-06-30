@@ -588,17 +588,19 @@ namespace PlanBuild.Blueprints
             {
                 piece.m_description += "\nDescription: " + Description;
             }
-            //if (File.Exists(IconLocation))
             if (Thumbnail != null)
             {
-                /*var tex = new Texture2D(2, 2);
-                tex.LoadImage(File.ReadAllBytes(IconLocation));*/
                 piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
             }
 
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(
                 Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
+            
+            if (Player.m_localPlayer)
+            {
+                Player.m_localPlayer.UpdateKnownRecipesList();
+            }
 
             // Create KeyHint
             KeyHint = new KeyHintConfig
@@ -648,10 +650,10 @@ namespace PlanBuild.Blueprints
                 }
                 PrefabManager.Instance.DestroyPrefab(PrefabName);
 
-                // Reload table
-                if (Player.m_localPlayer)
+                // Remove from known recipes
+                if (Player.m_localPlayer && Player.m_localPlayer.m_knownRecipes.Contains(PrefabName))
                 {
-                    Player.m_localPlayer.UpdateKnownRecipesList();
+                    Player.m_localPlayer.m_knownRecipes.Remove(PrefabName);
                 }
             }
 

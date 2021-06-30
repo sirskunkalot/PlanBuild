@@ -208,7 +208,6 @@ namespace PlanBuild.Blueprints
 
             bp.ToFile();
             bp.CreatePrefab();
-            Player.m_localPlayer.UpdateKnownRecipesList();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
