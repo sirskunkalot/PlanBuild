@@ -565,7 +565,7 @@ namespace PlanBuild.Blueprints
             {
                 ConfirmationOverlay.Show($"Transfer {TabType} blueprint {Name.text}", () =>
                 {
-                    BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
+                    BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
                 });
             });
 
