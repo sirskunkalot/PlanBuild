@@ -269,7 +269,15 @@ namespace PlanBuild.Blueprints
                     }
                     break;
                 case BlueprintLocation.Server:
-                    // TODO: Remove server blueprint when admin
+                    // Remove server blueprint when admin
+                    if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
+                    {
+                        Instance.ActionAppliedOverlay.Show();
+                        BlueprintSync.RemoveServerBlueprint(detail.ID, (bool success, string message) => 
+                        {
+                            Instance.ActionAppliedOverlay.SetResult(success, message);
+                        });
+                    }
                     break;
                 default:
                     break;

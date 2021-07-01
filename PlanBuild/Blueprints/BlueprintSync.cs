@@ -21,6 +21,7 @@ namespace PlanBuild.Blueprints
             orig(self);
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
             ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
+            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_RemoveServerBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_RemoveServerBlueprint));
         }
 
         /// <summary>
@@ -379,6 +380,116 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
+        }
+
+        /// <summary>
+        ///     When connected to a server, register a callback and invoke the RPC for removing 
+        ///     a blueprint from the server directory. Only callable by admins on the server.
+        /// </summary>
+        /// <param name="id">ID of the blueprint</param>
+        /// <param name="callback">Is called after the server responded</param>
+        internal static void RemoveServerBlueprint(string id, Action<bool, string> callback)
+        {
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                callback?.Invoke(false, "Server blueprints disabled");
+            }
+            if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
+            {
+                if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
+                {
+                    Logger.LogMessage($"Removing blueprint {id} from server");
+                    OnAnswerReceived += callback;
+                    ZPackage package = new ZPackage();
+                    package.Write(id);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_RemoveServerBlueprint), package);
+                }
+            }
+            else
+            {
+                callback?.Invoke(false, "Not connected");
+            }
+        }
+
+        /// <summary>
+        ///     RPC method for removing blueprints from the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="pkg"></param>
+        private static void RPC_PlanBuild_RemoveServerBlueprint(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.allowServerBlueprints.Value)
+            {
+                return;
+            }
+            // Server receive (local game and dedicated)
+            if (ZNet.instance.IsServer())
+            {
+                var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
+                if (peer != null)
+                {
+                    Logger.LogDebug($"Received blueprint removal request from peer #{sender}");
+
+                    // Remove blueprint
+                    bool success = true;
+                    string message = string.Empty;
+                    try
+                    {
+                        string id = pkg.ReadString();
+                        if (BlueprintManager.LocalBlueprints.ContainsKey(id) && !ZNet.instance.IsAdmin(sender))
+                        {
+                            throw new Exception($"Only admins can remove server blueprints");
+                        }
+                        if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
+                        {
+                            Logger.LogMessage($"Removing blueprint {id} from server");
+                            blueprint.Destroy();
+                            BlueprintManager.LocalBlueprints.Remove(id);
+                        }
+                        message = id;
+                    }
+                    catch (Exception ex)
+                    {
+                        success = false;
+                        message = ex.Message;
+                    }
+
+                    // Invoke answer response
+                    ZPackage package = new ZPackage();
+                    package.Write(success);
+                    package.Write(message);
+                    ZRoutedRpc.instance.InvokeRoutedRPC(sender, nameof(RPC_PlanBuild_RemoveServerBlueprint), package);
+                }
+            }
+            // Client receive
+            else
+            {
+                if (pkg != null && pkg.Size() > 0 && sender == ZNet.instance.GetServerPeer().m_uid)
+                {
+                    Logger.LogDebug($"Received remove answer from server");
+
+                    // Check answer
+                    bool success = pkg.ReadBool();
+                    string message = pkg.ReadString();
+                    try
+                    {
+                        if (success)
+                        {
+                            if (BlueprintManager.ServerBlueprints.ContainsKey(message))
+                            {
+                                BlueprintManager.ServerBlueprints.Remove(message);
+                                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        OnAnswerReceived?.Invoke(success, message);
+                        OnAnswerReceived = null;
+                    }
+                }
+            }
         }
     }
 }
