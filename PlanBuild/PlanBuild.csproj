@@ -130,6 +130,7 @@
     <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
     <EmbeddedResource Include="EmbeddedAssets\blueprintmenuui" />
     <None Include="packages.config" />
+    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
