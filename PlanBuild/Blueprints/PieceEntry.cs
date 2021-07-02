@@ -29,8 +29,15 @@ namespace PlanBuild.Blueprints
             var parts = line.Split(';');
             string name = parts[0];
             string category = parts[1];
-            Vector3 pos = new Vector3(InvariantFloat(parts[2]), InvariantFloat(parts[3]), InvariantFloat(parts[4]));
-            Quaternion rot = new Quaternion(InvariantFloat(parts[5]), InvariantFloat(parts[6]), InvariantFloat(parts[7]), InvariantFloat(parts[8]));
+            float posX = InvariantFloat(parts[2]);
+            float posY = InvariantFloat(parts[3]);
+            float posZ = InvariantFloat(parts[4]);
+            float rotX = InvariantFloat(parts[5]);
+            float rotY = InvariantFloat(parts[6]);
+            float rotZ = InvariantFloat(parts[7]);
+            float rotW = InvariantFloat(parts[8]);
+            Vector3 pos = new Vector3(posX, posY, posZ);
+            Quaternion rot = new Quaternion(rotX, rotY, rotZ, rotW).normalized;
             string additionalInfo = parts[9];
             return new PieceEntry(name, category, pos, rot, additionalInfo);
         }
@@ -53,7 +60,7 @@ namespace PlanBuild.Blueprints
             float y2 = InvariantFloat(parts[6]);
             float z2 = InvariantFloat(parts[7]);
             string category = "Building";
-            Quaternion rot = new Quaternion(x, y, z, w);
+            Quaternion rot = new Quaternion(x, y, z, w).normalized;
             Vector3 pos = new Vector3(x2, y2, z2);
             string additionalInfo = string.Empty;
             return new PieceEntry(name, category, pos, rot, additionalInfo);
