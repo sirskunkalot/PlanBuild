@@ -45,7 +45,7 @@ namespace PlanBuild
                 }
             }
             self.CancelInvoke("ResetHighlight");
-            self.Invoke("ResetHighlight", 0.2f);
+            self.Invoke("ResetHighlight", 0.3f);
         }
     }
 }

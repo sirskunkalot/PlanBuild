@@ -119,7 +119,7 @@ namespace PlanBuild.Blueprints
 
         public void HighlightPieces(Vector3 startPosition, float radius, Color color)
         {
-            if (Time.time < LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHightlightTime + 0.2f)
             {
                 return;
             }
@@ -131,7 +131,6 @@ namespace PlanBuild.Blueprints
                 }
             }
             LastHightlightTime = Time.time;
-            return;
         }
 
         public int HighlightPlans(Vector3 startPosition, float radius, Color color)
@@ -331,17 +330,6 @@ namespace PlanBuild.Blueprints
                     // Capture Blueprint
                     if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName) && !piece.IsCreator())
                     {
-                        /*if (!self.m_placementMarkerInstance)
-                        {
-                            if (self.PieceRayTest(out var point, out var normal, out var raypiece, out var heightmap, out var waterSurface, false))
-                            {
-                                self.m_placementMarkerInstance = Object.Instantiate(self.m_placeMarker, point, Quaternion.identity);
-                                self.m_placementMarkerInstance.SetActive(value: true);
-                                self.m_placementMarkerInstance.transform.position = point;
-                                self.m_placementMarkerInstance.transform.rotation = Quaternion.LookRotation(normal);
-                            }
-                        }*/
-
                         if (!self.m_placementMarkerInstance)
                         {
                             return;
@@ -351,19 +339,17 @@ namespace PlanBuild.Blueprints
                         {
                             HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                         }
-                        else
+
+                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+                        if (scrollWheel != 0f)
                         {
-                            float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                            if (scrollWheel != 0f)
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
-                                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                                {
-                                    UpdateCameraOffset(scrollWheel);
-                                }
-                                else
-                                {
-                                    UpdateSelectionRadius(scrollWheel);
-                                }
+                                UpdateCameraOffset(scrollWheel);
+                            }
+                            else
+                            {
+                                UpdateSelectionRadius(scrollWheel);
                             }
                         }
 
