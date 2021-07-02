@@ -1,4 +1,5 @@
 ﻿using BepInEx.Configuration;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -15,10 +16,19 @@ namespace PlanBuild
         }
 
         private static readonly Dictionary<string, Material> originalMaterialDict = new Dictionary<string, Material>();
+        private static readonly Dictionary<string, Material> supportedMaterialDict = new Dictionary<string, Material>();
+        private static readonly Dictionary<string, Material> unsupportedMaterialDict = new Dictionary<string, Material>();
+
         public static Shader planShader;
         public static ConfigEntry<Color> unsupportedColorConfig;
         public static ConfigEntry<Color> supportedPlanColorConfig;
         internal static ConfigEntry<float> transparencyConfig;
+
+        public static void ClearCache()
+        {
+            unsupportedMaterialDict.Clear();
+            supportedMaterialDict.Clear();
+        }
 
         public static Texture2D GetTexture(Color color)
         {
@@ -28,18 +38,14 @@ namespace PlanBuild
         }
 
         public static void UpdateTextures(GameObject m_placementplan, ShaderState shaderState)
-        {
-            Color unsupportedColor = unsupportedColorConfig.Value;
-            Color supportedColor = supportedPlanColorConfig.Value;
-            float transparency = transparencyConfig.Value;
-            transparency *= transparency; //x² mapping for finer control
+        {  
             MeshRenderer[] meshRenderers = m_placementplan.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
-                if (!(meshRenderer.sharedMaterial == null))
+                if (meshRenderer.sharedMaterial != null)
                 {
                     Material[] sharedMaterials = meshRenderer.sharedMaterials;
-                    UpdateMaterials(shaderState, unsupportedColor, supportedColor, transparency, sharedMaterials);
+                    UpdateMaterials(shaderState, sharedMaterials);
 
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -49,47 +55,70 @@ namespace PlanBuild
             SkinnedMeshRenderer[] skinnedMeshRenderers = m_placementplan.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
             {
-                if (!(meshRenderer.sharedMaterial == null))
+                if (meshRenderer.sharedMaterial != null)
                 {
                     Material[] sharedMaterials = meshRenderer.sharedMaterials;
-                    UpdateMaterials(shaderState, unsupportedColor, supportedColor, transparency, sharedMaterials);
+                    UpdateMaterials(shaderState, sharedMaterials);
 
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
-            }
+            } 
         }
-
-        private static void UpdateMaterials(ShaderState shaderState, Color planColor, Color supportedPlanColor, float transparency, Material[] sharedMaterials)
+          
+        private static void UpdateMaterials(ShaderState shaderState, Material[] sharedMaterials)
         {
             for (int j = 0; j < sharedMaterials.Length; j++)
             {
-                Material originalMaterial = sharedMaterials[j];
-                Material material = new Material(originalMaterial)
+                Material originalMaterial = sharedMaterials[j]; 
+                if (!originalMaterialDict.ContainsKey(originalMaterial.name))
                 {
-                    name = originalMaterial.name
-                };
-                if (!originalMaterialDict.ContainsKey(material.name))
-                {
-                    originalMaterialDict[material.name] = originalMaterial;
-                }
-                switch (shaderState)
-                {
-                    case ShaderState.Skuld:
-                        material = originalMaterialDict[originalMaterial.name];
-                        break;
+                    originalMaterialDict[originalMaterial.name] = originalMaterial;
+                } 
+                sharedMaterials[j] = GetMaterial(shaderState, originalMaterial); 
+            }
+        }
 
-                    default:
-                        material.SetOverrideTag("RenderType", "Transparent");
-                        material.shader = planShader;
-                        Color color = (shaderState == ShaderState.Supported ? supportedPlanColor : planColor);
-                        color.a *= transparency;
-                        material.color = color;
-                        material.EnableKeyword("_EMISSION");
-                        material.DisableKeyword("DIRECTIONAL");
-                        break;
-                }
-                sharedMaterials[j] = material;
+        private static Material GetMaterial(ShaderState shaderState, Material originalMaterial)
+        {
+            float transparency = transparencyConfig.Value;
+            transparency *= transparency; //x² mapping for finer control
+            switch (shaderState)
+            {
+                case ShaderState.Skuld:
+                    return originalMaterialDict[originalMaterial.name];
+                case ShaderState.Supported:
+                    if (!supportedMaterialDict.TryGetValue(originalMaterial.name, out Material supportedMaterial))
+                    {
+                        supportedMaterial = new Material(originalMaterial)
+                        {
+                            name = originalMaterial.name
+                        };
+                        supportedMaterial.SetOverrideTag("RenderType", "Transparent");
+                        supportedMaterial.shader = planShader;
+                        supportedMaterial.color = supportedPlanColorConfig.Value * transparency;
+                        supportedMaterial.EnableKeyword("_EMISSION");
+                        supportedMaterial.DisableKeyword("DIRECTIONAL");
+                        supportedMaterialDict[originalMaterial.name] = supportedMaterial;
+                    }
+                    return supportedMaterial; 
+                case ShaderState.Floating:
+                    if (!unsupportedMaterialDict.TryGetValue(originalMaterial.name, out Material unsupportedMaterial))
+                    {
+                        unsupportedMaterial = new Material(originalMaterial)
+                        {
+                            name = originalMaterial.name
+                        };
+                        unsupportedMaterial.SetOverrideTag("RenderType", "Transparent");
+                        unsupportedMaterial.shader = planShader;
+                        unsupportedMaterial.color = unsupportedColorConfig.Value * transparency;
+                        unsupportedMaterial.EnableKeyword("_EMISSION");
+                        unsupportedMaterial.DisableKeyword("DIRECTIONAL");
+                        unsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
+                    }
+                    return unsupportedMaterial;
+                default:
+                    throw new ArgumentException("Unknown shaderState: " + shaderState);
             }
         }
 
@@ -98,7 +127,7 @@ namespace PlanBuild
             MeshRenderer[] meshRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
-                if (!(meshRenderer.sharedMaterial == null))
+                if (meshRenderer.sharedMaterial != null)
                 {
                     SetEmissionColor(meshRenderer.sharedMaterials, color);
                 }
@@ -107,7 +136,7 @@ namespace PlanBuild
             SkinnedMeshRenderer[] skinnedMeshRenderers = gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
             foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
             {
-                if (!(meshRenderer.sharedMaterial == null))
+                if (meshRenderer.sharedMaterial != null)
                 {
                     SetEmissionColor(meshRenderer.sharedMaterials, color);
                 }
@@ -218,21 +247,17 @@ namespace PlanBuild
                 {
                     for (int x = 1; x < width - 1; x++)
                     {
-                        if (slice[x, y] == true)
+                        if (slice[x, y] && (!slice[x - 1, y] ||
+                                            !slice[x + 1, y] ||
+                                            !slice[x, y - 1] ||
+                                            !slice[x, y + 1]))
                         {
-                            if (
-                                slice[x - 1, y] == false ||
-                                slice[x + 1, y] == false ||
-                                slice[x, y - 1] == false ||
-                                slice[x, y + 1] == false)
-                            {
-                                // heightmap is read y,x from bottom left
-                                // texture is read x,y from top left
-                                // magic equation to find correct array index
-                                int ind = ((height - y - 1) * width) + (width - x - 1);
+                            // heightmap is read y,x from bottom left
+                            // texture is read x,y from top left
+                            // magic equation to find correct array index
+                            int ind = ((height - y - 1) * width) + (width - x - 1);
 
-                                colourArray[ind] = bandColor;
-                            }
+                            colourArray[ind] = bandColor;
                         }
                     }
                 }
