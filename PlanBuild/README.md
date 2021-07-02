@@ -4,6 +4,8 @@ PlanBuild enables you to plan, copy and share your building creations in Valheim
 
 ## Planning mode
 
+![Plan mode](resources/PlanMode.png)
+
 Plan the construction of pieces without the need to gather the resources first. Anyone can add the required resources to the planned structure later and finish the construction after it was placed.
 
 You still need a **Hammer** and the required crafting station to finish the construction.
@@ -28,6 +30,8 @@ Create it by combining a **Ruby** and a **Grey Dwarf Eye**.
 
 ## Blueprint mode
 
+![Blueprint mode](resources/BlueprintMode.png)
+
 Copy existing structures into **Blueprints** and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as **.blueprint** files. Also supports **.vbuild** files (you can load and build your BuildShare saves with this mod)!
 
 ### Create
@@ -51,6 +55,8 @@ There are more tools implemented to aid handling blueprint creation and building
 * **Undo blueprint:** Delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
 
 ## Blueprint Marketplace
+
+![Blueprint mode](resources/BlueprintMarket.png)
 
 Manage and share your blueprints through a custom GUI added to the game. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
 
