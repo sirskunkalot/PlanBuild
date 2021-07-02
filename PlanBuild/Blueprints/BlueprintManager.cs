@@ -70,6 +70,7 @@ namespace PlanBuild.Blueprints
                 // Hooks
                 On.PieceTable.UpdateAvailable += OnUpdateAvailable;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
+                On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
                 On.Player.PlacePiece += BeforePlaceBlueprintPiece;
                 On.GameCamera.UpdateCamera += AdjustCameraHeight;
                 On.Player.PieceRayTest += OnPieceRayTest;
@@ -80,6 +81,16 @@ namespace PlanBuild.Blueprints
             catch (Exception ex)
             {
                 Jotunn.Logger.LogError($"{ex.StackTrace}");
+            }
+        }
+
+        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            orig(self, flashGuardStone);
+
+            if(self.m_placementMarkerInstance && self.m_placementGhost && self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName)
+            {
+                self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
         }
 
