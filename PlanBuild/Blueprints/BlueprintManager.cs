@@ -1,5 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
+using PlanBuild.ModCompat;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
@@ -26,21 +27,18 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
-        internal const string PanelName = "BlueprintManagerGUI";
-        internal const string ZDOBlueprintName = "BlueprintName";
+        private const string ZDOBlueprintName = "BlueprintName";
 
-        internal float SelectionRadius = 10.0f;
-        internal float PlacementOffset = 0f;
+        private float SelectionRadius = 10.0f;
+        private float PlacementOffset = 0f;
+        private float CameraOffset = 5.0f;
 
-        internal float CameraOffset = 5.0f;
-        internal bool UpdateCamera = true;
-
-        internal float OriginalPlaceDistance;
+        private float OriginalPlaceDistance;
 
         private const float HighlightTimeout = 1f;
-        private float LastHightlight = 0;
+        private float LastHightlightTime = 0f;
 
-        internal Piece LastHoveredPiece;
+        private Piece LastHoveredPiece;
 
         internal void Init()
         {
@@ -92,7 +90,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="piece"></param>
         /// <returns></returns>
-        public static bool CanCapture(Piece piece)
+        public bool CanCapture(Piece piece)
         {
             if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
             {
@@ -107,7 +105,7 @@ namespace PlanBuild.Blueprints
         /// <param name="position"></param>
         /// <param name="radius"></param>
         /// <returns></returns>
-        public static List<Piece> GetPiecesInRadius(Vector3 position, float radius)
+        public List<Piece> GetPiecesInRadius(Vector3 position, float radius)
         {
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
@@ -121,7 +119,97 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
-        internal void RegisterKnownBlueprints()
+        public void HighlightPieces(Vector3 startPosition, float radius, Color color)
+        {
+            if (Time.time < LastHightlightTime + HighlightTimeout)
+            {
+                return;
+            }
+            foreach (var piece in GetPiecesInRadius(startPosition, radius))
+            {
+                if (piece.TryGetComponent(out WearNTear wearNTear))
+                {
+                    wearNTear.Highlight(color);
+                }
+            }
+            LastHightlightTime = Time.time;
+            return;
+        }
+
+        public int HighlightPlans(Vector3 startPosition, float radius, Color color)
+        {
+            int capturedPieces = 0;
+            foreach (var piece in GetPiecesInRadius(startPosition, radius))
+            {
+                if (piece.TryGetComponent(out PlanPiece planPiece))
+                {
+                    planPiece.m_wearNTear.Highlight(color);
+                }
+                capturedPieces++;
+            }
+            return capturedPieces;
+        }
+
+        public List<PlanPiece> GetPlanPiecesForBlueprint(ZDOID blueprintID)
+        {
+            List<PlanPiece> result = new List<PlanPiece>();
+            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            if (blueprintZDO == null)
+            {
+                return result;
+            }
+            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
+            foreach (ZDOID pieceZDOID in planPieces)
+            {
+                GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
+                if (pieceObject && pieceObject.TryGetComponent(out PlanPiece planPiece))
+                {
+                    result.Add(planPiece);
+                }
+            }
+            return result;
+        }
+
+        public ZDOIDSet GetPlanPieces(ZDO blueprintZDO)
+        {
+            byte[] data = blueprintZDO.GetByteArray(PlanPiece.zdoBlueprintPiece);
+            if (data == null)
+            {
+                return null;
+            }
+            return ZDOIDSet.From(new ZPackage(data));
+        }
+
+        public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
+        {
+            ZDOID blueprintID = planPiece.GetBlueprintID();
+            if (blueprintID == ZDOID.None)
+            {
+                return;
+            }
+
+            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            if (blueprintZDO == null)
+            {
+                return;
+            }
+            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
+            planPieces?.Remove(planPiece.GetPlanPieceID());
+            if (planPieces == null || planPieces.Count() == 0)
+            {
+                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+                if (blueprintObject)
+                {
+                    ZNetScene.instance.Destroy(blueprintObject);
+                }
+            }
+            else
+            {
+                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, planPieces.ToZPackage().GetArray());
+            }
+        }
+
+        public void RegisterKnownBlueprints()
         {
             // Client only
             if (ZNet.instance != null && !ZNet.instance.IsDedicated())
@@ -223,12 +311,6 @@ namespace PlanBuild.Blueprints
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
 
-
-        private void Reset()
-        {
-            Instance.CameraOffset = 5f;
-            Instance.PlacementOffset = 0f;
-        }
 
         private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
         {
@@ -354,10 +436,10 @@ namespace PlanBuild.Blueprints
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
                         }
 
-                        if (Time.time > LastHightlight + HighlightTimeout)
+                        if (Time.time > LastHightlightTime + HighlightTimeout)
                         {
                             HighlightPlans(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
-                            LastHightlight = Time.time;
+                            LastHightlightTime = Time.time;
                         }
                     }
                     else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
@@ -368,7 +450,7 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        if (Time.time > LastHightlight + HighlightTimeout)
+                        if (Time.time > LastHightlightTime + HighlightTimeout)
                         {
                             if (LastHoveredPiece)
                             {
@@ -381,7 +463,7 @@ namespace PlanBuild.Blueprints
                                     }
                                 }
                             }
-                            LastHightlight = Time.time;
+                            LastHightlightTime = Time.time;
                         }
                     }
                     else
@@ -392,7 +474,9 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        Reset();
+                        // Reset camera
+                        Instance.CameraOffset = 5f;
+                        Instance.PlacementOffset = 0f;
                     }
                 }
             }
@@ -475,7 +559,7 @@ namespace PlanBuild.Blueprints
         {
             orig(self, dt);
 
-            if (UpdateCamera
+            if (PatcherBuildCamera.UpdateCamera
                 && Player.m_localPlayer
                 && Player.m_localPlayer.InPlaceMode()
                 && Player.m_localPlayer.m_placementGhost)
@@ -488,37 +572,6 @@ namespace PlanBuild.Blueprints
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
             }
-        }
-
-        public void HighlightPieces(Vector3 startPosition, float radius, Color color)
-        {
-            if (Time.time < LastHightlight + HighlightTimeout)
-            {
-                return;
-            }
-            foreach (var piece in GetPiecesInRadius(startPosition, radius))
-            {
-                if (piece.TryGetComponent(out WearNTear wearNTear))
-                {
-                    wearNTear.Highlight(color);
-                }
-            }
-            LastHightlight = Time.time;
-            return;
-        }
-
-        public int HighlightPlans(Vector3 startPosition, float radius, Color color)
-        {
-            int capturedPieces = 0;
-            foreach (var piece in GetPiecesInRadius(startPosition, radius))
-            {
-                if (piece.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Highlight(color);
-                }
-                capturedPieces++;
-            }
-            return capturedPieces;
         }
 
         private void FlashBlueprint(ZDOID blueprintID, Color color)
@@ -564,7 +617,7 @@ namespace PlanBuild.Blueprints
             return orig(self, piece);
         }
 
-        private static bool MakeBlueprint(Player self)
+        private bool MakeBlueprint(Player self)
         {
             var circleProjector = self.m_placementGhost.GetComponent<CircleProjector>();
             if (circleProjector != null)
@@ -591,7 +644,7 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
-        private static bool PlaceBlueprint(Player player, Piece piece)
+        private bool PlaceBlueprint(Player player, Piece piece)
         {
             string id = piece.gameObject.name.Substring(Blueprint.BlueprintPrefabName.Length+1);
             Blueprint bp = LocalBlueprints[id];
@@ -723,6 +776,24 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
+        private int RemoveBlueprint(ZDOID blueprintID)
+        {
+            int removedPieces = 0;
+            Jotunn.Logger.LogInfo("Removing all pieces of blueprint " + blueprintID);
+            foreach (PlanPiece planPiece in GetPlanPiecesForBlueprint(blueprintID))
+            {
+                planPiece.Remove();
+                removedPieces++;
+            }
+
+            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+            if (blueprintObject)
+            {
+                ZNetScene.instance.Destroy(blueprintObject);
+            }
+            return removedPieces;
+        }
+
         private bool DeletePlans(Player player)
         {
             var circleProjector = player.m_placementGhost.GetComponent<CircleProjector>();
@@ -744,83 +815,6 @@ namespace PlanBuild.Blueprints
             player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
-        }
-
-        private List<PlanPiece> GetPlanPiecesForBlueprint(ZDOID blueprintID)
-        {
-            List<PlanPiece> result = new List<PlanPiece>();
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return result;
-            }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
-            foreach (ZDOID pieceZDOID in planPieces)
-            {
-                GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
-                if (pieceObject && pieceObject.TryGetComponent(out PlanPiece planPiece))
-                {
-                    result.Add(planPiece);
-                }
-            }
-            return result;
-        }
-
-        private static ZDOIDSet GetPlanPieces(ZDO blueprintZDO)
-        {
-            byte[] data = blueprintZDO.GetByteArray(PlanPiece.zdoBlueprintPiece);
-            if (data == null)
-            {
-                return null;
-            }
-            return ZDOIDSet.From(new ZPackage(data));
-        }
-
-        private int RemoveBlueprint(ZDOID blueprintID)
-        {
-            int removedPieces = 0;
-            Jotunn.Logger.LogInfo("Removing all pieces of blueprint " + blueprintID);
-            foreach (PlanPiece planPiece in GetPlanPiecesForBlueprint(blueprintID))
-            {
-                planPiece.Remove();
-                removedPieces++;
-            }
-
-            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-            if (blueprintObject)
-            {
-                ZNetScene.instance.Destroy(blueprintObject);
-            }
-            return removedPieces;
-        }
-
-        public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
-        {
-            ZDOID blueprintID = planPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
-            {
-                return;
-            }
-
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return;
-            }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
-            planPieces?.Remove(planPiece.GetPlanPieceID());
-            if (planPieces == null || planPieces.Count() == 0)
-            {
-                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                if (blueprintObject)
-                {
-                    ZNetScene.instance.Destroy(blueprintObject);
-                }
-            }
-            else
-            {
-                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, planPieces.ToZPackage().GetArray());
-            }
         }
 
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
@@ -860,7 +854,7 @@ namespace PlanBuild.Blueprints
 
         private void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
         {
-            BlueprintManager.ServerBlueprints?.Clear();
+            ServerBlueprints?.Clear();
             orig(self);
         }
     }

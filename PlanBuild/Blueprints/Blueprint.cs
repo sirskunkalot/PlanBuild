@@ -432,7 +432,7 @@ namespace PlanBuild.Blueprints
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
 
-            foreach (var piece in BlueprintManager.GetPiecesInRadius(position, radius))
+            foreach (var piece in BlueprintManager.Instance.GetPiecesInRadius(position, radius))
             {
                 if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
                 {
@@ -455,7 +455,7 @@ namespace PlanBuild.Blueprints
                     wearNTear.Remove();
                     continue;
                 }
-                if (!BlueprintManager.CanCapture(piece))
+                if (!BlueprintManager.Instance.CanCapture(piece))
                 {
                     Logger.LogWarning("Ignoring piece " + piece + ", not able to make Plan");
                     continue;

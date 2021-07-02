@@ -5,6 +5,8 @@ namespace PlanBuild.ModCompat
 {
     internal class PatcherBuildCamera
     {
+        internal static bool UpdateCamera = true;
+
         [HarmonyPatch(typeof(Valheim_Build_Camera.Valheim_Build_Camera), "IsTool")]
         [HarmonyPrefix]
         private static bool ValheimBuildCamera_IsTool_Prefix(ItemDrop.ItemData itemData, ref bool __result)
@@ -17,11 +19,11 @@ namespace PlanBuild.ModCompat
             return true;
         }
 
-        internal static void UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        internal static void OnUpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
         {
-            BlueprintManager.Instance.UpdateCamera = !Valheim_Build_Camera.Valheim_Build_Camera.InBuildMode();
+            UpdateCamera = !Valheim_Build_Camera.Valheim_Build_Camera.InBuildMode();
             orig(self, dt);
-            BlueprintManager.Instance.UpdateCamera = true;
+            UpdateCamera = true;
         }
     }
 }
