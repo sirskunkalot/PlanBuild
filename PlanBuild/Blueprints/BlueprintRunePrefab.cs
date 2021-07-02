@@ -22,7 +22,6 @@ namespace PlanBuild.Blueprints
         public const string DeletePlansName = "delete_plans";
 
         public static string BlueprintRuneItemName;
-        public GameObject runeprefab;
 
         public BlueprintRunePrefab(AssetBundle assetBundle)
         {
