@@ -136,7 +136,7 @@ namespace PlanBuild
                     UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
                 }
                 else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
-                  && (self.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
+                  && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
                       || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
                   )
                 {

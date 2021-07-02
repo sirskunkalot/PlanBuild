@@ -27,8 +27,6 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
-        private const string ZDOBlueprintName = "BlueprintName";
-
         private float SelectionRadius = 10.0f;
         private float PlacementOffset = 0f;
         private float CameraOffset = 5.0f;
@@ -372,7 +370,7 @@ namespace PlanBuild.Blueprints
 
                         HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                     }
-                    else if (piece.name.StartsWith(Blueprint.BlueprintPrefabName))
+                    else if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
                     {
                         // Destroy placement marker instance to get rid of the circleprojector
                         if (self.m_placementMarkerInstance)
@@ -646,7 +644,7 @@ namespace PlanBuild.Blueprints
 
         private bool PlaceBlueprint(Player player, Piece piece)
         {
-            string id = piece.gameObject.name.Substring(Blueprint.BlueprintPrefabName.Length+1);
+            string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
             Blueprint bp = LocalBlueprints[id];
             var transform = player.m_placementGhost.transform;
             var position = transform.position;
@@ -668,12 +666,10 @@ namespace PlanBuild.Blueprints
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
-            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.BlueprintPrefabName);
-
+            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
             GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
-
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(ZDOBlueprintName, bp.Name);
+            blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)

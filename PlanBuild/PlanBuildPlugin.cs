@@ -389,7 +389,7 @@ namespace PlanBuild
         {
             if (showRealTextures
                 && Player.m_localPlayer.m_placementGhost
-                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName))
+                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
                 ShaderHelper.UpdateTextures(Player.m_localPlayer.m_placementGhost, ShaderHelper.ShaderState.Skuld);
             }

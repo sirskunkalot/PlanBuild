@@ -16,7 +16,8 @@ namespace PlanBuild.Blueprints
 {
     internal class Blueprint
     {
-        public const string BlueprintPrefabName = "piece_blueprint";
+        public const string ZDOBlueprintName = "BlueprintName";
+        public const string PieceBlueprintName = "piece_blueprint";
         public const string PlaceColliderName = "place_collider";
 
         private const string HeaderName = "#Name:";
@@ -200,7 +201,7 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret = new Blueprint();
             ret.ID = id;
-            ret.PrefabName = $"{BlueprintPrefabName}:{id}";
+            ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
             ret.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
             ret.IconLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.png");
@@ -570,7 +571,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Get Stub from PrefabManager
-            var stub = PrefabManager.Instance.GetPrefab(BlueprintPrefabName);
+            var stub = PrefabManager.Instance.GetPrefab(PieceBlueprintName);
             if (stub == null)
             {
                 Logger.LogWarning("Could not load blueprint stub from prefabs");
@@ -869,7 +870,7 @@ namespace PlanBuild.Blueprints
                 string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
                 
                 newbp.ID = $"{playerName}_{fileName}".Trim();
-                newbp.PrefabName = $"{BlueprintPrefabName}:{newbp.ID}";
+                newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
                 newbp.Name = text;
                 newbp.Creator = playerName;
                 newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");

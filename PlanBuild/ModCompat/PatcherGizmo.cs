@@ -12,7 +12,7 @@ namespace PlanBuild.ModCompat
         private static bool GizmoPlugin_HandleAxisInput_Prefix(int scrollWheelInput, ref int rot, Transform gizmo)
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_placementGhost &&
-                Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.BlueprintPrefabName)
+                Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
                 && (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl)
                     || Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)))
             {

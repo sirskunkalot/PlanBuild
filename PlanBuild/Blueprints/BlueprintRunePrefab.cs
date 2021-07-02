@@ -71,7 +71,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Blueprint stub
-            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.BlueprintPrefabName);
+            GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.PieceBlueprintName);
             PrefabManager.Instance.AddPrefab(placebp_prefab);
         }
     }
