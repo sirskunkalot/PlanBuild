@@ -1,13 +1,12 @@
 ﻿using Jotunn.Entities;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Plans
 {
-    public class PlanPiecePrefab : CustomPiece
+    internal class PlanPiecePrefab : CustomPiece
     {
         public const string PlannedSuffix = "_planned";
         public const string PlanHammerPieceTableName = "_planHammerPieceTable";

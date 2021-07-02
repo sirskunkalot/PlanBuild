@@ -6,6 +6,8 @@
 
 using BepInEx;
 using BepInEx.Configuration;
+using Jotunn.Configs;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
@@ -46,7 +48,16 @@ namespace PlanBuild
         public void Awake()
         {
             Instance = this;
-            PieceManager.Instance.AddPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+
+            // Create plan piece table for the Hammer
+            PieceManager.Instance.AddPieceTable(new CustomPieceTable(
+                PlanPiecePrefab.PlanHammerPieceTableName,
+                new PieceTableConfig()
+                {
+                    CanRemovePieces = true,
+                    UseCategories = true
+                }
+             ));
 
             // Configs
             SetupConfig();
