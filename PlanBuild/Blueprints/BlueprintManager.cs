@@ -309,7 +309,6 @@ namespace PlanBuild.Blueprints
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
 
-
         private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
         {
             RegisterKnownBlueprints();
@@ -329,23 +328,42 @@ namespace PlanBuild.Blueprints
                 var piece = self.m_placementGhost.GetComponent<Piece>();
                 if (piece != null)
                 {
-                    if (piece.name == "make_blueprint" && !piece.IsCreator())
+                    // Capture Blueprint
+                    if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName) && !piece.IsCreator())
                     {
+                        /*if (!self.m_placementMarkerInstance)
+                        {
+                            if (self.PieceRayTest(out var point, out var normal, out var raypiece, out var heightmap, out var waterSurface, false))
+                            {
+                                self.m_placementMarkerInstance = Object.Instantiate(self.m_placeMarker, point, Quaternion.identity);
+                                self.m_placementMarkerInstance.SetActive(value: true);
+                                self.m_placementMarkerInstance.transform.position = point;
+                                self.m_placementMarkerInstance.transform.rotation = Quaternion.LookRotation(normal);
+                            }
+                        }*/
+
                         if (!self.m_placementMarkerInstance)
                         {
                             return;
                         }
 
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0f)
+                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                            HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
+                        }
+                        else
+                        {
+                            float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+                            if (scrollWheel != 0f)
                             {
-                                UpdateCameraOffset(scrollWheel);
-                            }
-                            else
-                            {
-                                UpdateSelectionRadius(scrollWheel);
+                                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                                {
+                                    UpdateCameraOffset(scrollWheel);
+                                }
+                                else
+                                {
+                                    UpdateSelectionRadius(scrollWheel);
+                                }
                             }
                         }
 
@@ -367,9 +385,8 @@ namespace PlanBuild.Blueprints
                             circleProjector.Update();
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
                         }
-
-                        HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                     }
+                    // Place Blueprint
                     else if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
                     {
                         // Destroy placement marker instance to get rid of the circleprojector
@@ -394,6 +411,7 @@ namespace PlanBuild.Blueprints
                             }
                         }
                     }
+                    // Delete Plan
                     else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
                     {
                         if (!self.m_placementMarkerInstance)
@@ -440,6 +458,7 @@ namespace PlanBuild.Blueprints
                             LastHightlightTime = Time.time;
                         }
                     }
+                    // Undo Blueprint
                     else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
                     {
                         // Destroy placement marker instance to get rid of the circleprojector

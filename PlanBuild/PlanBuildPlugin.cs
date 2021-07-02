@@ -173,6 +173,7 @@ namespace PlanBuild
             Hud.instance.UpdateBuild(Player.m_localPlayer, true);
             blueprintRune.m_shared.m_buildPieces.NextCategory();
             blueprintRune.m_shared.m_buildPieces.PrevCategory();
+            Player.m_localPlayer.SetupPlacementGhost();
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
