@@ -629,7 +629,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = BlueprintManager.planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
-                    new ButtonConfig { Name = "Crouch", HintToken = "$hud_bpdirect" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdirect" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
                 }
             };

@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints
 
         private float OriginalPlaceDistance;
 
-        private const float HighlightTimeout = 1f;
+        private const float HighlightTimeout = 0.3f;
         private float LastHightlightTime = 0f;
 
         private Piece LastHoveredPiece;
@@ -119,7 +119,7 @@ namespace PlanBuild.Blueprints
 
         public void HighlightPieces(Vector3 startPosition, float radius, Color color)
         {
-            if (Time.time < LastHightlightTime + 0.2f)
+            if (Time.time < LastHightlightTime + HighlightTimeout)
             {
                 return;
             }
@@ -131,20 +131,6 @@ namespace PlanBuild.Blueprints
                 }
             }
             LastHightlightTime = Time.time;
-        }
-
-        public int HighlightPlans(Vector3 startPosition, float radius, Color color)
-        {
-            int capturedPieces = 0;
-            foreach (var piece in GetPiecesInRadius(startPosition, radius))
-            {
-                if (piece.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Highlight(color);
-                }
-                capturedPieces++;
-            }
-            return capturedPieces;
         }
 
         public List<PlanPiece> GetPlanPiecesForBlueprint(ZDOID blueprintID)
@@ -250,6 +236,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -261,7 +248,7 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_snappoint" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -274,7 +261,7 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_centerpoint" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -287,7 +274,7 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_undo_blueprint" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpundo" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
@@ -299,8 +286,9 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bp_delete_plans" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -405,6 +393,11 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
+                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                        {
+                            HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
+                        }
+
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
                         {
@@ -436,12 +429,6 @@ namespace PlanBuild.Blueprints
                             circleProjector.m_nrOfSegments = (int)circleProjector.m_radius * 4;
                             circleProjector.Update();
                             Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
-                        }
-
-                        if (Time.time > LastHightlightTime + HighlightTimeout)
-                        {
-                            HighlightPlans(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
-                            LastHightlightTime = Time.time;
                         }
                     }
                     // Undo Blueprint
@@ -655,7 +642,7 @@ namespace PlanBuild.Blueprints
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = ZInput.GetButton("Crouch");
+            bool placeDirect = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
             if (placeDirect && !BlueprintConfig.allowDirectBuildConfig.Value)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
