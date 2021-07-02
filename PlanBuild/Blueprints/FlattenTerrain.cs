@@ -20,28 +20,37 @@ namespace PlanBuild.Blueprints
                 var startPosition = transform.position + Vector3.down * 0.5f;
                 var rotation = transform.rotation;
 
-                var forward = 0f;
-
-                while (forward < floorSize.y)
+                //TerrainModifier.SetTriggerOnPlaced(true);
+                try
                 {
-                    var right = 0f;
-                    while (right < floorSize.x)
+                    var forward = 0f;
+                    while (forward < floorSize.y)
                     {
-                        var lowestAtPosition = pieces.OrderBy(x => x.posY)
-                            .FirstOrDefault(x => Math.Abs(x.posX - forward) < 4f && Math.Abs(x.posZ - right) < 4f);
-                        if (lowestAtPosition != null)
+                        var right = 0f;
+                        while (right < floorSize.x)
                         {
-                            Debug.Log("Lowest: " + lowestAtPosition.posY);
+                            var lowestAtPosition = pieces.OrderBy(x => x.posY)
+                                .FirstOrDefault(x => Math.Abs(x.posX - forward) < 4f && Math.Abs(x.posZ - right) < 4f);
+                            if (lowestAtPosition != null)
+                            {
+                                Logger.LogDebug("Lowest: " + lowestAtPosition.posY);
 
-                            Object.Instantiate(groundPrefab,
-                                startPosition + transform.forward * forward + transform.right * right + new Vector3(0, lowestAtPosition.posY, 0), rotation);
+                                Object.Instantiate(groundPrefab,
+                                    startPosition + transform.forward * forward + transform.right * right + new Vector3(0, lowestAtPosition.posY, 0), rotation);
+                            }
+                            right++;
                         }
-
-                        right++;
+                        forward++;
                     }
-
-                    forward++;
                 }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning($"Error while flattening: {ex}");
+                }
+                /*finally
+                {
+                    TerrainModifier.SetTriggerOnPlaced(false);
+                }*/
             }
         }
 
@@ -50,23 +59,34 @@ namespace PlanBuild.Blueprints
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
-                var forward = -1f;
-                while (forward < maxZ + 1f)
+                //TerrainModifier.SetTriggerOnPlaced(true);
+
+                try
                 {
-                    var right = -1f;
-                    while (right < maxX + 1f)
+                    var forward = -1f;
+                    while (forward < maxZ + 1f)
                     {
-                        if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
+                        var right = -1f;
+                        while (right < maxX + 1f)
                         {
-                            Object.Instantiate(groundPrefab,
-                                transform.position + transform.forward * forward + transform.right * right + new Vector3(0, -0.5f, 0), transform.rotation);
+                            if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
+                            {
+                                Object.Instantiate(groundPrefab,
+                                    transform.position + transform.forward * forward + transform.right * right + new Vector3(0, -0.5f, 0), transform.rotation);
+                            }
+                            right++;
                         }
-
-                        right++;
+                        forward++;
                     }
-
-                    forward++;
                 }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning($"Error while flattening for blueprint: {ex}");
+                }
+                /*finally
+                {
+                    TerrainModifier.SetTriggerOnPlaced(false);
+                }*/
             }
         }
     }
