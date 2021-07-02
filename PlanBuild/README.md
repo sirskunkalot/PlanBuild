@@ -94,6 +94,8 @@ The original PlanBuild mod was created by **[MarcoPogo](https://github.com/Mathi
 
 Blueprint functionality originally created and merged by **[Algorithman](https://github.com/Algorithman)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 
+Blueprint Marketplace GUI created by Dreous#4588
+
 All further coding by **[MarcoPogo](https://github.com/MathiasDecrock)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 
 Made with Löve and **[Jötunn](https://github.com/Valheim-Modding/Jotunn)**

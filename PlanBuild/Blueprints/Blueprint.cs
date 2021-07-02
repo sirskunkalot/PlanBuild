@@ -43,6 +43,11 @@ namespace PlanBuild.Blueprints
         public string FileLocation;
 
         /// <summary>
+        ///     Indicates the format of this blueprints file in the filesystem.
+        /// </summary>
+        public Format FileFormat;
+
+        /// <summary>
         ///     File location of this blueprints icon.
         /// </summary>
         public string IconLocation;
@@ -68,12 +73,12 @@ namespace PlanBuild.Blueprints
         public string Description = string.Empty;
 
         /// <summary>
-        ///     Array of the pieces this blueprint is made of
+        ///     Array of the <see cref="PieceEntry"/>s this blueprint is made of
         /// </summary>
         public PieceEntry[] PieceEntries;
 
         /// <summary>
-        ///     Array of the snappoints of this blueprint
+        ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
 
@@ -81,6 +86,11 @@ namespace PlanBuild.Blueprints
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
         public Texture2D Thumbnail;
+
+        /// <summary>
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
+        /// </summary>
+        private string PrefabName;
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -91,11 +101,6 @@ namespace PlanBuild.Blueprints
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;
-
-        /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
-        /// </summary>
-        private string PrefabName;
 
         /// <summary>
         ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files. 
@@ -125,6 +130,7 @@ namespace PlanBuild.Blueprints
             Logger.LogDebug($"Read {lines.Length} lines from {fileLocation}");
 
             Blueprint ret = FromArray(filename, lines, format);
+            ret.FileFormat = format;
             ret.FileLocation = fileLocation;
             ret.IconLocation = fileLocation.Replace(extension, ".png");
             
@@ -195,8 +201,9 @@ namespace PlanBuild.Blueprints
             Blueprint ret = new Blueprint();
             ret.ID = id;
             ret.PrefabName = $"{BlueprintPrefabName}:{id}";
-            ret.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, id + ".blueprint");
-            ret.IconLocation = ret.FileLocation.Replace(".blueprint", ".png");
+            ret.FileFormat = Format.Blueprint;
+            ret.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
+            ret.IconLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -344,7 +351,8 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>
+        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>. 
+        ///     Renames the .vbuild file to .blueprint if it was read as one.
         /// </summary>
         /// <returns>true if the blueprint could be saved</returns>
         public bool ToFile()
@@ -362,6 +370,14 @@ namespace PlanBuild.Blueprints
                     tw.WriteLine(line);
                 }
                 Logger.LogDebug($"Wrote {PieceEntries.Length} pieces to {FileLocation}");
+            }
+
+            if (FileFormat == Format.VBuild)
+            {
+                string newLocation = FileLocation.Replace(".vbuild",".blueprint");
+                File.Move(FileLocation, newLocation);
+                FileLocation = newLocation;
+                FileFormat = Format.Blueprint;
             }
 
             if (Thumbnail != null)

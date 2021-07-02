@@ -42,20 +42,20 @@ namespace PlanBuild.Blueprints
             {
                 line = line.Replace(',', '.');
             }
-            bool commaValid = 2.5f.ToString().Contains(",");
+
             var parts = line.Split(' ');
             string name = parts[0];
-            float x = AdvancedParse(parts[1], commaValid);
-            float y = AdvancedParse(parts[2], commaValid);
-            float z = AdvancedParse(parts[3], commaValid);
-            float w = AdvancedParse(parts[4], commaValid);
-            float x2 = AdvancedParse(parts[5], commaValid);
-            float y2 = AdvancedParse(parts[6], commaValid);
-            float z2 = AdvancedParse(parts[7], commaValid);
+            float x = InvariantFloat(parts[1]);
+            float y = InvariantFloat(parts[2]);
+            float z = InvariantFloat(parts[3]);
+            float w = InvariantFloat(parts[4]);
+            float x2 = InvariantFloat(parts[5]);
+            float y2 = InvariantFloat(parts[6]);
+            float z2 = InvariantFloat(parts[7]);
             string category = "Building";
             Quaternion rot = new Quaternion(x, y, z, w);
             Vector3 pos = new Vector3(x2, y2, z2);
-            string additionalInfo = "";
+            string additionalInfo = string.Empty;
             return new PieceEntry(name, category, pos, rot, additionalInfo);
         }
 
@@ -91,69 +91,19 @@ namespace PlanBuild.Blueprints
 
         internal static float InvariantFloat(string s)
         {
-            if (s.StartsWith("-,"))
+            if (string.IsNullOrEmpty(s))
             {
-                s = s.Replace("-,", "-0,");
+                return 0f;
             }
-            else if (s.StartsWith(","))
+            else
             {
-                s = "0" + s;
+                return float.Parse(s, NumberStyles.Any, NumberFormatInfo.InvariantInfo);
             }
-            return float.Parse(s, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         }
 
         internal static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);
-        }
-
-        public static float AdvancedParse(string value, bool commaValid)
-        {
-            if (value.Contains("E-"))
-            {
-                value = value.Replace("E-", "");
-            }
-            float result;
-            if (value.Contains(",") && !commaValid)
-            {
-                CultureInfo provider = CultureInfo.CreateSpecificCulture("fr-FR");
-                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
-                {
-                    return result;
-                }
-            }
-            else if (value.Contains(".") && commaValid)
-            {
-                CultureInfo provider = CultureInfo.CreateSpecificCulture("en-GB");
-                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
-                {
-                    return result;
-                }
-            }
-            else if (!commaValid && value.Contains("."))
-            {
-                CultureInfo provider = CultureInfo.CreateSpecificCulture("en-GB");
-                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
-                {
-                    return result;
-                }
-            }
-            else if (commaValid && value.Contains(","))
-            {
-                CultureInfo provider = CultureInfo.CreateSpecificCulture("fr-FR");
-                if (float.TryParse(value, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, provider, out result))
-                {
-                    return result;
-                }
-            }
-            else
-            {
-                if (float.TryParse(value, out result))
-                {
-                    return result;
-                }
-            }
-            return 0f;
         }
     }
 }
