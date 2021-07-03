@@ -15,13 +15,14 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<float> placementOffsetIncrementConfig;
         internal static ConfigEntry<float> selectionIncrementConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
-
+        internal static ConfigEntry<KeyCode> serverGuiSwitchConfig;
         private const string marketSection = "Blueprint Market";
         internal static ConfigEntry<bool> allowServerBlueprints;
 
         private const string directorySection = "Directories";
         internal static ConfigEntry<string> blueprintSearchDirectoryConfig;
         internal static ConfigEntry<string> blueprintSaveDirectoryConfig;
+        internal static KeyCode serverGuiSwitchKey;
 
         internal static void Init()
         {
@@ -61,6 +62,12 @@ namespace PlanBuild.Blueprints
                 runeSection, "Rune mode toggle key", KeyCode.P,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
+            serverGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
+                marketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
+                new ConfigDescription("Hotkey to show blueprint marketplace GUI"));
+            serverGuiSwitchKey = serverGuiSwitchConfig.Value;
+            serverGuiSwitchConfig.SettingChanged += (object sender, System.EventArgs e) => serverGuiSwitchKey = serverGuiSwitchConfig.Value;
+
             allowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 marketSection, "Allow serverside blueprints", false,
                 new ConfigDescription("Allow sharing of blueprints on this server", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
@@ -74,5 +81,6 @@ namespace PlanBuild.Blueprints
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
         }
+         
     }
 }
