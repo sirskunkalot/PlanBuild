@@ -54,15 +54,19 @@ Place a blueprint as planned pieces.
 
 ### Tools
 
-There are more tools implemented to aid handling blueprint creation and building. Here is a handy list:
+![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintTools.png)
+
+The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. Here is a handy list:
+
+* **Create new blueprint:** Select pieces inside a radius and create your blueprint.
 
 * **Snap point marker:** Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
 
 * **Center point marker:** Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 
-* **Delete plans:** Delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded. Use the **Scroll Wheel** to change the deletion radius. Use **Shift + Scroll** to adjust the camera distance.
-
 * **Undo blueprint:** Delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
+
+* **Remove plans:** Delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded. Use the **Scroll Wheel** to change the deletion radius. Use **Shift + Scroll** to adjust the camera distance.
 
 ## Blueprint Marketplace
 
