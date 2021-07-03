@@ -455,25 +455,25 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) || 
+                                (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
                             {
-                                if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                                {
-                                    PlacementOffset.x += GetPlacementOffset(scrollWheel);
-                                    UndoRotation(self, scrollWheel);
-                                } else {
-                                    PlacementOffset.z += GetPlacementOffset(scrollWheel);
-                                    UndoRotation(self, scrollWheel);
-                                }
-                            } 
-                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
+                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
+                            }
+                            else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                            {
+                                PlacementOffset.x += GetPlacementOffset(scrollWheel);
+                                UndoRotation(self, scrollWheel); 
                             }
                             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
-                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
+                                PlacementOffset.z += GetPlacementOffset(scrollWheel);
+                                UndoRotation(self, scrollWheel);
+                            }
+                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                            {
+                                UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
                         }

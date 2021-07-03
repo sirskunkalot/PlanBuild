@@ -628,10 +628,10 @@ namespace PlanBuild.Blueprints
                     {
                     new ButtonConfig { Name = BlueprintManager.PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
-                    new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
+                    new ButtonConfig { Name = "Shift", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdirect" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate_offset" }
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate2" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KeyHint);

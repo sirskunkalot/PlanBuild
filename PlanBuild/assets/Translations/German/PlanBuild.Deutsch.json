@@ -10,6 +10,7 @@
   "hud_bpplace": "Erstellen",
   "hud_bpflatten": "Begradigen",
   "hud_bpdirect": "Ohne Plan bauen",
-  "hud_bprotate": "Drehen (Shift: Kameraabstand)",
+  "hud_bprotate1": "Drehen, Ctrl + Alt: Y-Axe ändern\nCtrl: Z-Axe ändern, Alt: X-Axe ändern",
+  "hud_bprotate2": "Shift: Kameraabstand",
   "msg_direct_build_disabled": "Ohne Plan zu bauen ist deaktiviert"
 }
