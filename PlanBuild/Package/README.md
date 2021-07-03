@@ -66,8 +66,12 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
 
 Place a blueprint as planned pieces. Select your previously saved blueprint and place it anywhere in the world. This works just like any other vanilla building piece. Additionally there are some extra controls to make placing your structures exactly as you want them as easy as possible:
 
-* Use **Ctrl + Scroll** to move the placement up & down. 
-* Use **Shift + Scroll** to move the camera up and down. 
+* Use **Scroll** to rotate the blueprint.
+* Use **Ctrl + Scroll** to move the blueprint on the Z-axis.
+* Use **Alt + Scroll** to move the blueprint on the X-axis.
+* Use **Ctrl + Alt + Scroll** to move the blueprint on the Y-axis.
+* Use **Shift + Scroll** to adjust the camera distance.
+* You can automatically flatten the terrain to the lowest Y of the blueprint. Hold **Shift** while placing for that.
 * There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing **Ctrl** while placing the blueprint.
 
 ## Blueprint Marketplace
