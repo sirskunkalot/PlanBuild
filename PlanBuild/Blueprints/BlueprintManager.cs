@@ -90,14 +90,15 @@ namespace PlanBuild.Blueprints
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
         /// <param name="piece"></param>
+        /// <param name="onlyPlanned"></param>
         /// <returns></returns>
-        public bool CanCapture(Piece piece)
+        public bool CanCapture(Piece piece, bool onlyPlanned = false)
         {
             if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
             {
                 return true;
             }
-            return piece.GetComponent<PlanPiece>() != null || PlanBuildPlugin.CanCreatePlan(piece);
+            return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanBuildPlugin.CanCreatePlan(piece));
         }
 
         /// <summary>
@@ -105,14 +106,16 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="position"></param>
         /// <param name="radius"></param>
+        /// <param name="onlyPlanned"></param>
         /// <returns></returns>
-        public List<Piece> GetPiecesInRadius(Vector3 position, float radius)
+        public List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
             {
-                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piece.transform.position.x, piece.transform.position.z)) <= radius
-                    && CanCapture(piece))
+                Vector3 piecePos = piece.transform.position;
+                if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piecePos.x, piecePos.z)) <= radius
+                    && CanCapture(piece, onlyPlanned))
                 {
                     result.Add(piece);
                 }
@@ -120,13 +123,13 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
-        public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color)
+        public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
                 return;
             }
-            foreach (var piece in GetPiecesInRadius(startPosition, radius))
+            foreach (var piece in GetPiecesInRadius(startPosition, radius, onlyPlanned))
             {
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
@@ -136,7 +139,7 @@ namespace PlanBuild.Blueprints
             LastHightlightTime = Time.time;
         }
 
-        public void HighlightHoveredBlueprint()
+        public void HighlightHoveredBlueprint(Color color)
         {
             if (Time.time > LastHightlightTime + HighlightTimeout)
             {
@@ -147,7 +150,7 @@ namespace PlanBuild.Blueprints
                     {
                         foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
                         {
-                            planPiece.m_wearNTear.Highlight(Color.red);
+                            planPiece.m_wearNTear.Highlight(color);
                         }
                     }
                 }
@@ -443,7 +446,7 @@ namespace PlanBuild.Blueprints
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
+                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red, onlyPlanned: true);
                         }
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -488,7 +491,7 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        HighlightHoveredBlueprint();
+                        HighlightHoveredBlueprint(Color.red);
                     }
                     else
                     {
