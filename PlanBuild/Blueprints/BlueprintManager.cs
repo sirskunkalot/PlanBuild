@@ -459,10 +459,10 @@ namespace PlanBuild.Blueprints
                             {
                                 if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                                 {
-                                    UpdatePlacementOffsetX(scrollWheel);
+                                    PlacementOffset.x += GetPlacementOffset(scrollWheel);
                                     UndoRotation(self, scrollWheel);
                                 } else {
-                                    UpdatePlacementOffsetZ(scrollWheel);
+                                    PlacementOffset.z += GetPlacementOffset(scrollWheel);
                                     UndoRotation(self, scrollWheel);
                                 }
                             } 
@@ -473,7 +473,7 @@ namespace PlanBuild.Blueprints
                             }
                             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
-                                UpdatePlacementOffsetY(scrollWheel);
+                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
                         }
@@ -570,7 +570,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void UpdatePlacementOffsetX(float scrollWheel)
+        private float GetPlacementOffset(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
             if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
@@ -579,48 +579,14 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.PlacementOffset.x -= BlueprintConfig.placementOffsetIncrementConfig.Value;
+                return -BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
             else
             {
-                Instance.PlacementOffset.x += BlueprintConfig.placementOffsetIncrementConfig.Value;
+                return BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
         }
-
-        private void UpdatePlacementOffsetY(float scrollWheel)
-        {
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                Instance.PlacementOffset.y -= BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-            else
-            {
-                Instance.PlacementOffset.y += BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-        }
-
-        private void UpdatePlacementOffsetZ(float scrollWheel)
-        {
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                Instance.PlacementOffset.z -= BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-            else
-            {
-                Instance.PlacementOffset.z += BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-        }
-
+          
         private void UndoRotation(Player player, float scrollWheel)
         {
             if (scrollWheel < 0f)
