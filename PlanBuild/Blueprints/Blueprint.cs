@@ -630,7 +630,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "AltPlace", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdirect" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate_offset" }
                 }
             };
             GUIManager.Instance.AddKeyHint(KeyHint);
