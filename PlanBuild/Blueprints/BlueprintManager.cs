@@ -89,8 +89,8 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
-        /// <param name="piece"></param>
-        /// <param name="onlyPlanned"></param>
+        /// <param name="piece">Piece instance to be tested</param>
+        /// <param name="onlyPlanned">When true, only pieces with the PlanPiece component return true</param>
         /// <returns></returns>
         public bool CanCapture(Piece piece, bool onlyPlanned = false)
         {
@@ -102,7 +102,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Get all pieces on a given position in a given radius
+        ///     Get all pieces on a given position in a given radius, optionally only planned ones
         /// </summary>
         /// <param name="position"></param>
         /// <param name="radius"></param>
@@ -123,6 +123,13 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
+        /// <summary>
+        ///     "Highlights" pieces in a given radius with a given color.
+        /// </summary>
+        /// <param name="startPosition"></param>
+        /// <param name="radius"></param>
+        /// <param name="color"></param>
+        /// <param name="onlyPlanned"></param>
         public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
@@ -139,6 +146,10 @@ namespace PlanBuild.Blueprints
             LastHightlightTime = Time.time;
         }
 
+        /// <summary>
+        ///     "Highlights" all pieces belonging to the last hovered Blueprint with a given color.
+        /// </summary>
+        /// <param name="color"></param>
         public void HighlightHoveredBlueprint(Color color)
         {
             if (Time.time > LastHightlightTime + HighlightTimeout)
@@ -158,6 +169,11 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Get all pieces belonging to a given Blueprint identified by its <see cref="ZDOID"/>
+        /// </summary>
+        /// <param name="blueprintID"></param>
+        /// <returns></returns>
         public List<PlanPiece> GetPlanPiecesInBlueprint(ZDOID blueprintID)
         {
             List<PlanPiece> result = new List<PlanPiece>();
@@ -178,6 +194,11 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
+        /// <summary>
+        ///     Get a specific <see cref="Piece"/> from a Blueprint identified by its <see cref="ZDO"/>
+        /// </summary>
+        /// <param name="blueprintZDO"></param>
+        /// <returns></returns>
         public ZDOIDSet GetPlanPieces(ZDO blueprintZDO)
         {
             byte[] data = blueprintZDO.GetByteArray(PlanPiece.zdoBlueprintPiece);
@@ -188,6 +209,10 @@ namespace PlanBuild.Blueprints
             return ZDOIDSet.From(new ZPackage(data));
         }
 
+        /// <summary>
+        ///     Remove a <see cref="Piece"/> instances ZDO from its Blueprint <see cref="ZDOIDSet"/>
+        /// </summary>
+        /// <param name="planPiece"></param>
         public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
         {
             ZDOID blueprintID = planPiece.GetBlueprintID();
@@ -217,6 +242,9 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Create prefabs for all known local Blueprints
+        /// </summary>
         public void RegisterKnownBlueprints()
         {
             // Client only
@@ -232,6 +260,9 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        /// <summary>
+        ///     Create custom KeyHints for the static Blueprint Rune pieces
+        /// </summary>
         private void CreateCustomKeyHints()
         {
             planSwitchButton = new ButtonConfig
