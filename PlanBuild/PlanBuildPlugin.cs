@@ -32,7 +32,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.2.13";
+        public const string PluginVersion = "0.3.0";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> showAllPieces;
@@ -173,6 +173,7 @@ namespace PlanBuild
             //blueprintRune.m_shared.m_buildPieces.NextCategory();
             //blueprintRune.m_shared.m_buildPieces.PrevCategory();
 
+            Player.m_localPlayer.m_buildPieces.SetSelected(Vector2Int.zero);
             Player.m_localPlayer.UpdateAvailablePiecesList();
             Hud.instance.UpdateBuild(Player.m_localPlayer, true);
         }
