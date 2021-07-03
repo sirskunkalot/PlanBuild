@@ -16,7 +16,7 @@ Real pieces also snap to the planned pieces, so you could even use them as **spa
 
 ### PlanTotem
 
-[Plan Totem](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanTotem.png)
+![Plan Totem](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanTotem.png)
 
 Build a **PlanTotem** near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
 
@@ -34,7 +34,7 @@ Create it by combining a **Ruby** and a **Grey Dwarf Eye**.
 
 ## Blueprint mode
 
-[Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMode.png)
+![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMode.png)
 
 Copy existing structures into **Blueprints** and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as **.blueprint** files. Also supports **.vbuild** files (you can load and build your BuildShare saves with this mod)!
 
