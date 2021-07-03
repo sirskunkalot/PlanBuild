@@ -72,7 +72,6 @@ namespace PlanBuild
 
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
-            // new OdinLevelPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
 
             // Init Shader
@@ -119,7 +118,7 @@ namespace PlanBuild
             {
                 BlueprintGUI.Instance.Toggle();
             }
-            
+
             Player player = Player.m_localPlayer;
             if (ZInput.instance == null || player == null)
             {
@@ -159,6 +158,10 @@ namespace PlanBuild
             if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
             {
                 blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
+                if (blueprintRune.m_shared.m_buildPieces.m_selectedCategory == 0)
+                {
+                    blueprintRune.m_shared.m_buildPieces.m_selectedCategory = (Piece.PieceCategory) 4;
+                }
             }
             else
             {
@@ -170,12 +173,7 @@ namespace PlanBuild
             Color color = blueprintRune.m_shared.m_buildPieces == planHammerPieceTable ? Color.red : Color.cyan;
             ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
 
-            //blueprintRune.m_shared.m_buildPieces.NextCategory();
-            //blueprintRune.m_shared.m_buildPieces.PrevCategory();
-
-            Player.m_localPlayer.m_buildPieces.SetSelected(Vector2Int.zero);
             Player.m_localPlayer.UpdateAvailablePiecesList();
-            Hud.instance.UpdateBuild(Player.m_localPlayer, true);
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
