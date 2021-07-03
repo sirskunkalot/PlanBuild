@@ -96,7 +96,9 @@ namespace PlanBuild
                         };
                         supportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         supportedMaterial.shader = planShader;
-                        supportedMaterial.color = supportedPlanColorConfig.Value * transparency;
+                        Color supportedMaterialColor = supportedPlanColorConfig.Value;
+                        supportedMaterialColor.a *= transparency;
+                        supportedMaterial.color = supportedMaterialColor;
                         supportedMaterial.EnableKeyword("_EMISSION");
                         supportedMaterial.DisableKeyword("DIRECTIONAL");
                         supportedMaterialDict[originalMaterial.name] = supportedMaterial;
@@ -111,7 +113,9 @@ namespace PlanBuild
                         };
                         unsupportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         unsupportedMaterial.shader = planShader;
-                        unsupportedMaterial.color = unsupportedColorConfig.Value * transparency;
+                        Color unsupportedMaterialColor = unsupportedColorConfig.Value;
+                        unsupportedMaterialColor.a *= transparency;
+                        unsupportedMaterial.color = unsupportedMaterialColor; 
                         unsupportedMaterial.EnableKeyword("_EMISSION");
                         unsupportedMaterial.DisableKeyword("DIRECTIONAL");
                         unsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
