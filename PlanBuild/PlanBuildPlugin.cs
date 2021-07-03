@@ -160,7 +160,7 @@ namespace PlanBuild
                 blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
                 if (blueprintRune.m_shared.m_buildPieces.m_selectedCategory == 0)
                 {
-                    blueprintRune.m_shared.m_buildPieces.m_selectedCategory = (Piece.PieceCategory) 4;
+                    blueprintRune.m_shared.m_buildPieces.m_selectedCategory = PieceManager.Instance.AddPieceCategory(BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryTools);
                 }
             }
             else
