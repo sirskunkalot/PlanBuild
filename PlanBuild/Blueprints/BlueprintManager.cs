@@ -516,7 +516,10 @@ namespace PlanBuild.Blueprints
         {
             orig(self, flashGuardStone);
 
-            if (self.m_placementMarkerInstance && self.m_placementGhost && self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName)
+            if (self.m_placementMarkerInstance && self.m_placementGhost && 
+                (self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName
+                || self.m_placementGhost.name == BlueprintRunePrefab.DeletePlansName)
+               )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
