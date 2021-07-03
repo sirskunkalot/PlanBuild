@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using PlanBuild.Blueprints;
+using System.Collections.Generic;
 using UnityEngine;
 using static WearNTear;
 
@@ -45,7 +46,7 @@ namespace PlanBuild
                 }
             }
             self.CancelInvoke("ResetHighlight");
-            self.Invoke("ResetHighlight", 0.4f);
+            self.Invoke("ResetHighlight", BlueprintManager.HighlightTimeout + 0.1f);
         }
     }
 }

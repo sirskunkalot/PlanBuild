@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints
 
         private float OriginalPlaceDistance;
 
-        private const float HighlightTimeout = 0.3f;
+        internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
 
         private Piece LastHoveredPiece;
@@ -69,28 +69,20 @@ namespace PlanBuild.Blueprints
 
                 // Hooks
                 On.PieceTable.UpdateAvailable += OnUpdateAvailable;
+                On.Player.PieceRayTest += OnPieceRayTest;
+                On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
                 On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
                 On.Player.PlacePiece += BeforePlaceBlueprintPiece;
                 On.GameCamera.UpdateCamera += AdjustCameraHeight;
-                On.Player.PieceRayTest += OnPieceRayTest;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
                 On.ZNet.OnDestroy += ResetServerBlueprints;
+
             }
             catch (Exception ex)
             {
                 Jotunn.Logger.LogError($"{ex.StackTrace}");
-            }
-        }
-
-        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
-        {
-            orig(self, flashGuardStone);
-
-            if(self.m_placementMarkerInstance && self.m_placementGhost && self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName)
-            {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
         }
 
@@ -128,7 +120,7 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
-        public void HighlightPieces(Vector3 startPosition, float radius, Color color)
+        public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
@@ -144,7 +136,26 @@ namespace PlanBuild.Blueprints
             LastHightlightTime = Time.time;
         }
 
-        public List<PlanPiece> GetPlanPiecesForBlueprint(ZDOID blueprintID)
+        public void HighlightHoveredBlueprint()
+        {
+            if (Time.time > LastHightlightTime + HighlightTimeout)
+            {
+                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
+                {
+                    ZDOID blueprintID = hoveredPlanPiece.GetBlueprintID();
+                    if (blueprintID != ZDOID.None)
+                    {
+                        foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
+                        {
+                            planPiece.m_wearNTear.Highlight(Color.red);
+                        }
+                    }
+                }
+                LastHightlightTime = Time.time;
+            }
+        }
+
+        public List<PlanPiece> GetPlanPiecesInBlueprint(ZDOID blueprintID)
         {
             List<PlanPiece> result = new List<PlanPiece>();
             ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
@@ -310,8 +321,34 @@ namespace PlanBuild.Blueprints
         private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
         {
             RegisterKnownBlueprints();
-            player.UpdateKnownRecipesList();
             orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
+        }
+
+        private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        {
+            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+            LastHoveredPiece = piece;
+            if (result && PlacementOffset != 0)
+            {
+                point += new Vector3(0, PlacementOffset, 0);
+            }
+            return result;
+        }
+
+        private void OnUpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
+        {
+            Piece piece = Player.m_localPlayer.GetSelectedPiece();
+            if (piece != null)
+            {
+                if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
+                    || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)
+                    || piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
+                {
+                    return;
+                }
+            }
+
+            orig(self);
         }
 
         /// <summary>
@@ -336,7 +373,7 @@ namespace PlanBuild.Blueprints
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
+                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                         }
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -406,7 +443,7 @@ namespace PlanBuild.Blueprints
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            HighlightPieces(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
+                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red);
                         }
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -451,21 +488,7 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        if (Time.time > LastHightlightTime + HighlightTimeout)
-                        {
-                            if (LastHoveredPiece)
-                            {
-                                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
-                                {
-                                    ZDOID blueprintID = planPiece.GetBlueprintID();
-                                    if (blueprintID != ZDOID.None)
-                                    {
-                                        FlashBlueprint(blueprintID, Color.red);
-                                    }
-                                }
-                            }
-                            LastHightlightTime = Time.time;
-                        }
+                        HighlightHoveredBlueprint();
                     }
                     else
                     {
@@ -480,6 +503,22 @@ namespace PlanBuild.Blueprints
                         Instance.PlacementOffset = 0f;
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Flatten the circle selector transform
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        /// <param name="flashGuardStone"></param>
+        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            orig(self, flashGuardStone);
+
+            if (self.m_placementMarkerInstance && self.m_placementGhost && self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName)
+            {
+                self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
         }
 
@@ -572,14 +611,6 @@ namespace PlanBuild.Blueprints
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
-            }
-        }
-
-        private void FlashBlueprint(ZDOID blueprintID, Color color)
-        {
-            foreach (PlanPiece planPiece in GetPlanPiecesForBlueprint(blueprintID))
-            {
-                planPiece.m_wearNTear.Highlight(color);
             }
         }
 
@@ -779,7 +810,7 @@ namespace PlanBuild.Blueprints
         {
             int removedPieces = 0;
             Jotunn.Logger.LogInfo("Removing all pieces of blueprint " + blueprintID);
-            foreach (PlanPiece planPiece in GetPlanPiecesForBlueprint(blueprintID))
+            foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
             {
                 planPiece.Remove();
                 removedPieces++;
@@ -814,17 +845,6 @@ namespace PlanBuild.Blueprints
             player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
-        }
-
-        private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
-        {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            LastHoveredPiece = piece;
-            if (result && PlacementOffset != 0)
-            {
-                point += new Vector3(0, PlacementOffset, 0);
-            }
-            return result;
         }
 
         private void OnUnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
