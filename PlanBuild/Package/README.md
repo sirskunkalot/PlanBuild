@@ -36,33 +36,39 @@ Create it by combining a **Ruby** and a **Grey Dwarf Eye**.
 
 ![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMode.png)
 
-Copy existing structures into **Blueprints** and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as **.blueprint** files. Also supports **.vbuild** files (you can load and build your BuildShare saves with this mod)!
-
-### Create
-
-Create a blueprint of a construction. Planned pieces are captured as real pieces. 
-* Press **Ctrl** to see what pieces are currently selected. 
-* Use the **Scroll Wheel** to change the capture radius. 
-* Use **Shift + Scroll** to adjust the camera distance.
-
-### Place
-
-Place a blueprint as planned pieces. 
-* Use **Ctrl + Scroll** to move the placement up & down. 
-* Use **Shift + Scroll** to move the camera up and down. 
-* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing **Ctrl** while placing the blueprint.
+Copy existing structures into **Blueprints** and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as **.blueprint** files. Also supports **.vbuild** files (you can load and build your BuildShare saves with this mod)! After switching to the blueprint mode, the piece table of the Blueprint Rune offers two different categories:
 
 ### Tools
 
-There are more tools implemented to aid handling blueprint creation and building. Here is a handy list:
+![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintTools.png)
+
+The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. Here is a handy list:
+
+* **Create new blueprint:** Create a blueprint of a construction. Planned pieces are captured as real pieces. 
+  * Press **Ctrl** to see what pieces are currently selected. 
+  * Use the **Scroll Wheel** to change the capture radius. 
+  * Use **Shift + Scroll** to adjust the camera distance.
 
 * **Snap point marker:** Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
 
 * **Center point marker:** Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 
-* **Delete plans:** Delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded. Use the **Scroll Wheel** to change the deletion radius. Use **Shift + Scroll** to adjust the camera distance.
-
 * **Undo blueprint:** Delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
+
+* **Remove plans:** Delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
+  * Press **Ctrl** to see what pieces will be removed.
+  * Use the **Scroll Wheel** to change the deletion radius.
+  * Use **Shift + Scroll** to adjust the camera distance.
+
+### Blueprints
+
+![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintBlueprints.png)
+
+Place a blueprint as planned pieces. Select your previously saved blueprint and place it anywhere in the world. This works just like any other vanilla building piece. Additionally there are some extra controls to make placing your structures exactly as you want them as easy as possible:
+
+* Use **Ctrl + Scroll** to move the placement up & down. 
+* Use **Shift + Scroll** to move the camera up and down. 
+* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing **Ctrl** while placing the blueprint.
 
 ## Blueprint Marketplace
 
