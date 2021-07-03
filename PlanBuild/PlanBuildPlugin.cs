@@ -133,7 +133,7 @@ namespace PlanBuild
 
             // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
             // If we hold the button down, it won't spam toggle our menu.
-            if (ZInput.GetButtonDown(BlueprintManager.planSwitchButton.Name))
+            if (ZInput.GetButtonDown(BlueprintManager.PlanSwitchButton.Name))
             {
                 TogglePlanBuildMode();
             }

@@ -22,7 +22,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        internal static ButtonConfig planSwitchButton;
+        internal static ButtonConfig PlanSwitchButton;
 
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
@@ -265,20 +265,20 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private void CreateCustomKeyHints()
         {
-            planSwitchButton = new ButtonConfig
+            PlanSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
                 Config = BlueprintConfig.planSwitchConfig,
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, planSwitchButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintRunePrefab.BlueprintRuneName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_blueprint_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_blueprint_mode" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
@@ -289,7 +289,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintRunePrefab.MakeBlueprintName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
@@ -303,7 +303,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintRunePrefab.BlueprintSnapPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
@@ -316,7 +316,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintRunePrefab.BlueprintCenterPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
@@ -329,7 +329,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintRunePrefab.UndoBlueprintName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpundo" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
@@ -341,7 +341,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintRunePrefab.DeletePlansName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = planSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_highlight" },
@@ -642,9 +642,9 @@ namespace PlanBuild.Blueprints
                 && Player.m_localPlayer.m_placementGhost)
             {
                 var pieceName = Player.m_localPlayer.m_placementGhost.name;
-                if (pieceName.StartsWith("make_blueprint")
-                    || pieceName.StartsWith("piece_blueprint")
-                    || pieceName.StartsWith("delete_plans"))
+                if (pieceName.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
+                    || pieceName.StartsWith(Blueprint.PieceBlueprintName)
+                    || pieceName.StartsWith(BlueprintRunePrefab.DeletePlansName))
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
@@ -669,14 +669,16 @@ namespace PlanBuild.Blueprints
                 if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid
                     && piece.name != BlueprintRunePrefab.BlueprintSnapPointName
                     && piece.name != BlueprintRunePrefab.BlueprintCenterPointName
-                    && piece.name.StartsWith("piece_blueprint"))
+                    && piece.name.StartsWith(Blueprint.PieceBlueprintName))
                 {
                     return PlaceBlueprint(self, piece);
                 }
+                // Undo a complete blueprint
                 else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
                 {
                     return UndoBlueprint();
                 }
+                // Delete single plan pieces
                 else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
                 {
                     return DeletePlans(self);
