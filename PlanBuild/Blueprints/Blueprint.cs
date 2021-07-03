@@ -724,9 +724,10 @@ namespace PlanBuild.Blueprints
                 //Tiny collider for accurate placement
                 GameObject gameObject = new GameObject(PlaceColliderName);
                 gameObject.transform.SetParent(baseObject.transform);
+                gameObject.layer = LayerMask.NameToLayer("piece_nonsolid");
                 SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
                 sphereCollider.radius = 0.002f;
-
+              
                 var tf = baseObject.transform;
                 var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
                 tf.SetPositionAndRotation(tf.position, quat);

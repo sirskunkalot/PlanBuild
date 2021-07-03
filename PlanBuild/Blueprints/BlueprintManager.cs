@@ -362,9 +362,9 @@ namespace PlanBuild.Blueprints
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
             LastHoveredPiece = piece;
-            if (result && PlacementOffset != Vector3.zero)
+            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
             {
-                point += PlacementOffset;
+                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
             }
             return result;
         }
