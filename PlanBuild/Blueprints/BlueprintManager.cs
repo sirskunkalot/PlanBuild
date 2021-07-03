@@ -28,7 +28,7 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary ServerBlueprints;
 
         private float SelectionRadius = 10.0f;
-        private float PlacementOffset = 0f;
+        private Vector3 PlacementOffset = Vector3.zero;
         private float CameraOffset = 5.0f;
 
         private float OriginalPlaceDistance;
@@ -362,9 +362,9 @@ namespace PlanBuild.Blueprints
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
             LastHoveredPiece = piece;
-            if (result && PlacementOffset != 0)
+            if (result && PlacementOffset != Vector3.zero)
             {
-                point += new Vector3(0, PlacementOffset, 0);
+                point += PlacementOffset;
             }
             return result;
         }
@@ -455,14 +455,25 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                            if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                            {
+                                if(Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                                {
+                                    UpdatePlacementOffsetX(scrollWheel);
+                                    UndoRotation(self, scrollWheel);
+                                } else {
+                                    UpdatePlacementOffsetZ(scrollWheel);
+                                    UndoRotation(self, scrollWheel);
+                                }
+                            } 
+                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
                             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
-                                UpdatePlacementOffset(scrollWheel);
+                                UpdatePlacementOffsetY(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
                         }
@@ -534,7 +545,7 @@ namespace PlanBuild.Blueprints
 
                         // Reset camera
                         Instance.CameraOffset = 5f;
-                        Instance.PlacementOffset = 0f;
+                        Instance.PlacementOffset = Vector3.zero;
                     }
                 }
             }
@@ -559,7 +570,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void UpdatePlacementOffset(float scrollWheel)
+        private void UpdatePlacementOffsetX(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
             if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
@@ -568,11 +579,45 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.PlacementOffset -= BlueprintConfig.placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset.x -= BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
             else
             {
-                Instance.PlacementOffset += BlueprintConfig.placementOffsetIncrementConfig.Value;
+                Instance.PlacementOffset.x += BlueprintConfig.placementOffsetIncrementConfig.Value;
+            }
+        }
+
+        private void UpdatePlacementOffsetY(float scrollWheel)
+        {
+            bool scrollingDown = scrollWheel < 0f;
+            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
+            {
+                Instance.PlacementOffset.y -= BlueprintConfig.placementOffsetIncrementConfig.Value;
+            }
+            else
+            {
+                Instance.PlacementOffset.y += BlueprintConfig.placementOffsetIncrementConfig.Value;
+            }
+        }
+
+        private void UpdatePlacementOffsetZ(float scrollWheel)
+        {
+            bool scrollingDown = scrollWheel < 0f;
+            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
+            {
+                Instance.PlacementOffset.z -= BlueprintConfig.placementOffsetIncrementConfig.Value;
+            }
+            else
+            {
+                Instance.PlacementOffset.z += BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
         }
 
