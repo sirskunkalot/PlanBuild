@@ -729,10 +729,7 @@ namespace PlanBuild.Blueprints
                 sphereCollider.radius = 0.002f;
               
                 var tf = baseObject.transform;
-                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
-                tf.SetPositionAndRotation(tf.position, quat);
-                tf.position -= tf.right * (maxX / 2f);
-                tf.position += tf.forward * 5f;
+                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0); 
 
                 var prefabs = new Dictionary<string, GameObject>();
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
@@ -752,14 +749,13 @@ namespace PlanBuild.Blueprints
                 for (int i = 0; i < pieces.Count; i++)
                 {
                     PieceEntry piece = pieces[i];
-                    var pos = tf.position + piece.GetPosition();
+                    var piecePosition = tf.position + piece.GetPosition();
 
-                    var q = piece.GetRotation();
 
                     GameObject pieceObject = new GameObject("piece_entry (" + i + ")");
                     pieceObject.transform.SetParent(tf);
-                    pieceObject.transform.rotation = q;
-                    pieceObject.transform.position = pos;
+                    pieceObject.transform.rotation = piece.GetRotation();
+                    pieceObject.transform.position = piecePosition;
 
                     if (prefabs.TryGetValue(piece.name, out var prefab))
                     {
@@ -821,6 +817,11 @@ namespace PlanBuild.Blueprints
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
             {
                 Object.Destroy(component);
+            }
+
+            foreach(var collider in child.GetComponentsInChildren<Collider>())
+            {
+                Object.Destroy(collider);
             }
 
             //Disable ripple effect on ghost (only visible when using Skuld crystal)

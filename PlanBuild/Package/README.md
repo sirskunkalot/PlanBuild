@@ -20,7 +20,7 @@ Real pieces also snap to the planned pieces, so you could even use them as **spa
 
 Build a **PlanTotem** near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
 
-This needs to be build with the vanilla Hammer tool and costs you **5 Fine Wood**, **5 Grey Dwarf Eye** and **1 Surtling Core**.
+This needs to be built with the vanilla Hammer tool and costs you **5 Fine Wood**, **5 Grey Dwarf Eye** and **1 Surtling Core**.
 
 ### Skuld Crystal
 
