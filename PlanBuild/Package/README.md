@@ -123,10 +123,10 @@ You can also find us at the [Valheim Modding Discord](https://discord.gg/RBq2mze
 
 The original PlanBuild mod was created by **[MarcoPogo](https://github.com/MathiasDecrock)**
 
-Blueprint functionality originally created and merged by **[Algorithman](https://github.com/Algorithman)** & **[sirskunkalot](https://github.com/sirskunkalot)**
+Blueprint functionality originally created and merged by **[Algorithman](https://github.com/Algorithman)** & **[Jules](https://github.com/sirskunkalot)**
 
-Blueprint Marketplace GUI created by **[Dreous#4588/imcanida](https://github.com/imcanida)**
+Blueprint Marketplace GUI created by **[Dreous](https://github.com/imcanida)**
 
-All further coding by **[MarcoPogo](https://github.com/MathiasDecrock)** & **[sirskunkalot](https://github.com/sirskunkalot)**
+All further coding by **[MarcoPogo](https://github.com/MathiasDecrock)** & **[Jules](https://github.com/sirskunkalot)**
 
 Made with Löve and **[Jötunn](https://github.com/Valheim-Modding/Jotunn)**
