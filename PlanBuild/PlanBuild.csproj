@@ -103,8 +103,8 @@
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
     <Compile Include="Blueprints\UIDragDrop.cs" />
-    <Compile Include="Blueprints\UIInputManager.cs" />
     <Compile Include="Blueprints\BlueprintGUI.cs" />
+    <Compile Include="Blueprints\WorldBlueprintRune.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
@@ -132,11 +132,14 @@
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Package\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="assets\icons\plan_crystal.png" />
     <Content Include="resources\BlueprintMarket.png" />
     <Content Include="resources\BlueprintMode.png" />
+    <Content Include="resources\PlanTotem.png" />
     <Content Include="resources\PlanMode.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

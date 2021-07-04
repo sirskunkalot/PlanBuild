@@ -53,10 +53,20 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Check visibility
         /// </summary>
-        /// <returns>true is the GUI is available and visible</returns>
+        /// <returns>true if the GUI is available and visible</returns>
         public static bool IsVisible()
         {
             return IsAvailable() && Instance.Window.activeSelf;
+        }
+         
+        /// <summary>
+        ///     Check if any visible fiels have focus
+        /// </summary>
+        /// <returns>true if any visible fiels have focus</returns>
+        public static bool TextFieldHasFocus()
+        {
+            return Instance.CurrentTab.DetailDisplay.Name.isFocused
+                || Instance.CurrentTab.DetailDisplay.Description.isFocused;
         }
 
         /// <summary>

@@ -114,20 +114,28 @@ namespace PlanBuild
 
         public void Update()
         {
-            if (BlueprintGUI.IsAvailable() && Input.GetKeyDown(BlueprintConfig.serverGuiSwitchKey))
-            {
-                BlueprintGUI.Instance.Toggle();
-            }
-
+           
             Player player = Player.m_localPlayer;
             if (ZInput.instance == null || player == null)
             {
                 return;
             }
 
+            if (BlueprintGUI.IsVisible() && !BlueprintGUI.TextFieldHasFocus() && ZInput.GetButtonDown("Use"))
+            {
+                BlueprintGUI.Instance.Toggle();
+                WorldBlueprintRune.JustDeactivated = true;
+                return;
+            }
+
             if (!CheckInput())
             {
                 return;
+            }
+
+            if (BlueprintGUI.IsAvailable() && Input.GetKeyDown(BlueprintConfig.serverGuiSwitchKey))
+            {
+                BlueprintGUI.Instance.Toggle();
             }
 
             // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
