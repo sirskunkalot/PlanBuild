@@ -48,7 +48,7 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
   * Press **Ctrl** to see what pieces are currently selected. 
   * Use the **Scroll Wheel** to change the capture radius. 
   * Use **Shift + Scroll** to adjust the camera distance.
-
+  
 * **Snap point marker:** Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
 
 * **Center point marker:** Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
@@ -125,7 +125,7 @@ The original PlanBuild mod was created by **[MarcoPogo](https://github.com/Mathi
 
 Blueprint functionality originally created and merged by **[Algorithman](https://github.com/Algorithman)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 
-Blueprint Marketplace GUI created by Dreous#4588
+Blueprint Marketplace GUI created by **[Dreous#4588/imcanida](https://github.com/imcanida)**
 
 All further coding by **[MarcoPogo](https://github.com/MathiasDecrock)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 

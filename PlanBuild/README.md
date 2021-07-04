@@ -125,7 +125,7 @@ The original PlanBuild mod was created by **[MarcoPogo](https://github.com/Mathi
 
 Blueprint functionality originally created and merged by **[Algorithman](https://github.com/Algorithman)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 
-Blueprint Marketplace GUI created by Dreous#4588
+Blueprint Marketplace GUI created by **[Dreous#4588/imcanida](https://github.com/imcanida)**
 
 All further coding by **[MarcoPogo](https://github.com/MathiasDecrock)** & **[sirskunkalot](https://github.com/sirskunkalot)**
 
