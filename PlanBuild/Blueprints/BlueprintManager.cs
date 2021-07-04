@@ -27,6 +27,7 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
+        private CircleProjector SelectionMarker;
         private float SelectionRadius = 10.0f;
         private Vector3 PlacementOffset = Vector3.zero;
         private float CameraOffset = 5.0f;
@@ -73,8 +74,8 @@ namespace PlanBuild.Blueprints
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
                 On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
-                On.Player.PlacePiece += BeforePlaceBlueprintPiece;
-                On.GameCamera.UpdateCamera += AdjustCameraHeight;
+                On.Player.PlacePiece += OnPlacePiece;
+                On.GameCamera.UpdateCamera += OnUpdateCamera;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
                 On.ZNet.OnDestroy += ResetServerBlueprints;
@@ -144,6 +145,22 @@ namespace PlanBuild.Blueprints
                 }
             }
             LastHightlightTime = Time.time;
+        }
+
+        /// <summary>
+        ///     "Highlights" the last hovered planned piece with a given color.
+        /// </summary>
+        /// <param name="color"></param>
+        public void HighlightHoveredPiece(Color color)
+        {
+            if (Time.time > LastHightlightTime + HighlightTimeout)
+            {
+                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
+                {
+                    hoveredPlanPiece.m_wearNTear.Highlight(color);
+                }
+                LastHightlightTime = Time.time;
+            }
         }
 
         /// <summary>
@@ -451,7 +468,7 @@ namespace PlanBuild.Blueprints
                             Object.DestroyImmediate(self.m_placementMarkerInstance);
                         }
 
-                        // Reset rotation when changing camera
+                        // Change camera and placement offset with the scroll wheel
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
@@ -640,10 +657,30 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        private void UpdateSelectionMarker(Player self)
+        {
+            if (SelectionMarker == null)
+            {
+                SelectionMarker = self.m_placeMarker.AddComponent<CircleProjector>();
+                var workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
+                SelectionMarker.m_prefab = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
+                SelectionMarker.m_radius = -1;
+                SelectionMarker.Start();
+            }
+
+            if (SelectionMarker.m_radius != Instance.SelectionRadius)
+            {
+                SelectionMarker.m_radius = Instance.SelectionRadius;
+                SelectionMarker.m_nrOfSegments = (int)SelectionMarker.m_radius * 4;
+                SelectionMarker.Update();
+                Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
+            }
+        }
+
         /// <summary>
         ///     Add some camera height while planting a blueprint
         /// </summary>
-        private void AdjustCameraHeight(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        private void OnUpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
         {
             orig(self, dt);
 
@@ -666,7 +703,7 @@ namespace PlanBuild.Blueprints
         ///     Incept placing of the meta pieces.
         ///     Cancels the real placement of the placeholder pieces.
         /// </summary>
-        private bool BeforePlaceBlueprintPiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        private bool OnPlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
         {
             // Client only
             if (!ZNet.instance.IsDedicated())
@@ -701,12 +738,6 @@ namespace PlanBuild.Blueprints
 
         private bool MakeBlueprint(Player self)
         {
-            var circleProjector = self.m_placementGhost.GetComponent<CircleProjector>();
-            if (circleProjector != null)
-            {
-                Object.Destroy(circleProjector);
-            }
-
             var bpname = $"blueprint{LocalBlueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
@@ -874,15 +905,9 @@ namespace PlanBuild.Blueprints
             return removedPieces;
         }
 
-        private bool DeletePlans(Player player)
+        private bool DeletePlans(Player self)
         {
-            var circleProjector = player.m_placementGhost.GetComponent<CircleProjector>();
-            if (circleProjector != null)
-            {
-                Object.Destroy(circleProjector);
-            }
-
-            Vector3 deletePosition = player.m_placementMarkerInstance.transform.position;
+            Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
             foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, SelectionRadius))
             {
@@ -892,7 +917,7 @@ namespace PlanBuild.Blueprints
                     removedPieces++;
                 }
             }
-            player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
+            self.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
         }
