@@ -419,7 +419,7 @@ MonoBehaviour:
   m_name: $piece_world_blueprint_rune_stack
   m_description: $piece_world_blueprint_rune_stack_desc
   m_enabled: 1
-  m_category: 1
+  m_category: 3
   m_isUpgrade: 0
   m_comfort: 0
   m_comfortGroup: 0

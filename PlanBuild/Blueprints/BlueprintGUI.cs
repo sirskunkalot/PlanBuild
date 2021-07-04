@@ -467,7 +467,7 @@ namespace PlanBuild.Blueprints
             try
             {
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintDetailPrefab, ScrollContentParent);
-                newBp.IconButton = newBp.ContentHolder.transform.Find("IconButton").GetComponent<Button>();
+                newBp.IconButton = newBp.ContentHolder.GetComponent<Button>();
                 newBp.Icon = newBp.ContentHolder.transform.Find("IconButton/BPImage").GetComponent<Image>();
                 newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
 

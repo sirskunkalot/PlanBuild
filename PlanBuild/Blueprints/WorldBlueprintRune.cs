@@ -11,6 +11,21 @@ namespace PlanBuild.Blueprints
         public void Awake()
         {
             m_piece = GetComponent<Piece>();
+            
+        }
+
+        private Color GetEmissionColor()
+        {
+            foreach(Renderer renderer in GetComponentsInChildren<Renderer>())
+            {
+                foreach (Material material in renderer.sharedMaterials) {
+                    if(material.HasProperty("_EmissionColor"))
+                    {
+                    return material.GetColor("_EmissionColor");
+                    }
+                }
+            }
+            return Color.red;
         }
 
         public void LateUpdate()

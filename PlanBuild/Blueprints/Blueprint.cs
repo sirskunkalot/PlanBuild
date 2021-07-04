@@ -738,6 +738,7 @@ namespace PlanBuild.Blueprints
                     if (!go)
                     {
                         Logger.LogWarning("No prefab found for " + piece.name + "! You are probably missing a dependency for blueprint " + Name);
+                        return false;
                     }
                     else
                     {

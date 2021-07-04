@@ -67,8 +67,7 @@ namespace PlanBuild.Blueprints
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
-                // Hooks
-                On.PieceTable.UpdateAvailable += OnUpdateAvailable;
+                // Hooks 
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
@@ -351,13 +350,7 @@ namespace PlanBuild.Blueprints
 
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
-
-        private void OnUpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
-        {
-            RegisterKnownBlueprints();
-            orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
-        }
-
+          
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
@@ -914,6 +907,7 @@ namespace PlanBuild.Blueprints
             if (Player.m_localPlayer && result &&
                 item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
             {
+                RegisterKnownBlueprints();
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.rayDistanceConfig.Value;
                 Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
