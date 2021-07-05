@@ -126,18 +126,18 @@ namespace PlanBuild
                 return;
             }
 
+            // BP Market GUI is OK in the main menu
+            if (BlueprintGUI.IsAvailable() && ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
+            {
+                BlueprintGUI.Instance.Toggle();
+            }
+
             // Return from world interface GUI with "use" again
             if (BlueprintGUI.IsVisible() && !BlueprintGUI.TextFieldHasFocus() && ZInput.GetButtonDown("Use"))
             {
                 BlueprintGUI.Instance.Toggle();
                 WorldBlueprintRune.JustDeactivated = true;
                 return;
-            }
-
-            // BP Market GUI is OK in the main menu
-            if (BlueprintGUI.IsAvailable() && ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
-            {
-                BlueprintGUI.Instance.Toggle();
             }
 
             // Not in game menus
