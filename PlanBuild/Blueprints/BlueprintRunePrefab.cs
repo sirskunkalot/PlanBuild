@@ -19,7 +19,6 @@ namespace PlanBuild.Blueprints
         public const string StandingBlueprintRune = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStack = "piece_world_blueprint_rune_stack";
         public const string MakeBlueprintName = "make_blueprint";
-        public const string UndoBlueprintName = "undo_blueprint";
         public const string DeletePlansName = "delete_plans";
 
         public static string BlueprintRuneItemName;
@@ -58,7 +57,7 @@ namespace PlanBuild.Blueprints
             foreach (string pieceName in new string[]
             {
                 MakeBlueprintName, BlueprintSnapPointName, BlueprintCenterPointName,
-                UndoBlueprintName, DeletePlansName
+                DeletePlansName
             })
             {
                 prefab = assetBundle.LoadAsset<GameObject>(pieceName);
