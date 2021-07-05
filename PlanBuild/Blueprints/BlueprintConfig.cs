@@ -22,7 +22,6 @@ namespace PlanBuild.Blueprints
         private const string directorySection = "Directories";
         internal static ConfigEntry<string> blueprintSearchDirectoryConfig;
         internal static ConfigEntry<string> blueprintSaveDirectoryConfig;
-        internal static KeyCode serverGuiSwitchKey;
 
         internal static void Init()
         {
@@ -62,15 +61,13 @@ namespace PlanBuild.Blueprints
                 runeSection, "Rune mode toggle key", KeyCode.P,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
-            serverGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
-                marketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
-                new ConfigDescription("Hotkey to show blueprint marketplace GUI"));
-            serverGuiSwitchKey = serverGuiSwitchConfig.Value;
-            serverGuiSwitchConfig.SettingChanged += (object sender, System.EventArgs e) => serverGuiSwitchKey = serverGuiSwitchConfig.Value;
-
             allowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 marketSection, "Allow serverside blueprints", false,
                 new ConfigDescription("Allow sharing of blueprints on this server", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+
+            serverGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
+                marketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
+                new ConfigDescription("Hotkey to show blueprint marketplace GUI"));
 
             blueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind(
                 directorySection, "Search directory", ".",
