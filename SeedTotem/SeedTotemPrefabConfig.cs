@@ -77,7 +77,7 @@ namespace SeedTotem
                 int i = 0;
                 foreach (KeyValuePair<string, int> pair in reqDict)
                 {
-                    result[i] = new RequirementConfig()
+                    result[i++] = new RequirementConfig()
                     {
                         Item = pair.Key,
                         Amount = pair.Value,
