@@ -23,6 +23,7 @@ namespace PlanBuild.Blueprints
         }
 
         internal static ButtonConfig PlanSwitchButton;
+        internal static ButtonConfig GUIToggleButton;
 
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
@@ -289,6 +290,13 @@ namespace PlanBuild.Blueprints
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
+
+            GUIToggleButton = new ButtonConfig
+            {
+                Name = "GUIToggle",
+                Config = BlueprintConfig.serverGuiSwitchConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
