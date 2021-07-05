@@ -24,15 +24,20 @@ namespace PlanBuild.Blueprints
         }
 
         internal static ButtonConfig PlanSwitchButton;
+        internal static ButtonConfig GUIToggleButton;
 
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
+        internal bool ShowSelectionCircle = true;
+        private GameObject SelectionSegment;
+        private CircleProjector SelectionCircle;
         private float SelectionRadius = 10.0f;
-        private Vector3 PlacementOffset = Vector3.zero;
-        private float CameraOffset = 5.0f;
 
+        private Vector3 PlacementOffset = Vector3.zero;
         private float OriginalPlaceDistance;
+
+        private float CameraOffset = 5.0f;
 
         internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
@@ -68,13 +73,14 @@ namespace PlanBuild.Blueprints
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
-                // Hooks 
+                // Hooks
+                On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
                 On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
-                On.Player.PlacePiece += BeforePlaceBlueprintPiece;
-                On.GameCamera.UpdateCamera += AdjustCameraHeight;
+                On.Player.PlacePiece += OnPlacePiece;
+                On.GameCamera.UpdateCamera += OnUpdateCamera;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
                 On.ZNet.OnDestroy += ResetServerBlueprints; 
@@ -109,6 +115,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
+            
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
             {
@@ -143,6 +150,22 @@ namespace PlanBuild.Blueprints
                 }
             }
             LastHightlightTime = Time.time;
+        }
+
+        /// <summary>
+        ///     "Highlights" the last hovered planned piece with a given color.
+        /// </summary>
+        /// <param name="color"></param>
+        public void HighlightHoveredPiece(Color color)
+        {
+            if (Time.time > LastHightlightTime + HighlightTimeout)
+            {
+                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
+                {
+                    hoveredPlanPiece.m_wearNTear.Highlight(color);
+                }
+                LastHightlightTime = Time.time;
+            }
         }
 
         /// <summary>
@@ -242,24 +265,6 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Create prefabs for all known local Blueprints
-        /// </summary>
-        public void RegisterKnownBlueprints()
-        {
-            // Client only
-            if (ZNet.instance != null && !ZNet.instance.IsDedicated())
-            {
-                Jotunn.Logger.LogMessage("Registering known blueprints");
-
-                // Create prefabs for all known blueprints
-                foreach (var bp in LocalBlueprints.Values)
-                {
-                    bp.CreatePrefab();
-                }
-            }
-        }
-
-        /// <summary>
         ///     Create custom KeyHints for the static Blueprint Rune pieces
         /// </summary>
         private void CreateCustomKeyHints()
@@ -271,6 +276,14 @@ namespace PlanBuild.Blueprints
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
+
+            GUIToggleButton = new ButtonConfig
+            {
+                Name = "GUIToggle",
+                Config = BlueprintConfig.serverGuiSwitchConfig,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -350,7 +363,33 @@ namespace PlanBuild.Blueprints
 
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
-          
+
+        /// <summary>
+        ///     Create prefabs for all known local Blueprints
+        /// </summary>
+        public void RegisterKnownBlueprints()
+        {
+            // Client only
+            if (ZNet.instance != null && !ZNet.instance.IsDedicated())
+            {
+                Jotunn.Logger.LogMessage("Registering known blueprints");
+
+                // Create prefabs for all known blueprints
+                foreach (var bp in LocalBlueprints.Values)
+                {
+                    bp.CreatePrefab();
+                }
+            }
+        }
+
+        private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        {
+            //CircleProjector projector = self.m_placeMarker.AddComponent<CircleProjector>();
+            GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
+            SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
+            SelectionSegment.SetActive(false);
+        }
+
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
@@ -379,7 +418,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Show and change blueprint selection radius
+        ///     Update the blueprint tools
         /// </summary>
         private void OnUpdatePlacement(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
         {
@@ -398,10 +437,7 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
-                        }
+                        EnableSelectionCircle(self);
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
@@ -415,36 +451,17 @@ namespace PlanBuild.Blueprints
                                 UpdateSelectionRadius(scrollWheel);
                             }
                         }
-
-                        var circleProjector = self.m_placementMarkerInstance.GetComponent<CircleProjector>();
-                        if (circleProjector == null)
+                        
+                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            circleProjector = self.m_placementMarkerInstance.AddComponent<CircleProjector>();
-                            circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("piece_workbench").GetComponentInChildren<CircleProjector>().m_prefab;
-
-                            // Force calculation of segment count
-                            circleProjector.m_radius = -1;
-                            circleProjector.Start();
-                        }
-
-                        if (circleProjector.m_radius != Instance.SelectionRadius)
-                        {
-                            circleProjector.m_radius = Instance.SelectionRadius;
-                            circleProjector.m_nrOfSegments = (int)circleProjector.m_radius * 4;
-                            circleProjector.Update();
-                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
+                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
                         }
                     }
                     // Place Blueprint
                     else if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
                     {
-                        // Destroy placement marker instance to get rid of the circleprojector
-                        if (self.m_placementMarkerInstance)
-                        {
-                            Object.DestroyImmediate(self.m_placementMarkerInstance);
-                        }
+                        DisableSelectionCircle();
 
-                        // Reset rotation when changing camera
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
@@ -479,10 +496,7 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red, onlyPlanned: true);
-                        }
+                        EnableSelectionCircle(self);
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
@@ -498,69 +512,30 @@ namespace PlanBuild.Blueprints
                             }
                         }
 
-                        var circleProjector = self.m_placementMarkerInstance.GetComponent<CircleProjector>();
-                        if (circleProjector == null)
+                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            circleProjector = self.m_placementMarkerInstance.AddComponent<CircleProjector>();
-                            circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("piece_workbench").GetComponentInChildren<CircleProjector>().m_prefab;
-
-                            // Force calculation of segment count
-                            circleProjector.m_radius = -1;
-                            circleProjector.Start();
-                        }
-
-                        if (circleProjector.m_radius != Instance.SelectionRadius)
-                        {
-                            circleProjector.m_radius = Instance.SelectionRadius;
-                            circleProjector.m_nrOfSegments = (int)circleProjector.m_radius * 4;
-                            circleProjector.Update();
-                            Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
+                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red, onlyPlanned: true);
                         }
                     }
                     // Undo Blueprint
                     else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
                     {
-                        // Destroy placement marker instance to get rid of the circleprojector
-                        if (self.m_placementMarkerInstance)
-                        {
-                            Object.DestroyImmediate(self.m_placementMarkerInstance);
-                        }
+                        DisableSelectionCircle();
 
                         HighlightHoveredBlueprint(Color.red);
                     }
                     else
                     {
-                        // Destroy placement marker instance to get rid of the circleprojector
-                        if (self.m_placementMarkerInstance)
-                        {
-                            Object.DestroyImmediate(self.m_placementMarkerInstance);
-                        }
+                        DisableSelectionCircle();
 
-                        // Reset camera
                         Instance.CameraOffset = 5f;
                         Instance.PlacementOffset = Vector3.zero;
                     }
                 }
             }
-        }
 
-        /// <summary>
-        ///     Flatten the circle selector transform
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
-        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
-        {
-            orig(self, flashGuardStone);
-
-            if (self.m_placementMarkerInstance && self.m_placementGhost && 
-                (self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName
-                || self.m_placementGhost.name == BlueprintRunePrefab.DeletePlansName)
-               )
-            {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
-            }
+            // Always update the selection circle
+            UpdateSelectionCircle();
         }
 
         private float GetPlacementOffset(float scrollWheel)
@@ -579,7 +554,7 @@ namespace PlanBuild.Blueprints
                 return BlueprintConfig.placementOffsetIncrementConfig.Value;
             }
         }
-          
+
         private void UndoRotation(Player player, float scrollWheel)
         {
             if (scrollWheel < 0f)
@@ -589,6 +564,96 @@ namespace PlanBuild.Blueprints
             else
             {
                 player.m_placeRotation--;
+            }
+        }
+
+        private void UpdateSelectionRadius(float scrollWheel)
+        {
+            if (SelectionCircle == null)
+            {
+                return;
+            }
+
+            bool scrollingDown = scrollWheel < 0f;
+            if (BlueprintConfig.invertSelectionScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
+            {
+                Instance.SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
+                if (Instance.SelectionRadius < 2f)
+                {
+                    Instance.SelectionRadius = 2f;
+                }
+            }
+            else
+            {
+                Instance.SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
+            }
+        }
+
+        private void EnableSelectionCircle(Player self)
+        {
+            if (SelectionCircle == null && ShowSelectionCircle)
+            {
+                SelectionCircle = self.m_placementMarkerInstance.AddComponent<CircleProjector>();
+                SelectionCircle.m_prefab = SelectionSegment;
+                SelectionCircle.m_prefab.SetActive(true);
+                SelectionCircle.m_radius = Instance.SelectionRadius;
+                SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
+                SelectionCircle.Start();
+            }
+        }
+
+        private void DisableSelectionCircle()
+        {
+            if (SelectionCircle != null)
+            {
+                foreach (GameObject segment in SelectionCircle.m_segments)
+                {
+                    Object.Destroy(segment);
+                }
+                Object.Destroy(SelectionCircle);
+            }
+        }
+
+        private void UpdateSelectionCircle()
+        {
+            if (SelectionCircle != null && !ShowSelectionCircle)
+            {
+                DisableSelectionCircle();
+            }
+            if (SelectionCircle == null)
+            {
+                return;
+            }
+            if (SelectionCircle.m_radius != Instance.SelectionRadius)
+            {
+                SelectionCircle.m_radius = Instance.SelectionRadius;
+                SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
+                SelectionCircle.Update();
+
+                Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
+            }
+        }
+
+        /// <summary>
+        ///     Flatten the circle selector transform
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        /// <param name="flashGuardStone"></param>
+        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            orig(self, flashGuardStone);
+
+            if (self.m_placementMarkerInstance && self.m_placementGhost &&
+                (self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName
+                || self.m_placementGhost.name == BlueprintRunePrefab.DeletePlansName)
+               )
+            {
+                self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
         }
 
@@ -612,31 +677,10 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void UpdateSelectionRadius(float scrollWheel)
-        {
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertSelectionScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                Instance.SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
-                if (Instance.SelectionRadius < 2f)
-                {
-                    Instance.SelectionRadius = 2f;
-                }
-            }
-            else
-            {
-                Instance.SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
-            }
-        }
-
         /// <summary>
-        ///     Add some camera height while planting a blueprint
+        ///     Adjust camera height when using certain tools
         /// </summary>
-        private void AdjustCameraHeight(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        private void OnUpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
         {
             orig(self, dt);
 
@@ -659,7 +703,7 @@ namespace PlanBuild.Blueprints
         ///     Incept placing of the meta pieces.
         ///     Cancels the real placement of the placeholder pieces.
         /// </summary>
-        private bool BeforePlaceBlueprintPiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        private bool OnPlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
         {
             // Client only
             if (!ZNet.instance.IsDedicated())
@@ -694,12 +738,6 @@ namespace PlanBuild.Blueprints
 
         private bool MakeBlueprint(Player self)
         {
-            var circleProjector = self.m_placementGhost.GetComponent<CircleProjector>();
-            if (circleProjector != null)
-            {
-                Object.Destroy(circleProjector);
-            }
-
             var bpname = $"blueprint{LocalBlueprints.Count() + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
@@ -867,15 +905,9 @@ namespace PlanBuild.Blueprints
             return removedPieces;
         }
 
-        private bool DeletePlans(Player player)
+        private bool DeletePlans(Player self)
         {
-            var circleProjector = player.m_placementGhost.GetComponent<CircleProjector>();
-            if (circleProjector != null)
-            {
-                Object.Destroy(circleProjector);
-            }
-
-            Vector3 deletePosition = player.m_placementMarkerInstance.transform.position;
+            Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
             foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, SelectionRadius))
             {
@@ -885,7 +917,7 @@ namespace PlanBuild.Blueprints
                     removedPieces++;
                 }
             }
-            player.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
+            self.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
         }

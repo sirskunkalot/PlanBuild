@@ -23,7 +23,7 @@ using Object = UnityEngine.Object;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.1.0")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.1.2")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
@@ -112,13 +112,25 @@ namespace PlanBuild
 
         public void Update()
         {
-           
-            Player player = Player.m_localPlayer;
-            if (ZInput.instance == null || player == null)
+            // No keys without ZInput
+            if (ZInput.instance == null)
             {
                 return;
             }
 
+            // Never in the Settings dialogue
+            if (Settings.instance && Settings.instance.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            // BP Market GUI is OK in the main menu
+            if (BlueprintGUI.IsAvailable() && ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
+            {
+                BlueprintGUI.Instance.Toggle();
+            }
+
+            // Return from world interface GUI with "use" again
             if (BlueprintGUI.IsVisible() && !BlueprintGUI.TextFieldHasFocus() && ZInput.GetButtonDown("Use"))
             {
                 BlueprintGUI.Instance.Toggle();
@@ -126,18 +138,13 @@ namespace PlanBuild
                 return;
             }
 
+            // Not in game menus
             if (!CheckInput())
             {
                 return;
             }
 
-            if (BlueprintGUI.IsAvailable() && Input.GetKeyDown(BlueprintConfig.serverGuiSwitchKey))
-            {
-                BlueprintGUI.Instance.Toggle();
-            }
-
-            // Check if our button is pressed. This will only return true ONCE, right after our button is pressed.
-            // If we hold the button down, it won't spam toggle our menu.
+            // Rune mode toogle
             if (ZInput.GetButtonDown(BlueprintManager.PlanSwitchButton.Name))
             {
                 PlanManager.Instance.TogglePlanBuildMode();
@@ -211,7 +218,8 @@ namespace PlanBuild
 
         private bool CheckInput()
         {
-            return (!Chat.instance || !Chat.instance.HasFocus())
+            return Player.m_localPlayer != null
+                && (!Chat.instance || !Chat.instance.HasFocus())
                 && !Console.IsVisible()
                 && !InventoryGui.IsVisible()
                 && !StoreGui.IsVisible()

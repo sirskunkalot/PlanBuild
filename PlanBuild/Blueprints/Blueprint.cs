@@ -898,49 +898,17 @@ namespace PlanBuild.Blueprints
             /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
             public IEnumerator AddBlueprint()
             {
-                bool oldHud = DisableHud();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-
-                RecordFrame();
-
-                Hud.instance.m_userHidden = oldHud;
-                Hud.instance.SetVisible(true);
-                Hud.instance.Update();
-                yield return new WaitForEndOfFrame();
-                yield return new WaitForEndOfFrame();
-
-                newbp.CreatePrefab();
-                Player.m_localPlayer.UpdateKnownRecipesList();
-                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-
-                Logger.LogInfo("Blueprint created");
-
-                newbp = null;
-            }
-
-            /// <summary>
-            ///     Disable the HUD for the thumbnail screenshot
-            /// </summary>
-            /// <returns>The bool state of the current HUD</returns>
-            private bool DisableHud()
-            {
-                Console.instance.m_chatWindow.gameObject.SetActive(false);
-                Console.instance.Update();
+                // Hide Hud if active
                 bool oldHud = Hud.instance.m_userHidden;
                 Hud.instance.m_userHidden = true;
                 Hud.instance.SetVisible(false);
                 Hud.instance.Update();
 
-                return oldHud;
-            }
+                // Remove SelectionCircle
+                BlueprintManager.Instance.ShowSelectionCircle = false;
 
-            /// <summary>
-            ///     Capture and save a thumbnail
-            /// </summary>
-            private void RecordFrame()
-            {
+                yield return new WaitForEndOfFrame();
+
                 // Get a screenshot
                 Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
 
@@ -970,8 +938,26 @@ namespace PlanBuild.Blueprints
 
                 // Destroy properly
                 Object.Destroy(screenshot);
-            }
 
+                // Reactivate SelectionCircle
+                BlueprintManager.Instance.ShowSelectionCircle = true;
+
+                // Reactivate Hud if it was active
+                Hud.instance.m_userHidden = oldHud;
+                Hud.instance.SetVisible(true);
+                Hud.instance.Update();
+
+                yield return new WaitForEndOfFrame();
+
+                // Create and load blueprint prefab
+                newbp.CreatePrefab();
+                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
+                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+
+                Logger.LogInfo("Blueprint created");
+
+                newbp = null;
+            }
         }
     }
 }

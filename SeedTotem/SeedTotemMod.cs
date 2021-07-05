@@ -24,7 +24,7 @@ namespace SeedTotem
     {
         public const string PluginGUID = "marcopogo.SeedTotem";
         public const string PluginName = "Seed Totem";
-        public const string PluginVersion = "1.1.4";
+        public const string PluginVersion = "1.1.5";
         public static ManualLogSource logger;
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
