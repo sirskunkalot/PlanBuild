@@ -338,25 +338,14 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.UndoBlueprintName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpundo" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
-                }
-            });
-
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
                 Piece = BlueprintRunePrefab.DeletePlansName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_highlight" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -407,8 +396,7 @@ namespace PlanBuild.Blueprints
             if (piece != null)
             {
                 if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
-                    || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)
-                    || piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
+                    || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
                 {
                     return;
                 }
@@ -488,15 +476,22 @@ namespace PlanBuild.Blueprints
                             }
                         }
                     }
-                    // Delete Plan
+                    // Delete Plans
                     else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
                             return;
                         }
-
-                        EnableSelectionCircle(self);
+                        
+                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                        {
+                            EnableSelectionCircle(self);
+                        }
+                        else
+                        {
+                            DisableSelectionCircle();
+                        }
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0)
@@ -506,7 +501,7 @@ namespace PlanBuild.Blueprints
                                 UpdateCameraOffset(scrollWheel);
                                 UndoRotation(self, scrollWheel);
                             }
-                            else
+                            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
@@ -516,13 +511,14 @@ namespace PlanBuild.Blueprints
                         {
                             HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red, onlyPlanned: true);
                         }
-                    }
-                    // Undo Blueprint
-                    else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
-                    {
-                        DisableSelectionCircle();
-
-                        HighlightHoveredBlueprint(Color.red);
+                        else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                        {
+                            HighlightHoveredBlueprint(Color.red);
+                        }
+                        else
+                        {
+                            HighlightHoveredPiece(Color.red);
+                        }
                     }
                     else
                     {
@@ -721,15 +717,21 @@ namespace PlanBuild.Blueprints
                 {
                     return PlaceBlueprint(self, piece);
                 }
-                // Undo a complete blueprint
-                else if (piece.name.StartsWith(BlueprintRunePrefab.UndoBlueprintName))
-                {
-                    return UndoBlueprint();
-                }
-                // Delete single plan pieces
+                // Delete plans
                 else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
                 {
-                    return DeletePlans(self);
+                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    {
+                        return DeletePlans(self);
+                    }
+                    else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                    {
+                        return UndoBlueprint();
+                    }
+                    else
+                    {
+                        return UndoPiece();
+                    }
                 }
             }
 
@@ -772,7 +774,8 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            if (ZInput.GetButton("AltPlace"))
+            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if (flatten)
             {
                 Vector2 extent = bp.GetExtent();
                 FlattenTerrain.FlattenForBlueprint(transform, extent.x, extent.y, bp.PieceEntries);
@@ -868,6 +871,19 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
+        private bool UndoPiece()
+        {
+            if (LastHoveredPiece)
+            {
+                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                {
+                    planPiece.m_wearNTear.Remove();
+                }
+            }
+
+            return false;
+        }
+
         private bool UndoBlueprint()
         {
             if (LastHoveredPiece)
@@ -877,7 +893,18 @@ namespace PlanBuild.Blueprints
                     ZDOID blueprintID = planPiece.GetBlueprintID();
                     if (blueprintID != ZDOID.None)
                     {
-                        int removedPieces = RemoveBlueprint(blueprintID);
+                        int removedPieces = 0;
+                        foreach (PlanPiece pieceToRemove in GetPlanPiecesInBlueprint(blueprintID))
+                        {
+                            pieceToRemove.Remove();
+                            removedPieces++;
+                        }
+
+                        GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+                        if (blueprintObject)
+                        {
+                            ZNetScene.instance.Destroy(blueprintObject);
+                        }
 
                         Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
                     }
@@ -885,24 +912,6 @@ namespace PlanBuild.Blueprints
             }
 
             return false;
-        }
-
-        private int RemoveBlueprint(ZDOID blueprintID)
-        {
-            int removedPieces = 0;
-            Jotunn.Logger.LogInfo("Removing all pieces of blueprint " + blueprintID);
-            foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
-            {
-                planPiece.Remove();
-                removedPieces++;
-            }
-
-            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-            if (blueprintObject)
-            {
-                ZNetScene.instance.Destroy(blueprintObject);
-            }
-            return removedPieces;
         }
 
         private bool DeletePlans(Player self)
