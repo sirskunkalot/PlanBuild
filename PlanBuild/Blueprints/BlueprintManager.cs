@@ -1,6 +1,7 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
 using PlanBuild.ModCompat;
+using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
@@ -76,8 +77,7 @@ namespace PlanBuild.Blueprints
                 On.GameCamera.UpdateCamera += AdjustCameraHeight;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
-                On.ZNet.OnDestroy += ResetServerBlueprints;
-
+                On.ZNet.OnDestroy += ResetServerBlueprints; 
             }
             catch (Exception ex)
             {
@@ -97,7 +97,7 @@ namespace PlanBuild.Blueprints
             {
                 return true;
             }
-            return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanBuildPlugin.CanCreatePlan(piece));
+            return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanManager.CanCreatePlan(piece));
         }
 
         /// <summary>

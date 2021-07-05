@@ -112,6 +112,7 @@
     <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="PlanBuild\PlanCrystalPrefab.cs" />
+    <Compile Include="PlanBuild\PlanManager.cs" />
     <Compile Include="PlanBuild\PlanPiece.cs" />
     <Compile Include="PlanBuild\PlanPiecePrefab.cs" />
     <Compile Include="PlanBuild\PlanTotem.cs" />

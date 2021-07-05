@@ -28,29 +28,29 @@ namespace PlanBuild.Blueprints
             Assert.AreEqual(pieceEntry.GetPosition(), new Vector3(-20.08298f, 1.177017f, 31.44012f));
         }
 
-        [TestMethod]
-        public void ParseBlueprint_V1()
-        {
-            Blueprint.logLoading = false;
-            Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V1.blueprint");
-            Assert.AreEqual(blueprint.Name, "TestBox_V1");
-            Assert.IsTrue(blueprint.Load());
-            Assert.AreEqual(blueprint.SnapPoints.Length, 0);
-            Assert.AreEqual(blueprint.PieceEntries.Length, 6);
-        }
-         
-        [TestMethod]
-        public void ParseBlueprint_V2()
-        {
-            Blueprint.logLoading = false;
-            Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V2.blueprint");
-            Assert.AreEqual(blueprint.Name, "TestBox_V2");
-            Assert.IsTrue(blueprint.Load());
-            Assert.AreEqual(blueprint.Name, "Custom Name");
-            Assert.AreEqual(blueprint.Description, "Description with\nnewlines and such :)"); 
-            Assert.AreEqual(blueprint.SnapPoints.Length, 0);
-            Assert.AreEqual(blueprint.PieceEntries.Length, 6);
-        }
+      // [TestMethod]
+      // public void ParseBlueprint_V1()
+      // {
+      //     Blueprint.logLoading = false;
+      //     Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V1.blueprint");
+      //     Assert.AreEqual(blueprint.Name, "TestBox_V1");
+      //     Assert.IsTrue(blueprint.Load());
+      //     Assert.AreEqual(blueprint.SnapPoints.Length, 0);
+      //     Assert.AreEqual(blueprint.PieceEntries.Length, 6);
+      // }
+      //  
+      // [TestMethod]
+      // public void ParseBlueprint_V2()
+      // {
+      //     Blueprint.logLoading = false;
+      //     Blueprint blueprint = Blueprint.FromPath("resources/TestBox_V2.blueprint");
+      //     Assert.AreEqual(blueprint.Name, "TestBox_V2");
+      //     Assert.IsTrue(blueprint.Load());
+      //     Assert.AreEqual(blueprint.Name, "Custom Name");
+      //     Assert.AreEqual(blueprint.Description, "Description with\nnewlines and such :)"); 
+      //     Assert.AreEqual(blueprint.SnapPoints.Length, 0);
+      //     Assert.AreEqual(blueprint.PieceEntries.Length, 6);
+      // }
 
     }
 }

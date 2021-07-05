@@ -4,6 +4,7 @@ using Jotunn.Managers;
 using Mono.Cecil.Cil;
 using MonoMod.Cil;
 using PlanBuild.Blueprints;
+using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
@@ -19,19 +20,12 @@ namespace PlanBuild
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string gizmoGUID = "com.rolopogo.Gizmo"; 
         private static Harmony harmony;
-          
-        [HarmonyPatch(typeof(PieceManager), "RegisterInPieceTables")]
-        [HarmonyPrefix]
-        private static void PieceManager_RegisterInPieceTables_Prefix()
-        {
-            PlanBuildPlugin.Instance.InitialScanHammer();
-        }
-
+           
         [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
         [HarmonyPrefix]
         private static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
         {
-            if (PlanBuildPlugin.showAllPieces.Value)
+            if (PlanManager.showAllPieces.Value)
             {
                 return true;
             }
@@ -48,7 +42,7 @@ namespace PlanBuild
 
         [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
         [HarmonyPostfix]
-        private static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
+        internal static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
         {
             if (__result == null
                 && interceptGetPrefab
@@ -56,7 +50,7 @@ namespace PlanBuild
             {
                 interceptGetPrefab = false;
                 checkedHashes.Add(hash);
-                PlanBuildPlugin.Instance.ScanHammer(true);
+                PlanManager.Instance.ScanHammer(true);
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
             }
