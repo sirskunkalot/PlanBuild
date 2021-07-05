@@ -34,10 +34,9 @@ namespace PlanBuild.Blueprints
         private float SelectionRadius = 10.0f;
 
         private Vector3 PlacementOffset = Vector3.zero;
-        
-        private float CameraOffset = 5.0f;
-
         private float OriginalPlaceDistance;
+
+        private float CameraOffset = 5.0f;
 
         internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
