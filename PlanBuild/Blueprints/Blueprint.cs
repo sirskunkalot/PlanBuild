@@ -897,20 +897,15 @@ namespace PlanBuild.Blueprints
             /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
             public IEnumerator AddBlueprint()
             {
-                // Hide console if active
-                Console.instance.m_chatWindow.gameObject.SetActive(false);
-                Console.instance.Update();
-
                 // Hide Hud if active
                 bool oldHud = Hud.instance.m_userHidden;
                 Hud.instance.m_userHidden = true;
                 Hud.instance.SetVisible(false);
                 Hud.instance.Update();
 
-                // Remove CircleProjector
-                Object.DestroyImmediate(Player.m_localPlayer.m_placementMarkerInstance);
+                // Remove SelectionCircle
+                BlueprintManager.Instance.ShowSelectionCircle = false;
 
-                yield return new WaitForEndOfFrame();
                 yield return new WaitForEndOfFrame();
 
                 // Get a screenshot
@@ -943,12 +938,14 @@ namespace PlanBuild.Blueprints
                 // Destroy properly
                 Object.Destroy(screenshot);
 
+                // Reactivate SelectionCircle
+                BlueprintManager.Instance.ShowSelectionCircle = true;
+
                 // Reactivate Hud if it was active
                 Hud.instance.m_userHidden = oldHud;
                 Hud.instance.SetVisible(true);
                 Hud.instance.Update();
 
-                yield return new WaitForEndOfFrame();
                 yield return new WaitForEndOfFrame();
 
                 // Create and load blueprint prefab

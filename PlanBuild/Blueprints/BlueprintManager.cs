@@ -627,11 +627,14 @@ namespace PlanBuild.Blueprints
 
         private void UpdateSelectionCircle()
         {
+            if (SelectionCircle != null && !ShowSelectionCircle)
+            {
+                DisableSelectionCircle();
+            }
             if (SelectionCircle == null)
             {
                 return;
             }
-
             if (SelectionCircle.m_radius != Instance.SelectionRadius)
             {
                 SelectionCircle.m_radius = Instance.SelectionRadius;
