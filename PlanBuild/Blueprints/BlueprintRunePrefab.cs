@@ -8,10 +8,10 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintRunePrefab
     {
-        public const string OtherCategoryName = "Other";
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
         public const string CategoryBlueprints = "Blueprints";
+        public const string CategoryOther = "Other";
 
         public const string BlueprintRuneName = "BlueprintRune";
 
@@ -30,7 +30,7 @@ namespace PlanBuild.Blueprints
 
 
             // Create plan piece table for the Hammer
-            OtherCategory = PieceManager.Instance.AddPieceCategory(PlanPiecePrefab.PlanHammerPieceTableName, OtherCategoryName);
+            OtherCategory = PieceManager.Instance.AddPieceCategory(PlanPiecePrefab.PlanHammerPieceTableName, CategoryOther);
 
             CustomPieceTable planHammerCustomPieceTable = new CustomPieceTable(
                             PlanPiecePrefab.PlanHammerPieceTableName,
@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints
                                 UseCustomCategories = true,
                                 CustomCategories = new string[]
                                 {
-                                    OtherCategoryName
+                                    CategoryOther
                                 }
                             }
                          );
