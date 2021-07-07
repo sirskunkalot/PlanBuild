@@ -677,7 +677,7 @@ namespace PlanBuild.Blueprints
 
             if (Player.m_localPlayer)
             {
-                Player.m_localPlayer.UpdateKnownRecipesList();
+                Player.m_localPlayer.UpdateAvailablePiecesList();
             }
 
             // Remove KeyHint
