@@ -1,4 +1,6 @@
 ﻿using BepInEx.Configuration;
+using Jotunn.Configs;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints;
 using PlanBuild.Plans;
@@ -19,14 +21,13 @@ namespace PlanBuild.PlanBuild
                 if (_instance == null) _instance = new PlanManager();
                 return _instance;
             }
-        }
-
+        } 
 
         public static ConfigEntry<bool> showAllPieces; 
         public readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         internal void Init()
-        {
+        { 
             showAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
             showAllPieces.SettingChanged += UpdateKnownRecipes;
 
@@ -41,12 +42,12 @@ namespace PlanBuild.PlanBuild
         private void OnPlayerAwake(On.Player.orig_Awake orig, Player self)
         {
             orig(self);
-            LateScanHammer();
+            LateScanPieceTables();
         }
 
         public void TogglePlanBuildMode()
         {
-            if (ScanHammer(lateAdd: true))
+            if (ScanPieceTables(lateAdd: true))
             {
                 UpdateKnownRecipes();
             }
@@ -110,93 +111,110 @@ namespace PlanBuild.PlanBuild
         }
 
 
-        internal bool addedHammer = false;
+        internal bool addedRepair = false; 
 
-        internal void InitialScanHammer()
+        internal void InitialScanPieceTables()
         {
             try
             {
-                this.ScanHammer(false);
+                this.ScanPieceTables(false);
             }
             finally
             {
-                PieceManager.OnPiecesRegistered -= InitialScanHammer;
+                PieceManager.OnPiecesRegistered -= InitialScanPieceTables;
             }
         }
 
-        internal void LateScanHammer()
+        internal void LateScanPieceTables()
         {
-            ScanHammer(true);
+            ScanPieceTables(true);
         }
 
-        internal bool ScanHammer(bool lateAdd)
+        internal bool ScanPieceTables(bool lateAdd)
         {
             Jotunn.Logger.LogDebug("Scanning Hammer PieceTable for Pieces");
+            bool addedPiece = false;
             PieceTable hammerPieceTable = PieceManager.Instance.GetPieceTable("Hammer");
-            if (!hammerPieceTable)
-            {
+            if (!hammerPieceTable) {
                 return false;
             }
-            bool addedPiece = false;
-            foreach (GameObject piecePrefab in hammerPieceTable.m_pieces)
+            string[] categoryNames = new string[Hud.instance.m_pieceCategoryTabs.Length];
+            for (int i = 0; i < Hud.instance.m_pieceCategoryTabs.Length; i++)
             {
-                if (!piecePrefab)
+                categoryNames[i] = Hud.instance.m_pieceCategoryTabs[i].name;
+            }
+            foreach (GameObject item in ObjectDB.instance.m_items)
+            {
+                PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
+                if(pieceTable == null)
                 {
-                    Jotunn.Logger.LogWarning("Invalid prefab in Hammer PieceTable");
                     continue;
-                }
-                Piece piece = piecePrefab.GetComponent<Piece>();
-                if (!piece)
+                } 
+                foreach (GameObject piecePrefab in pieceTable.m_pieces)
                 {
-                    Jotunn.Logger.LogWarning("Recipe in Hammer has no Piece?! " + piecePrefab.name);
-                    continue;
-                }
-                try
-                {
-                    if (piece.name == "piece_repair")
+
+                    if (!piecePrefab)
                     {
-                        if (!addedHammer)
+                        Jotunn.Logger.LogWarning("Invalid prefab in Hammer PieceTable");
+                        continue;
+                    }
+                    Piece piece = piecePrefab.GetComponent<Piece>();
+                    if (!piece)
+                    {
+                        Jotunn.Logger.LogWarning("Recipe in Hammer has no Piece?! " + piecePrefab.name);
+                        continue;
+                    }
+                    try
+                    {
+                        if (piece.name == "piece_repair")
                         {
-                            PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-                            if (planHammerPieceTable != null)
+                            if (!addedRepair)
                             {
-                                planHammerPieceTable.m_pieces.Add(piecePrefab);
-                                addedHammer = true;
+                                PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+                                if (planHammerPieceTable != null)
+                                {
+                                    planHammerPieceTable.m_pieces.Add(piecePrefab);
+                                    addedRepair = true;
+                                }
+                            }
+                            continue;
+                        }
+                        if (planPiecePrefabs.ContainsKey(piece.name))
+                        {
+                            continue;
+                        }
+                        if (!CanCreatePlan(piece))
+                        {
+                            continue;
+                        }
+                        if (!EnsurePrefabRegistered(piece))
+                        {
+                            continue;
+                        }
+
+                        PlanPiecePrefab planPiece = new PlanPiecePrefab(piece); 
+                        if(planPiece.Piece.m_category > Piece.PieceCategory.Max)
+                        {
+                            planPiece.Piece.m_category = BlueprintRunePrefab.OtherCategory;
+                        }
+                        PieceManager.Instance.AddPiece(planPiece);
+                        planPiecePrefabs.Add(piece.name, planPiece);
+                        PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
+                        if (lateAdd)
+                        {
+                            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+                            if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
+                            {
+                                planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
+                                addedPiece = true;
                             }
                         }
-                        continue;
                     }
-                    if (planPiecePrefabs.ContainsKey(piece.name))
+                    catch (Exception e)
                     {
-                        continue;
-                    }
-                    if (!CanCreatePlan(piece))
-                    {
-                        continue;
-                    }
-                    if (!EnsurePrefabRegistered(piece))
-                    {
-                        continue;
-                    }
-
-                    PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
-                    PieceManager.Instance.AddPiece(planPiece);
-                    planPiecePrefabs.Add(piece.name, planPiece);
-                    PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                    if (lateAdd)
-                    {
-                        PieceTable pieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-                        if (!pieceTable.m_pieces.Contains(planPiece.PiecePrefab))
-                        {
-                            pieceTable.m_pieces.Add(planPiece.PiecePrefab);
-                            addedPiece = true;
-                        }
+                        Jotunn.Logger.LogWarning("Error while creating plan of " + piece.name + ": " + e);
                     }
                 }
-                catch (Exception e)
-                {
-                    Jotunn.Logger.LogWarning("Error while creating plan of " + piece.name + ": " + e);
-                };
             }
             return addedPiece;
         }
@@ -207,6 +225,7 @@ namespace PlanBuild.PlanBuild
                 && piece.GetComponent<Ship>() == null
                 && piece.GetComponent<Plant>() == null
                 && piece.GetComponent<TerrainModifier>() == null
+                && piece.GetComponent<TerrainOp>() == null
                 && piece.m_resources.Length != 0;
         }
 

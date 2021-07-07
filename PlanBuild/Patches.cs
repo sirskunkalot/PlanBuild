@@ -50,7 +50,7 @@ namespace PlanBuild
             {
                 interceptGetPrefab = false;
                 checkedHashes.Add(hash);
-                PlanManager.Instance.ScanHammer(true);
+                PlanManager.Instance.ScanPieceTables(true);
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
             }
@@ -59,8 +59,7 @@ namespace PlanBuild
         internal static void Apply()
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
-            On.WearNTear.Highlight += OnHighlight;
-            IL.Plant.HaveGrowSpace += ILHaveGrowSpace;
+            On.WearNTear.Highlight += OnHighlight; 
 
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
@@ -81,29 +80,7 @@ namespace PlanBuild
                 Jotunn.Logger.LogInfo("Applying Gizmo patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
             }
-        }
-        
-        private static void ILHaveGrowSpace(ILContext il)
-        {
-            ILCursor cContinue = new ILCursor(il);
-            ILLabel lblContinueTarget = null;
-            cContinue.GotoNext(
-                zz => zz.MatchBrtrue(out lblContinueTarget) //Capture the label to continue to
-                );        
-        
-            ILCursor c = new ILCursor(il);
-            c.GotoNext(MoveType.Before,
-                zz => zz.MatchBr(out lblContinueTarget),                              
-                zz => zz.MatchLdloc(0),                                               
-                zz => zz.MatchLdloc(1),
-                zz => zz.MatchLdelemRef(),
-                zz => zz.MatchCallOrCallvirt<Component>("GetComponent")             //Find the Object.Instantiate function
-            );
-            c.Emit(OpCodes.Ldloc, 0);
-            c.Emit(OpCodes.Ldloc, 1);
-            c.Emit(OpCodes.Ldelem_Ref);
-            c.Emit(OpCodes.Call, typeof(Component).GetMethod("GetComponent", new Type[] { }).MakeGenericMethod(typeof(PlanPiece)));
-        }
+        } 
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {

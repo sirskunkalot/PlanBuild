@@ -8,6 +8,7 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintRunePrefab
     {
+        public const string OtherCategoryName = "Other";
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
         public const string CategoryBlueprints = "Blueprints";
@@ -22,9 +23,30 @@ namespace PlanBuild.Blueprints
         public const string DeletePlansName = "delete_plans";
 
         public static string BlueprintRuneItemName;
+        public static Piece.PieceCategory OtherCategory;
 
         public BlueprintRunePrefab(AssetBundle assetBundle)
         {
+
+
+            // Create plan piece table for the Hammer
+            OtherCategory = PieceManager.Instance.AddPieceCategory(PlanPiecePrefab.PlanHammerPieceTableName, OtherCategoryName);
+
+            CustomPieceTable planHammerCustomPieceTable = new CustomPieceTable(
+                            PlanPiecePrefab.PlanHammerPieceTableName,
+                            new PieceTableConfig()
+                            {
+                                CanRemovePieces = true,
+                                UseCategories = true,
+                                UseCustomCategories = true,
+                                CustomCategories = new string[]
+                                {
+                                    OtherCategoryName
+                                }
+                            }
+                         );
+            PieceManager.Instance.AddPieceTable(planHammerCustomPieceTable);
+
             // Rune piece table
             CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
             {
@@ -49,7 +71,7 @@ namespace PlanBuild.Blueprints
             });
             ItemManager.Instance.AddItem(item);
             BlueprintRuneItemName = item.ItemDrop.m_itemData.m_shared.m_name;
-            item.ItemDrop.m_itemData.m_shared.m_buildPieces = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+            item.ItemDrop.m_itemData.m_shared.m_buildPieces = planHammerCustomPieceTable.PieceTable;
 
             // Tool pieces
             CustomPiece piece;

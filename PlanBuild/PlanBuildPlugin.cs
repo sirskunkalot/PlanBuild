@@ -47,16 +47,6 @@ namespace PlanBuild
         {
             Instance = this;
 
-            // Create plan piece table for the Hammer
-            PieceManager.Instance.AddPieceTable(new CustomPieceTable(
-                PlanPiecePrefab.PlanHammerPieceTableName,
-                new PieceTableConfig()
-                {
-                    CanRemovePieces = true,
-                    UseCategories = true
-                }
-             ));
-
             // Configs
             SetupConfig();
 
