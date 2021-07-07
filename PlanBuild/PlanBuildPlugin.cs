@@ -125,13 +125,17 @@ namespace PlanBuild
             }
 
             // BP Market GUI is OK in the main menu
-            if (BlueprintGUI.IsAvailable() && ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
+            if (BlueprintGUI.IsAvailable() && 
+                BlueprintConfig.allowMarketHotkey.Value && 
+                ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();
             }
 
             // Return from world interface GUI with "use" again
-            if (BlueprintGUI.IsVisible() && !BlueprintGUI.TextFieldHasFocus() && ZInput.GetButtonDown("Use"))
+            if (BlueprintGUI.IsVisible() && 
+                !BlueprintGUI.TextFieldHasFocus() && 
+                ZInput.GetButtonDown("Use"))
             {
                 BlueprintGUI.Instance.Toggle();
                 WorldBlueprintRune.JustDeactivated = true;

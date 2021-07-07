@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6915930767788618011}
   m_Layer: 12
-  m_Name: GameObject
+  m_Name: JVLmock_Circle_section
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

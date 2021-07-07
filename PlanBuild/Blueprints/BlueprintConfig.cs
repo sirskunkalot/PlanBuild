@@ -15,9 +15,11 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<float> placementOffsetIncrementConfig;
         internal static ConfigEntry<float> selectionIncrementConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
-        internal static ConfigEntry<KeyCode> serverGuiSwitchConfig;
+
         private const string marketSection = "Blueprint Market";
         internal static ConfigEntry<bool> allowServerBlueprints;
+        internal static ConfigEntry<bool> allowMarketHotkey;
+        internal static ConfigEntry<KeyCode> serverGuiSwitchConfig;
 
         private const string directorySection = "Directories";
         internal static ConfigEntry<string> blueprintSearchDirectoryConfig;
@@ -25,6 +27,8 @@ namespace PlanBuild.Blueprints
 
         internal static void Init()
         {
+            // Rune Section
+
             allowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
@@ -61,13 +65,21 @@ namespace PlanBuild.Blueprints
                 runeSection, "Rune mode toggle key", KeyCode.P,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
+            // Market Scetion
+
             allowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 marketSection, "Allow serverside blueprints", false,
                 new ConfigDescription("Allow sharing of blueprints on this server", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
+            allowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
+                marketSection, "Allow clients to use the GUI toggle key", true,
+                new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+
             serverGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
                 marketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
                 new ConfigDescription("Hotkey to show blueprint marketplace GUI"));
+
+            // Directory Section
 
             blueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind(
                 directorySection, "Search directory", ".",

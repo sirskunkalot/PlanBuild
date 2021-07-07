@@ -309,7 +309,23 @@ MonoBehaviour:
   m_canBeRemoved: 1
   m_onlyInBiome: 0
   m_placeEffect:
-    m_effectPrefabs: []
+    m_effectPrefabs:
+    - m_prefab: {fileID: 7075398906591101105, guid: 99fe6f221bb4d9a4da4edea214a89d58,
+        type: 3}
+      m_enabled: 1
+      m_attach: 0
+      m_inheritParentRotation: 0
+      m_inheritParentScale: 0
+      m_randomRotation: 0
+      m_scale: 0
+    - m_prefab: {fileID: 8566109844089845382, guid: 244ffa2f7b20bd242bcca8ed6f94401c,
+        type: 3}
+      m_enabled: 1
+      m_attach: 0
+      m_inheritParentRotation: 0
+      m_inheritParentScale: 0
+      m_randomRotation: 0
+      m_scale: 0
   m_dlc: 
   m_craftingStation: {fileID: 0}
   m_resources: []
@@ -381,7 +397,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9177413236115287754}
   m_LocalRotation: {x: -0.07768709, y: -0.7027592, z: -0.000000052154057, w: 0.70717347}
-  m_LocalPosition: {x: 0.55040216, y: -0.060844727, z: 0.07612765}
+  m_LocalPosition: {x: 0.619, y: -0.068, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 5684200982280563239}

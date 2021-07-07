@@ -443,7 +443,15 @@ MonoBehaviour:
   m_canBeRemoved: 1
   m_onlyInBiome: 0
   m_placeEffect:
-    m_effectPrefabs: []
+    m_effectPrefabs:
+    - m_prefab: {fileID: 7075398906591101105, guid: 99fe6f221bb4d9a4da4edea214a89d58,
+        type: 3}
+      m_enabled: 1
+      m_attach: 0
+      m_inheritParentRotation: 0
+      m_inheritParentScale: 0
+      m_randomRotation: 0
+      m_scale: 0
   m_dlc: 
   m_craftingStation: {fileID: 0}
   m_resources: []
