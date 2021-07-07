@@ -80,7 +80,7 @@ namespace PlanBuild.PlanBuild
             Color color = blueprintRune.m_shared.m_buildPieces == planHammerPieceTable ? Color.red : Color.cyan;
             ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
 
-            Player.m_localPlayer.UpdateAvailablePiecesList();
+            Player.m_localPlayer.UpdateKnownRecipesList();
         }
 
         private void UpdateKnownRecipes()

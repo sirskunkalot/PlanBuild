@@ -675,6 +675,11 @@ namespace PlanBuild.Blueprints
                 }
             }
 
+            if (Player.m_localPlayer)
+            {
+                Player.m_localPlayer.UpdateAvailablePiecesList();
+            }
+
             // Remove KeyHint
             if (KeyHint != null)
             {
