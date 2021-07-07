@@ -66,7 +66,7 @@ namespace PlanBuild
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
-            // IL.Plant.HaveGrowSpace += ILHaveGrowSpace;
+            IL.Plant.HaveGrowSpace += ILHaveGrowSpace;
 
             harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(Patches));
@@ -88,32 +88,28 @@ namespace PlanBuild
                 harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
             }
         }
-      //
-      //private static void ILHaveGrowSpace(ILContext il)
-      //{
-      //    ILCursor cContinue = new ILCursor(il);
-      //    ILLabel lblContinueTarget = null;
-      //    cContinue.GotoNext(
-      //        zz => zz.MatchBrtrue(out lblContinueTarget) //Capture the label to continue to
-      //        );        
-      //
-      //    ILCursor c = new ILCursor(il);
-      //    c.GotoNext(MoveType.Before,
-      //        zz => zz.MatchBr(out lblContinueTarget),                              
-      //        zz => zz.MatchLdloc(0),                                               
-      //        zz => zz.MatchLdloc(1),
-      //        zz => zz.MatchLdelemRef(),
-      //        zz => zz.MatchCallOrCallvirt<Component>("GetComponent")             //Find the Object.Instantiate function
-      //    );
-      //    c.Emit(OpCodes.Ldloc, 0);
-      //    c.Emit(OpCodes.Ldloc, 1);
-      //    c.Emit(OpCodes.Ldelem_Ref);
-      //    c.Emit(OpCodes.Call, typeof(Component).GetMethod("GetComponent").MakeGenericMethod(typeof(PlanPiece)));
-      //
-      //
-      //    // c.Emit(OpCodes.Ldloc, resultLoc);                                       //Load the instantiated object for ...
-      //    // c.Emit(OpCodes.Call, typeof(PulleyManager).GetMethod("PlacedPiece"));   //my hook :D
-      //}
+        
+        private static void ILHaveGrowSpace(ILContext il)
+        {
+            ILCursor cContinue = new ILCursor(il);
+            ILLabel lblContinueTarget = null;
+            cContinue.GotoNext(
+                zz => zz.MatchBrtrue(out lblContinueTarget) //Capture the label to continue to
+                );        
+        
+            ILCursor c = new ILCursor(il);
+            c.GotoNext(MoveType.Before,
+                zz => zz.MatchBr(out lblContinueTarget),                              
+                zz => zz.MatchLdloc(0),                                               
+                zz => zz.MatchLdloc(1),
+                zz => zz.MatchLdelemRef(),
+                zz => zz.MatchCallOrCallvirt<Component>("GetComponent")             //Find the Object.Instantiate function
+            );
+            c.Emit(OpCodes.Ldloc, 0);
+            c.Emit(OpCodes.Ldloc, 1);
+            c.Emit(OpCodes.Ldelem_Ref);
+            c.Emit(OpCodes.Call, typeof(Component).GetMethod("GetComponent", new Type[] { }).MakeGenericMethod(typeof(PlanPiece)));
+        }
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {

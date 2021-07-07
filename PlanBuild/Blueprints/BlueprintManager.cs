@@ -373,7 +373,6 @@ namespace PlanBuild.Blueprints
 
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
-            //CircleProjector projector = self.m_placeMarker.AddComponent<CircleProjector>();
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
@@ -393,13 +392,11 @@ namespace PlanBuild.Blueprints
         private void OnUpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
         {
             Piece piece = Player.m_localPlayer.GetSelectedPiece();
-            if (piece != null)
+            if (piece &&
+                (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
+              || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)))
             {
-                if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
-                    || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
-                {
-                    return;
-                }
+                return;
             }
 
             orig(self);

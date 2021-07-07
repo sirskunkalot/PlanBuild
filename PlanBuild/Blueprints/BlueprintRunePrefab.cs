@@ -87,6 +87,7 @@ namespace PlanBuild.Blueprints
                     }
                 });
                 piece.PiecePrefab.AddComponent<WorldBlueprintRune>();
+                piece.FixReference = true;
                 PieceManager.Instance.AddPiece(piece);
             }
             // Blueprint stub
