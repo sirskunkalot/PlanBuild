@@ -675,6 +675,11 @@ namespace PlanBuild.Blueprints
                 }
             }
 
+            if (Player.m_localPlayer)
+            {
+                Player.m_localPlayer.UpdateKnownRecipesList();
+            }
+
             // Remove KeyHint
             if (KeyHint != null)
             {
