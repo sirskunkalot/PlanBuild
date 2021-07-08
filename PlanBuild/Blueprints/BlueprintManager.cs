@@ -742,7 +742,7 @@ namespace PlanBuild.Blueprints
                     return MakeBlueprint(self);
                 }
                 // Place a known blueprint
-                if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid
+                if (self.m_placementStatus == Player.PlacementStatus.Valid
                     && piece.name != BlueprintRunePrefab.BlueprintSnapPointName
                     && piece.name != BlueprintRunePrefab.BlueprintCenterPointName
                     && piece.name.StartsWith(Blueprint.PieceBlueprintName))
