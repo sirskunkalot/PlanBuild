@@ -50,6 +50,9 @@ namespace PlanBuild
             // Configs
             SetupConfig();
 
+            // Init plans
+            PlanManager.Instance.Init();
+
             // Init Blueprints
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
@@ -57,8 +60,6 @@ namespace PlanBuild
             blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
-
-            PlanManager.Instance.Init();
 
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);

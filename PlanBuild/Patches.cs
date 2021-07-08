@@ -50,7 +50,7 @@ namespace PlanBuild
             {
                 interceptGetPrefab = false;
                 checkedHashes.Add(hash);
-                PlanManager.Instance.ScanPieceTables(true);
+                PlanManager.Instance.ScanPieceTables();
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
             }
