@@ -77,6 +77,7 @@ namespace PlanBuild.Blueprints
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
+                On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
                 On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
                 On.Player.PlacePiece += OnPlacePiece;
@@ -366,7 +367,7 @@ namespace PlanBuild.Blueprints
                 // Create prefabs for all known blueprints
                 foreach (var bp in LocalBlueprints.Values)
                 {
-                    bp.CreatePrefab();
+                    bp.CreatePiece();
                 }
             }
         }
@@ -389,9 +390,14 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
+        /// <summary>
+        ///     Dont highlight pieces when make/delete tool is active
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
         private void OnUpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
         {
-            Piece piece = Player.m_localPlayer.GetSelectedPiece();
+            Piece piece = self.GetSelectedPiece();
             if (piece &&
                 (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
               || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)))
@@ -399,6 +405,35 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
+            orig(self);
+        }
+
+        /// <summary>
+        ///     Lazy instantiate blueprint ghost
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            if (self.m_buildPieces == null)
+            {
+                orig(self);
+                return;
+            }
+
+            GameObject prefab = self.m_buildPieces.GetSelectedPrefab();
+            if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                orig(self);
+                return;
+            }
+
+            string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
+            if (LocalBlueprints.TryGetValue(bpname, out var bp))
+            {
+                bp.InstantiateGhost();
+            }
+            
             orig(self);
         }
 
@@ -707,7 +742,7 @@ namespace PlanBuild.Blueprints
                     return MakeBlueprint(self);
                 }
                 // Place a known blueprint
-                if (Player.m_localPlayer.m_placementStatus == Player.PlacementStatus.Valid
+                if (self.m_placementStatus == Player.PlacementStatus.Valid
                     && piece.name != BlueprintRunePrefab.BlueprintSnapPointName
                     && piece.name != BlueprintRunePrefab.BlueprintCenterPointName
                     && piece.name.StartsWith(Blueprint.PieceBlueprintName))

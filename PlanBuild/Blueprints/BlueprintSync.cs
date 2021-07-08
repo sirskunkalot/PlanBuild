@@ -203,12 +203,12 @@ namespace PlanBuild.Blueprints
 
             if (BlueprintManager.LocalBlueprints.ContainsKey(id))
             {
-                BlueprintManager.LocalBlueprints[id].Destroy();
+                BlueprintManager.LocalBlueprints[id].DestroyBlueprint();
                 BlueprintManager.LocalBlueprints.Remove(id);
             }
 
             bp.ToFile();
-            bp.CreatePrefab();
+            bp.CreatePiece();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
@@ -375,7 +375,7 @@ namespace PlanBuild.Blueprints
 
             Logger.LogDebug($"Removing local blueprint {id}");
 
-            bp.Destroy();
+            bp.DestroyBlueprint();
             BlueprintManager.LocalBlueprints.Remove(id);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
@@ -444,7 +444,7 @@ namespace PlanBuild.Blueprints
                         if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
                         {
                             Logger.LogMessage($"Removing blueprint {id} from server");
-                            blueprint.Destroy();
+                            blueprint.DestroyBlueprint();
                             BlueprintManager.LocalBlueprints.Remove(id);
                         }
                         message = id;
