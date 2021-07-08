@@ -450,7 +450,7 @@ namespace PlanBuild.Blueprints
                     }
                     else
                     {
-                        Logger.LogWarning("Multiple center points! Ignoring @ " + piece.transform.position);
+                        Logger.LogWarning($"Multiple center points! Ignoring @ {piece.transform.position}");
                     }
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
                     wearNTear.Remove();
@@ -458,7 +458,7 @@ namespace PlanBuild.Blueprints
                 }
                 if (!BlueprintManager.Instance.CanCapture(piece))
                 {
-                    Logger.LogWarning("Ignoring piece " + piece + ", not able to make Plan");
+                    Logger.LogWarning($"Ignoring piece {piece}, not able to make Plan");
                     continue;
                 }
                 piece.GetComponent<WearNTear>()?.Highlight();
@@ -726,7 +726,7 @@ namespace PlanBuild.Blueprints
                     Object.Instantiate(snapPointObject, snapPoint.GetPosition(), Quaternion.identity, baseObject.transform);
                 }
 
-                //Tiny collider for accurate placement
+                // Tiny collider for accurate placement
                 GameObject gameObject = new GameObject(PlaceColliderName);
                 gameObject.transform.SetParent(baseObject.transform);
                 gameObject.layer = LayerMask.NameToLayer("piece_nonsolid");
@@ -742,7 +742,7 @@ namespace PlanBuild.Blueprints
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
                     if (!go)
                     {
-                        Logger.LogWarning("No prefab found for " + piece.name + "! You are probably missing a dependency for blueprint " + Name);
+                        Logger.LogWarning($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
                         return false;
                     }
                     else
@@ -758,7 +758,7 @@ namespace PlanBuild.Blueprints
                     var piecePosition = tf.position + piece.GetPosition();
 
 
-                    GameObject pieceObject = new GameObject("piece_entry (" + i + ")");
+                    GameObject pieceObject = new GameObject($"piece_entry ({i})");
                     pieceObject.transform.SetParent(tf);
                     pieceObject.transform.rotation = piece.GetRotation();
                     pieceObject.transform.position = piecePosition;
@@ -788,7 +788,7 @@ namespace PlanBuild.Blueprints
                         child.transform.localPosition = ghostPosition;
                         MakeGhost(child);
 
-                        //Doors have a dynamic object that also needs to be added
+                        // Doors have a dynamic object that also needs to be added
                         if (prefab.TryGetComponent(out Door door))
                         {
                             GameObject doorPrefab = door.m_doorObject;
@@ -825,12 +825,13 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(component);
             }
 
+            // Also no fancy colliders
             foreach(var collider in child.GetComponentsInChildren<Collider>())
             {
                 Object.Destroy(collider);
             }
 
-            //Disable ripple effect on ghost (only visible when using Skuld crystal)
+            // Disable ripple effect on ghost (only visible when using Skuld crystal)
             MeshRenderer[] meshRenderers = child.GetComponentsInChildren<MeshRenderer>();
             foreach (MeshRenderer meshRenderer in meshRenderers)
             {
@@ -848,9 +849,6 @@ namespace PlanBuild.Blueprints
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
             }
-
-            // m_placementGhost is updated on the fly instead
-            // ShaderHelper.UpdateTextures(child, ShaderHelper.ShaderState.Floating);
         }
 
         /// <summary>
@@ -903,6 +901,7 @@ namespace PlanBuild.Blueprints
             /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
             public IEnumerator AddBlueprint()
             {
+                // Hide console
                 Console.instance.m_chatWindow.gameObject.SetActive(false);
                 Console.instance.Update();
                 
