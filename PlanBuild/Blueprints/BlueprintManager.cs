@@ -431,7 +431,7 @@ namespace PlanBuild.Blueprints
             string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
             if (LocalBlueprints.TryGetValue(bpname, out var bp))
             {
-                bp.GhostInstantiate();
+                bp.InstantiateGhost();
             }
             
             orig(self);

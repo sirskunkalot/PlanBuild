@@ -99,11 +99,6 @@ namespace PlanBuild.Blueprints
         private GameObject Prefab;
 
         /// <summary>
-        ///     Indicator if the placement ghost has been lazy instantiated
-        /// </summary>
-        private bool GhostInstantiated;
-
-        /// <summary>
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;
@@ -645,76 +640,16 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Removes and destroys this blueprints prefab, KeyHint and files from the game and filesystem.
-        /// </summary>
-        public void Destroy()
-        {
-            // Remove and destroy prefab
-            if (Prefab != null)
-            {
-                // Remove from PieceTable
-                var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-                if (table == null)
-                {
-                    Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
-                    return;
-                }
-                if (table.m_pieces.Contains(Prefab))
-                {
-                    Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
-
-                    table.m_pieces.Remove(Prefab);
-                }
-
-                // Remove from prefabs
-                if (PieceManager.Instance.GetPiece(PrefabName) != null)
-                {
-                    PieceManager.Instance.RemovePiece(PrefabName);
-                }
-                PrefabManager.Instance.DestroyPrefab(PrefabName);
-
-                // Remove from known recipes
-                if (Player.m_localPlayer && Player.m_localPlayer.m_knownRecipes.Contains(PrefabName))
-                {
-                    Player.m_localPlayer.m_knownRecipes.Remove(PrefabName);
-                }
-            }
-
-            if (Player.m_localPlayer)
-            {
-                Player.m_localPlayer.UpdateAvailablePiecesList();
-            }
-
-            // Remove KeyHint
-            if (KeyHint != null)
-            {
-                GUIManager.Instance.RemoveKeyHint(KeyHint);
-                KeyHint = null;
-            }
-
-            // Delete files
-            if (File.Exists(FileLocation))
-            {
-                File.Delete(FileLocation);
-            }
-            if (File.Exists(IconLocation))
-            {
-                File.Delete(IconLocation);
-            }
-        }
-
-        /// <summary>
         ///     Instantiate this blueprints placement ghost
         /// </summary>
-        /// <param name="baseObject"></param>
         /// <returns></returns>
-        public bool GhostInstantiate()
+        public bool InstantiateGhost()
         {
             if (!Prefab)
             {
                 return false;
             }
-            if (GhostInstantiated)
+            if (Prefab.transform.childCount > 1)
             {
                 return true;
             }
@@ -784,14 +719,14 @@ namespace PlanBuild.Blueprints
                         Quaternion ghostRotation;
                         if (prefab.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_new)
                         {
-                            //Only instantiate the visual part
+                            // Only instantiate the visual part
                             ghostPrefab = wearNTear.m_new;
                             ghostRotation = ghostPrefab.transform.localRotation;
                             ghostPosition = ghostPrefab.transform.localPosition;
                         }
                         else
                         {
-                            //No WearNTear?? Just use the entire prefab
+                            // No WearNTear?? Just use the entire prefab
                             ghostPrefab = prefab;
                             ghostRotation = Quaternion.identity;
                             ghostPosition = Vector3.zero;
@@ -800,7 +735,7 @@ namespace PlanBuild.Blueprints
                         var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
                         child.transform.localRotation = ghostRotation;
                         child.transform.localPosition = ghostPosition;
-                        MakeGhostPiece(child);
+                        PrepareGhostPiece(child);
 
                         // Doors have a dynamic object that also needs to be added
                         if (prefab.TryGetComponent(out Door door))
@@ -809,7 +744,7 @@ namespace PlanBuild.Blueprints
                             var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
                             doorChild.transform.localRotation = doorPrefab.transform.localRotation;
                             doorChild.transform.localPosition = doorPrefab.transform.localPosition;
-                            MakeGhostPiece(doorChild);
+                            PrepareGhostPiece(doorChild);
                         }
                     }
                 }
@@ -824,7 +759,6 @@ namespace PlanBuild.Blueprints
                 ZNetView.m_forceDisableInit = false;
             }
 
-            GhostInstantiated = true;
             return ret;
         }
 
@@ -832,7 +766,7 @@ namespace PlanBuild.Blueprints
         ///     Prepare a GameObject for the placement ghost
         /// </summary>
         /// <param name="child"></param>
-        private void MakeGhostPiece(GameObject child)
+        private void PrepareGhostPiece(GameObject child)
         {
             // A Ghost doesn't need fancy scripts
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
@@ -863,6 +797,65 @@ namespace PlanBuild.Blueprints
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
+            }
+        }
+
+        /// <summary>
+        ///     Removes and destroys this blueprints prefab, KeyHint and files from the game and filesystem.
+        /// </summary>
+        public void DestroyBlueprint()
+        {
+            // Remove and destroy prefab
+            if (Prefab)
+            {
+                // Remove from PieceTable
+                var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+                if (table == null)
+                {
+                    Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
+                    return;
+                }
+                if (table.m_pieces.Contains(Prefab))
+                {
+                    Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
+
+                    table.m_pieces.Remove(Prefab);
+                }
+
+                // Remove from prefabs
+                if (PieceManager.Instance.GetPiece(PrefabName) != null)
+                {
+                    PieceManager.Instance.RemovePiece(PrefabName);
+                }
+                PrefabManager.Instance.DestroyPrefab(PrefabName);
+
+                // Remove from known recipes
+                if (Player.m_localPlayer && Player.m_localPlayer.m_knownRecipes.Contains(PrefabName))
+                {
+                    Player.m_localPlayer.m_knownRecipes.Remove(PrefabName);
+                }
+            }
+
+            if (Player.m_localPlayer)
+            {
+                Player.m_localPlayer.UpdateAvailablePiecesList();
+            }
+
+            // Remove KeyHint
+            if (KeyHint != null)
+            {
+                GUIManager.Instance.RemoveKeyHint(KeyHint);
+                KeyHint = null;
+            }
+
+            // Delete files
+            if (File.Exists(FileLocation))
+            {
+                File.Delete(FileLocation);
+            }
+            if (File.Exists(IconLocation))
+            {
+                File.Delete(IconLocation);
             }
         }
 
@@ -902,7 +895,7 @@ namespace PlanBuild.Blueprints
                     if (BlueprintManager.LocalBlueprints.ContainsKey(newbp.ID))
                     {
                         Blueprint oldbp = BlueprintManager.LocalBlueprints[newbp.ID];
-                        oldbp.Destroy();
+                        oldbp.DestroyBlueprint();
                         BlueprintManager.LocalBlueprints.Remove(newbp.ID);
                     }
 
