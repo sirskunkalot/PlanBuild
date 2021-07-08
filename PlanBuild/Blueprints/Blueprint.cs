@@ -408,14 +408,20 @@ namespace PlanBuild.Blueprints
         {
             return PieceEntries.Count();
         }
+         
 
         /// <summary>
-        ///     Maximum X and Z position of this blueprint
+        ///     Get the bounds of this blueprint
         /// </summary>
         /// <returns></returns>
-        public Vector2 GetExtent()
+        public Bounds GetBounds()
         {
-            return new Vector2(PieceEntries.Max(x => x.posX), PieceEntries.Max(x => x.posZ));
+            Bounds bounds = new Bounds();
+            foreach(PieceEntry entry in PieceEntries)
+            {
+                bounds.Encapsulate(entry.GetPosition());
+            }
+            return bounds;
         }
 
         /// <summary>

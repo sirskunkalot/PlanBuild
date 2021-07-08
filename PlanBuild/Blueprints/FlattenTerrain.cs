@@ -54,7 +54,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void FlattenForBlueprint(Transform transform, float maxX, float maxZ, PieceEntry[] pieces)
+        public static void FlattenForBlueprint(Transform transform, Bounds bounds, PieceEntry[] pieces)
         {
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
@@ -63,11 +63,11 @@ namespace PlanBuild.Blueprints
 
                 try
                 {
-                    var forward = -1f;
-                    while (forward < maxZ + 1f)
+                    var forward = bounds.min.z - 1f;
+                    while (forward < bounds.max.z + 1f)
                     {
-                        var right = -1f;
-                        while (right < maxX + 1f)
+                        var right = bounds.min.x - 1f;
+                        while (right < bounds.max.x + 1f)
                         {
                             if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
                             {

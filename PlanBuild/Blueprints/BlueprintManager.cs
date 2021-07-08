@@ -774,8 +774,8 @@ namespace PlanBuild.Blueprints
             bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
             if (flatten)
             {
-                Vector2 extent = bp.GetExtent();
-                FlattenTerrain.FlattenForBlueprint(transform, extent.x, extent.y, bp.PieceEntries);
+                Bounds bounds = bp.GetBounds();
+                FlattenTerrain.FlattenForBlueprint(transform, bounds, bp.PieceEntries);
             }
 
             uint cntEffects = 0u;
