@@ -585,12 +585,12 @@ namespace PlanBuild.Blueprints
             Prefab.name = PrefabName;
 
             // Instantiate child objects
-            if (!GhostInstantiate(Prefab))
+            /*if (!GhostInstantiate(Prefab))
             {
                 Logger.LogWarning("Could not create prefab");
                 Object.DestroyImmediate(Prefab);
                 return false;
-            }
+            }*/
 
             // Set piece information
             Piece piece = Prefab.GetComponent<Piece>();
@@ -703,7 +703,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="baseObject"></param>
         /// <returns></returns>
-        private bool GhostInstantiate(GameObject baseObject)
+        public bool GhostInstantiate(GameObject baseObject)
         {
             var ret = true;
             ZNetView.m_forceDisableInit = true;

@@ -77,6 +77,7 @@ namespace PlanBuild.Blueprints
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
+                On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
                 On.Player.UpdatePlacement += OnUpdatePlacement;
                 On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
                 On.Player.PlacePiece += OnPlacePiece;
@@ -400,6 +401,27 @@ namespace PlanBuild.Blueprints
             }
 
             orig(self);
+        }
+
+        // Instantiate Ghost prefab
+        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            orig(self);
+
+            if (self.m_buildPieces == null || self.m_placementGhost)
+            {
+                return;
+            }
+
+            if (!self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                return;
+            }
+            
+            if (LocalBlueprints.TryGetValue(self.m_placementGhost.name.Split(':')[1], out var bp))
+            {
+                bp.GhostInstantiate(self.m_placementGhost);
+            }
         }
 
         /// <summary>
