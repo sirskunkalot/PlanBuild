@@ -6,15 +6,12 @@
 
 using BepInEx;
 using BepInEx.Configuration;
-using Jotunn.Configs;
-using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
 using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
@@ -23,7 +20,7 @@ using Object = UnityEngine.Object;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.1.2")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.1.3")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
@@ -38,7 +35,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> configTransparentGhostPlacement;
 
         internal PlanCrystalPrefab planCrystalPrefab;
-        internal BlueprintRunePrefab blueprintRunePrefab; 
+        internal BlueprintRunePrefab blueprintRunePrefab;
         private PlanTotemPrefab planTotemPrefab;
 
         internal static bool showRealTextures;
@@ -74,7 +71,7 @@ namespace PlanBuild
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
-          
+
         }
 
         private void OnItemsRegistered()
@@ -98,7 +95,7 @@ namespace PlanBuild
             ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
-           
+
         }
 
         public void Update()
@@ -116,16 +113,16 @@ namespace PlanBuild
             }
 
             // BP Market GUI is OK in the main menu
-            if (BlueprintGUI.IsAvailable() && 
-                BlueprintConfig.allowMarketHotkey.Value && 
+            if (BlueprintGUI.IsAvailable() &&
+                BlueprintConfig.allowMarketHotkey.Value &&
                 ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();
             }
 
             // Return from world interface GUI with "use" again
-            if (BlueprintGUI.IsVisible() && 
-                !BlueprintGUI.TextFieldHasFocus() && 
+            if (BlueprintGUI.IsVisible() &&
+                !BlueprintGUI.TextFieldHasFocus() &&
                 ZInput.GetButtonDown("Use"))
             {
                 BlueprintGUI.Instance.Toggle();
