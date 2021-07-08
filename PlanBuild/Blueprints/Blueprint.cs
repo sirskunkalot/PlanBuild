@@ -903,6 +903,9 @@ namespace PlanBuild.Blueprints
             /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
             public IEnumerator AddBlueprint()
             {
+                Console.instance.m_chatWindow.gameObject.SetActive(false);
+                Console.instance.Update();
+                
                 // Hide Hud if active
                 bool oldHud = Hud.instance.m_userHidden;
                 Hud.instance.m_userHidden = true;
