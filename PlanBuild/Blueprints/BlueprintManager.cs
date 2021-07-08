@@ -367,7 +367,7 @@ namespace PlanBuild.Blueprints
                 // Create prefabs for all known blueprints
                 foreach (var bp in LocalBlueprints.Values)
                 {
-                    bp.CreatePrefab();
+                    bp.CreatePiece();
                 }
             }
         }
@@ -390,9 +390,14 @@ namespace PlanBuild.Blueprints
             return result;
         }
 
+        /// <summary>
+        ///     Dont highlight pieces when make/delete tool is active
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
         private void OnUpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
         {
-            Piece piece = Player.m_localPlayer.GetSelectedPiece();
+            Piece piece = self.GetSelectedPiece();
             if (piece &&
                 (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
               || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)))
@@ -403,25 +408,33 @@ namespace PlanBuild.Blueprints
             orig(self);
         }
 
-        // Instantiate Ghost prefab
+        /// <summary>
+        ///     Lazy instantiate blueprint ghost
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
         private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
-            orig(self);
-
-            if (self.m_buildPieces == null || self.m_placementGhost)
+            if (self.m_buildPieces == null)
             {
+                orig(self);
                 return;
             }
 
-            if (!self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
+            GameObject prefab = self.m_buildPieces.GetSelectedPrefab();
+            if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
             {
+                orig(self);
                 return;
+            }
+
+            string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
+            if (LocalBlueprints.TryGetValue(bpname, out var bp))
+            {
+                bp.GhostInstantiate();
             }
             
-            if (LocalBlueprints.TryGetValue(self.m_placementGhost.name.Split(':')[1], out var bp))
-            {
-                bp.GhostInstantiate(self.m_placementGhost);
-            }
+            orig(self);
         }
 
         /// <summary>

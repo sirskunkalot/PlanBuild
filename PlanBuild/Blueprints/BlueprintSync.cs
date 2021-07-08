@@ -208,7 +208,7 @@ namespace PlanBuild.Blueprints
             }
 
             bp.ToFile();
-            bp.CreatePrefab();
+            bp.CreatePiece();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 

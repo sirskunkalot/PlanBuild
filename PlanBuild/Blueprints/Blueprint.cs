@@ -99,6 +99,11 @@ namespace PlanBuild.Blueprints
         private GameObject Prefab;
 
         /// <summary>
+        ///     Indicator if the placement ghost has been lazy instantiated
+        /// </summary>
+        private bool GhostInstantiated;
+
+        /// <summary>
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;
@@ -556,7 +561,7 @@ namespace PlanBuild.Blueprints
         ///     used in this blueprint. Adds it to the <see cref="ZNetScene"/> and rune <see cref="PieceTable"/>.
         /// </summary>
         /// <returns>true if the prefab could be created</returns>
-        public bool CreatePrefab()
+        public bool CreatePiece()
         {
             if (Prefab != null)
             {
@@ -703,8 +708,18 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="baseObject"></param>
         /// <returns></returns>
-        public bool GhostInstantiate(GameObject baseObject)
+        public bool GhostInstantiate()
         {
+            if (!Prefab)
+            {
+                return false;
+            }
+            if (GhostInstantiated)
+            {
+                return true;
+            }
+
+            GameObject baseObject = Prefab;
             var ret = true;
             ZNetView.m_forceDisableInit = true;
 
@@ -742,8 +757,7 @@ namespace PlanBuild.Blueprints
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
                     if (!go)
                     {
-                        Logger.LogWarning($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
-                        return false;
+                        throw new Exception($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
                     }
                     else
                     {
@@ -786,7 +800,7 @@ namespace PlanBuild.Blueprints
                         var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
                         child.transform.localRotation = ghostRotation;
                         child.transform.localPosition = ghostPosition;
-                        MakeGhost(child);
+                        MakeGhostPiece(child);
 
                         // Doors have a dynamic object that also needs to be added
                         if (prefab.TryGetComponent(out Door door))
@@ -795,7 +809,7 @@ namespace PlanBuild.Blueprints
                             var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
                             doorChild.transform.localRotation = doorPrefab.transform.localRotation;
                             doorChild.transform.localPosition = doorPrefab.transform.localPosition;
-                            MakeGhost(doorChild);
+                            MakeGhostPiece(doorChild);
                         }
                     }
                 }
@@ -810,6 +824,7 @@ namespace PlanBuild.Blueprints
                 ZNetView.m_forceDisableInit = false;
             }
 
+            GhostInstantiated = true;
             return ret;
         }
 
@@ -817,7 +832,7 @@ namespace PlanBuild.Blueprints
         ///     Prepare a GameObject for the placement ghost
         /// </summary>
         /// <param name="child"></param>
-        private void MakeGhost(GameObject child)
+        private void MakeGhostPiece(GameObject child)
         {
             // A Ghost doesn't need fancy scripts
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
@@ -957,7 +972,7 @@ namespace PlanBuild.Blueprints
                 yield return new WaitForEndOfFrame();
 
                 // Create and load blueprint prefab
-                newbp.CreatePrefab();
+                newbp.CreatePiece();
                 BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
                 BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
