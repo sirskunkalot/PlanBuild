@@ -74,6 +74,7 @@ namespace PlanBuild.PlanBuild
         {
             orig(self);
             ScanPieceTables();
+            UpdateKnownRecipes();
         }
 
         public void TogglePlanBuildMode()
