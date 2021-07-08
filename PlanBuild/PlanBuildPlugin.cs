@@ -43,24 +43,22 @@ namespace PlanBuild
         public void Awake()
         {
             Instance = this;
+            Assembly assembly = typeof(PlanBuildPlugin).Assembly;
 
             // Configs
             SetupConfig();
 
-            // Init plans
-            PlanManager.Instance.Init();
-
-            // Init Blueprints
-            Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-
-            blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
-            blueprintsBundle.Unload(false);
-            BlueprintManager.Instance.Init();
-
+            // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
+            PlanManager.Instance.Init();
+
+            // Init Blueprints
+            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
+            blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
+            blueprintsBundle.Unload(false);
+            BlueprintManager.Instance.Init();
 
             // Init Shader
             ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
@@ -174,18 +172,6 @@ namespace PlanBuild
             {
                 ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
             }
-        }
-
-        private string[] GetAcceptableKeyCodes()
-        {
-            Array keyCodes = Enum.GetValues(typeof(KeyCode));
-            int i = 0;
-            string[] acceptable = new string[keyCodes.Length];
-            foreach (System.Object keyCode in keyCodes)
-            {
-                acceptable[i++] = keyCode.ToString();
-            }
-            return acceptable;
         }
 
         private void UpdateAllPlanPieceTextures(object sender, EventArgs e)

@@ -55,7 +55,7 @@ namespace PlanBuild.Blueprints
 
             placementOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Placement offset increment", 0.1f,
-                new ConfigDescription("Placement height change when holding Ctrl and scrolling while in Blueprint mode"));
+                new ConfigDescription("Placement height change when holding Ctrl+Alt and scrolling while in Blueprint mode"));
 
             selectionIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Selection increment", 1f,
