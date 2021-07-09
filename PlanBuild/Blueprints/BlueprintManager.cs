@@ -362,7 +362,7 @@ namespace PlanBuild.Blueprints
             // Client only
             if (ZNet.instance != null && !ZNet.instance.IsDedicated())
             {
-                Jotunn.Logger.LogMessage("Registering known blueprints");
+                Jotunn.Logger.LogInfo("Registering known blueprints");
 
                 // Create prefabs for all known blueprints
                 foreach (var bp in LocalBlueprints.Values)
@@ -374,6 +374,7 @@ namespace PlanBuild.Blueprints
 
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
+            orig(self);
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);

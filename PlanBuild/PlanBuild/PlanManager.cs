@@ -34,6 +34,7 @@ namespace PlanBuild.PlanBuild
 
             PieceManager.OnPiecesRegistered += CreatePlanTable;
             On.Player.OnSpawned += OnPlayerOnSpawned;
+            On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
         }
 
         private void CreatePlanTable()
@@ -42,7 +43,7 @@ namespace PlanBuild.PlanBuild
             var categories = PieceManager.Instance.GetPieceCategories().Where(x => x != BlueprintRunePrefab.CategoryBlueprints && x != BlueprintRunePrefab.CategoryTools);
 
             CustomPieceTable planPieceTable = new CustomPieceTable(
-                PlanPiecePrefab.PlanHammerPieceTableName,
+                PlanPiecePrefab.PieceTableName,
                 new PieceTableConfig()
                 {
                     CanRemovePieces = true,
@@ -77,77 +78,14 @@ namespace PlanBuild.PlanBuild
             UpdateKnownRecipes();
         }
 
-        public void TogglePlanBuildMode()
+        private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
-            if (ScanPieceTables())
-            {
-                UpdateKnownRecipes();
-            }
-            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintRunePrefab.BlueprintRuneName)
-            {
-                return;
-            }
-            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
-            if (blueprintRune == null)
-            {
-                return;
-            }
-            PieceTable planHammerPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
-            PieceTable bluePrintRunePieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if (blueprintRune.m_shared.m_buildPieces == planHammerPieceTable)
-            {
-                blueprintRune.m_shared.m_buildPieces = bluePrintRunePieceTable;
-                if (blueprintRune.m_shared.m_buildPieces.m_selectedCategory == 0)
-                {
-                    blueprintRune.m_shared.m_buildPieces.m_selectedCategory = PieceManager.Instance.AddPieceCategory(BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryTools);
-                }
-            }
-            else
-            {
-                blueprintRune.m_shared.m_buildPieces = planHammerPieceTable;
-            }
-            Player.m_localPlayer.UnequipItem(blueprintRune);
-            Player.m_localPlayer.EquipItem(blueprintRune);
-
-            Color color = blueprintRune.m_shared.m_buildPieces == planHammerPieceTable ? Color.red : Color.cyan;
-            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
-
-            Player.m_localPlayer.UpdateKnownRecipesList();
+            ScanPieceTables();
+            UpdateKnownRecipes();
+            orig(self);
         }
 
-        private void UpdateKnownRecipes()
-        {
-            Player player = Player.m_localPlayer;
-            if (player == null)
-            {
-                return;
-            }
-
-            if (!showAllPieces.Value)
-            {
-                foreach (PlanPiecePrefab planPieceConfig in planPiecePrefabs.Values)
-                {
-                    if (!player.HaveRequirements(planPieceConfig.originalPiece, Player.RequirementMode.IsKnown))
-                    {
-#if DEBUG
-                        Jotunn.Logger.LogInfo("Removing planned piece from m_knownRecipes: " + planPieceConfig.Piece.m_name);
-#endif
-                        player.m_knownRecipes.Remove(planPieceConfig.Piece.m_name);
-                    }
-#if DEBUG
-                    else
-                    {
-                        Jotunn.Logger.LogDebug("Player knows about " + planPieceConfig.originalPiece.m_name);
-                    }
-#endif
-                }
-            }
-            player.UpdateKnownRecipesList();
-            PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName)
-                .UpdateAvailable(player.m_knownRecipes, player, true, false);
-        }
-
-        internal bool ScanPieceTables()
+        private bool ScanPieceTables()
         {
             Jotunn.Logger.LogDebug("Scanning PieceTables for Pieces");
             bool addedPiece = false;
@@ -168,7 +106,7 @@ namespace PlanBuild.PlanBuild
                     Piece piece = piecePrefab.GetComponent<Piece>();
                     if (!piece)
                     {
-                        Jotunn.Logger.LogWarning($"Recipe in {item.name} has no Piece?! " + piecePrefab.name);
+                        Jotunn.Logger.LogWarning($"Recipe in {item.name} has no Piece?! {piecePrefab.name}");
                         continue;
                     }
                     try
@@ -194,7 +132,7 @@ namespace PlanBuild.PlanBuild
                         PieceManager.Instance.AddPiece(planPiece);
                         planPiecePrefabs.Add(piece.name, planPiece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                        PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PlanHammerPieceTableName);
+                        PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
                         if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                         {
                             planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
@@ -203,7 +141,7 @@ namespace PlanBuild.PlanBuild
                     }
                     catch (Exception e)
                     {
-                        Jotunn.Logger.LogWarning("Error while creating plan of " + piece.name + ": " + e);
+                        Jotunn.Logger.LogWarning($"Error while creating plan of {piece.name}: {e}");
                     }
                 }
             }
@@ -253,5 +191,64 @@ namespace PlanBuild.PlanBuild
             return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
         }
 
+        private void UpdateKnownRecipes()
+        {
+            Player player = Player.m_localPlayer;
+            if (player == null)
+            {
+                return;
+            }
+
+            Jotunn.Logger.LogDebug("Updating known Recipes");
+            foreach (PlanPiecePrefab planPiece in planPiecePrefabs.Values)
+            {
+                if (!showAllPieces.Value && !player.HaveRequirements(planPiece.originalPiece, Player.RequirementMode.IsKnown))
+                {
+                    if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
+                    {
+                        player.m_knownRecipes.Remove(planPiece.Piece.m_name);
+                        Jotunn.Logger.LogDebug($"Removing planned piece from m_knownRecipes: {planPiece.Piece.m_name}");
+                    }
+                }
+                else if (!player.m_knownRecipes.Contains(planPiece.Piece.m_name))
+                {
+                    player.m_knownRecipes.Add(planPiece.Piece.m_name);
+                    Jotunn.Logger.LogDebug($"Adding planned piece to m_knownRecipes: {planPiece.Piece.m_name}");
+                }
+            }
+
+            PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName)
+                .UpdateAvailable(player.m_knownRecipes, player, true, false);
+        }
+
+        public void TogglePlanBuildMode()
+        {
+            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintRunePrefab.BlueprintRuneName)
+            {
+                return;
+            }
+            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
+            if (blueprintRune == null)
+            {
+                return;
+            }
+            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
+            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+            if (blueprintRune.m_shared.m_buildPieces == planPieceTable)
+            {
+                blueprintRune.m_shared.m_buildPieces = blueprintPieceTable;
+            }
+            else
+            {
+                blueprintRune.m_shared.m_buildPieces = planPieceTable;
+            }
+            Player.m_localPlayer.UnequipItem(blueprintRune);
+            Player.m_localPlayer.EquipItem(blueprintRune);
+
+            Color color = blueprintRune.m_shared.m_buildPieces == planPieceTable ? Color.red : Color.cyan;
+            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
+
+            Player.m_localPlayer.UpdateKnownRecipesList();
+        }
     }
 }

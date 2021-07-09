@@ -67,6 +67,7 @@ namespace PlanBuild.Blueprints
                 });
                 PieceManager.Instance.AddPiece(piece);
             }
+            // World runes
             foreach (string pieceName in new string[]
             {
                 StandingBlueprintRune, BlueprintRuneStack

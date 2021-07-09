@@ -9,13 +9,13 @@ namespace PlanBuild.Plans
     internal class PlanPiecePrefab : CustomPiece
     {
         public const string PlannedSuffix = "_planned";
-        public const string PlanHammerPieceTableName = "_planHammerPieceTable";
+        public const string PieceTableName = "_planHammerPieceTable";
         public Piece originalPiece;
         public static bool logPiece = true;
         public static bool logComponents = false;
         public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
 
-        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PlanHammerPieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
             this.originalPiece = piece;
             Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", originalPiece.m_name);
@@ -39,7 +39,7 @@ namespace PlanBuild.Plans
             Piece.m_randomTarget = false;
             Piece.m_primaryTarget = false;
 
-            this.PieceTable = PlanHammerPieceTableName;
+            this.PieceTable = PieceTableName;
 
             WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
             if (wearNTear == null)
