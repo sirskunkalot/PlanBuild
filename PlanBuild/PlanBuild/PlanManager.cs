@@ -150,11 +150,16 @@ namespace PlanBuild.PlanBuild
 
         public static bool CanCreatePlan(Piece piece)
         {
-            return piece.m_enabled
-                && piece.GetComponent<Ship>() == null
-                && piece.GetComponent<Plant>() == null
-                && piece.GetComponent<TerrainModifier>() == null
-                && piece.GetComponent<TerrainOp>() == null
+            bool canCreatePlan = piece.m_enabled
+                            && piece.GetComponent<Plant>() == null
+                            && piece.GetComponent<TerrainOp>() == null
+                            && piece.GetComponent<TerrainModifier>() == null
+                            && piece.GetComponent<Ship>() == null;
+            if(canCreatePlan && piece.m_resources.Length == 0)
+            {
+                Jotunn.Logger.LogWarning("Free object?: " + piece.name + " -> " + piece.m_name);
+            }
+            return canCreatePlan
                 && piece.m_resources.Length != 0;
         }
 

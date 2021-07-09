@@ -13,13 +13,14 @@ namespace Pulleys
 
 		public static readonly KeyValuePair<int, int> MBParentHash = ZDO.GetHashZDOID("marcopogo.MBParent");
 		public static readonly int MBPositionHash = "marcopogo.MBPosition".GetStableHashCode();
-		public static readonly int MBRotationHash = "marcopogo.MBRotation".GetStableHashCode();
+        public static readonly int MBRotationHash = "marcopogo.MBRotation".GetStableHashCode();
 
-		public readonly List<Piece> m_pieces = new List<Piece>();
+		public static readonly List<MoveableBaseSync> allMoveableBaseSyncs = new List<MoveableBaseSync>();
+        public static readonly Dictionary<ZDOID, HashSet<Piece>> m_pendingPieces = new Dictionary<ZDOID, HashSet<Piece>>();
 
+		public readonly List<Piece> m_pieces = new List<Piece>(); 
 		public readonly List<Piece> m_portals = new List<Piece>();
 
-		public static Dictionary<ZDOID, HashSet<Piece>> m_pendingPieces = new Dictionary<ZDOID, HashSet<Piece>>();
 
 		public MoveableBaseRoot m_baseRoot;
 		public float m_lastPortalUpdate;
@@ -29,6 +30,17 @@ namespace Pulleys
 
 		public ZNetView m_nview;
 		public bool m_follower;
+
+        internal static List<MoveableBaseSync> GetAllMoveableBaseSyncs()
+        {
+			return new List<MoveableBaseSync>(allMoveableBaseSyncs);
+        }
+
+        internal void UpdateWear()
+        {
+         
+        }
+
         public GameObject m_baseControllerObject;
         public GameObject m_baseRootObject;
 		private bool activatedPendingPieces = false; 
@@ -44,6 +56,13 @@ namespace Pulleys
             m_baseControllerObject = Object.Instantiate(PrefabManager.Instance.GetPrefab(PulleyManager.MoveableBaseRootName), transform.position, transform.rotation, ZNetScene.instance.transform); 
             m_baseRoot = m_baseControllerObject.GetComponent<MoveableBaseRoot>();
 			m_baseRoot.SetBaseSync(this);
+
+			allMoveableBaseSyncs.Add(this);
+        }
+
+		public void OnDestroy()
+        {
+			allMoveableBaseSyncs.Remove(this);
         }
 
         public void Update()
@@ -67,17 +86,6 @@ namespace Pulleys
 			return m_nview.m_zdo.m_uid;
         }
          
-        internal void SetMoveableBaseRoot(MoveableBaseRoot moveableBaseRoot)
-        {
-			if(!moveableBaseRoot)
-            {
-				return;
-            }
-			m_follower = true;
-			m_baseRoot = moveableBaseRoot;
-			m_baseRootObject = moveableBaseRoot.gameObject;
-		}
-
 		public bool ActivatePendingPieces()
 		{
 			if (!m_nview || m_nview.m_zdo == null)

@@ -330,6 +330,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="Assets\seed-totem-custom-requirements.json" />
+    <None Include="Assets\Translations\English\SeedTotem.english.json" />
+    <None Include="Assets\Translations\French\SeedTotem.french.json" />
+    <None Include="Assets\Translations\Spanish\SeedTotem.spanish.json" />
     <None Include="packages.config" />
     <None Include="Package\README.md" />
   </ItemGroup>
@@ -340,6 +344,7 @@
     <None Include="Package\manifest.json" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\icons\seed_totem.png" />
     <Content Include="Package\icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

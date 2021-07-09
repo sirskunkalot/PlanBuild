@@ -12,6 +12,7 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -30,8 +31,21 @@ namespace Pulleys
            
         public void Awake()
         { 
-            PulleyManager.Instance.Init(); 
+            PulleyManager.Instance.Init();
+			StartCoroutine("UpdateWear");
         }
-         
-    }
+
+		internal IEnumerator UpdateWear()
+		{
+			while (true)
+			{
+				foreach(MoveableBaseSync moveableBaseSync in MoveableBaseSync.GetAllMoveableBaseSyncs())
+                {
+                    moveableBaseSync.UpdateWear();
+					yield return null;
+                } 
+				yield return new WaitForSeconds(5f);
+			}
+		}
+	}
 }

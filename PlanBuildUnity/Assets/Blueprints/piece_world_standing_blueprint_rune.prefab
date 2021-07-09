@@ -42,8 +42,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.9747575, y: 0.23361096, z: 2.6159394}
-  m_Center: {x: 0.39817885, y: -0.07458644, z: 0.5602607}
+  m_Size: {x: 0.9635538, y: 0.22898512, z: 2.6159394}
+  m_Center: {x: 0.33297348, y: -0.14158277, z: 0.5602607}
 --- !u!1 &6327428504934872598
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,11 +291,11 @@ MonoBehaviour:
   m_comfortGroup: 0
   m_groundPiece: 0
   m_allowAltGroundPlacement: 0
-  m_groundOnly: 0
+  m_groundOnly: 1
   m_cultivatedGroundOnly: 0
   m_waterPiece: 0
-  m_clipGround: 0
-  m_clipEverything: 0
+  m_clipGround: 1
+  m_clipEverything: 1
   m_noInWater: 1
   m_notOnWood: 0
   m_notOnTiltingSurface: 0

@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -96,42 +97,33 @@ namespace SeedTotem
                 return;
             }
             scanningCultivator = true;
-            foreach (PieceTable table in Resources.FindObjectsOfTypeAll(typeof(PieceTable)))
+            var table = PieceManager.Instance.GetPieceTable("_CultivatorPieceTable");
+            foreach (GameObject cultivatorRecipe in table.m_pieces)
             {
-                string name = table.gameObject.name;
-                if (name.Equals("_CultivatorPieceTable"))
+                Plant plant = cultivatorRecipe.GetComponent<Plant>(); 
+                if (plant)
                 {
-                    foreach (GameObject cultivatorRecipe in table.m_pieces)
+                    Piece piece = cultivatorRecipe.GetComponent<Piece>(); 
+                    Piece.Requirement[] requirements = piece.m_resources;
+                    if (requirements.Length > 1)
                     {
-                        Piece piece = cultivatorRecipe.GetComponent<Piece>();
+                        logger.LogWarning("  Multiple seeds required for " + plant.m_name + "? Skipping");
+                        continue;
+                    }
 
-                        Plant plant = piece.GetComponent<Plant>();
-
-                        if (plant)
+                    Piece.Requirement requirement = requirements[0];
+                    ItemDrop itemData = requirement.m_resItem;
+                    if (!seedPrefabMap.ContainsKey(itemData.m_itemData.m_shared.m_name))
+                    {
+                        logger.LogDebug("Looking for Prefab of " + itemData.m_itemData.m_shared.m_name + " -> " + itemData.gameObject.name);
+                        ItemConversion conversion = new ItemConversion
                         {
-                            Piece.Requirement[] requirements = piece.m_resources;
-                            if (requirements.Length > 1)
-                            {
-                                logger.LogWarning("  Multiple seeds required for " + plant.m_name + "? Skipping");
-                                continue;
-                            }
-
-                            Piece.Requirement requirement = requirements[0];
-
-                            ItemDrop itemData = requirement.m_resItem;
-                            if (!seedPrefabMap.ContainsKey(itemData.m_itemData.m_shared.m_name))
-                            {
-                                logger.LogDebug("Looking for Prefab of " + itemData.m_itemData.m_shared.m_name + " -> " + itemData.gameObject.name);
-                                ItemConversion conversion = new ItemConversion
-                                {
-                                    seedDrop = requirement.m_resItem,
-                                    plantPiece = piece,
-                                    plant = plant
-                                };
-                                logger.LogDebug("Registering seed type: " + conversion);
-                                seedPrefabMap.Add(itemData.m_itemData.m_shared.m_name, conversion);
-                            }
-                        }
+                            seedDrop = requirement.m_resItem,
+                            plantPiece = piece,
+                            plant = plant
+                        };
+                        logger.LogDebug("Registering seed type: " + conversion);
+                        seedPrefabMap.Add(itemData.m_itemData.m_shared.m_name, conversion);
                     }
                 }
             }

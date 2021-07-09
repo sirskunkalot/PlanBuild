@@ -24,7 +24,7 @@ namespace SeedTotem
     {
         public const string PluginGUID = "marcopogo.SeedTotem";
         public const string PluginName = "Seed Totem";
-        public const string PluginVersion = "1.1.5";
+        public const string PluginVersion = "1.1.6";
         public static ManualLogSource logger;
         public ConfigEntry<int> nexusID;
         private SeedTotemPrefabConfig seedTotemPrefabConfig;
@@ -80,7 +80,7 @@ namespace SeedTotem
             SeedTotem.configFlareSize = Config.Bind<float>("Graphical", "Glow flare size", 3f, new ConfigDescription("Size of the light flare from the Seed totem", new AcceptableValueRange<float>(0f, 5f)));
             nexusID = Config.Bind<int>("General", "NexusID", 876, new ConfigDescription("Nexus mod ID for updates", new AcceptableValueList<int>(new int[] { 876 })));
 
-            SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Cultivator, "In which build menu is the Seed totem located");
+            SeedTotemPrefabConfig.configLocation = Config.Bind("UI", "Build menu", PieceLocation.Hammer, "In which build menu is the Seed totem located");
         }
 
         private void OnPiecesRegistered()
