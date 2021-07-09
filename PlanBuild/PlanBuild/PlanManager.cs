@@ -118,6 +118,11 @@ namespace PlanBuild.PlanBuild
         private void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
+            if (player == null)
+            {
+                return;
+            }
+
             if (!showAllPieces.Value)
             {
                 foreach (PlanPiecePrefab planPieceConfig in planPiecePrefabs.Values)

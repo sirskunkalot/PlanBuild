@@ -37,7 +37,7 @@ namespace PlanBuild
             return true;
         }
 
-        private static bool interceptGetPrefab = true;
+        /*private static bool interceptGetPrefab = true;
         private static HashSet<int> checkedHashes = new HashSet<int>();
 
         [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
@@ -54,7 +54,7 @@ namespace PlanBuild
                 __result = __instance.GetPrefab(hash);
                 interceptGetPrefab = true;
             }
-        }
+        }*/
 
         internal static void Apply()
         {
