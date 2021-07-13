@@ -299,7 +299,7 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.MakeBlueprintName,
+                Piece = BlueprintRunePrefab.BlueprintCaptureName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -339,7 +339,7 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.DeletePlansName,
+                Piece = BlueprintRunePrefab.BlueprintDeleteName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -400,8 +400,8 @@ namespace PlanBuild.Blueprints
         {
             Piece piece = self.GetSelectedPiece();
             if (piece &&
-                (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
-              || piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName)))
+                (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
+              || piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName)))
             {
                 return;
             }
@@ -451,7 +451,7 @@ namespace PlanBuild.Blueprints
                 if (piece != null)
                 {
                     // Capture Blueprint
-                    if (piece.name.StartsWith(BlueprintRunePrefab.MakeBlueprintName) && !piece.IsCreator())
+                    if (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName) && !piece.IsCreator())
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -510,7 +510,7 @@ namespace PlanBuild.Blueprints
                         }
                     }
                     // Delete Plans
-                    else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
+                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -678,8 +678,8 @@ namespace PlanBuild.Blueprints
             orig(self, flashGuardStone);
 
             if (self.m_placementMarkerInstance && self.m_placementGhost &&
-                (self.m_placementGhost.name == BlueprintRunePrefab.MakeBlueprintName
-                || self.m_placementGhost.name == BlueprintRunePrefab.DeletePlansName)
+                (self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
                )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
@@ -719,9 +719,9 @@ namespace PlanBuild.Blueprints
                 && Player.m_localPlayer.m_placementGhost)
             {
                 var pieceName = Player.m_localPlayer.m_placementGhost.name;
-                if (pieceName.StartsWith(BlueprintRunePrefab.MakeBlueprintName)
-                    || pieceName.StartsWith(Blueprint.PieceBlueprintName)
-                    || pieceName.StartsWith(BlueprintRunePrefab.DeletePlansName))
+                if (pieceName.StartsWith(Blueprint.PieceBlueprintName)
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintCaptureName)
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintDeleteName))
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
@@ -738,20 +738,18 @@ namespace PlanBuild.Blueprints
             if (!ZNet.instance.IsDedicated())
             {
                 // Capture a new blueprint
-                if (piece.name == "make_blueprint")
+                if (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName))
                 {
                     return MakeBlueprint(self);
                 }
                 // Place a known blueprint
                 if (self.m_placementStatus == Player.PlacementStatus.Valid
-                    && piece.name != BlueprintRunePrefab.BlueprintSnapPointName
-                    && piece.name != BlueprintRunePrefab.BlueprintCenterPointName
                     && piece.name.StartsWith(Blueprint.PieceBlueprintName))
                 {
                     return PlaceBlueprint(self, piece);
                 }
                 // Delete plans
-                else if (piece.name.StartsWith(BlueprintRunePrefab.DeletePlansName))
+                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
                 {
                     if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {

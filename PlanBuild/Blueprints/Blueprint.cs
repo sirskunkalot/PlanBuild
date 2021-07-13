@@ -113,7 +113,7 @@ namespace PlanBuild.Blueprints
         {
             string filename = Path.GetFileNameWithoutExtension(fileLocation);
             string extension = Path.GetExtension(fileLocation).ToLowerInvariant();
-            
+
             Format format;
             switch (extension)
             {
@@ -134,7 +134,7 @@ namespace PlanBuild.Blueprints
             ret.FileFormat = format;
             ret.FileLocation = fileLocation;
             ret.IconLocation = fileLocation.Replace(extension, ".png");
-            
+
             if (File.Exists(ret.IconLocation))
             {
                 ret.Thumbnail = AssetUtils.LoadTexture(ret.IconLocation, relativePath: false);
@@ -213,6 +213,10 @@ namespace PlanBuild.Blueprints
 
             foreach (var line in lines)
             {
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
                 if (line.StartsWith(HeaderName))
                 {
                     ret.Name = line.Substring(HeaderName.Length);
@@ -226,6 +230,10 @@ namespace PlanBuild.Blueprints
                 if (line.StartsWith(HeaderDescription))
                 {
                     ret.Description = line.Substring(HeaderDescription.Length);
+                    if (ret.Description.StartsWith("\""))
+                    {
+                        ret.Description = SimpleJson.SimpleJson.DeserializeObject<string>(ret.Description);
+                    }
                     continue;
                 }
                 if (line == HeaderSnapPoints)
@@ -284,7 +292,7 @@ namespace PlanBuild.Blueprints
 
             ret.Add(HeaderName + Name);
             ret.Add(HeaderCreator + Creator);
-            ret.Add(HeaderDescription + Description);
+            ret.Add(HeaderDescription + SimpleJson.SimpleJson.SerializeObject(Description));
             if (SnapPoints.Count() > 0)
             {
                 ret.Add(HeaderSnapPoints);
@@ -375,7 +383,7 @@ namespace PlanBuild.Blueprints
 
             if (FileFormat == Format.VBuild)
             {
-                string newLocation = FileLocation.Replace(".vbuild",".blueprint");
+                string newLocation = FileLocation.Replace(".vbuild", ".blueprint");
                 File.Move(FileLocation, newLocation);
                 FileLocation = newLocation;
                 FileFormat = Format.Blueprint;
@@ -408,7 +416,7 @@ namespace PlanBuild.Blueprints
         {
             return PieceEntries.Count();
         }
-         
+
 
         /// <summary>
         ///     Get the bounds of this blueprint
@@ -417,7 +425,7 @@ namespace PlanBuild.Blueprints
         public Bounds GetBounds()
         {
             Bounds bounds = new Bounds();
-            foreach(PieceEntry entry in PieceEntries)
+            foreach (PieceEntry entry in PieceEntries)
             {
                 bounds.Encapsulate(entry.GetPosition());
             }
@@ -619,7 +627,7 @@ namespace PlanBuild.Blueprints
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(
                 Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
-            
+
             if (Player.m_localPlayer)
             {
                 Player.m_localPlayer.UpdateKnownRecipesList();
@@ -688,9 +696,9 @@ namespace PlanBuild.Blueprints
                 gameObject.layer = LayerMask.NameToLayer("piece_nonsolid");
                 SphereCollider sphereCollider = gameObject.AddComponent<SphereCollider>();
                 sphereCollider.radius = 0.002f;
-              
+
                 var tf = baseObject.transform;
-                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0); 
+                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
 
                 var prefabs = new Dictionary<string, GameObject>();
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
@@ -781,7 +789,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Also no fancy colliders
-            foreach(var collider in child.GetComponentsInChildren<Collider>())
+            foreach (var collider in child.GetComponentsInChildren<Collider>())
             {
                 Object.Destroy(collider);
             }
@@ -889,7 +897,7 @@ namespace PlanBuild.Blueprints
             {
                 string playerName = Player.m_localPlayer.GetPlayerName();
                 string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
-                
+
                 newbp.ID = $"{playerName}_{fileName}".Trim();
                 newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
                 newbp.Name = text;
@@ -918,7 +926,7 @@ namespace PlanBuild.Blueprints
                 // Hide console
                 Console.instance.m_chatWindow.gameObject.SetActive(false);
                 Console.instance.Update();
-                
+
                 // Hide Hud if active
                 bool oldHud = Hud.instance.m_userHidden;
                 Hud.instance.m_userHidden = true;

@@ -1,7 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using PlanBuild.Plans;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -14,12 +13,12 @@ namespace PlanBuild.Blueprints
 
         public const string BlueprintRuneName = "BlueprintRune";
 
-        public const string BlueprintSnapPointName = "piece_blueprint_snappoint";
-        public const string BlueprintCenterPointName = "piece_blueprint_centerpoint";
-        public const string StandingBlueprintRune = "piece_world_standing_blueprint_rune";
-        public const string BlueprintRuneStack = "piece_world_blueprint_rune_stack";
-        public const string MakeBlueprintName = "make_blueprint";
-        public const string DeletePlansName = "delete_plans";
+        public const string BlueprintSnapPointName = "piece_bpsnappoint";
+        public const string BlueprintCenterPointName = "piece_bpcenterpoint";
+        public const string BlueprintCaptureName = "piece_bpcapture";
+        public const string BlueprintDeleteName = "piece_bpdelete";
+        public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
+        public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
         public static string BlueprintRuneItemName;
 
@@ -55,8 +54,8 @@ namespace PlanBuild.Blueprints
             GameObject prefab;
             foreach (string pieceName in new string[]
             {
-                MakeBlueprintName, BlueprintSnapPointName, BlueprintCenterPointName,
-                DeletePlansName
+                BlueprintCaptureName, BlueprintSnapPointName, BlueprintCenterPointName,
+                BlueprintDeleteName
             })
             {
                 prefab = assetBundle.LoadAsset<GameObject>(pieceName);
@@ -67,10 +66,11 @@ namespace PlanBuild.Blueprints
                 });
                 PieceManager.Instance.AddPiece(piece);
             }
+
             // World runes
             foreach (string pieceName in new string[]
             {
-                StandingBlueprintRune, BlueprintRuneStack
+                StandingBlueprintRuneName, BlueprintRuneStackName
             })
             {
                 prefab = assetBundle.LoadAsset<GameObject>(pieceName);
@@ -90,6 +90,7 @@ namespace PlanBuild.Blueprints
                 piece.FixReference = true;
                 PieceManager.Instance.AddPiece(piece);
             }
+
             // Blueprint stub
             GameObject placebp_prefab = assetBundle.LoadAsset<GameObject>(Blueprint.PieceBlueprintName);
             PrefabManager.Instance.AddPrefab(placebp_prefab);
