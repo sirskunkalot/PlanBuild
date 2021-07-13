@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.PlanBuild
@@ -33,14 +34,15 @@ namespace PlanBuild.PlanBuild
             showAllPieces.SettingChanged += (object sender, EventArgs e) => UpdateKnownRecipes();
 
             PieceManager.OnPiecesRegistered += CreatePlanTable;
-            On.Player.OnSpawned += OnPlayerOnSpawned;
+            SceneManager.sceneLoaded += OnSceneLoaded;
             On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
         }
 
         private void CreatePlanTable()
         {
             // Create plan piece table for the plan mode
-            var categories = PieceManager.Instance.GetPieceCategories().Where(x => x != BlueprintRunePrefab.CategoryBlueprints && x != BlueprintRunePrefab.CategoryTools);
+            var categories = PieceManager.Instance.GetPieceCategories()
+                .Where(x => x != BlueprintRunePrefab.CategoryBlueprints && x != BlueprintRunePrefab.CategoryTools);
 
             CustomPieceTable planPieceTable = new CustomPieceTable(
                 PlanPiecePrefab.PieceTableName,
@@ -71,15 +73,18 @@ namespace PlanBuild.PlanBuild
             PieceManager.OnPiecesRegistered -= CreatePlanTable;
         }
 
-        private void OnPlayerOnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-            orig(self);
-            ScanPieceTables();
-            UpdateKnownRecipes();
+            // Scan piece tables after scene has loaded to catch non-Jötunn mods, too
+            if (scene.name == "main")
+            {
+                ScanPieceTables();
+            }
         }
 
         private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
+            // Prefix the recipe loading for the plans to avoid spamming unlock messages
             UpdateKnownRecipes();
             orig(self);
         }
@@ -92,7 +97,9 @@ namespace PlanBuild.PlanBuild
             foreach (GameObject item in ObjectDB.instance.m_items)
             {
                 PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
-                if (pieceTable == null || pieceTable == planPieceTable || pieceTable.name == BlueprintRunePrefab.PieceTableName)
+                if (pieceTable == null ||
+                    pieceTable.name.Equals(PlanPiecePrefab.PieceTableName) ||
+                    pieceTable.name.Equals(BlueprintRunePrefab.PieceTableName))
                 {
                     continue;
                 }
