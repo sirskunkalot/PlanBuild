@@ -80,7 +80,6 @@ namespace PlanBuild.PlanBuild
 
         private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
-            ScanPieceTables();
             UpdateKnownRecipes();
             orig(self);
         }
