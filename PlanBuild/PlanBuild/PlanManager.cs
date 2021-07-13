@@ -161,7 +161,8 @@ namespace PlanBuild.PlanBuild
                 && piece.GetComponent<TerrainOp>() == null
                 && piece.GetComponent<TerrainModifier>() == null
                 && piece.GetComponent<Ship>() == null
-                && piece.GetComponent<PlanPiece>() == null;
+                && piece.GetComponent<PlanPiece>() == null
+                && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName);
         }
 
         private bool EnsurePrefabRegistered(Piece piece)

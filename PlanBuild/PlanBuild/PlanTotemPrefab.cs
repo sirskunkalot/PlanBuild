@@ -11,12 +11,13 @@ namespace PlanBuild.Plans
 {
     internal class PlanTotemPrefab
     {
-        internal static ConfigEntry<Color> glowColorConfig;
+        public const string PlanTotemPieceName = "piece_plan_totem";
+        public static ConfigEntry<Color> glowColorConfig;
         private KitbashObject planTotemKitbash;
 
         public PlanTotemPrefab(AssetBundle planbuildBundle)
         {
-            planTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>("piece_plan_totem"), new KitbashConfig
+            planTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>(PlanTotemPieceName), new KitbashConfig
             {
                 FixReferences = true,
                 KitbashSources = new List<KitbashSourceConfig> {
