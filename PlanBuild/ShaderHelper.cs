@@ -37,31 +37,23 @@ namespace PlanBuild
             return texture2D;
         }
 
-        public static void UpdateTextures(GameObject m_placementplan, ShaderState shaderState)
-        {  
-            MeshRenderer[] meshRenderers = m_placementplan.GetComponentsInChildren<MeshRenderer>();
-            foreach (MeshRenderer meshRenderer in meshRenderers)
+        public static void UpdateTextures(GameObject gameObject, ShaderState shaderState)
+        {
+            if (gameObject.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_oldMaterials != null)
             {
-                if (meshRenderer.sharedMaterial != null)
-                {
-                    Material[] sharedMaterials = meshRenderer.sharedMaterials;
-                    UpdateMaterials(shaderState, sharedMaterials);
-
-                    meshRenderer.sharedMaterials = sharedMaterials;
-                    meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
-                }
+                wearNTear.ResetHighlight();
             }
 
-            SkinnedMeshRenderer[] skinnedMeshRenderers = m_placementplan.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
+            Renderer[] meshRenderers = gameObject.GetComponentsInChildren<Renderer>();
+            foreach (Renderer renderers in meshRenderers)
             {
-                if (meshRenderer.sharedMaterial != null)
+                if (renderers.sharedMaterial != null)
                 {
-                    Material[] sharedMaterials = meshRenderer.sharedMaterials;
+                    Material[] sharedMaterials = renderers.sharedMaterials;
                     UpdateMaterials(shaderState, sharedMaterials);
 
-                    meshRenderer.sharedMaterials = sharedMaterials;
-                    meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+                    renderers.sharedMaterials = sharedMaterials;
+                    renderers.shadowCastingMode = ShadowCastingMode.Off;
                 }
             } 
         }
