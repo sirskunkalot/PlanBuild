@@ -120,21 +120,11 @@ namespace PlanBuild
 
         internal static void SetEmissionColor(GameObject gameObject, Color color)
         {
-            MeshRenderer[] meshRenderers = gameObject.GetComponentsInChildren<MeshRenderer>();
-            foreach (MeshRenderer meshRenderer in meshRenderers)
+            foreach (Renderer renderer in gameObject.GetComponentsInChildren<Renderer>())
             {
-                if (meshRenderer.sharedMaterial != null)
+                if (renderer.sharedMaterials.Length != 0)
                 {
-                    SetEmissionColor(meshRenderer.sharedMaterials, color);
-                }
-            }
-
-            SkinnedMeshRenderer[] skinnedMeshRenderers = gameObject.GetComponentsInChildren<SkinnedMeshRenderer>();
-            foreach (SkinnedMeshRenderer meshRenderer in skinnedMeshRenderers)
-            {
-                if (meshRenderer.sharedMaterial != null)
-                {
-                    SetEmissionColor(meshRenderer.sharedMaterials, color);
+                    SetEmissionColor(renderer.materials, color);
                 }
             }
         }
