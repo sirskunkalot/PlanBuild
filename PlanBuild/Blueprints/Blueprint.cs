@@ -213,6 +213,10 @@ namespace PlanBuild.Blueprints
 
             foreach (var line in lines)
             {
+                if (string.IsNullOrEmpty(line))
+                {
+                    continue;
+                }
                 if (line.StartsWith(HeaderName))
                 {
                     ret.Name = line.Substring(HeaderName.Length);
