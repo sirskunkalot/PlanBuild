@@ -37,23 +37,31 @@ namespace PlanBuild
             return texture2D;
         }
 
+        public static List<Renderer> GetRenderers(GameObject gameObject)
+        {
+            List<Renderer> result = new();
+            result.AddRange(gameObject.GetComponentsInChildren<MeshRenderer>());
+            result.AddRange(gameObject.GetComponentsInChildren<SkinnedMeshRenderer>());
+            return result;
+        }
+         
         public static void UpdateTextures(GameObject gameObject, ShaderState shaderState)
         {
             if (gameObject.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_oldMaterials != null)
             {
                 wearNTear.ResetHighlight();
             }
-
-            Renderer[] meshRenderers = gameObject.GetComponentsInChildren<Renderer>();
-            foreach (Renderer renderers in meshRenderers)
+             
+            foreach (Renderer renderer in GetRenderers(gameObject))
             {
-                if (renderers.sharedMaterial != null)
+                
+                if (renderer.sharedMaterial != null)
                 {
-                    Material[] sharedMaterials = renderers.sharedMaterials;
+                    Material[] sharedMaterials = renderer.sharedMaterials;
                     UpdateMaterials(shaderState, sharedMaterials);
 
-                    renderers.sharedMaterials = sharedMaterials;
-                    renderers.shadowCastingMode = ShadowCastingMode.Off;
+                    renderer.sharedMaterials = sharedMaterials;
+                    renderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
             } 
         }
@@ -63,6 +71,10 @@ namespace PlanBuild
             for (int j = 0; j < sharedMaterials.Length; j++)
             {
                 Material originalMaterial = sharedMaterials[j]; 
+                if(originalMaterial == null)
+                {
+                    continue;
+                }
                 if (!originalMaterialDict.ContainsKey(originalMaterial.name))
                 {
                     originalMaterialDict[originalMaterial.name] = originalMaterial;
@@ -120,7 +132,7 @@ namespace PlanBuild
 
         internal static void SetEmissionColor(GameObject gameObject, Color color)
         {
-            foreach (Renderer renderer in gameObject.GetComponentsInChildren<Renderer>())
+            foreach (Renderer renderer in GetRenderers(gameObject))
             {
                 if (renderer.sharedMaterials.Length != 0)
                 {
