@@ -89,10 +89,11 @@ namespace PlanBuild.PlanBuild
         {
             Jotunn.Logger.LogDebug("Scanning PieceTables for Pieces");
             bool addedPiece = false;
+            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
             foreach (GameObject item in ObjectDB.instance.m_items)
             {
                 PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
-                if (pieceTable == null)
+                if (pieceTable == null || pieceTable == planPieceTable || pieceTable.name == BlueprintRunePrefab.PieceTableName)
                 {
                     continue;
                 }
@@ -132,7 +133,6 @@ namespace PlanBuild.PlanBuild
                         PieceManager.Instance.AddPiece(planPiece);
                         planPiecePrefabs.Add(piece.name, planPiece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                        PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
                         if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                         {
                             planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
@@ -150,17 +150,12 @@ namespace PlanBuild.PlanBuild
 
         public static bool CanCreatePlan(Piece piece)
         {
-            bool canCreatePlan = piece.m_enabled
-                            && piece.GetComponent<Plant>() == null
-                            && piece.GetComponent<TerrainOp>() == null
-                            && piece.GetComponent<TerrainModifier>() == null
-                            && piece.GetComponent<Ship>() == null;
-            if(canCreatePlan && piece.m_resources.Length == 0)
-            {
-                Jotunn.Logger.LogWarning("Free object?: " + piece.name + " -> " + piece.m_name);
-            }
-            return canCreatePlan
-                && piece.m_resources.Length != 0;
+            return piece.m_enabled
+                && piece.GetComponent<Plant>() == null
+                && piece.GetComponent<TerrainOp>() == null
+                && piece.GetComponent<TerrainModifier>() == null
+                && piece.GetComponent<Ship>() == null
+                && piece.GetComponent<PlanPiece>() == null;
         }
 
         private bool EnsurePrefabRegistered(Piece piece)
