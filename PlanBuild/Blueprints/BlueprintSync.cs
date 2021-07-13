@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
         {
             GetLocalBlueprints();
             On.Game.Start += RegisterRPC;
+            On.ZNet.OnDestroy += ResetServerBlueprints;
         }
 
         private static void RegisterRPC(On.Game.orig_Start orig, Game self)
@@ -490,6 +491,12 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
+        }
+
+        private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
+        {
+            BlueprintManager.ServerBlueprints?.Clear();
+            orig(self);
         }
     }
 }
