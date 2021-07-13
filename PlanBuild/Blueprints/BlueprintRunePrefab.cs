@@ -13,10 +13,10 @@ namespace PlanBuild.Blueprints
 
         public const string BlueprintRuneName = "BlueprintRune";
 
-        public const string BlueprintSnapPointName = "piece_blueprint_snappoint";
-        public const string BlueprintCenterPointName = "piece_blueprint_centerpoint";
-        public const string BlueprintCaptureName = "piece_blueprint_capture";
-        public const string BlueprintDeleteName = "piece_blueprint_delete";
+        public const string BlueprintSnapPointName = "piece_bpsnappoint";
+        public const string BlueprintCenterPointName = "piece_bpcenterpoint";
+        public const string BlueprintCaptureName = "piece_bpcapture";
+        public const string BlueprintDeleteName = "piece_bpdelete";
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
