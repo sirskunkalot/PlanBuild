@@ -118,13 +118,11 @@ namespace PlanBuild
                 BlueprintGUI.Instance.Toggle();
             }
 
-            // Return from world interface GUI with "use" again
-            if (BlueprintGUI.IsVisible() &&
-                !BlueprintGUI.TextFieldHasFocus() &&
-                ZInput.GetButtonDown("Use"))
+            // Return from world interface GUI again
+            if (BlueprintGUI.IsVisible() && !BlueprintGUI.TextFieldHasFocus() && ZInput.GetButtonDown("Use"))
             {
-                BlueprintGUI.Instance.Toggle();
-                WorldBlueprintRune.JustDeactivated = true;
+                BlueprintGUI.Instance.Toggle(shutWindow: true);
+                ZInput.ResetButtonStatus("Use");
                 return;
             }
 

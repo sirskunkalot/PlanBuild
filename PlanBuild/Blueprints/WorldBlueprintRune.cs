@@ -6,8 +6,6 @@ namespace PlanBuild.Blueprints
     {
         private Piece m_piece;
 
-        public static bool JustDeactivated { get; set; } = false;
-
         public void Awake()
         {
             m_piece = GetComponent<Piece>();
@@ -28,11 +26,6 @@ namespace PlanBuild.Blueprints
             return Color.red;
         }
 
-        public void LateUpdate()
-        {
-            JustDeactivated = false;
-        }
-
         public string GetHoverName()
         {
             return m_piece.m_name;
@@ -48,7 +41,7 @@ namespace PlanBuild.Blueprints
 
         public bool Interact(Humanoid user, bool hold)
         {
-            if (JustDeactivated || hold)
+            if (hold)
             {
                 return false;
             }
