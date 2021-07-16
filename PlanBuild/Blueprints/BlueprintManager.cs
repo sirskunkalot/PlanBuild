@@ -804,13 +804,6 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if (flatten)
-            {
-                Bounds bounds = bp.GetBounds();
-                FlattenTerrain.FlattenForBlueprint(transform, bounds, bp.PieceEntries);
-            }
-
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
@@ -819,6 +812,9 @@ namespace PlanBuild.Blueprints
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
+
+            List<GameObject> placedPieces = new List<GameObject>(); 
+            Bounds bounds = new Bounds();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -844,6 +840,17 @@ namespace PlanBuild.Blueprints
 
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
+                placedPieces.Add(gameObject);
+                foreach(Collider collider in gameObject.GetComponentsInChildren<Collider>())
+                {
+                    if(collider.isTrigger)
+                    {
+                        continue;
+                    }
+                    Bounds colliderBounds = collider.bounds;
+                    colliderBounds.center = transform.InverseTransformPoint(colliderBounds.center);
+                    bounds.Encapsulate(colliderBounds);
+                }
 
                 ZNetView zNetView = gameObject.GetComponent<ZNetView>();
                 if (!zNetView)
@@ -893,6 +900,12 @@ namespace PlanBuild.Blueprints
 
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
+            }
+
+            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if (flatten)
+            { 
+                FlattenTerrain.FlattenForBlueprint(transform, bounds, placedPieces);
             }
 
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());

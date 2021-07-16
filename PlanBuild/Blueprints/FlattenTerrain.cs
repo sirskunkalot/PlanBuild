@@ -8,85 +8,55 @@ using Object = UnityEngine.Object;
 namespace PlanBuild.Blueprints
 {
     internal class FlattenTerrain
-    {
-        public static void Flatten(Transform transform, Vector2 floorSize, List<PieceEntry> pieces)
-        {
-            Logger.LogDebug($"Entered FlattenTerrain {transform} / {floorSize} with {pieces.Count}");
-
-            var groundPrefab = ZNetScene.instance.GetPrefab("raise");
-            if (groundPrefab)
-            {
-                var lowestY = pieces.Min(x => x.posY);
-                var startPosition = transform.position + Vector3.down * 0.5f;
-                var rotation = transform.rotation;
-
-                //TerrainModifier.SetTriggerOnPlaced(true);
-                try
-                {
-                    var forward = 0f;
-                    while (forward < floorSize.y)
-                    {
-                        var right = 0f;
-                        while (right < floorSize.x)
-                        {
-                            var lowestAtPosition = pieces.OrderBy(x => x.posY)
-                                .FirstOrDefault(x => Math.Abs(x.posX - forward) < 4f && Math.Abs(x.posZ - right) < 4f);
-                            if (lowestAtPosition != null)
-                            {
-                                Logger.LogDebug("Lowest: " + lowestAtPosition.posY);
-
-                                Object.Instantiate(groundPrefab,
-                                    startPosition + transform.forward * forward + transform.right * right + new Vector3(0, lowestAtPosition.posY, 0), rotation);
-                            }
-                            right++;
-                        }
-                        forward++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Error while flattening: {ex}");
-                }
-                /*finally
-                {
-                    TerrainModifier.SetTriggerOnPlaced(false);
-                }*/
-            }
-        }
-
-        public static void FlattenForBlueprint(Transform transform, Bounds bounds, PieceEntry[] pieces)
+    { 
+        public static void FlattenForBlueprint(Transform transform, Bounds bounds, List<GameObject> pieces)
         {
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
-            {
-                //TerrainModifier.SetTriggerOnPlaced(true);
-
+            { 
                 try
                 {
-                    var forward = bounds.min.z - 1f;
-                    while (forward < bounds.max.z + 1f)
-                    {
-                        var right = bounds.min.x - 1f;
-                        while (right < bounds.max.x + 1f)
+                    Quaternion groundOrientation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
+                    Vector3 boxColliderHalfExtents = new Vector3(0.5f, bounds.extents.y, 0.5f);
+                    int layerMask = LayerMask.GetMask("piece", "piece_nonsolid");
+                    //TerrainModifier.SetTriggerOnPlaced(true);
+                    for (float localZ = bounds.min.z; localZ < bounds.max.z; localZ++)
+                    { 
+                        for(float localX = bounds.min.x; localX < bounds.max.x; localX++)
                         {
-                            if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
+                            Vector3 groundTargetLocation = transform.TransformPoint(new Vector3(localZ, bounds.min.y, localX));
+                            Collider[] colliders = Physics.OverlapBox(transform.TransformPoint(new Vector3(localZ, bounds.center.y, localX)), boxColliderHalfExtents, groundOrientation, layerMask);
+                            if(colliders == null || colliders.Length == 0)
                             {
-                                Object.Instantiate(groundPrefab,
-                                    transform.position + transform.forward * forward + transform.right * right + new Vector3(0, -0.5f, 0), transform.rotation);
+                                continue;
                             }
-                            right++;
-                        }
-                        forward++;
+                            float lowestColliderHeight = float.MaxValue;
+                            foreach(Collider collider in colliders)
+                            {
+                                Piece piece = collider.GetComponentInParent<Piece>();
+                                if(!piece || !pieces.Contains(piece.gameObject))
+                                {
+                                    continue;
+                                }
+                                lowestColliderHeight = Mathf.Min(lowestColliderHeight, collider.bounds.min.y);
+                            }
+                            if(lowestColliderHeight == float.MaxValue)
+                            {
+                                continue;
+                            }
+                            groundTargetLocation.y = lowestColliderHeight - 0.5f;
+                            Object.Instantiate(groundPrefab, groundTargetLocation, groundOrientation); 
+                        } 
                     }
                 }
                 catch (Exception ex)
                 {
                     Logger.LogWarning($"Error while flattening for blueprint: {ex}");
-                }
-                /*finally
-                {
-                    TerrainModifier.SetTriggerOnPlaced(false);
-                }*/
+                } 
+               // finally
+               // {
+               //     TerrainModifier.SetTriggerOnPlaced(false);
+               // }
             }
         }
     }

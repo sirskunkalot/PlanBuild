@@ -1,7 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
-using Jotunn.Managers;
-using PlanBuild.KitBash;
+using Jotunn.Managers; 
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,20 +12,21 @@ namespace PlanBuild
     {
         public OdinLevelPrefab(AssetBundle planbuildBundle)
         {
-            odinLevelPrefab = KitBashManager.Instance.KitBash(planbuildBundle.LoadAsset<GameObject>("piece_odin_level"), new KitBashConfig
+            odinLevelPrefab = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>("piece_odin_level"), new KitbashConfig
             {
-                KitBashSources = new List<KitBashSourceConfig>
+                Layer = "piece",
+                KitbashSources = new List<KitbashSourceConfig>
                 {
-                    new KitBashSourceConfig
+                    new KitbashSourceConfig
                     {
-                        sourcePrefab = "SurtlingCore",
-                        sourcePath = "attach/core",
-                        targetParentPath = "new",
-                        scale = Vector3.one * 0.1104584f
+                        SourcePrefab = "SurtlingCore",
+                        SourcePath = "attach/core",
+                        TargetParentPath = "new",
+                        Scale = Vector3.one * 0.1104584f
                     }
                 }
             });
-            odinLevelPrefab.KitBashApplied += InitLaserGrid;
+            odinLevelPrefab.OnKitbashApplied += InitLaserGrid;
             CustomPiece odinLevelPiece = new CustomPiece(odinLevelPrefab.Prefab, new PieceConfig
             {
                 PieceTable = "Hammer",
@@ -41,7 +41,7 @@ namespace PlanBuild
 
         private int radius = 10;
         private float distance = 1f;
-        private KitBashObject odinLevelPrefab;
+        private KitbashObject odinLevelPrefab;
 
         private void InitLaserGrid()
         {
