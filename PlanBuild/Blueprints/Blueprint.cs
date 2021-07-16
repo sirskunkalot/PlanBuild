@@ -766,7 +766,10 @@ namespace PlanBuild.Blueprints
                     }
                 }
 
-                DebugUtils.InitLaserGrid(baseObject, GetBounds());
+                if(BlueprintConfig.showGridConfig.Value)
+                {
+                    DebugUtils.InitLaserGrid(baseObject, GetBounds());
+                }
             }
             catch (Exception ex)
             {

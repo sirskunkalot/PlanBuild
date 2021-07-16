@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
     internal class BlueprintManager
     {
         private static BlueprintManager _instance;
+
         public static BlueprintManager Instance
         {
             get
@@ -115,7 +116,6 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
-            
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
             {
@@ -433,7 +433,7 @@ namespace PlanBuild.Blueprints
             {
                 bp.InstantiateGhost();
             }
-            
+
             orig(self);
         }
 
@@ -471,7 +471,7 @@ namespace PlanBuild.Blueprints
                                 UpdateSelectionRadius(scrollWheel);
                             }
                         }
-                        
+
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
                             HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
@@ -485,7 +485,7 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) || 
+                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
                                 (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
                             {
                                 PlacementOffset.y += GetPlacementOffset(scrollWheel);
@@ -494,7 +494,7 @@ namespace PlanBuild.Blueprints
                             else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
                             {
                                 PlacementOffset.x += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel); 
+                                UndoRotation(self, scrollWheel);
                             }
                             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
@@ -515,7 +515,7 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-                        
+
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
                             EnableSelectionCircle(self);
@@ -813,7 +813,6 @@ namespace PlanBuild.Blueprints
             blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
 
-            List<GameObject> placedPieces = new List<GameObject>(); 
             Bounds bounds = new Bounds();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
@@ -840,10 +839,9 @@ namespace PlanBuild.Blueprints
 
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
-                placedPieces.Add(gameObject);
-                foreach(Collider collider in gameObject.GetComponentsInChildren<Collider>())
+                foreach (Collider collider in gameObject.GetComponentsInChildren<Collider>())
                 {
-                    if(collider.isTrigger)
+                    if (collider.isTrigger)
                     {
                         continue;
                     }
@@ -894,7 +892,10 @@ namespace PlanBuild.Blueprints
                 if (cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
-                    player.AddNoise(50f);
+                    if(placeDirect)
+                    {
+                        player.AddNoise(50f);
+                    }
                     cntEffects++;
                 }
 
@@ -904,8 +905,8 @@ namespace PlanBuild.Blueprints
 
             bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
             if (flatten)
-            { 
-                FlattenTerrain.FlattenForBlueprint(transform, bounds, placedPieces);
+            {
+                FlattenTerrain.FlattenForBlueprint(transform, bounds);
             }
 
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
