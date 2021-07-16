@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 4532567691368232}
   - component: {fileID: 284956298854988783}
   m_Layer: 10
-  m_Name: piece_bpcapture
+  m_Name: piece_bpflatten
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -126,8 +126,8 @@ MonoBehaviour:
   m_randomTarget: 0
   m_targetNonPlayerBuilt: 1
   m_icon: {fileID: 21300000, guid: c4941ca4b393ed346a572bb52dce150c, type: 3}
-  m_name: $piece_blueprint_capture
-  m_description: $piece_blueprint_capture_desc
+  m_name: $piece_blueprint_flatten
+  m_description: $piece_blueprint_flatten_desc
   m_enabled: 1
   m_category: 0
   m_isUpgrade: 0
