@@ -568,7 +568,7 @@ namespace PlanBuild.Blueprints
                         }
                     }
                     // Terrain Tools
-                    if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -969,7 +969,7 @@ namespace PlanBuild.Blueprints
             bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
             if (flatten)
             {
-                FlattenTerrain.FlattenForBlueprint(transform, bounds);
+                TerrainTools.FlattenForBlueprint(transform, bounds);
             }
 
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());

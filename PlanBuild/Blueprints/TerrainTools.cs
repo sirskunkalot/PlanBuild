@@ -45,29 +45,21 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void FlattenForBlueprint(Transform transform, Bounds bounds, PieceEntry[] pieces)
+        public static void FlattenForBlueprint(Transform transform, Bounds bounds)
         {
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
-                //TerrainModifier.SetTriggerOnPlaced(true);
-
                 try
                 {
-                    var forward = bounds.min.z - 1f;
-                    while (forward < bounds.max.z + 1f)
+                    Quaternion groundOrientation = Quaternion.Euler(0, transform.rotation.eulerAngles.y, 0);
+                    for (float localZ = bounds.min.z - 0.5f; localZ < bounds.max.z + 0.5f; localZ++)
                     {
-                        var right = bounds.min.x - 1f;
-                        while (right < bounds.max.x + 1f)
+                        for (float localX = bounds.min.x - 0.5f; localX < bounds.max.x + 0.5f; localX++)
                         {
-                            if (pieces.Any(x => Vector2.Distance(new Vector2(x.posX, x.posZ), new Vector2(right, forward)) <= 1f))
-                            {
-                                Object.Instantiate(groundPrefab,
-                                    transform.position + transform.forward * forward + transform.right * right + new Vector3(0, -0.5f, 0), transform.rotation);
-                            }
-                            right++;
+                            Vector3 groundTargetLocation = transform.TransformPoint(new Vector3(localZ, bounds.min.y - 0.5f, localX));
+                            Object.Instantiate(groundPrefab, groundTargetLocation, groundOrientation);
                         }
-                        forward++;
                     }
                 }
                 catch (Exception ex)
