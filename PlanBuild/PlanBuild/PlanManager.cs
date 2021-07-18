@@ -20,8 +20,7 @@ namespace PlanBuild.PlanBuild
         {
             get
             {
-                if (_instance == null) _instance = new PlanManager();
-                return _instance;
+                return _instance ??= new PlanManager();
             }
         }
 

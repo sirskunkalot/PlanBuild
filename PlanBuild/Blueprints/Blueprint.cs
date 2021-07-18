@@ -102,6 +102,7 @@ namespace PlanBuild.Blueprints
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;
+        private Bounds bounds = new Bounds();
 
         /// <summary>
         ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files. 
@@ -424,7 +425,10 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public Bounds GetBounds()
         {
-            Bounds bounds = new Bounds();
+            if(bounds.size.magnitude != 0)
+            {
+                return bounds;
+            }
             foreach (PieceEntry entry in PieceEntries)
             {
                 bounds.Encapsulate(entry.GetPosition());
@@ -719,8 +723,7 @@ namespace PlanBuild.Blueprints
                 {
                     PieceEntry piece = pieces[i];
                     var piecePosition = tf.position + piece.GetPosition();
-
-
+                     
                     GameObject pieceObject = new GameObject($"piece_entry ({i})");
                     pieceObject.transform.SetParent(tf);
                     pieceObject.transform.rotation = piece.GetRotation();
@@ -761,6 +764,11 @@ namespace PlanBuild.Blueprints
                             PrepareGhostPiece(doorChild);
                         }
                     }
+                }
+
+                if(BlueprintConfig.showGridConfig.Value)
+                {
+                    DebugUtils.InitLaserGrid(baseObject, GetBounds());
                 }
             }
             catch (Exception ex)

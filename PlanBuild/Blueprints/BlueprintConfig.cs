@@ -15,6 +15,7 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<float> placementOffsetIncrementConfig;
         internal static ConfigEntry<float> selectionIncrementConfig;
         internal static ConfigEntry<KeyCode> planSwitchConfig;
+        internal static ConfigEntry<bool> showGridConfig;
 
         private const string marketSection = "Blueprint Market";
         internal static ConfigEntry<bool> allowServerBlueprints;
@@ -63,6 +64,10 @@ namespace PlanBuild.Blueprints
 
             planSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Rune mode toggle key", KeyCode.P,
+                new ConfigDescription("Hotkey to switch between rune modes"));
+
+            showGridConfig = PlanBuildPlugin.Instance.Config.Bind(
+                runeSection, "Show the transform bound grid", false,
                 new ConfigDescription("Hotkey to switch between rune modes"));
 
             // Market Scetion

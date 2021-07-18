@@ -8,7 +8,7 @@ PlanBuild enables you to plan, copy and share your building creations in Valheim
 
 Plan the construction of pieces without the need to gather the resources first. Anyone can add the required resources to the planned structure later and finish the construction after it was placed.
 
-You still need a __Hammer__ and the required crafting station to finish the construction.
+The __Blueprint Rune__ is compatible with custom piece tables from other mods. All custom pieces will be incorporated into the runes table for the planned pieces. You still need a __Hammer__ and the required crafting station to finish the construction.
 
 Planned pieces that are __unsupported__ can not be finished. These pieces are also slightly more transparent so you can see what is and isn't supported. The planned pieces themselves do not require support, so you can build forever (if you can reach far enough).
 
@@ -53,11 +53,10 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
 
 * __Center point marker:__ Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 
-* __Undo blueprint:__ Delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
-
-* __Remove plans:__ Delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
-  * Press __Ctrl__ to see what pieces will be removed.
-  * Use the __Scroll Wheel__ to change the deletion radius.
+* __Remove planned pieces:__ Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
+  * Press __Alt__ to delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
+  * Press __Ctrl__ to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the deletion radius.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 ### Blueprints
@@ -80,6 +79,12 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 
 Manage and share your blueprints through a custom GUI added to the game. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
 
+### Marketplace Pieces
+
+![Blueprint pieces](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintPieces.png)
+
+Per default the marketplace is accessible via __End__ key (server side configurable). Alternatively you can place one of two new rune themed pieces in the world which provide access to the market on the server. If you want to completely stop clients from accessing the server blueprints via Hotkey, there is another server side config which disables that Hotkey for all clients.
+
 ## Compatibility
 
 Fully compatible with:
@@ -99,6 +104,7 @@ Most values are configurable:
     * Show all plans, even for pieces you don't know yet (default __false__)
     * Build radius of the Plan Totem (default __30__)
 * Blueprint Market
+    * Allow clients to use the Hotkey to access the marketplace (default __true__)
     * Hotkey for the Blueprint Marketplace GUI (default __End__)
     * Allow sharing of blueprints on this server (default __false__)
 * Blueprint Rune

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
@@ -75,10 +74,6 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Error while flattening for blueprint: {ex}");
                 }
-                /*finally
-                {
-                    TerrainModifier.SetTriggerOnPlaced(false);
-                }*/
             }
         }
     }

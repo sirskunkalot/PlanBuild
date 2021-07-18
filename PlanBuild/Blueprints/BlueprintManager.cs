@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
     internal class BlueprintManager
     {
         private static BlueprintManager _instance;
+
         public static BlueprintManager Instance
         {
             get
@@ -115,7 +116,6 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
-            
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
             {
@@ -448,7 +448,7 @@ namespace PlanBuild.Blueprints
             {
                 bp.InstantiateGhost();
             }
-            
+
             orig(self);
         }
 
@@ -486,7 +486,7 @@ namespace PlanBuild.Blueprints
                                 UpdateSelectionRadius(scrollWheel);
                             }
                         }
-                        
+
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
                             HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
@@ -500,7 +500,7 @@ namespace PlanBuild.Blueprints
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
                         {
-                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) || 
+                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
                                 (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
                             {
                                 PlacementOffset.y += GetPlacementOffset(scrollWheel);
@@ -509,7 +509,7 @@ namespace PlanBuild.Blueprints
                             else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
                             {
                                 PlacementOffset.x += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel); 
+                                UndoRotation(self, scrollWheel);
                             }
                             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
@@ -530,7 +530,7 @@ namespace PlanBuild.Blueprints
                         {
                             return;
                         }
-                        
+
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
                             EnableSelectionCircle(self);
@@ -867,13 +867,6 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if (flatten)
-            {
-                Bounds bounds = bp.GetBounds();
-                TerrainTools.FlattenForBlueprint(transform, bounds, bp.PieceEntries);
-            }
-
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
@@ -882,6 +875,8 @@ namespace PlanBuild.Blueprints
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
+
+            Bounds bounds = new Bounds();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -907,6 +902,16 @@ namespace PlanBuild.Blueprints
 
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
+                foreach (Collider collider in gameObject.GetComponentsInChildren<Collider>())
+                {
+                    if (collider.isTrigger)
+                    {
+                        continue;
+                    }
+                    Bounds colliderBounds = collider.bounds;
+                    colliderBounds.center = transform.InverseTransformPoint(colliderBounds.center);
+                    bounds.Encapsulate(colliderBounds);
+                }
 
                 ZNetView zNetView = gameObject.GetComponent<ZNetView>();
                 if (!zNetView)
@@ -950,12 +955,21 @@ namespace PlanBuild.Blueprints
                 if (cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
-                    player.AddNoise(50f);
+                    if(placeDirect)
+                    {
+                        player.AddNoise(50f);
+                    }
                     cntEffects++;
                 }
 
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
+            }
+
+            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if (flatten)
+            {
+                FlattenTerrain.FlattenForBlueprint(transform, bounds);
             }
 
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());

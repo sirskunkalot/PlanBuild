@@ -9,6 +9,7 @@ using BepInEx.Bootstrap;
 using BepInEx.Configuration;
 using BepInEx.Logging;
 using HarmonyLib;
+using Jotunn.Configs;
 using Jotunn.Managers;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace TransparentSails
     {
         public const string PluginGUID = "marcopogo.TransparentSails";
         public const string PluginName = "Transparent Sails";
-        public const string PluginVersion = "1.1.0";
+        public const string PluginVersion = "1.1.1";
         public ConfigEntry<int> nexusID;
         private static ManualLogSource logger;
 
@@ -46,7 +47,7 @@ namespace TransparentSails
 
         public static Dictionary<string, Texture2D> originalTextures = new Dictionary<string, Texture2D>(textureNames.Count);
         public static Dictionary<string, Texture2D> transparentTextures = new Dictionary<string, Texture2D>(textureNames.Count);
-
+        private ButtonConfig buttonConfig;
         private readonly Harmony harmony = new Harmony(PluginGUID);
 
         public enum When
@@ -130,7 +131,7 @@ namespace TransparentSails
                 return;
             }
 
-            if (ZInput.GetButtonDown(hideButton))
+            if (ZInput.GetButtonDown(buttonConfig.Name))
             {
                 hotkeyToggle = !hotkeyToggle;
                 logger.LogInfo("Toggle TransparentSails is " + (hotkeyToggle ? "on" : "off"));
@@ -145,11 +146,12 @@ namespace TransparentSails
         private void RegisterInputs()
         {
             logger.LogDebug("Registering TransparentSails input: " + configToggleHotKey.Value);
-            InputManager.Instance.AddButton(PluginGUID, new Jotunn.Configs.ButtonConfig()
+            buttonConfig = new ButtonConfig()
             {
                 Name = hideButton,
                 Key = (KeyCode)Enum.Parse(typeof(KeyCode), configToggleHotKey.Value)
-            });
+            };
+            InputManager.Instance.AddButton(PluginGUID, buttonConfig);
         }
 
         private void OnPrefabsLoaded()
