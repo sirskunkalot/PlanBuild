@@ -7,37 +7,29 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
-    internal class FlattenTerrain
+    internal class TerrainTools
     {
-        public static void Flatten(Transform transform, Vector2 floorSize, List<PieceEntry> pieces)
+        public static void Flatten(Transform transform, float radius)
         {
-            Logger.LogDebug($"Entered FlattenTerrain {transform} / {floorSize} with {pieces.Count}");
+            Logger.LogDebug($"Entered Flatten {transform} / {radius}");
 
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
-                var lowestY = pieces.Min(x => x.posY);
-                var startPosition = transform.position + Vector3.down * 0.5f;
-                var rotation = transform.rotation;
+                var startPosition = transform.position;  // + Vector3.down * 0.5f;
 
                 //TerrainModifier.SetTriggerOnPlaced(true);
                 try
                 {
-                    var forward = 0f;
-                    while (forward < floorSize.y)
+                    var forward = -radius;
+                    while (forward < radius)
                     {
-                        var right = 0f;
-                        while (right < floorSize.x)
+                        var right = -radius;
+                        while (right < radius)
                         {
-                            var lowestAtPosition = pieces.OrderBy(x => x.posY)
-                                .FirstOrDefault(x => Math.Abs(x.posX - forward) < 4f && Math.Abs(x.posZ - right) < 4f);
-                            if (lowestAtPosition != null)
-                            {
-                                Logger.LogDebug("Lowest: " + lowestAtPosition.posY);
-
-                                Object.Instantiate(groundPrefab,
-                                    startPosition + transform.forward * forward + transform.right * right + new Vector3(0, lowestAtPosition.posY, 0), rotation);
-                            }
+                            var newPos = startPosition + transform.forward * forward + transform.right * right;
+                            var newRot = Quaternion.identity;
+                            Object.Instantiate(groundPrefab, newPos, newRot);
                             right++;
                         }
                         forward++;

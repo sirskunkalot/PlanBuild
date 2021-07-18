@@ -17,6 +17,7 @@ namespace PlanBuild.Blueprints
         public const string BlueprintCenterPointName = "piece_bpcenterpoint";
         public const string BlueprintCaptureName = "piece_bpcapture";
         public const string BlueprintDeleteName = "piece_bpdelete";
+        public const string BlueprintTerrainName = "piece_bpterrain";
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
@@ -55,7 +56,7 @@ namespace PlanBuild.Blueprints
             foreach (string pieceName in new string[]
             {
                 BlueprintCaptureName, BlueprintSnapPointName, BlueprintCenterPointName,
-                BlueprintDeleteName
+                BlueprintDeleteName, BlueprintTerrainName
             })
             {
                 prefab = assetBundle.LoadAsset<GameObject>(pieceName);
@@ -64,6 +65,7 @@ namespace PlanBuild.Blueprints
                     PieceTable = PieceTableName,
                     Category = CategoryTools
                 });
+                piece.PiecePrefab.AddComponent<ToolPiece>();
                 PieceManager.Instance.AddPiece(piece);
             }
 

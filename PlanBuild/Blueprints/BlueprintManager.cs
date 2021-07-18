@@ -303,7 +303,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
@@ -317,7 +317,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -330,7 +330,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -343,10 +343,25 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintTerrainName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
+                    //new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });
 
@@ -391,7 +406,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Dont highlight pieces when make/delete tool is active
+        ///     Dont highlight pieces when capture/delete tool is active
         /// </summary>
         /// <param name="orig"></param>
         /// <param name="self"></param>
@@ -552,6 +567,35 @@ namespace PlanBuild.Blueprints
                             HighlightHoveredPiece(Color.red);
                         }
                     }
+                    // Terrain Tools
+                    if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                    {
+                        if (!self.m_placementMarkerInstance)
+                        {
+                            return;
+                        }
+
+                        EnableSelectionCircle(self);
+
+                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+                        if (scrollWheel != 0f)
+                        {
+                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
+                                (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
+                            {
+                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
+                                UndoRotation(self, scrollWheel);
+                            }
+                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                            {
+                                UpdateCameraOffset(scrollWheel);
+                            }
+                            else
+                            {
+                                UpdateSelectionRadius(scrollWheel);
+                            }
+                        }
+                    }
                     else
                     {
                         DisableSelectionCircle();
@@ -678,7 +722,8 @@ namespace PlanBuild.Blueprints
 
             if (self.m_placementMarkerInstance && self.m_placementGhost &&
                 (self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName)
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
                )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
@@ -720,7 +765,8 @@ namespace PlanBuild.Blueprints
                 var pieceName = Player.m_localPlayer.m_placementGhost.name;
                 if (pieceName.StartsWith(Blueprint.PieceBlueprintName)
                     || pieceName.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintDeleteName))
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintDeleteName)
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintTerrainName))
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
@@ -762,6 +808,23 @@ namespace PlanBuild.Blueprints
                     {
                         return UndoPiece();
                     }
+                }
+                // Terrain Tools
+                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                {
+                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                    {
+                        
+                    }
+                    else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                    {
+                        
+                    }
+                    else
+                    {
+                        TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius);
+                    }
+                    return false;
                 }
             }
 
@@ -808,7 +871,7 @@ namespace PlanBuild.Blueprints
             if (flatten)
             {
                 Bounds bounds = bp.GetBounds();
-                FlattenTerrain.FlattenForBlueprint(transform, bounds, bp.PieceEntries);
+                TerrainTools.FlattenForBlueprint(transform, bounds, bp.PieceEntries);
             }
 
             uint cntEffects = 0u;

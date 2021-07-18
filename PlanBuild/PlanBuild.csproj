@@ -122,10 +122,11 @@
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\BlueprintSync.cs" />
-    <Compile Include="Blueprints\FlattenTerrain.cs" />
+    <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
+    <Compile Include="Blueprints\ToolPiece.cs" />
     <Compile Include="Blueprints\UIDragDrop.cs" />
     <Compile Include="Blueprints\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />
