@@ -31,7 +31,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         internal static void GetLocalBlueprints()
         {
-            Logger.LogMessage("Loading known blueprints");
+            Logger.LogInfo("Loading known blueprints");
 
             if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
             {
