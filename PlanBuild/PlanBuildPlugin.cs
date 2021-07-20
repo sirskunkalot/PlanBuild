@@ -80,7 +80,7 @@ namespace PlanBuild
 
         private void SetupConfig()
         {
-            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
+            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
