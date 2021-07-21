@@ -72,8 +72,8 @@ namespace PlanBuild.Blueprints
 
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
-                PieceManager.OnPiecesRegistered += RegisterKnownBlueprints; 
-                  
+                PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
+                 
                 // Hooks
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
@@ -92,7 +92,6 @@ namespace PlanBuild.Blueprints
             }
         }
          
-
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -304,7 +303,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
@@ -318,7 +317,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -331,7 +330,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -344,13 +343,13 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
-
+             
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
 
@@ -374,7 +373,7 @@ namespace PlanBuild.Blueprints
 
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
-            orig(self);
+            orig(self); 
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
@@ -392,7 +391,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Dont highlight pieces when make/delete tool is active
+        ///     Dont highlight pieces when capture/delete tool is active
         /// </summary>
         /// <param name="orig"></param>
         /// <param name="self"></param>
@@ -552,7 +551,7 @@ namespace PlanBuild.Blueprints
                         {
                             HighlightHoveredPiece(Color.red);
                         }
-                    }
+                    } 
                     else
                     {
                         DisableSelectionCircle();
@@ -679,7 +678,7 @@ namespace PlanBuild.Blueprints
 
             if (self.m_placementMarkerInstance && self.m_placementGhost &&
                 (self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName) )
                )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
@@ -763,7 +762,7 @@ namespace PlanBuild.Blueprints
                     {
                         return UndoPiece();
                     }
-                }
+                } 
             }
 
             return orig(self, piece);
@@ -804,6 +803,12 @@ namespace PlanBuild.Blueprints
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
             }
+            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if(flatten && !BlueprintConfig.allowFlattenConfig.Value)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_flatten_disabled");
+                return false;
+            }
 
             uint cntEffects = 0u;
             uint maxEffects = 10u;
@@ -839,7 +844,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 // Instantiate a new object with the new prefab
-                GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat); 
+                GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
                 OnPiecePlaced(gameObject);
                 foreach (Collider collider in gameObject.GetComponentsInChildren<Collider>())
                 {
@@ -904,8 +909,7 @@ namespace PlanBuild.Blueprints
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-
-            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+             
             if (flatten)
             {
                 FlattenTerrain.FlattenForBlueprint(transform, bounds);
