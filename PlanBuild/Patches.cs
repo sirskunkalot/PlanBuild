@@ -18,13 +18,14 @@ namespace PlanBuild
     {
         public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
         public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
-        public const string gizmoGUID = "com.rolopogo.Gizmo"; 
+        public const string gizmoGUID = "com.rolopogo.Gizmo";
+        public const string valheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         private static Harmony harmony;
            
         [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
         [HarmonyPrefix]
         private static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
-        {
+        { 
             if (PlanManager.showAllPieces.Value)
             {
                 return true;
@@ -79,6 +80,11 @@ namespace PlanBuild
             {
                 Jotunn.Logger.LogInfo("Applying Gizmo patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
+            }
+            if (Chainloader.PluginInfos.ContainsKey(valheimRaftGUID))
+            {
+                Jotunn.Logger.LogInfo("Applying ValheimRAFT patches");
+                harmony.PatchAll(typeof(ModCompat.PatcherValheimRaft));
             }
         } 
 

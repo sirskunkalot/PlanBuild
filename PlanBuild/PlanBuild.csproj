@@ -113,6 +113,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="ValheimRAFT">
+      <HintPath>..\libraries\pub\ValheimRAFT.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
@@ -135,6 +138,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
+    <Compile Include="ModCompat\PatcherValheimRaft.cs" />
     <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="PlanBuild\OdinLevel.cs" />
