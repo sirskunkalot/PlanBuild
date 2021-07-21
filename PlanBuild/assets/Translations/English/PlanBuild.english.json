@@ -42,6 +42,7 @@
   "hud_bprotate1": "Rotate, Ctrl + Alt: Move Y-axis\nCtrl: Move Z-axis, Alt: Move X-axis",
   "hud_bprotate2": "Shift: Camera distance",
   "msg_direct_build_disabled": "Direct build disabled",
+  "msg_flatten_disabled": "Flatten disabled",
   "hud_bpsnappoint": "Place snap point",
   "hud_bpcenterpoint": "Place center point",
   "hud_bpdelete": "Remove planned piece",
@@ -49,5 +50,5 @@
   "hud_bpdelete_radius": "Hold to remove pieces in a radius",
   "msg_removed_plans": "Removed $1 plan(s)",
   "hud_bpterrain": "Flatten terrain",
-  "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance",
+  "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance"
 }

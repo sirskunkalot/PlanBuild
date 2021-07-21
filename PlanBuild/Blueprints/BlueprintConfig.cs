@@ -7,6 +7,7 @@ namespace PlanBuild.Blueprints
     {
         private const string runeSection = "Blueprint Rune";
         internal static ConfigEntry<bool> allowDirectBuildConfig;
+        internal static ConfigEntry<bool> allowFlattenConfig;
         internal static ConfigEntry<bool> invertCameraOffsetScrollConfig;
         internal static ConfigEntry<bool> invertPlacementOffsetScrollConfig;
         internal static ConfigEntry<bool> invertSelectionScrollConfig;
@@ -33,6 +34,10 @@ namespace PlanBuild.Blueprints
             allowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+
+            allowFlattenConfig = PlanBuildPlugin.Instance.Config.Bind(
+                runeSection, "Allow flatten terrain", false,
+                new ConfigDescription("Allow flattening the terrain without materials", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             invertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Invert camera offset scroll", false,

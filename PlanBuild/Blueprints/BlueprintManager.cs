@@ -74,6 +74,8 @@ namespace PlanBuild.Blueprints
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
+                BlueprintConfig.allowFlattenConfig.SettingChanged += OnAllowFlattenConfigChanged; 
+
                 // Hooks
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
@@ -89,6 +91,23 @@ namespace PlanBuild.Blueprints
             catch (Exception ex)
             {
                 Jotunn.Logger.LogError($"{ex.StackTrace}");
+            }
+        }
+
+        private void OnAllowFlattenConfigChanged(object sender = null, EventArgs e = null)
+        { 
+            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+            if(BlueprintConfig.allowFlattenConfig.Value)
+            {
+                GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
+                if(!blueprintPieceTable.m_pieces.Contains(flattenTool))
+                {
+                    blueprintPieceTable.m_pieces.Add(flattenTool);
+                }
+            }
+            else
+            {
+                blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
             }
         }
 
@@ -389,6 +408,7 @@ namespace PlanBuild.Blueprints
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
             orig(self);
+            OnAllowFlattenConfigChanged(); //Make sure initial state matches saved config
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
@@ -866,6 +886,12 @@ namespace PlanBuild.Blueprints
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
             }
+            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if(flatten && !BlueprintConfig.allowFlattenConfig.Value)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_flatten_disabled");
+                return false;
+            }
 
             uint cntEffects = 0u;
             uint maxEffects = 10u;
@@ -965,8 +991,7 @@ namespace PlanBuild.Blueprints
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-
-            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+             
             if (flatten)
             {
                 TerrainTools.FlattenForBlueprint(transform, bounds);
