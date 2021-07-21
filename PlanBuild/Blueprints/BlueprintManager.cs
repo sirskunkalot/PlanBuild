@@ -843,6 +843,13 @@ namespace PlanBuild.Blueprints
                     continue;
                 }
 
+                if (!BlueprintConfig.allowFlattenConfig.Value 
+                    && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
+                {
+                    Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
+                    continue;
+                } 
+
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
                 OnPiecePlaced(gameObject);
