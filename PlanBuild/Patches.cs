@@ -21,49 +21,14 @@ namespace PlanBuild
         public const string gizmoGUID = "com.rolopogo.Gizmo";
         public const string valheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         private static Harmony harmony;
-           
-        [HarmonyPatch(declaringType: typeof(Player), methodName: "HaveRequirements", argumentTypes: new Type[] { typeof(Piece), typeof(Player.RequirementMode) })]
-        [HarmonyPrefix]
-        private static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, ref bool __result)
-        { 
-            if (PlanManager.showAllPieces.Value)
-            {
-                return true;
-            }
-            if (PlanPiecePrefab.planToOriginalMap.TryGetValue(piece, out Piece originalPiece))
-            {
-                __result = __instance.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
-                return false;
-            }
-            return true;
-        }
-
-        /*private static bool interceptGetPrefab = true;
-        private static HashSet<int> checkedHashes = new HashSet<int>();
-
-        [HarmonyPatch(typeof(ZNetScene), "GetPrefab", new Type[] { typeof(int) })]
-        [HarmonyPostfix]
-        internal static void ZNetScene_GetPrefab_Postfix(ZNetScene __instance, int hash, ref GameObject __result)
-        {
-            if (__result == null
-                && interceptGetPrefab
-                && !checkedHashes.Contains(hash))
-            {
-                interceptGetPrefab = false;
-                checkedHashes.Add(hash);
-                PlanManager.Instance.ScanPieceTables();
-                __result = __instance.GetPrefab(hash);
-                interceptGetPrefab = true;
-            }
-        }*/
-
+            
         internal static void Apply()
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
-            On.WearNTear.Highlight += OnHighlight; 
+            On.WearNTear.Highlight += OnHighlight;
+            On.Player.HaveRequirements_Piece_RequirementMode += Player_HaveRequirements_Piece_RequirementMode;
 
-            harmony = new Harmony("marcopogo.PlanBuild");
-            harmony.PatchAll(typeof(Patches));
+            harmony = new Harmony("marcopogo.PlanBuild"); 
             harmony.PatchAll(typeof(PlanPiece));
             if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
             {
@@ -86,7 +51,16 @@ namespace PlanBuild
                 Jotunn.Logger.LogInfo("Applying ValheimRAFT patches");
                 harmony.PatchAll(typeof(ModCompat.PatcherValheimRaft));
             }
-        } 
+        }
+
+        private static bool Player_HaveRequirements_Piece_RequirementMode(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
+        {
+            if (!PlanManager.showAllPieces.Value && PlanPiecePrefab.planToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+            {
+                return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+            }
+            return orig(self, piece, mode);
+        }
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {

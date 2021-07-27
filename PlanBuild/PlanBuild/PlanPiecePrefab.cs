@@ -13,7 +13,7 @@ namespace PlanBuild.Plans
         public Piece originalPiece;
         public static bool logPiece = true;
         public static bool logComponents = false;
-        public static readonly Dictionary<Piece, Piece> planToOriginalMap = new Dictionary<Piece, Piece>();
+        public static readonly Dictionary<string, Piece> planToOriginalMap = new();
 
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
@@ -58,7 +58,7 @@ namespace PlanBuild.Plans
 
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = originalPiece;
-            planToOriginalMap.Add(Piece, originalPiece);
+            planToOriginalMap.Add(PiecePrefab.name, originalPiece);
             DisablePiece(PiecePrefab);
         }
 
