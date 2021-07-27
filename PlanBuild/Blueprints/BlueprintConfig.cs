@@ -121,7 +121,7 @@ namespace PlanBuild.Blueprints
             PlanSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
-                Config = BlueprintConfig.planSwitchConfig,
+                Config = planSwitchConfig,
                 HintToken = "$hud_bp_toggle_plan_mode"
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
@@ -129,7 +129,7 @@ namespace PlanBuild.Blueprints
             GUIToggleButton = new ButtonConfig
             {
                 Name = "GUIToggle",
-                Config = BlueprintConfig.serverGuiSwitchConfig,
+                Config = serverGuiSwitchConfig,
                 ActiveInGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
