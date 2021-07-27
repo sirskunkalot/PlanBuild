@@ -1,4 +1,6 @@
 ﻿using BepInEx.Configuration;
+using Jotunn.Configs;
+using Jotunn.Managers;
 using System;
 using UnityEngine;
 
@@ -6,6 +8,9 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintConfig
     {
+        internal static ButtonConfig PlanSwitchButton;
+        internal static ButtonConfig GUIToggleButton;
+
         private const string runeSection = "Blueprint Rune";
         internal static ConfigEntry<bool> allowDirectBuildConfig;
         internal static ConfigEntry<bool> allowFlattenConfig;
@@ -103,7 +108,114 @@ namespace PlanBuild.Blueprints
             // Setting changed events
 
             allowFlattenConfig.SettingChanged += (object o, EventArgs e) => BlueprintManager.Instance.ToggleTerrainTools();
+
+            // Create Buttons and KeyHints if and when PixelFix is created
+            GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
         }
-         
+
+        /// <summary>
+        ///     Create custom KeyHints for the static Blueprint Rune pieces
+        /// </summary>
+        private static void CreateCustomKeyHints()
+        {
+            PlanSwitchButton = new ButtonConfig
+            {
+                Name = "RuneModeToggle",
+                Config = BlueprintConfig.planSwitchConfig,
+                HintToken = "$hud_bp_toggle_plan_mode"
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
+
+            GUIToggleButton = new ButtonConfig
+            {
+                Name = "GUIToggle",
+                Config = BlueprintConfig.serverGuiSwitchConfig,
+                ActiveInGUI = true
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_blueprint_mode" },
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintCaptureName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintSnapPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintCenterPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintDeleteName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintTerrainName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    //new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
+                    //new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
+                }
+            });
+
+            GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
+        }
+
     }
 }

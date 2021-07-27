@@ -113,7 +113,7 @@ namespace PlanBuild
             // BP Market GUI is OK in the main menu
             if (BlueprintGUI.IsAvailable() &&
                 BlueprintConfig.allowMarketHotkey.Value &&
-                ZInput.GetButtonDown(BlueprintManager.GUIToggleButton.Name))
+                ZInput.GetButtonDown(BlueprintConfig.GUIToggleButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();
             }
@@ -133,7 +133,7 @@ namespace PlanBuild
             }
 
             // Rune mode toogle
-            if (ZInput.GetButtonDown(BlueprintManager.PlanSwitchButton.Name))
+            if (ZInput.GetButtonDown(BlueprintConfig.PlanSwitchButton.Name))
             {
                 PlanManager.Instance.TogglePlanBuildMode();
             }
