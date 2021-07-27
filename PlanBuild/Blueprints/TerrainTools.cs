@@ -13,21 +13,20 @@ namespace PlanBuild.Blueprints
         {
             Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
 
-            var groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
-                var startPosition = transform.position + Vector3.down * 0.5f;
-
+                Vector3 startPosition = transform.position + Vector3.down * 0.5f;
                 try
                 {
-                    var forward = -radius;
+                    float forward = -radius;
                     while (forward < radius)
                     {
-                        var right = -radius;
+                        float right = -radius;
                         while (right < radius)
                         {
-                            var newPos = startPosition + transform.forward * forward + transform.right * right;
-                            var newRot = Quaternion.identity;
+                            Vector3 newPos = startPosition + transform.forward * forward + transform.right * right;
+                            Quaternion newRot = Quaternion.identity;
                             Object.Instantiate(groundPrefab, newPos, newRot);
                             right++;
                         }
@@ -43,7 +42,7 @@ namespace PlanBuild.Blueprints
 
         public static void FlattenForBlueprint(Transform transform, Bounds bounds)
         {
-            var groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
                 try
@@ -65,14 +64,14 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void RemoveVeg(Transform transform, float radius)
+        public static void RemoveVegetation(Transform transform, float radius)
         {
             Logger.LogDebug($"Entered Remove {transform.position} / {radius}");
             
             ZNetScene zNetScene = ZNetScene.instance;
             try
             {
-                var startPosition = transform.position;
+                Vector3 startPosition = transform.position;
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
@@ -102,7 +101,7 @@ namespace PlanBuild.Blueprints
             ZNetScene zNetScene = ZNetScene.instance;
             try
             {
-                var startPosition = transform.position;
+                Vector3 startPosition = transform.position;
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
@@ -121,7 +120,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Logger.LogWarning($"Error while removing objects: {ex}");
+                Logger.LogWarning($"Error while removing terrain: {ex}");
             }
         }
     }

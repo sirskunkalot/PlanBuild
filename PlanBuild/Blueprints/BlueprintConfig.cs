@@ -79,7 +79,7 @@ namespace PlanBuild.Blueprints
 
             showGridConfig = PlanBuildPlugin.Instance.Config.Bind(
                 runeSection, "Show the transform bound grid", false,
-                new ConfigDescription("Hotkey to switch between rune modes"));
+                new ConfigDescription("Show a grid around the blueprints' bounds"));
 
             // Market Scetion
 

@@ -730,7 +730,7 @@ namespace PlanBuild.Blueprints
                 {
                     if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
-                        TerrainTools.RemoveVeg(self.m_placementGhost.transform, SelectionRadius);
+                        TerrainTools.RemoveVegetation(self.m_placementGhost.transform, SelectionRadius);
                     }
                     else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
                     {
