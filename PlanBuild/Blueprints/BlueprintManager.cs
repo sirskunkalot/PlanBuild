@@ -97,17 +97,25 @@ namespace PlanBuild.Blueprints
         private void OnAllowFlattenConfigChanged(object sender = null, EventArgs e = null)
         { 
             PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if(BlueprintConfig.allowFlattenConfig.Value)
+            if (blueprintPieceTable != null)
             {
-                GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
-                if(!blueprintPieceTable.m_pieces.Contains(flattenTool))
+                if (BlueprintConfig.allowFlattenConfig.Value)
                 {
-                    blueprintPieceTable.m_pieces.Add(flattenTool);
+                    GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
+                    if (!blueprintPieceTable.m_pieces.Contains(flattenTool))
+                    {
+                        blueprintPieceTable.m_pieces.Add(flattenTool);
+                    }
                 }
-            }
-            else
-            {
-                blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
+                else
+                {
+                    blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
+                }
+
+                if (Player.m_localPlayer)
+                {
+                    Player.m_localPlayer.UpdateAvailablePiecesList();
+                }
             }
         }
 
