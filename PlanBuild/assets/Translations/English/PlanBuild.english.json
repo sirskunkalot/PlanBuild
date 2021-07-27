@@ -49,6 +49,8 @@
   "hud_bpdelete_all": "Hold to remove the whole blueprint",
   "hud_bpdelete_radius": "Hold to remove pieces in a radius",
   "msg_removed_plans": "Removed $1 plan(s)",
-  "hud_bpterrain": "Flatten terrain",
+  "hud_bpterrain_flatten": "Flatten terrain",
+  "hud_bpterrain_delete": "Delete vegetation",
+  "hud_bpterrain_deleteall": "Delete terrain modifier",
   "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance"
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
@@ -10,14 +11,13 @@ namespace PlanBuild.Blueprints
     {
         public static void Flatten(Transform transform, float radius)
         {
-            Logger.LogDebug($"Entered Flatten {transform} / {radius}");
+            Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
 
             var groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
-                var startPosition = transform.position;  // + Vector3.down * 0.5f;
+                var startPosition = transform.position + Vector3.down * 0.5f;
 
-                //TerrainModifier.SetTriggerOnPlaced(true);
                 try
                 {
                     var forward = -radius;
@@ -38,10 +38,6 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Error while flattening: {ex}");
                 }
-                /*finally
-                {
-                    TerrainModifier.SetTriggerOnPlaced(false);
-                }*/
             }
         }
 
@@ -66,6 +62,66 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Error while flattening for blueprint: {ex}");
                 }
+            }
+        }
+
+        public static void RemoveVeg(Transform transform, float radius)
+        {
+            Logger.LogDebug($"Entered Remove {transform.position} / {radius}");
+            
+            ZNetScene zNetScene = ZNetScene.instance;
+            try
+            {
+                var startPosition = transform.position;
+
+                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
+                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
+                                    obj.GetComponent<ZNetView>() && !obj.GetComponent<TerrainModifier>());
+
+                foreach (GameObject prefab in prefabs)
+                {
+                    if (!prefab.TryGetComponent(out ZNetView zNetView))
+                    {
+                        continue;
+                    }
+
+                    zNetView.ClaimOwnership();
+                    zNetScene.Destroy(prefab);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while removing objects: {ex}");
+            }
+        }
+
+        public static void RemoveTerrain(Transform transform, float radius)
+        {
+            Logger.LogDebug($"Entered Remove {transform.position} / {radius}");
+
+            ZNetScene zNetScene = ZNetScene.instance;
+            try
+            {
+                var startPosition = transform.position;
+
+                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
+                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
+                                  obj.GetComponent<ZNetView>() && obj.GetComponent<TerrainModifier>());
+
+                foreach (GameObject prefab in prefabs)
+                {
+                    if (!prefab.TryGetComponent(out ZNetView zNetView))
+                    {
+                        continue;
+                    }
+
+                    zNetView.ClaimOwnership();
+                    zNetScene.Destroy(prefab);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while removing objects: {ex}");
             }
         }
     }
