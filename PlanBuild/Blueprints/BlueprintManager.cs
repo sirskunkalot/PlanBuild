@@ -74,8 +74,6 @@ namespace PlanBuild.Blueprints
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
-                BlueprintConfig.allowFlattenConfig.SettingChanged += OnAllowFlattenConfigChanged; 
-
                 // Hooks
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
@@ -91,31 +89,6 @@ namespace PlanBuild.Blueprints
             catch (Exception ex)
             {
                 Jotunn.Logger.LogError($"{ex.StackTrace}");
-            }
-        }
-
-        private void OnAllowFlattenConfigChanged(object sender = null, EventArgs e = null)
-        { 
-            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if (blueprintPieceTable != null)
-            {
-                if (BlueprintConfig.allowFlattenConfig.Value)
-                {
-                    GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
-                    if (!blueprintPieceTable.m_pieces.Contains(flattenTool))
-                    {
-                        blueprintPieceTable.m_pieces.Add(flattenTool);
-                    }
-                }
-                else
-                {
-                    blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
-                }
-
-                if (Player.m_localPlayer)
-                {
-                    Player.m_localPlayer.UpdateAvailablePiecesList();
-                }
             }
         }
 
@@ -413,10 +386,35 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        internal void ToggleTerrainTools()
+        {
+            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+            if (blueprintPieceTable != null)
+            {
+                if (BlueprintConfig.allowFlattenConfig.Value)
+                {
+                    GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
+                    if (!blueprintPieceTable.m_pieces.Contains(flattenTool))
+                    {
+                        blueprintPieceTable.m_pieces.Add(flattenTool);
+                    }
+                }
+                else
+                {
+                    blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
+                }
+
+                if (Player.m_localPlayer)
+                {
+                    Player.m_localPlayer.UpdateAvailablePiecesList();
+                }
+            }
+        }
+
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
             orig(self);
-            OnAllowFlattenConfigChanged(); //Make sure initial state matches saved config
+            ToggleTerrainTools();
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
