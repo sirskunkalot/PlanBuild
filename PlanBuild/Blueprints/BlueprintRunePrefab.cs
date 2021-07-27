@@ -65,7 +65,6 @@ namespace PlanBuild.Blueprints
                     PieceTable = PieceTableName,
                     Category = CategoryTools
                 });
-                piece.PiecePrefab.AddComponent<ToolPiece>();
                 PieceManager.Instance.AddPiece(piece);
             }
 

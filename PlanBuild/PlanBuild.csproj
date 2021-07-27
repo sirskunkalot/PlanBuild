@@ -126,7 +126,6 @@
     <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
-    <Compile Include="Blueprints\ToolPiece.cs" />
     <Compile Include="Blueprints\UIDragDrop.cs" />
     <Compile Include="Blueprints\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />
