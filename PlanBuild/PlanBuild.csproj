@@ -45,30 +45,6 @@
     <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_googleanalytics">
-      <HintPath>..\libraries\pub\assembly_googleanalytics.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_guiutils">
-      <HintPath>..\libraries\pub\assembly_guiutils.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_lux">
-      <HintPath>..\libraries\pub\assembly_lux.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_simplemeshcombine">
-      <HintPath>..\libraries\pub\assembly_simplemeshcombine.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_steamworks">
-      <HintPath>..\libraries\pub\assembly_steamworks.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_sunshafts">
-      <HintPath>..\libraries\pub\assembly_sunshafts.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_utils">
-      <HintPath>..\libraries\pub\assembly_utils.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_valheim">
-      <HintPath>..\libraries\pub\assembly_valheim.dll</HintPath>
-    </Reference>
     <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
