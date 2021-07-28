@@ -276,35 +276,9 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        internal void ToggleTerrainTools()
-        {
-            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
-            if (blueprintPieceTable != null)
-            {
-                if (BlueprintConfig.allowFlattenConfig.Value)
-                {
-                    GameObject flattenTool = PrefabManager.Instance.GetPrefab(BlueprintRunePrefab.BlueprintTerrainName);
-                    if (!blueprintPieceTable.m_pieces.Contains(flattenTool))
-                    {
-                        blueprintPieceTable.m_pieces.Add(flattenTool);
-                    }
-                }
-                else
-                {
-                    blueprintPieceTable.m_pieces.RemoveAll(x => x.name == BlueprintRunePrefab.BlueprintTerrainName);
-                }
-
-                if (Player.m_localPlayer)
-                {
-                    Player.m_localPlayer.UpdateAvailablePiecesList();
-                }
-            }
-        }
-
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
             orig(self);
-            ToggleTerrainTools();
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
@@ -728,6 +702,12 @@ namespace PlanBuild.Blueprints
                 // Terrain Tools
                 else if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
                 {
+                    if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
+                        return false;
+                    }
+                    
                     if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
                         TerrainTools.RemoveVegetation(self.m_placementGhost.transform, SelectionRadius);
@@ -777,13 +757,13 @@ namespace PlanBuild.Blueprints
             var rotation = transform.rotation;
 
             bool placeDirect = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            if (placeDirect && !BlueprintConfig.allowDirectBuildConfig.Value)
+            if (placeDirect && !(BlueprintConfig.allowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
             }
             bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if(flatten && !BlueprintConfig.allowFlattenConfig.Value)
+            if(flatten && !(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_flatten_disabled");
                 return false;
@@ -803,11 +783,13 @@ namespace PlanBuild.Blueprints
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
                 PieceEntry entry = bp.PieceEntries[i];
+
                 // Final position
                 Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
                 // Final rotation
                 Quaternion entryQuat = transform.rotation * entry.GetRotation();
+
                 // Get the prefab of the piece or the plan piece
                 string prefabName = entry.name;
                 if (!placeDirect)

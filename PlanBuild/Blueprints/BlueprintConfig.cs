@@ -105,10 +105,6 @@ namespace PlanBuild.Blueprints
                 directorySection, "Save directory", "BepInEx/config/PlanBuild/blueprints",
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
-            // Setting changed events
-
-            allowFlattenConfig.SettingChanged += (object o, EventArgs e) => BlueprintManager.Instance.ToggleTerrainTools();
-
             // Create Buttons and KeyHints if and when PixelFix is created
             GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
         }

@@ -52,5 +52,6 @@
   "hud_bpterrain_flatten": "Flatten terrain",
   "hud_bpterrain_delete": "Delete vegetation",
   "hud_bpterrain_deleteall": "Delete terrain modifier",
-  "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance"
+  "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance",
+  "msg_terrain_disabled": "Terrain tools disabled"
 }
