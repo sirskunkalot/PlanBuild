@@ -90,6 +90,7 @@ Per default the marketplace is accessible via __End__ key (server side configura
 Fully compatible with:
 * [Build Camera](https://www.nexusmods.com/valheim/mods/226)﻿
 * [Craft from Containers](https://www.nexusmods.com/valheim/mods/40)﻿
+* [ValheimRAFT](https://www.nexusmods.com/valheim/mods/1136)
 
 The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with __P__ which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
 
@@ -110,6 +111,7 @@ Most values are configurable:
 * Blueprint Rune
     * Hotkey to switch between Blueprint Rune modes (default __P__)
     * Allow building of blueprints as actual pieces without needing the resources (default __false__)
+    * Allow flattening the terrain when placing blueprints (default __false__)
     * Place distance of the Blueprint Rune (default __50__)
     * Invert and sensitivity options for each input with the scroll wheel
 * Directories

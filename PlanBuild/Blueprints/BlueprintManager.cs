@@ -67,7 +67,7 @@ namespace PlanBuild.Blueprints
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-
+                 
                 // Hooks
                 On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
@@ -85,7 +85,7 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogError($"{ex.StackTrace}");
             }
         }
-
+         
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -278,7 +278,7 @@ namespace PlanBuild.Blueprints
 
         private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
-            orig(self);
+            orig(self); 
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
@@ -804,8 +804,16 @@ namespace PlanBuild.Blueprints
                     continue;
                 }
 
+                if (!BlueprintConfig.allowFlattenConfig.Value 
+                    && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
+                {
+                    Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
+                    continue;
+                } 
+
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
+                OnPiecePlaced(gameObject);
                 foreach (Collider collider in gameObject.GetComponentsInChildren<Collider>())
                 {
                     if (collider.isTrigger)
@@ -879,6 +887,15 @@ namespace PlanBuild.Blueprints
 
             // Dont set the blueprint piece and clutter the world with it
             return false;
+        }
+
+        /// <summary>
+        ///     Hook for patching
+        /// </summary>
+        /// <param name="newpiece"></param>
+        internal virtual void OnPiecePlaced(GameObject placedPiece)
+        {
+        
         }
 
         private bool UndoPiece()

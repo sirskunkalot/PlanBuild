@@ -224,7 +224,7 @@ namespace PlanBuild.Plans
 
         private float m_lastLookedTime = -9999f;
         private float m_lastUseTime = -9999f;
-        private float m_holdRepeatInterval = 1f;
+        private readonly float m_holdRepeatInterval = 1f;
         private float m_minSupport = 0f;
         public float m_maxSupport;
 
@@ -419,7 +419,7 @@ namespace PlanBuild.Plans
                     return false;
                 }
             }
-            if (!hasSupport)
+            if (!HasSupport())
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_not_enough_support");
                 return false;
@@ -427,6 +427,11 @@ namespace PlanBuild.Plans
             long playerID = (user as Player).GetPlayerID();
             Build(playerID);
             return false;
+        }
+
+        private bool HasSupport()
+        {
+            return hasSupport;
         }
 
         internal ZDOID GetPlanPieceID()
@@ -611,7 +616,7 @@ namespace PlanBuild.Plans
                 return;
             }
             GameObject actualPiece = Object.Instantiate(originalPiece.gameObject, gameObject.transform.position, gameObject.transform.rotation);
-
+            OnPiecePlaced(actualPiece);
             // Register special effects
             if (creatorID == Player.m_localPlayer.GetPlayerID())
             {
@@ -651,6 +656,11 @@ namespace PlanBuild.Plans
 #endif
             BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
             ZNetScene.instance.Destroy(this.gameObject);
+        }
+
+        internal virtual void OnPiecePlaced(GameObject actualPiece)
+        {
+             
         }
 
         [HarmonyPatch(typeof(WearNTear), "Damage")]

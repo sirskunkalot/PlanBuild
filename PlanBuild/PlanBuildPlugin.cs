@@ -24,12 +24,13 @@ namespace PlanBuild
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.valheimRaftGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.OnlySyncWhenInstalled, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.3.2";
+        public const string PluginVersion = "0.3.4";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> configTransparentGhostPlacement;
@@ -79,7 +80,7 @@ namespace PlanBuild
 
         private void SetupConfig()
         {
-            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem"));
+            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
