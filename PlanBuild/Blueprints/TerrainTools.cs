@@ -75,7 +75,8 @@ namespace PlanBuild.Blueprints
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                    obj.GetComponent<ZNetView>() && !obj.GetComponent<TerrainModifier>());
+                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Piece>() && 
+                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<Character>());
 
                 foreach (GameObject prefab in prefabs)
                 {
@@ -105,7 +106,8 @@ namespace PlanBuild.Blueprints
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && obj.GetComponent<TerrainModifier>());
+                                  obj.GetComponent<ZNetView>() && 
+                                  (obj.GetComponent<TerrainModifier>() || obj.GetComponent<TerrainOp>()));
 
                 foreach (GameObject prefab in prefabs)
                 {
