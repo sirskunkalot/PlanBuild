@@ -16,6 +16,26 @@ namespace PlanBuild.Blueprints
             GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
+                try
+                {
+                    Vector3 pos = transform.position + Vector3.down * 0.5f;
+                    Quaternion rot = transform.rotation;
+                    var raise = Object.Instantiate(groundPrefab, pos, rot).GetComponent<TerrainModifier>();
+                    raise.m_useTerrainCompiler = true;
+                    raise.m_level = true;
+                    raise.m_levelRadius = radius;
+                    raise.m_smooth = true;
+                    raise.m_smoothRadius = radius;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning($"Error while flattening: {ex}");
+                }
+            }
+
+            /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            if (groundPrefab)
+            {
                 Vector3 startPosition = transform.position + Vector3.down * 0.5f;
                 try
                 {
@@ -37,7 +57,7 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Error while flattening: {ex}");
                 }
-            }
+            }*/
         }
 
         public static void Paint(Transform transform, float radius, TerrainModifier.PaintType type)
@@ -45,6 +65,25 @@ namespace PlanBuild.Blueprints
             Logger.LogDebug($"Entered Paint {transform.position} / {radius}");
 
             GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            if (groundPrefab)
+            {
+                try
+                {
+                    Vector3 pos = transform.position;
+                    Quaternion rot = transform.rotation;
+                    var raise = Object.Instantiate(groundPrefab, pos, rot).GetComponent<TerrainModifier>();
+                    raise.m_useTerrainCompiler = true;
+                    raise.m_level = false;
+                    raise.m_paintType = type;
+                    raise.m_paintRadius = radius;
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning($"Error while paiting: {ex}");
+                }
+            }
+
+            /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
             if (groundPrefab)
             {
                 Vector3 startPosition = transform.position + Vector3.down * 0.5f;
@@ -70,7 +109,7 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Error while flattening: {ex}");
                 }
-            }
+            }*/
         }
 
         public static void FlattenForBlueprint(Transform transform, Bounds bounds)
