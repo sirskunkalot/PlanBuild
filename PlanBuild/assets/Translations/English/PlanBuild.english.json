@@ -33,6 +33,8 @@
   "piece_blueprint_delete_desc": "Remove one or all planned pieces from a blueprint or remove all planned pieces in a radius",
   "piece_blueprint_terrain": "Terrain tools",
   "piece_blueprint_terrain_desc": "Flatten the ground or remove vegetation",
+  "piece_blueprint_paintreset": "Reset Terrain paint",
+  "piece_blueprint_paintreset_desc": "Resets the terrain to its biome's initial state",
   "hud_bpcapture": "Capture",
   "hud_bpcapture_highlight": "Hold to highlight captured pieces",
   "hud_bpradius": "Change radius\nShift: Camera distance",
@@ -53,5 +55,7 @@
   "hud_bpterrain_delete": "Delete vegetation",
   "hud_bpterrain_deleteall": "Delete terrain modifier",
   "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance",
-  "msg_terrain_disabled": "Terrain tools disabled"
+  "msg_terrain_disabled": "Terrain tools disabled",
+  "hud_bppaint": "Paint terrain",
+  "hud_bppaintradius": "Change radius, Shift: Camera distance"
 }

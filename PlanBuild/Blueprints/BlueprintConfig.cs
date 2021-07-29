@@ -210,6 +210,18 @@ namespace PlanBuild.Blueprints
                 }
             });
 
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Piece = BlueprintRunePrefab.BlueprintPaintResetName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bppaintradius" }
+                }
+            });
+
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
 

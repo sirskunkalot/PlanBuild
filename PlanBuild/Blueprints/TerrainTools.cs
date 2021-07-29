@@ -40,6 +40,39 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public static void Paint(Transform transform, float radius, TerrainModifier.PaintType type)
+        {
+            Logger.LogDebug($"Entered Paint {transform.position} / {radius}");
+
+            GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            if (groundPrefab)
+            {
+                Vector3 startPosition = transform.position + Vector3.down * 0.5f;
+                try
+                {
+                    float forward = -radius;
+                    while (forward < radius)
+                    {
+                        float right = -radius;
+                        while (right < radius)
+                        {
+                            Vector3 newPos = startPosition + transform.forward * forward + transform.right * right;
+                            Quaternion newRot = Quaternion.identity;
+                            var raise = Object.Instantiate(groundPrefab, newPos, newRot).GetComponent<TerrainModifier>();
+                            raise.m_level = false;
+                            raise.m_paintType = type;
+                            right++;
+                        }
+                        forward++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning($"Error while flattening: {ex}");
+                }
+            }
+        }
+
         public static void FlattenForBlueprint(Transform transform, Bounds bounds)
         {
             GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");

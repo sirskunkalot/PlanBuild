@@ -486,6 +486,29 @@ namespace PlanBuild.Blueprints
                             }
                         }
                     }
+                    // Paint Tools
+                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintPaintResetName))
+                    {
+                        if (!self.m_placementMarkerInstance)
+                        {
+                            return;
+                        }
+
+                        EnableSelectionCircle(self);
+
+                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+                        if (scrollWheel != 0f)
+                        {
+                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                            {
+                                UpdateCameraOffset(scrollWheel);
+                            }
+                            else
+                            {
+                                UpdateSelectionRadius(scrollWheel);
+                            }
+                        }
+                    }
                     else
                     {
                         DisableSelectionCircle();
@@ -656,7 +679,8 @@ namespace PlanBuild.Blueprints
                 if (pieceName.StartsWith(Blueprint.PieceBlueprintName)
                     || pieceName.Equals(BlueprintRunePrefab.BlueprintCaptureName)
                     || pieceName.Equals(BlueprintRunePrefab.BlueprintDeleteName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintTerrainName)
+                    || pieceName.Equals(BlueprintRunePrefab.BlueprintPaintResetName))
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
@@ -720,6 +744,18 @@ namespace PlanBuild.Blueprints
                     {
                         TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius);
                     }
+                    return false;
+                }
+                // Paint Tools
+                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintPaintResetName))
+                {
+                    if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
+                    {
+                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
+                        return false;
+                    }
+
+                    TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
                     return false;
                 }
             }
