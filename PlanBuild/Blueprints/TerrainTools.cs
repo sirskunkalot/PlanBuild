@@ -29,16 +29,16 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
-        public static void Flatten(Transform transform, float radius, bool square = false)
+        public static void Flatten(Transform transform, float radius, bool square = true)
         {
             Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
                 
             try
             {
                 TerrainOp.Settings settings = new TerrainOp.Settings();
-                settings.m_raise = true;
-                settings.m_raiseRadius = radius;
-                //settings.m_square = square;
+                settings.m_level = true;
+                settings.m_levelRadius = radius;
+                settings.m_square = square;
                 settings.m_paintRadius = radius;
                 settings.m_paintType = TerrainModifier.PaintType.Dirt;
 
