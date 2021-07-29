@@ -1,0 +1,17 @@
+{
+	"piece_seed_totem_name": "Тотем семян",
+	"piece_seed_totem_description": "Рассеивает семена вокруг себя",
+	"tutorial_seed_totem_label": "Хугин: Тотем семян",
+	"tutorial_seed_totem_topic": "Вы построили тотем семени",
+	"tutorial_seed_totem_text": "<color=yellow>Тотем семян</color> садить имеющейся семена, в области вокруг него.\nПопытайтесь <color=yellow>ударить по нему</color> когда окружающие растения <color=yellow>полностью вырастут и будут готовы к сбору</color>.",
+	"message_seed_totem_seed_generic": "семена",
+	"message_seed_totem_seed_generic_plural": "семя",
+	"message_seed_totem_all": "все",
+	"message_seed_totem_not_a_seed": "Нет семян",
+	"message_seed_totem_restricted_to": "Установлено ограниченные на",
+	"message_seed_totem_restrict": "Устанавливает ограниченные на семена",
+	"message_seed_totem_unrestricted": "Без ограничений",
+	"message_seed_totem_status_looking_for_space": "Ищет свободное место",
+	"message_seed_totem_status_planting": "Посадка",
+	"message_seed_totem_status_wrong_biome": "Неправильный биом"
+}
