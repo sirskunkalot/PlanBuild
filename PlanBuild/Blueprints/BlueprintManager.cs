@@ -744,6 +744,7 @@ namespace PlanBuild.Blueprints
                     {
                         TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius);
                     }
+                    PlacementOffset = Vector3.zero;
                     return false;
                 }
                 // Paint Tools
