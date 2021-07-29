@@ -9,34 +9,57 @@ namespace PlanBuild.Blueprints
 {
     internal class TerrainTools
     {
-        public static void Flatten(Transform transform, float radius)
+        private static List<TerrainComp> GetTerrainComp(Vector3 position, float radius)
+        {
+            List<TerrainComp> ret = new List<TerrainComp>();
+            List<Heightmap> maps = new List<Heightmap>();
+            Heightmap.FindHeightmap(position, radius, maps);
+            foreach (Heightmap map in maps)
+            {
+                TerrainComp comp = map.GetAndCreateTerrainCompiler();
+                if (comp != null)
+                {
+                    ret.Add(comp);
+                    if (!comp.IsOwner())
+                    {
+                        comp.m_nview.ClaimOwnership();
+                    }
+                }
+            }
+            return ret;
+        }
+
+        public static void Flatten(Transform transform, float radius, bool square = false)
         {
             Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
-
-            GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
-            if (groundPrefab)
+                
+            try
             {
-                try
+                TerrainOp.Settings settings = new TerrainOp.Settings();
+                settings.m_raise = true;
+                settings.m_raiseRadius = radius;
+                //settings.m_square = square;
+                settings.m_paintRadius = radius;
+                settings.m_paintType = TerrainModifier.PaintType.Dirt;
+
+                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
                 {
-                    Vector3 pos = transform.position + Vector3.down * 0.5f;
-                    Quaternion rot = transform.rotation;
-                    var raise = Object.Instantiate(groundPrefab, pos, rot).GetComponent<TerrainModifier>();
-                    raise.m_useTerrainCompiler = true;
-                    raise.m_level = true;
-                    raise.m_levelRadius = radius;
-                    raise.m_smooth = true;
-                    raise.m_smoothRadius = radius;
+                    comp.DoOperation(transform.position, settings);
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Error while flattening: {ex}");
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while flattening: {ex}");
             }
 
             /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
+            TerrainModifier raise = groundPrefab.GetComponent<TerrainModifier>();
+            raise.m_useTerrainCompiler = true;
+
             if (groundPrefab)
             {
                 Vector3 startPosition = transform.position + Vector3.down * 0.5f;
+                Vector2 startPoint = new Vector2(startPosition.x, startPosition.z);
                 try
                 {
                     float forward = -radius;
@@ -47,6 +70,11 @@ namespace PlanBuild.Blueprints
                         {
                             Vector3 newPos = startPosition + transform.forward * forward + transform.right * right;
                             Quaternion newRot = Quaternion.identity;
+
+                            if (!square && Vector2.Distance(startPoint, new Vector2(newPos.x, newPos.z)) > radius) {
+                                continue;
+                            }
+
                             Object.Instantiate(groundPrefab, newPos, newRot);
                             right++;
                         }
@@ -64,23 +92,20 @@ namespace PlanBuild.Blueprints
         {
             Logger.LogDebug($"Entered Paint {transform.position} / {radius}");
 
-            GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
-            if (groundPrefab)
+            try
             {
-                try
+                TerrainOp.Settings settings = new TerrainOp.Settings();
+                settings.m_paintRadius = radius;
+                settings.m_paintType = type;
+
+                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
                 {
-                    Vector3 pos = transform.position;
-                    Quaternion rot = transform.rotation;
-                    var raise = Object.Instantiate(groundPrefab, pos, rot).GetComponent<TerrainModifier>();
-                    raise.m_useTerrainCompiler = true;
-                    raise.m_level = false;
-                    raise.m_paintType = type;
-                    raise.m_paintRadius = radius;
+                    comp.DoOperation(transform.position, settings);
                 }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Error while paiting: {ex}");
-                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while painting: {ex}");
             }
 
             /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
@@ -176,10 +201,45 @@ namespace PlanBuild.Blueprints
             {
                 Vector3 startPosition = transform.position;
 
+                List<TerrainModifier> modifiers = new List<TerrainModifier>();
+                TerrainModifier.GetModifiers(startPosition, radius + 0.1f, modifiers);
+                int tmodcnt = 0;
+                foreach (TerrainModifier modifier in modifiers)
+                {
+                    if (modifier.m_nview == null)
+                    {
+                        continue;
+                    }
+                    modifier.m_nview.ClaimOwnership();
+                    zNetScene.Destroy(modifier.gameObject);
+                    tmodcnt++;
+                }
+
+                int tcompcnt = 0;
+                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
+                {
+                    Heightmap map = comp.m_hmap;
+                    zNetScene.Destroy(comp.gameObject);
+                    map.Regenerate();
+                    tcompcnt++;
+                }
+
+                Logger.LogDebug($"Removed {tmodcnt} TerrainMod(s) and {tcompcnt} TerrainComp(s)");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while removing terrain: {ex}");
+            }
+
+            /*ZNetScene zNetScene = ZNetScene.instance;
+            try
+            {
+                Vector3 startPosition = transform.position;
+
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
                                   obj.GetComponent<ZNetView>() && 
-                                  (obj.GetComponent<TerrainModifier>() || obj.GetComponent<TerrainOp>()));
+                                  (obj.GetComponent<TerrainModifier>() || obj.GetComponent<TerrainComp>()));
 
                 foreach (GameObject prefab in prefabs)
                 {
@@ -195,7 +255,7 @@ namespace PlanBuild.Blueprints
             catch (Exception ex)
             {
                 Logger.LogWarning($"Error while removing terrain: {ex}");
-            }
+            }*/
         }
     }
 }
