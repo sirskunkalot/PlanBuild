@@ -425,7 +425,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public Bounds GetBounds()
         {
-            if(bounds.size.magnitude != 0)
+            if (bounds.size.magnitude != 0)
             {
                 return bounds;
             }
@@ -722,51 +722,58 @@ namespace PlanBuild.Blueprints
                 for (int i = 0; i < pieces.Count; i++)
                 {
                     PieceEntry piece = pieces[i];
-                    var piecePosition = tf.position + piece.GetPosition();
-                     
-                    GameObject pieceObject = new GameObject($"piece_entry ({i})");
-                    pieceObject.transform.SetParent(tf);
-                    pieceObject.transform.rotation = piece.GetRotation();
-                    pieceObject.transform.position = piecePosition;
-
-                    if (prefabs.TryGetValue(piece.name, out var prefab))
+                    try
                     {
-                        GameObject ghostPrefab;
-                        Vector3 ghostPosition;
-                        Quaternion ghostRotation;
-                        if (prefab.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_new)
-                        {
-                            // Only instantiate the visual part
-                            ghostPrefab = wearNTear.m_new;
-                            ghostRotation = ghostPrefab.transform.localRotation;
-                            ghostPosition = ghostPrefab.transform.localPosition;
-                        }
-                        else
-                        {
-                            // No WearNTear?? Just use the entire prefab
-                            ghostPrefab = prefab;
-                            ghostRotation = Quaternion.identity;
-                            ghostPosition = Vector3.zero;
-                        }
+                        var piecePosition = tf.position + piece.GetPosition();
 
-                        var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
-                        child.transform.localRotation = ghostRotation;
-                        child.transform.localPosition = ghostPosition;
-                        PrepareGhostPiece(child);
+                        GameObject pieceObject = new GameObject($"piece_entry ({i})");
+                        pieceObject.transform.SetParent(tf);
+                        pieceObject.transform.rotation = piece.GetRotation();
+                        pieceObject.transform.position = piecePosition;
 
-                        // Doors have a dynamic object that also needs to be added
-                        if (prefab.TryGetComponent(out Door door))
+                        if (prefabs.TryGetValue(piece.name, out var prefab))
                         {
-                            GameObject doorPrefab = door.m_doorObject;
-                            var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
-                            doorChild.transform.localRotation = doorPrefab.transform.localRotation;
-                            doorChild.transform.localPosition = doorPrefab.transform.localPosition;
-                            PrepareGhostPiece(doorChild);
+                            GameObject ghostPrefab;
+                            Vector3 ghostPosition;
+                            Quaternion ghostRotation;
+                            if (prefab.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_new)
+                            {
+                                // Only instantiate the visual part
+                                ghostPrefab = wearNTear.m_new;
+                                ghostRotation = ghostPrefab.transform.localRotation;
+                                ghostPosition = ghostPrefab.transform.localPosition;
+                            }
+                            else
+                            {
+                                // No WearNTear?? Just use the entire prefab
+                                ghostPrefab = prefab;
+                                ghostRotation = Quaternion.identity;
+                                ghostPosition = Vector3.zero;
+                            }
+
+                            var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
+                            child.transform.localRotation = ghostRotation;
+                            child.transform.localPosition = ghostPosition;
+                            PrepareGhostPiece(child);
+
+                            // Doors have a dynamic object that also needs to be added
+                            if (prefab.TryGetComponent(out Door door))
+                            {
+                                GameObject doorPrefab = door.m_doorObject;
+                                var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
+                                doorChild.transform.localRotation = doorPrefab.transform.localRotation;
+                                doorChild.transform.localPosition = doorPrefab.transform.localPosition;
+                                PrepareGhostPiece(doorChild);
+                            }
                         }
+                    }
+                    catch (Exception e)
+                    {
+                        Jotunn.Logger.LogWarning($"Error while creating ghost of line: {piece.line}\n{e}");
                     }
                 }
 
-                if(BlueprintConfig.showGridConfig.Value)
+                if (BlueprintConfig.showGridConfig.Value)
                 {
                     DebugUtils.InitLaserGrid(baseObject, GetBounds());
                 }

@@ -21,14 +21,14 @@ namespace PlanBuild
         public const string gizmoGUID = "com.rolopogo.Gizmo";
         public const string valheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         private static Harmony harmony;
-            
+
         internal static void Apply()
         {
             On.Player.SetupPlacementGhost += SetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
             On.Player.HaveRequirements_Piece_RequirementMode += Player_HaveRequirements_Piece_RequirementMode;
 
-            harmony = new Harmony("marcopogo.PlanBuild"); 
+            harmony = new Harmony("marcopogo.PlanBuild");
             harmony.PatchAll(typeof(PlanPiece));
             if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
             {
@@ -55,9 +55,16 @@ namespace PlanBuild
 
         private static bool Player_HaveRequirements_Piece_RequirementMode(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
         {
-            if (!PlanManager.showAllPieces.Value && PlanPiecePrefab.planToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+            try
             {
-                return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                if (piece && !PlanManager.showAllPieces.Value && PlanPiecePrefab.planToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                {
+                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                }
+            }
+            catch (Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
             }
             return orig(self, piece, mode);
         }
