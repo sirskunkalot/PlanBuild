@@ -95,7 +95,7 @@ namespace PlanBuild.PlanBuild
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
             foreach (GameObject item in ObjectDB.instance.m_items)
             {
-                PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData.m_shared.m_buildPieces;
+                PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_buildPieces;
                 if (pieceTable == null ||
                     pieceTable.name.Equals(PlanPiecePrefab.PieceTableName) ||
                     pieceTable.name.Equals(BlueprintRunePrefab.PieceTableName))
