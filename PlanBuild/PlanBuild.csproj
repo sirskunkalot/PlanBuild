@@ -135,11 +135,13 @@
     <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
     <None Include="assets\Translations\English\PlanBuild.English.json" />
     <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
+    <EmbeddedResource Include="EmbeddedAssets\blueprintmenuui" />
+    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
+    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="EmbeddedAssets\" />
     <Folder Include="Package\" />
   </ItemGroup>
   <ItemGroup>
