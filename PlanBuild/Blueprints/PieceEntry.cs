@@ -21,7 +21,7 @@ namespace PlanBuild.Blueprints
         public static PieceEntry FromBlueprint(string line)
         {
             // backwards compatibility
-            if (line.IndexOf(',') > 0)
+            if (line.IndexOf(',') > -1)
             {
                 line = line.Replace(',', '.');
             }
@@ -45,7 +45,7 @@ namespace PlanBuild.Blueprints
         public static PieceEntry FromVBuild(string line)
         {
             // backwards compatibility
-            if (line.IndexOf(',') > 0)
+            if (line.IndexOf(',') > -1)
             {
                 line = line.Replace(',', '.');
             }
