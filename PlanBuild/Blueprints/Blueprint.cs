@@ -643,7 +643,7 @@ namespace PlanBuild.Blueprints
                 Item = BlueprintRunePrefab.BlueprintRuneName,
                 Piece = PrefabName,
                 ButtonConfigs = new[]
-                    {
+                {
                     new ButtonConfig { Name = BlueprintConfig.PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
                     new ButtonConfig { Name = "Shift", HintToken = "$hud_bpflatten" },

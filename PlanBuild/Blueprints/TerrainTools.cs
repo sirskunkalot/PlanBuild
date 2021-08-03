@@ -29,7 +29,38 @@ namespace PlanBuild.Blueprints
             return ret;
         }
 
-        public static void Flatten(Transform transform, float radius, bool square = true)
+        private static int ResetTerrainComp(Vector3 position, float radius, bool square = false)
+        {
+            int ret = 0;
+            foreach (TerrainComp comp in GetTerrainComp(position, radius))
+            {
+                Heightmap hmap = comp.m_hmap;
+                hmap.WorldToVertex(position, out int x, out int y);
+                float scaled = radius;  // / hmap.m_scale;
+                int maxRadius = Mathf.CeilToInt(scaled);
+                int maxWidth = comp.m_width + 1;
+                Vector2 a = new Vector2(x, y);
+                for (int i = y - maxRadius; i <= y + maxRadius; i++)
+                {
+                    for (int j = x - maxRadius; j <= x + maxRadius; j++)
+                    {
+                        if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaled)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
+                        {
+                            float height = hmap.GetHeight(j, i);
+                            int index = i * maxWidth + j;
+                            comp.m_smoothDelta[index] = 0f;
+                            comp.m_levelDelta[index] = 0f;
+                            comp.m_modifiedHeight[index] = false;
+                        }
+                    }
+                }
+                comp.PaintCleared(position, radius, TerrainModifier.PaintType.Reset, false, true);
+                ret++;
+            }
+            return ret;
+        }
+
+        public static void Flatten(Transform transform, float radius, bool square = false)
         {
             Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
                 
@@ -192,7 +223,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void RemoveTerrain(Transform transform, float radius)
+        public static void RemoveTerrain(Transform transform, float radius, bool square = false)
         {
             Logger.LogDebug($"Entered Remove {transform.position} / {radius}");
 
@@ -215,14 +246,7 @@ namespace PlanBuild.Blueprints
                     tmodcnt++;
                 }
 
-                int tcompcnt = 0;
-                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
-                {
-                    Heightmap map = comp.m_hmap;
-                    zNetScene.Destroy(comp.gameObject);
-                    map.Regenerate();
-                    tcompcnt++;
-                }
+                int tcompcnt = ResetTerrainComp(startPosition, radius + 0.1f, square);
 
                 Logger.LogDebug($"Removed {tmodcnt} TerrainMod(s) and {tcompcnt} TerrainComp(s)");
             }
@@ -230,32 +254,6 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning($"Error while removing terrain: {ex}");
             }
-
-            /*ZNetScene zNetScene = ZNetScene.instance;
-            try
-            {
-                Vector3 startPosition = transform.position;
-
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
-                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && 
-                                  (obj.GetComponent<TerrainModifier>() || obj.GetComponent<TerrainComp>()));
-
-                foreach (GameObject prefab in prefabs)
-                {
-                    if (!prefab.TryGetComponent(out ZNetView zNetView))
-                    {
-                        continue;
-                    }
-
-                    zNetView.ClaimOwnership();
-                    zNetScene.Destroy(prefab);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing terrain: {ex}");
-            }*/
         }
     }
 }
