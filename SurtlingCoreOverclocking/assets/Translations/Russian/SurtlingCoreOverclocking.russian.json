@@ -1,0 +1,13 @@
+{
+	"item_overclock_core_speed": "Разгоное ядро скорости",
+	"item_overclock_core_speed_description": "Добавляется в печь, плавильную печь или доменную печь, чтобы увеличить её скорость на <color=green>$1</color>\n\nУменьшает эффективность на <color=red>$2</color>",
+	"item_overclock_core_efficiency": "Разгоное ядро эффективности",
+	"item_overclock_core_efficiency_description":"Добавляется в печь, плавильную печь или доменную печь, чтобы уменьшить расход топлива на <color=green>$1</color>\n\nУменьшает скорость на <color=red>$2</color>",
+	"item_overclock_core_productivity":"Разгоное ядро продуктивности",
+	"item_overclock_core_productivity_description":"Добавляется в печь, плавильную печь или доменную печь, чтобы увеличить её производительность на <color=green>$1</color>\n\nОстатки сырья будут сохранятся во внутреннем хранилище, пока не достигнут 100%, после чего произойдет генерация ещё одного продукта без потребления каких-либо ресурсов.\n\nУменьшает скорость на <color=red>$2</color>\nУменьшает эффективность на <color=red>$3</color>",
+	"item_overclock_core_slot":"Разгоное ядро для слота",
+	"item_overclock_core_slot_description": "Добавляется в печь, плавильную печь или доменную печь, чтобы увеличить количество слотов для ядра на 1\n\nМаксимум на каждой плавильне: <color=yellow>$1</color>",
+	"message_overclock_core_no_slots_available": "Больше нет доступных слотов для ядра, добавьте еще",
+	"message_overclock_core_no_slots_available_max_reached": "Больше нет доступных слотов для ядра, достигнут максимум",
+	"message_overclock_core_max_slots_reached": "Достигнуто максимальное количество слотов для ядер"
+}
