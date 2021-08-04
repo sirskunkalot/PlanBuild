@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
             List<TerrainComp> ret = new List<TerrainComp>();
             List<Heightmap> maps = new List<Heightmap>();
             Heightmap.FindHeightmap(position, radius, maps);
+            Logger.LogDebug($"Found {maps.Count} Heightmaps in radius {radius}");
             foreach (Heightmap map in maps)
             {
                 TerrainComp comp = map.GetAndCreateTerrainCompiler();
@@ -25,37 +26,6 @@ namespace PlanBuild.Blueprints
                         comp.m_nview.ClaimOwnership();
                     }
                 }
-            }
-            return ret;
-        }
-
-        private static int ResetTerrainComp(Vector3 position, float radius, bool square = false)
-        {
-            int ret = 0;
-            foreach (TerrainComp comp in GetTerrainComp(position, radius))
-            {
-                Heightmap hmap = comp.m_hmap;
-                hmap.WorldToVertex(position, out int x, out int y);
-                float scaled = radius;  // / hmap.m_scale;
-                int maxRadius = Mathf.CeilToInt(scaled);
-                int maxWidth = comp.m_width + 1;
-                Vector2 a = new Vector2(x, y);
-                for (int i = y - maxRadius; i <= y + maxRadius; i++)
-                {
-                    for (int j = x - maxRadius; j <= x + maxRadius; j++)
-                    {
-                        if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaled)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
-                        {
-                            float height = hmap.GetHeight(j, i);
-                            int index = i * maxWidth + j;
-                            comp.m_smoothDelta[index] = 0f;
-                            comp.m_levelDelta[index] = 0f;
-                            comp.m_modifiedHeight[index] = false;
-                        }
-                    }
-                }
-                comp.PaintCleared(position, radius, TerrainModifier.PaintType.Reset, false, true);
-                ret++;
             }
             return ret;
         }
@@ -243,10 +213,41 @@ namespace PlanBuild.Blueprints
                     }
                     modifier.m_nview.ClaimOwnership();
                     zNetScene.Destroy(modifier.gameObject);
-                    tmodcnt++;
+                    ++tmodcnt;
                 }
 
-                int tcompcnt = ResetTerrainComp(startPosition, radius + 0.1f, square);
+                int tcompcnt = 0;
+                foreach (TerrainComp comp in GetTerrainComp(startPosition, radius + 0.1f))
+                {
+                    Heightmap hmap = comp.m_hmap;
+                    hmap.WorldToVertex(startPosition, out int x, out int y);
+                    float scaled = radius / hmap.m_scale;
+                    int maxRadius = Mathf.CeilToInt(scaled);
+                    int maxWidth = comp.m_width + 1;
+                    Vector2 a = new Vector2(x, y);
+                    bool modified = false;
+                    for (int i = y - maxRadius; i <= y + maxRadius; i++)
+                    {
+                        for (int j = x - maxRadius; j <= x + maxRadius; j++)
+                        {
+                            if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaled)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
+                            {
+                                int index = i * maxWidth + j;
+                                modified = modified | comp.m_modifiedHeight[index];
+
+                                comp.m_smoothDelta[index] = 0f;
+                                comp.m_levelDelta[index] = 0f;
+                                comp.m_modifiedHeight[index] = false;
+                            }
+                        }
+                    }
+                    if (modified)
+                    {
+                        comp.PaintCleared(startPosition, radius, TerrainModifier.PaintType.Reset, false, true);
+                        hmap.Poke(false);
+                        ++tcompcnt;
+                    }
+                }
 
                 Logger.LogDebug($"Removed {tmodcnt} TerrainMod(s) and {tcompcnt} TerrainComp(s)");
             }
