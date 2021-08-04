@@ -375,6 +375,7 @@ namespace PlanBuild.Blueprints
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
+                            UndoRotation(self, scrollWheel);
                         }
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
@@ -436,12 +437,12 @@ namespace PlanBuild.Blueprints
                             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
                             }
-                            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
+                            UndoRotation(self, scrollWheel);
                         }
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
@@ -474,7 +475,6 @@ namespace PlanBuild.Blueprints
                                 (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
                             {
                                 PlacementOffset.y += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
                             }
                             else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
@@ -484,6 +484,7 @@ namespace PlanBuild.Blueprints
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
+                            UndoRotation(self, scrollWheel);
                         }
                     }
                     // Paint Tools
@@ -507,6 +508,7 @@ namespace PlanBuild.Blueprints
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
+                            UndoRotation(self, scrollWheel);
                         }
                     }
                     else
@@ -799,12 +801,6 @@ namespace PlanBuild.Blueprints
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
             }
-            bool flatten = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            if(flatten && !(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
-            {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_flatten_disabled");
-                return false;
-            }
 
             uint cntEffects = 0u;
             uint maxEffects = 10u;
@@ -814,8 +810,6 @@ namespace PlanBuild.Blueprints
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
             blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
             ZDOIDSet createdPlans = new ZDOIDSet();
-
-            Bounds bounds = new Bounds();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -837,7 +831,7 @@ namespace PlanBuild.Blueprints
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (!prefab)
                 {
-                    Jotunn.Logger.LogWarning(entry.name + " not found, you are probably missing a dependency for blueprint " + bp.Name + ", not placing @ " + entryPosition);
+                    Jotunn.Logger.LogWarning($"{entry.name} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
                     continue;
                 }
 
@@ -851,21 +845,11 @@ namespace PlanBuild.Blueprints
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
                 OnPiecePlaced(gameObject);
-                foreach (Collider collider in gameObject.GetComponentsInChildren<Collider>())
-                {
-                    if (collider.isTrigger)
-                    {
-                        continue;
-                    }
-                    Bounds colliderBounds = collider.bounds;
-                    colliderBounds.center = transform.InverseTransformPoint(colliderBounds.center);
-                    bounds.Encapsulate(colliderBounds);
-                }
 
                 ZNetView zNetView = gameObject.GetComponent<ZNetView>();
                 if (!zNetView)
                 {
-                    Jotunn.Logger.LogWarning("No ZNetView for " + gameObject + "!!??");
+                    Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
                 }
                 else if (gameObject.TryGetComponent(out PlanPiece planPiece))
                 {
@@ -914,12 +898,7 @@ namespace PlanBuild.Blueprints
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-             
-            if (flatten)
-            {
-                TerrainTools.FlattenForBlueprint(transform, bounds);
-            }
-
+            
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
 
             // Dont set the blueprint piece and clutter the world with it

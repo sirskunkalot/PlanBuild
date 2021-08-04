@@ -39,7 +39,6 @@
   "hud_bpcapture_highlight": "Hold to highlight captured pieces",
   "hud_bpradius": "Change radius\nShift: Camera distance",
   "hud_bpplace": "Place",
-  "hud_bpflatten": "Flatten ground",
   "hud_bpdirect": "Direct build (no plan)",
   "hud_bprotate1": "Rotate, Ctrl + Alt: Move Y-axis\nCtrl: Move Z-axis, Alt: Move X-axis",
   "hud_bprotate2": "Shift: Camera distance",
