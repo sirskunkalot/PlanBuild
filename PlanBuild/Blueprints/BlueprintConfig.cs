@@ -204,8 +204,9 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
                     //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_delete" },
-                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpterrain_deleteall" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_deleteveg" },
+                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpterrain_deletemod" },
+                    new ButtonConfig { Name = "Ctrl+Alt", HintToken = "$hud_bpterrain_deleteall" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });

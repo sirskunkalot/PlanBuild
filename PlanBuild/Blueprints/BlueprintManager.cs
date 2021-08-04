@@ -620,8 +620,6 @@ namespace PlanBuild.Blueprints
                 SelectionCircle.m_radius = Instance.SelectionRadius;
                 SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
                 SelectionCircle.Update();
-
-                Jotunn.Logger.LogDebug($"Setting radius to {Instance.SelectionRadius}");
             }
         }
 
@@ -638,7 +636,8 @@ namespace PlanBuild.Blueprints
             if (self.m_placementMarkerInstance && self.m_placementGhost &&
                 (self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
                 || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName)
+                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintPaintResetName))
                )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
@@ -733,8 +732,13 @@ namespace PlanBuild.Blueprints
                         MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                         return false;
                     }
-                    
-                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+
+                    if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) || 
+                        (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
+                    {
+                        TerrainTools.RemoveAll(self.m_placementGhost.transform, SelectionRadius);
+                    }
+                    else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
                         TerrainTools.RemoveVegetation(self.m_placementGhost.transform, SelectionRadius);
                     }
