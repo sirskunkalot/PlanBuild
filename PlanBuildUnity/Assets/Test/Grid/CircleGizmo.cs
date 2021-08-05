@@ -19,7 +19,7 @@ public class CircleGizmo : MonoBehaviour {
 
 	private void ShowPoint (float x, float y) {
 		Vector2 square = transform.TransformPoint(new Vector2(x, y));
-		Vector2 circle = square.normalized;
+		Vector2 circle = square.normalized * radius;
 
 		Gizmos.color = Color.black;
 		Gizmos.DrawSphere(square, 0.025f);
