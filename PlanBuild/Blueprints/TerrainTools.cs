@@ -37,10 +37,11 @@ namespace PlanBuild.Blueprints
             try
             {
                 TerrainOp.Settings settings = new TerrainOp.Settings();
-                settings.m_level = true;
-                settings.m_levelRadius = radius;
+                settings.m_raise = true;
+                settings.m_raiseRadius = radius;
+                settings.m_raisePower = 3f;
                 settings.m_square = square;
-                settings.m_paintRadius = radius;
+                settings.m_paintRadius = radius * 1.1f;
                 settings.m_paintType = TerrainModifier.PaintType.Dirt;
 
                 foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
@@ -52,41 +53,6 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning($"Error while flattening: {ex}");
             }
-
-            /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
-            TerrainModifier raise = groundPrefab.GetComponent<TerrainModifier>();
-            raise.m_useTerrainCompiler = true;
-
-            if (groundPrefab)
-            {
-                Vector3 startPosition = transform.position + Vector3.down * 0.5f;
-                Vector2 startPoint = new Vector2(startPosition.x, startPosition.z);
-                try
-                {
-                    float forward = -radius;
-                    while (forward < radius)
-                    {
-                        float right = -radius;
-                        while (right < radius)
-                        {
-                            Vector3 newPos = startPosition + transform.forward * forward + transform.right * right;
-                            Quaternion newRot = Quaternion.identity;
-
-                            if (!square && Vector2.Distance(startPoint, new Vector2(newPos.x, newPos.z)) > radius) {
-                                continue;
-                            }
-
-                            Object.Instantiate(groundPrefab, newPos, newRot);
-                            right++;
-                        }
-                        forward++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Error while flattening: {ex}");
-                }
-            }*/
         }
 
         public static void Paint(Transform transform, float radius, TerrainModifier.PaintType type)
@@ -107,95 +73,6 @@ namespace PlanBuild.Blueprints
             catch (Exception ex)
             {
                 Logger.LogWarning($"Error while painting: {ex}");
-            }
-
-            /*GameObject groundPrefab = ZNetScene.instance.GetPrefab("raise");
-            if (groundPrefab)
-            {
-                Vector3 startPosition = transform.position + Vector3.down * 0.5f;
-                try
-                {
-                    float forward = -radius;
-                    while (forward < radius)
-                    {
-                        float right = -radius;
-                        while (right < radius)
-                        {
-                            Vector3 newPos = startPosition + transform.forward * forward + transform.right * right;
-                            Quaternion newRot = Quaternion.identity;
-                            var raise = Object.Instantiate(groundPrefab, newPos, newRot).GetComponent<TerrainModifier>();
-                            raise.m_level = false;
-                            raise.m_paintType = type;
-                            right++;
-                        }
-                        forward++;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Logger.LogWarning($"Error while flattening: {ex}");
-                }
-            }*/
-        }
-
-        public static void RemoveVegetation(Transform transform, float radius)
-        {
-            Logger.LogDebug($"Entered RemoveVegetation {transform.position} / {radius}");
-            
-            ZNetScene zNetScene = ZNetScene.instance;
-            try
-            {
-                Vector3 startPosition = transform.position;
-
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
-                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Piece>() && 
-                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<Character>());
-
-                foreach (GameObject prefab in prefabs)
-                {
-                    if (!prefab.TryGetComponent(out ZNetView zNetView))
-                    {
-                        continue;
-                    }
-
-                    zNetView.ClaimOwnership();
-                    zNetScene.Destroy(prefab);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing objects: {ex}");
-            }
-        }
-
-        public static void RemoveAll(Transform transform, float radius)
-        {
-            Logger.LogDebug($"Entered RemoveAll {transform.position} / {radius}");
-
-            ZNetScene zNetScene = ZNetScene.instance;
-            try
-            {
-                Vector3 startPosition = transform.position;
-
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
-                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>());
-
-                foreach (GameObject prefab in prefabs)
-                {
-                    if (!prefab.TryGetComponent(out ZNetView zNetView))
-                    {
-                        continue;
-                    }
-
-                    zNetView.ClaimOwnership();
-                    zNetScene.Destroy(prefab);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing objects: {ex}");
             }
         }
 
@@ -227,8 +104,8 @@ namespace PlanBuild.Blueprints
                 {
                     Heightmap hmap = comp.m_hmap;
                     hmap.WorldToVertex(startPosition, out int x, out int y);
-                    float scaled = radius / hmap.m_scale;
-                    int maxRadius = Mathf.CeilToInt(scaled);
+                    float scaledRadius = radius / hmap.m_scale;
+                    int maxRadius = Mathf.CeilToInt(scaledRadius);
                     int maxWidth = comp.m_width + 1;
                     Vector2 a = new Vector2(x, y);
                     bool modified = false;
@@ -236,10 +113,10 @@ namespace PlanBuild.Blueprints
                     {
                         for (int j = x - maxRadius; j <= x + maxRadius; j++)
                         {
-                            if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaled)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
+                            if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaledRadius)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
                             {
                                 int index = i * maxWidth + j;
-                                modified = modified | comp.m_modifiedHeight[index];
+                                modified |= comp.m_modifiedHeight[index];
 
                                 comp.m_smoothDelta[index] = 0f;
                                 comp.m_levelDelta[index] = 0f;
@@ -254,12 +131,78 @@ namespace PlanBuild.Blueprints
                         ++tcompcnt;
                     }
                 }
-
                 Logger.LogDebug($"Removed {tmodcnt} TerrainMod(s) and {tcompcnt} TerrainComp(s)");
             }
             catch (Exception ex)
             {
                 Logger.LogWarning($"Error while removing terrain: {ex}");
+            }
+        }
+
+        public static void RemoveVegetation(Transform transform, float radius)
+        {
+            Logger.LogDebug($"Entered RemoveVegetation {transform.position} / {radius}");
+            
+            ZNetScene zNetScene = ZNetScene.instance;
+            try
+            {
+                Vector3 startPosition = transform.position;
+
+                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
+                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
+                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Piece>() && 
+                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<Character>());
+
+                int delcnt = 0;
+                foreach (GameObject prefab in prefabs)
+                {
+                    if (!prefab.TryGetComponent(out ZNetView zNetView))
+                    {
+                        continue;
+                    }
+
+                    zNetView.ClaimOwnership();
+                    zNetScene.Destroy(prefab);
+                    ++delcnt;
+                }
+                Logger.LogDebug($"Removed {delcnt} objects");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while removing objects: {ex}");
+            }
+        }
+
+        public static void RemoveAll(Transform transform, float radius)
+        {
+            Logger.LogDebug($"Entered RemoveAll {transform.position} / {radius}");
+
+            ZNetScene zNetScene = ZNetScene.instance;
+            try
+            {
+                Vector3 startPosition = transform.position;
+
+                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
+                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
+                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>());
+
+                int delcnt = 0;
+                foreach (GameObject prefab in prefabs)
+                {
+                    if (!prefab.TryGetComponent(out ZNetView zNetView))
+                    {
+                        continue;
+                    }
+
+                    zNetView.ClaimOwnership();
+                    zNetScene.Destroy(prefab);
+                    ++delcnt;
+                }
+                Logger.LogDebug($"Removed {delcnt} objects");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Error while removing objects: {ex}");
             }
         }
     }
