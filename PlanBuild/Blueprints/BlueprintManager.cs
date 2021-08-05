@@ -28,6 +28,7 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary ServerBlueprints;
 
         internal bool ShowSelectionCircle = true;
+        internal bool SquareSelectionCircle = true;
         private GameObject SelectionSegment;
         private CircleProjector SelectionCircle;
         private float SelectionRadius = 10.0f;
@@ -79,13 +80,14 @@ namespace PlanBuild.Blueprints
                 On.GameCamera.UpdateCamera += OnUpdateCamera;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
+                On.CircleProjector.Update += OnCircleProjectorUpdate;
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogError($"{ex.StackTrace}");
+                Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-         
+
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -520,9 +522,6 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
-
-            // Always update the selection circle
-            UpdateSelectionCircle();
         }
 
         private float GetPlacementOffset(float scrollWheel)
@@ -602,6 +601,52 @@ namespace PlanBuild.Blueprints
                     Object.Destroy(segment);
                 }
                 Object.Destroy(SelectionCircle);
+            }
+        }
+
+        private void OnCircleProjectorUpdate(On.CircleProjector.orig_Update orig, CircleProjector self)
+        {
+            if (self != SelectionCircle)
+            {
+                orig(self);
+                return;
+            }
+            if (!ShowSelectionCircle)
+            {
+                DisableSelectionCircle();
+            }
+            if (SelectionCircle.m_radius != Instance.SelectionRadius)
+            {
+                SelectionCircle.m_radius = Instance.SelectionRadius;
+                SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
+            }
+            if (!SquareSelectionCircle)
+            {
+                orig(self);
+                return;
+            }
+
+            self.CreateSegments();
+            float num = (float)Math.PI * 2f / (float)self.m_segments.Count;
+            for (int i = 0; i < self.m_segments.Count; i++)
+            {
+                float f = (float)i * num + Time.time * -0.1f;
+                Vector3 vector = self.transform.position + new Vector3(Mathf.Sin(f) * self.m_radius, 0f, Mathf.Cos(f) * self.m_radius);
+                GameObject gameObject = self.m_segments[i];
+                if (Physics.Raycast(vector + Vector3.up * 500f, Vector3.down, out RaycastHit hitInfo, 1000f, self.m_mask.value))
+                {
+                    vector.y = hitInfo.point.y;
+                }
+
+                gameObject.transform.position = vector;
+            }
+
+            for (int j = 0; j < self.m_segments.Count; j++)
+            {
+                GameObject gameObject2 = self.m_segments[j];
+                GameObject gameObject3 = (j == 0) ? self.m_segments[self.m_segments.Count - 1] : self.m_segments[j - 1];
+                Vector3 normalized = (((j == self.m_segments.Count - 1) ? self.m_segments[0] : self.m_segments[j + 1]).transform.position - gameObject3.transform.position).normalized;
+                gameObject2.transform.rotation = Quaternion.LookRotation(normalized, Vector3.up);
             }
         }
 
