@@ -29,18 +29,18 @@ public class SquareProjector : CircleProjector
         {
             float delta = i * step + offset - step;
             int chunk = i * 4;
-            m_segments[chunk].transform.position = transform.TransformPoint(new Vector3(-m_radius + delta, m_radius, 0f));
+            m_segments[chunk].transform.position = transform.TransformPoint(new Vector3(-m_radius + delta, -m_radius, 0f));
             m_segments[chunk].transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
-            m_segments[chunk + 1].transform.position = transform.TransformPoint(new Vector3(m_radius - delta, -m_radius, 0f));
+            m_segments[chunk + 1].transform.position = transform.TransformPoint(new Vector3(m_radius - delta, m_radius, 0f));
             m_segments[chunk + 1].transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
         }
         for (int i = 0; i <= resolution + 1; i++)
         {
             float delta = i * step + offset - step;
             int chunk = i * 4;
-            m_segments[chunk + 2].transform.position = transform.TransformPoint(new Vector3(m_radius, m_radius - delta, 0f));
+            m_segments[chunk + 2].transform.position = transform.TransformPoint(new Vector3(-m_radius, m_radius - delta, 0f));
             m_segments[chunk + 2].transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
-            m_segments[chunk + 3].transform.position = transform.TransformPoint(new Vector3(-m_radius, -m_radius + delta, 0f));
+            m_segments[chunk + 3].transform.position = transform.TransformPoint(new Vector3(m_radius, -m_radius + delta, 0f));
             m_segments[chunk + 3].transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
         }
     }
@@ -73,7 +73,7 @@ public class SquareProjector : CircleProjector
             int floor = Mathf.FloorToInt(m_radius);
             m_nrOfSegments = floor * 4 - floor * 4 % 4;
             resolution = m_nrOfSegments / 4;
-            m_nrOfSegments += 4;
+            m_nrOfSegments += 8;
             step = m_radius / resolution * 2f;
             offset = Mathf.Repeat(offset, step);
             for (int i = 0; i <= resolution + 1; i++)
