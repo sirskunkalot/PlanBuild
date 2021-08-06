@@ -649,18 +649,18 @@ namespace PlanBuild.Blueprints
             {
                 float delta = i * step + offset - step;
                 int chunk = i * 4;
-                self.m_segments[chunk].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius + delta, self.m_radius, 0f));
+                self.m_segments[chunk].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius + delta, -self.m_radius, 0f));
                 self.m_segments[chunk].transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
-                self.m_segments[chunk + 1].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius - delta, -self.m_radius, 0f));
+                self.m_segments[chunk + 1].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius - delta, self.m_radius, 0f));
                 self.m_segments[chunk + 1].transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
             }
             for (int i = 0; i <= resolution + 1; i++)
             {
                 float delta = i * step + offset - step;
                 int chunk = i * 4;
-                self.m_segments[chunk + 2].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius, self.m_radius - delta, 0f));
+                self.m_segments[chunk + 2].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius, self.m_radius - delta, 0f));
                 self.m_segments[chunk + 2].transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
-                self.m_segments[chunk + 3].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius, -self.m_radius + delta, 0f));
+                self.m_segments[chunk + 3].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius, -self.m_radius + delta, 0f));
                 self.m_segments[chunk + 3].transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
             }
         }
