@@ -577,15 +577,15 @@ namespace PlanBuild.Blueprints
             }
             if (scrollingDown)
             {
-                Instance.SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
-                if (Instance.SelectionRadius < 2f)
+                SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
+                if (SelectionRadius < 2f)
                 {
-                    Instance.SelectionRadius = 2f;
+                    SelectionRadius = 2f;
                 }
             }
             else
             {
-                Instance.SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
+                SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
             }
         }
 
@@ -596,7 +596,7 @@ namespace PlanBuild.Blueprints
                 SelectionCircle = self.m_placementMarkerInstance.AddComponent<CircleProjector>();
                 SelectionCircle.m_prefab = SelectionSegment;
                 SelectionCircle.m_prefab.SetActive(true);
-                SelectionCircle.m_radius = Instance.SelectionRadius;
+                SelectionCircle.m_radius = SelectionRadius;
                 SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
                 SelectionCircle.Start();
             }
@@ -633,6 +633,7 @@ namespace PlanBuild.Blueprints
             if (!SquareSelectionCircle || 
                 !Player.m_localPlayer.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
             {
+                self.m_nrOfSegments = (int)self.m_radius * 4;
                 orig(self);
                 return;
             }
