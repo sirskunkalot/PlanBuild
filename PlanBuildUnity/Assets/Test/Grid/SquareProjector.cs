@@ -7,7 +7,8 @@ public class SquareProjector : CircleProjector
     public int resolution;
     public float step;
     public float offset;
-    private List<GameObject> segments = new List<GameObject>();
+    public Bounds bounds = new Bounds();
+    private List<GameObject> m_segments = new List<GameObject>();
 
     private void Start()
     {
@@ -16,64 +17,92 @@ public class SquareProjector : CircleProjector
 
     private void Update()
     {
-        m_nrOfSegments = Mathf.FloorToInt(m_radius * 4f);
-        CreateSegments();
+        bounds = new Bounds(transform.position, new Vector3(m_radius * 2, 0f, -m_radius * 2));
+        int floor = Mathf.FloorToInt(m_radius);
+        m_nrOfSegments = floor * 4 - floor * 4 % 4;
         resolution = m_nrOfSegments / 4;
+        m_nrOfSegments += 8;
+        CreateSegments();
         step = m_radius / resolution * 2f;
         offset = Mathf.Repeat(Time.time * 0.5f, step);
-        for (int i = 0; i < resolution; i++)
+        for (int i = 0; i <= resolution + 1; i++)
         {
-            float delta = i * step;
+            float delta = i * step + offset - step;
             int chunk = i * 4;
-            segments[chunk].transform.position = transform.TransformPoint(new Vector3(m_radius - delta - offset, 0f, -m_radius));
-            segments[chunk + 1].transform.position = transform.TransformPoint(new Vector3(-m_radius + delta + offset, 0f, m_radius));
-            segments[chunk + 2].transform.position = transform.TransformPoint(new Vector3(m_radius, 0f, -delta + m_radius - offset));
-            segments[chunk + 3].transform.position = transform.TransformPoint(new Vector3(-m_radius, 0f, delta - m_radius + offset));
+            m_segments[chunk].transform.position = transform.TransformPoint(new Vector3(-m_radius + delta, 0f, m_radius));
+            m_segments[chunk].transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
+            m_segments[chunk + 1].transform.position = transform.TransformPoint(new Vector3(m_radius - delta, 0f, -m_radius));
+            m_segments[chunk + 1].transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
+        }
+        for (int i = 0; i <= resolution + 1; i++)
+        {
+            float delta = i * step + offset - step;
+            int chunk = i * 4;
+            m_segments[chunk + 2].transform.position = transform.TransformPoint(new Vector3(m_radius, 0f, m_radius - delta));
+            m_segments[chunk + 2].transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+            m_segments[chunk + 3].transform.position = transform.TransformPoint(new Vector3(-m_radius, 0f, -m_radius + delta));
+            m_segments[chunk + 3].transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
         }
     }
     private void CreateSegments()
     {
-        if (segments.Count == m_nrOfSegments)
+        if (m_segments.Count == m_nrOfSegments)
         {
             return;
         }
 
-        foreach (GameObject segment in segments)
+        foreach (GameObject segment in m_segments)
         {
             UnityEngine.Object.Destroy(segment);
         }
 
-        segments.Clear();
+        m_segments.Clear();
         for (int i = 0; i < m_nrOfSegments; i++)
         {
             GameObject item = UnityEngine.Object.Instantiate(m_prefab, base.transform.position, Quaternion.identity, base.transform);
-            segments.Add(item);
+            m_segments.Add(item);
         }
     }
     private void OnDrawGizmos()
     {
-        if (segments.Count == 0)
+        if (m_segments.Count == 0)
         {
-            m_nrOfSegments = Mathf.FloorToInt(m_radius * 4f);
+            bounds = new Bounds(transform.position, new Vector3(m_radius * 2, 0f, -m_radius * 2));
+            ShowBounds();
+
+            int floor = Mathf.FloorToInt(m_radius);
+            m_nrOfSegments = floor * 4 - floor * 4 % 4;
             resolution = m_nrOfSegments / 4;
+            m_nrOfSegments += 4;
             step = m_radius / resolution * 2f;
             offset = Mathf.Repeat(offset, step);
-            for (int i = 0; i < resolution; i++)
+            for (int i = 0; i <= resolution + 1; i++)
             {
-                float delta = i * step;
-                ShowPoint(m_radius - delta - offset, -m_radius);
-                ShowPoint(-m_radius + delta + offset, m_radius);
-                ShowPoint(m_radius, -delta + m_radius - offset);
-                ShowPoint(-m_radius, delta - m_radius + offset);
+                float delta = i * step + offset - step;
+                ShowPoint(-m_radius + delta, m_radius);  // up
+                ShowPoint(m_radius - delta, -m_radius);  // down
+            }
+            for (int i = 0; i <= resolution + 1; i++)
+            {
+                float delta = i * step + offset - step;
+                ShowPoint(m_radius, m_radius - delta);  // right
+                ShowPoint(-m_radius, -m_radius + delta);  // left
             }
         }
         else
         {
-            foreach (var go in segments)
+            ShowBounds();
+            foreach (var go in m_segments)
             {
                 ShowPoint(go.transform.position);
             }
         }
+    }
+
+    private void ShowBounds()
+    {
+        Gizmos.color = new Color(1f, 1f, 1f, 0.5f);
+        Gizmos.DrawCube(bounds.center, bounds.size);
     }
 
     private void ShowPoint(float x, float z)

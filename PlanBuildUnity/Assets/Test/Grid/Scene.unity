@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_radius: 5
-  m_nrOfSegments: 20
+  m_nrOfSegments: 24
   m_prefab: {fileID: 4218604547665954837, guid: ab0d94fc2f87ed04da647c161b4c799e,
     type: 3}
   m_mask:
@@ -160,6 +160,9 @@ MonoBehaviour:
   resolution: 5
   step: 2
   offset: 0
+  bounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 5, y: 0, z: -5}
 --- !u!4 &483416530
 Transform:
   m_ObjectHideFlags: 0
@@ -260,7 +263,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1661118938}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
+  m_LocalPosition: {x: 0, y: 13, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
