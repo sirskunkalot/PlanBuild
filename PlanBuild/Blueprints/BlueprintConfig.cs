@@ -207,6 +207,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_deleteveg" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bpterrain_deletemod" },
                     new ButtonConfig { Name = "Ctrl+Alt", HintToken = "$hud_bpterrain_deleteall" },
+                    new ButtonConfig { Name = "Q", HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });

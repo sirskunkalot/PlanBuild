@@ -477,15 +477,26 @@ namespace PlanBuild.Blueprints
                                 (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
                             {
                                 PlacementOffset.y += GetPlacementOffset(scrollWheel);
+                                UndoRotation(self, scrollWheel);
                             }
                             else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                             {
                                 UpdateCameraOffset(scrollWheel);
+                                UndoRotation(self, scrollWheel);
+                            }
+                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                            {
+                                // Nothing, just update the rotation ;)
                             }
                             else
                             {
                                 UpdateSelectionRadius(scrollWheel);
+                                UndoRotation(self, scrollWheel);
                             }
+                        }
+                        if (Input.GetKeyDown(KeyCode.Q))
+                        {
+                            SquareSelectionCircle = !SquareSelectionCircle;
                         }
                     }
                     // Paint Tools
@@ -619,7 +630,8 @@ namespace PlanBuild.Blueprints
                 self.m_radius = SelectionRadius;
                 self.m_nrOfSegments = (int)self.m_radius * 4;
             }
-            if (!SquareSelectionCircle)
+            if (!SquareSelectionCircle || 
+                !Player.m_localPlayer.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
             {
                 orig(self);
                 return;
