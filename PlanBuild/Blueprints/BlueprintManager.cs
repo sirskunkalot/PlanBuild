@@ -486,7 +486,6 @@ namespace PlanBuild.Blueprints
                             {
                                 UpdateSelectionRadius(scrollWheel);
                             }
-                            UndoRotation(self, scrollWheel);
                         }
                     }
                     // Paint Tools
@@ -615,10 +614,10 @@ namespace PlanBuild.Blueprints
             {
                 DisableSelectionCircle();
             }
-            if (SelectionCircle.m_radius != Instance.SelectionRadius)
+            if (self.m_radius != SelectionRadius)
             {
-                SelectionCircle.m_radius = Instance.SelectionRadius;
-                SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
+                self.m_radius = SelectionRadius;
+                self.m_nrOfSegments = (int)self.m_radius * 4;
             }
             if (!SquareSelectionCircle)
             {
@@ -626,27 +625,30 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
+            int floor = Mathf.FloorToInt(self.m_radius);
+            self.m_nrOfSegments = floor * 4 - floor * 4 % 4;
+            int resolution = self.m_nrOfSegments / 4;
+            self.m_nrOfSegments += 8;
             self.CreateSegments();
-            float num = (float)Math.PI * 2f / (float)self.m_segments.Count;
-            for (int i = 0; i < self.m_segments.Count; i++)
+            float step = self.m_radius / resolution * 2f;
+            float offset = Mathf.Repeat(Time.time * 0.5f, step);
+            for (int i = 0; i <= resolution + 1; i++)
             {
-                float f = (float)i * num + Time.time * -0.1f;
-                Vector3 vector = self.transform.position + new Vector3(Mathf.Sin(f) * self.m_radius, 0f, Mathf.Cos(f) * self.m_radius);
-                GameObject gameObject = self.m_segments[i];
-                if (Physics.Raycast(vector + Vector3.up * 500f, Vector3.down, out RaycastHit hitInfo, 1000f, self.m_mask.value))
-                {
-                    vector.y = hitInfo.point.y;
-                }
-
-                gameObject.transform.position = vector;
+                float delta = i * step + offset - step;
+                int chunk = i * 4;
+                self.m_segments[chunk].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius + delta, self.m_radius, 0f));
+                self.m_segments[chunk].transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
+                self.m_segments[chunk + 1].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius - delta, -self.m_radius, 0f));
+                self.m_segments[chunk + 1].transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
             }
-
-            for (int j = 0; j < self.m_segments.Count; j++)
+            for (int i = 0; i <= resolution + 1; i++)
             {
-                GameObject gameObject2 = self.m_segments[j];
-                GameObject gameObject3 = (j == 0) ? self.m_segments[self.m_segments.Count - 1] : self.m_segments[j - 1];
-                Vector3 normalized = (((j == self.m_segments.Count - 1) ? self.m_segments[0] : self.m_segments[j + 1]).transform.position - gameObject3.transform.position).normalized;
-                gameObject2.transform.rotation = Quaternion.LookRotation(normalized, Vector3.up);
+                float delta = i * step + offset - step;
+                int chunk = i * 4;
+                self.m_segments[chunk + 2].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius, self.m_radius - delta, 0f));
+                self.m_segments[chunk + 2].transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
+                self.m_segments[chunk + 3].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius, -self.m_radius + delta, 0f));
+                self.m_segments[chunk + 3].transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
             }
         }
 
@@ -789,11 +791,11 @@ namespace PlanBuild.Blueprints
                     }
                     else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
                     {
-                        TerrainTools.RemoveTerrain(self.m_placementGhost.transform, SelectionRadius);
+                        TerrainTools.RemoveTerrain(self.m_placementGhost.transform, SelectionRadius, SquareSelectionCircle);
                     }
                     else
                     {
-                        TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius);
+                        TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius, SquareSelectionCircle);
                     }
                     PlacementOffset = Vector3.zero;
                     return false;
