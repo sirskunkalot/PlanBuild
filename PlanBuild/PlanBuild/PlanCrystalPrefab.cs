@@ -1,6 +1,7 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Utils;
+using PlanBuild.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Plans

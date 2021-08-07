@@ -1,8 +1,8 @@
-﻿using Jotunn.Configs;
-using Jotunn.Managers;
+﻿using Jotunn.Managers;
 using PlanBuild.ModCompat;
 using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
+using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,10 +27,7 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
-        internal bool ShowSelectionCircle = true;
-        internal bool SquareSelectionCircle = true;
-        private GameObject SelectionSegment;
-        private CircleProjector SelectionCircle;
+        private ShapedProjector SelectionProjector;
         private float SelectionRadius = 10.0f;
 
         private Vector3 PlacementOffset = Vector3.zero;
@@ -68,9 +65,9 @@ namespace PlanBuild.Blueprints
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-                 
+
                 // Hooks
-                On.Player.OnSpawned += OnOnSpawned;
+                //On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
@@ -80,7 +77,7 @@ namespace PlanBuild.Blueprints
                 On.GameCamera.UpdateCamera += OnUpdateCamera;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
-                On.CircleProjector.Update += OnCircleProjectorUpdate;
+                //On.CircleProjector.Update += OnCircleProjectorUpdate;
             }
             catch (Exception ex)
             {
@@ -278,13 +275,13 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        /*private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
             orig(self); 
             GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
             SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
             SelectionSegment.SetActive(false);
-        }
+        }*/
 
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
@@ -364,7 +361,7 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
-                        EnableSelectionCircle(self);
+                        EnableSelectionProjector(self);
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
@@ -388,7 +385,7 @@ namespace PlanBuild.Blueprints
                     // Place Blueprint
                     else if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
                     {
-                        DisableSelectionCircle();
+                        DisableSelectionProjector();
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
@@ -426,11 +423,11 @@ namespace PlanBuild.Blueprints
 
                         if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                         {
-                            EnableSelectionCircle(self);
+                            EnableSelectionProjector(self);
                         }
                         else
                         {
-                            DisableSelectionCircle();
+                            DisableSelectionProjector();
                         }
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -468,7 +465,7 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
-                        EnableSelectionCircle(self);
+                        EnableSelectionProjector(self);
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
@@ -492,7 +489,7 @@ namespace PlanBuild.Blueprints
                             return;
                         }
 
-                        EnableSelectionCircle(self);
+                        EnableSelectionProjector(self);
 
                         float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                         if (scrollWheel != 0f)
@@ -520,12 +517,12 @@ namespace PlanBuild.Blueprints
                         }
                         if (Input.GetKeyDown(KeyCode.Q))
                         {
-                            SquareSelectionCircle = !SquareSelectionCircle;
+                            SelectionProjector.SwitchShape();
                         }
                     }
                     else
                     {
-                        DisableSelectionCircle();
+                        DisableSelectionProjector();
 
                         Instance.CameraOffset = 5f;
                         Instance.PlacementOffset = Vector3.zero;
@@ -565,7 +562,7 @@ namespace PlanBuild.Blueprints
 
         private void UpdateSelectionRadius(float scrollWheel)
         {
-            if (SelectionCircle == null)
+            if (SelectionProjector == null)
             {
                 return;
             }
@@ -587,76 +584,25 @@ namespace PlanBuild.Blueprints
             {
                 SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
             }
+
+            SelectionProjector.SetRadius(SelectionRadius);
         }
 
-        private void EnableSelectionCircle(Player self)
+        private void EnableSelectionProjector(Player self)
         {
-            if (SelectionCircle == null && ShowSelectionCircle)
+            if (SelectionProjector == null)
             {
-                SelectionCircle = self.m_placementMarkerInstance.AddComponent<CircleProjector>();
-                SelectionCircle.m_prefab = SelectionSegment;
-                SelectionCircle.m_prefab.SetActive(true);
-                SelectionCircle.m_radius = SelectionRadius;
-                SelectionCircle.m_nrOfSegments = (int)SelectionCircle.m_radius * 4;
-                SelectionCircle.Start();
-            }
-        }
-
-        private void DisableSelectionCircle()
-        {
-            if (SelectionCircle != null)
-            {
-                foreach (GameObject segment in SelectionCircle.m_segments)
-                {
-                    Object.Destroy(segment);
-                }
-                Object.Destroy(SelectionCircle);
+                SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
+                SelectionProjector.Enable();
             }
         }
 
-        private void OnCircleProjectorUpdate(On.CircleProjector.orig_Update orig, CircleProjector self)
+        private void DisableSelectionProjector()
         {
-            if (self != SelectionCircle)
+            if (SelectionProjector != null)
             {
-                orig(self);
-                return;
-            }
-            if (!ShowSelectionCircle)
-            {
-                DisableSelectionCircle();
-            }
-            if (self.m_radius != SelectionRadius)
-            {
-                self.m_radius = SelectionRadius;
-                self.m_nrOfSegments = (int)self.m_radius * 4;
-            }
-            if (!SquareSelectionCircle || 
-                !Player.m_localPlayer.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
-            {
-                self.m_nrOfSegments = (int)self.m_radius * 4;
-                orig(self);
-                return;
-            }
-
-            int floor = Mathf.FloorToInt(self.m_radius);
-            self.m_nrOfSegments = floor * 4 - floor * 4 % 4;
-            int resolution = self.m_nrOfSegments / 4;
-            self.m_nrOfSegments += 8;
-            self.CreateSegments();
-            float step = self.m_radius / resolution * 2f;
-            float offset = Mathf.Repeat(Time.time * 0.5f, step);
-            for (int i = 0; i <= resolution + 1; i++)
-            {
-                float delta = i * step + offset - step;
-                int chunk = i * 4;
-                self.m_segments[chunk].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius + delta, -self.m_radius, 0f));
-                self.m_segments[chunk].transform.rotation = Quaternion.LookRotation(Vector3.right, Vector3.up);
-                self.m_segments[chunk + 1].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius - delta, self.m_radius, 0f));
-                self.m_segments[chunk + 1].transform.rotation = Quaternion.LookRotation(Vector3.left, Vector3.up);
-                self.m_segments[chunk + 2].transform.position = self.transform.TransformPoint(new Vector3(-self.m_radius, self.m_radius - delta, 0f));
-                self.m_segments[chunk + 2].transform.rotation = Quaternion.LookRotation(Vector3.back, Vector3.up);
-                self.m_segments[chunk + 3].transform.position = self.transform.TransformPoint(new Vector3(self.m_radius, -self.m_radius + delta, 0f));
-                self.m_segments[chunk + 3].transform.rotation = Quaternion.LookRotation(Vector3.forward, Vector3.up);
+                SelectionProjector.Disable();
+                Object.Destroy(SelectionProjector);
             }
         }
 
@@ -795,11 +741,13 @@ namespace PlanBuild.Blueprints
                     }
                     else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
-                        TerrainTools.RemoveTerrain(self.m_placementGhost.transform, SelectionRadius, SquareSelectionCircle);
+                        TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
+                            SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
                     }
                     else
                     {
-                        TerrainTools.Flatten(self.m_placementGhost.transform, SelectionRadius, SquareSelectionCircle);
+                        TerrainTools.Flatten(self.m_placementGhost.transform,
+                            SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
                     }
                     PlacementOffset = Vector3.zero;
                     return false;
@@ -878,12 +826,12 @@ namespace PlanBuild.Blueprints
                     continue;
                 }
 
-                if (!BlueprintConfig.allowFlattenConfig.Value 
+                if (!BlueprintConfig.allowFlattenConfig.Value
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
                     continue;
-                } 
+                }
 
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
@@ -931,7 +879,7 @@ namespace PlanBuild.Blueprints
                 if (cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
-                    if(placeDirect)
+                    if (placeDirect)
                     {
                         player.AddNoise(50f);
                     }
@@ -941,7 +889,7 @@ namespace PlanBuild.Blueprints
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-            
+
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
 
             // Dont set the blueprint piece and clutter the world with it
@@ -954,7 +902,7 @@ namespace PlanBuild.Blueprints
         /// <param name="newpiece"></param>
         internal virtual void OnPiecePlaced(GameObject placedPiece)
         {
-        
+
         }
 
         private bool UndoPiece()

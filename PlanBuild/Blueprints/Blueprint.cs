@@ -2,6 +2,7 @@
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Plans;
+using PlanBuild.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -948,7 +949,7 @@ namespace PlanBuild.Blueprints
                 Hud.instance.Update();
 
                 // Remove SelectionCircle
-                BlueprintManager.Instance.ShowSelectionCircle = false;
+                ShapedProjector.ShowProjectors = false;
 
                 yield return new WaitForEndOfFrame();
 
@@ -983,7 +984,7 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(screenshot);
 
                 // Reactivate SelectionCircle
-                BlueprintManager.Instance.ShowSelectionCircle = true;
+                ShapedProjector.ShowProjectors = true;
 
                 // Reactivate Hud if it was active
                 Hud.instance.m_userHidden = oldHud;

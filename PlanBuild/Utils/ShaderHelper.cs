@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace PlanBuild
+namespace PlanBuild.Utils
 {
     public class ShaderHelper
     {
@@ -44,17 +44,17 @@ namespace PlanBuild
             result.AddRange(gameObject.GetComponentsInChildren<SkinnedMeshRenderer>());
             return result;
         }
-         
+
         public static void UpdateTextures(GameObject gameObject, ShaderState shaderState)
         {
             if (gameObject.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_oldMaterials != null)
             {
                 wearNTear.ResetHighlight();
             }
-             
+
             foreach (Renderer renderer in GetRenderers(gameObject))
             {
-                
+
                 if (renderer.sharedMaterial != null)
                 {
                     Material[] sharedMaterials = renderer.sharedMaterials;
@@ -63,23 +63,23 @@ namespace PlanBuild
                     renderer.sharedMaterials = sharedMaterials;
                     renderer.shadowCastingMode = ShadowCastingMode.Off;
                 }
-            } 
+            }
         }
-          
+
         private static void UpdateMaterials(ShaderState shaderState, Material[] sharedMaterials)
         {
             for (int j = 0; j < sharedMaterials.Length; j++)
             {
-                Material originalMaterial = sharedMaterials[j]; 
-                if(originalMaterial == null)
+                Material originalMaterial = sharedMaterials[j];
+                if (originalMaterial == null)
                 {
                     continue;
                 }
                 if (!originalMaterialDict.ContainsKey(originalMaterial.name))
                 {
                     originalMaterialDict[originalMaterial.name] = originalMaterial;
-                } 
-                sharedMaterials[j] = GetMaterial(shaderState, originalMaterial); 
+                }
+                sharedMaterials[j] = GetMaterial(shaderState, originalMaterial);
             }
         }
 
@@ -107,7 +107,7 @@ namespace PlanBuild
                         supportedMaterial.DisableKeyword("DIRECTIONAL");
                         supportedMaterialDict[originalMaterial.name] = supportedMaterial;
                     }
-                    return supportedMaterial; 
+                    return supportedMaterial;
                 case ShaderState.Floating:
                     if (!unsupportedMaterialDict.TryGetValue(originalMaterial.name, out Material unsupportedMaterial))
                     {
@@ -119,7 +119,7 @@ namespace PlanBuild
                         unsupportedMaterial.shader = planShader;
                         Color unsupportedMaterialColor = unsupportedColorConfig.Value;
                         unsupportedMaterialColor.a *= transparency;
-                        unsupportedMaterial.color = unsupportedMaterialColor; 
+                        unsupportedMaterial.color = unsupportedMaterialColor;
                         unsupportedMaterial.EnableKeyword("_EMISSION");
                         unsupportedMaterial.DisableKeyword("DIRECTIONAL");
                         unsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
@@ -180,7 +180,7 @@ namespace PlanBuild
             {
                 for (int x = 0; x < width; x++)
                 {
-                    colourArray[(y * width) + x] = bkgColor;
+                    colourArray[y * width + x] = bkgColor;
                 }
             }
 
@@ -253,7 +253,7 @@ namespace PlanBuild
                             // heightmap is read y,x from bottom left
                             // texture is read x,y from top left
                             // magic equation to find correct array index
-                            int ind = ((height - y - 1) * width) + (width - x - 1);
+                            int ind = (height - y - 1) * width + (width - x - 1);
 
                             colourArray[ind] = bandColor;
                         }
