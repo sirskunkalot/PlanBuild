@@ -21,6 +21,10 @@ namespace PlanBuild.Utils
         private float sideLengthHalved;
         private bool isRunning = false;
 
+        private Transform parentNorth;
+        private Transform parentEast;
+        private Transform parentSouth;
+        private Transform parentWest;
         private List<Transform> cubesNorth = new List<Transform>();
         private List<Transform> cubesEast = new List<Transform>();
         private List<Transform> cubesSouth = new List<Transform>();
@@ -35,8 +39,32 @@ namespace PlanBuild.Utils
             Destroy(cubeObject.GetComponent<BoxCollider>());
             cube.transform.localScale = new Vector3(cubesThickness, cubesHeight, cubesLength);
             cube.SetActive(false);
+
             RefreshStuff();
             StartProjecting();
+        }
+
+        private void OnEnable()
+        {
+            if (isRunning)
+            {
+                return;
+            }
+            isRunning = true;
+
+            StartCoroutine(AnimateElements(parentNorth, cubesNorth));
+            StartCoroutine(AnimateElements(parentEast, cubesEast));
+            StartCoroutine(AnimateElements(parentSouth, cubesSouth));
+            StartCoroutine(AnimateElements(parentWest, cubesWest));
+        }
+
+        private void OnDisable()
+        {
+            if (!isRunning)
+            {
+                return;
+            }
+            isRunning = false;
         }
 
         public void StartProjecting()
@@ -45,12 +73,17 @@ namespace PlanBuild.Utils
             {
                 return;
             }
-            
             isRunning = true;
-            StartCoroutine(SideAnimation(0, cubesNorth));
-            StartCoroutine(SideAnimation(90, cubesEast));
-            StartCoroutine(SideAnimation(180, cubesSouth));
-            StartCoroutine(SideAnimation(270, cubesWest));
+
+            parentNorth = CreateElements(0, cubesNorth);
+            parentEast = CreateElements(90, cubesEast);
+            parentSouth = CreateElements(180, cubesSouth);
+            parentWest = CreateElements(270, cubesWest);
+
+            StartCoroutine(AnimateElements(parentNorth, cubesNorth));
+            StartCoroutine(AnimateElements(parentEast, cubesEast));
+            StartCoroutine(AnimateElements(parentSouth, cubesSouth));
+            StartCoroutine(AnimateElements(parentWest, cubesWest));
         }
 
         public void StopProjecting()
@@ -59,13 +92,15 @@ namespace PlanBuild.Utils
             {
                 return;
             }
-
             isRunning = false;
+
             StopAllCoroutines();
-            for (int i = 0; i < transform.childCount; i++)
-            {
-                Destroy(transform.GetChild(i).gameObject, 0);
-            }
+
+            Destroy(parentNorth.gameObject);
+            Destroy(parentEast.gameObject);
+            Destroy(parentSouth.gameObject);
+            Destroy(parentWest.gameObject);
+            
             cubesNorth.Clear();
             cubesEast.Clear();
             cubesSouth.Clear();
@@ -86,7 +121,82 @@ namespace PlanBuild.Utils
             }
         }
 
-        private IEnumerator SideAnimation(int rotation, List<Transform> cubes)
+        private Transform CreateElements(int rotation, List<Transform> cubes)
+        {
+            // Spawn parent object, each which represent a side of the cube
+            Transform cubeParent = new GameObject(rotation.ToString()).transform;
+            cubeParent.transform.position = transform.position;
+            cubeParent.transform.RotateAround(transform.position, Vector3.up, rotation);
+            cubeParent.SetParent(transform);
+
+            // Spawn cubes
+            for (int i = 0; i < cubesPerSide + 1; i++)
+            {
+                cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, cubeParent).transform);
+            }
+
+            // Spawn helper objects
+            Transform a = new GameObject("Start").transform;
+            Transform b = new GameObject("End").transform;
+            a.SetParent(cubeParent);
+            b.SetParent(cubeParent);
+
+            // Initial cube values
+            for (int i = 0; i < cubes.Count; i++)
+            {
+                cubes[i].forward = cubeParent.right;
+            }
+
+            return cubeParent;
+        }
+
+        private IEnumerator AnimateElements(Transform cubeParent, List<Transform> cubes)
+        {
+            Transform a = cubeParent.Find("Start");
+            Transform b = cubeParent.Find("End");
+
+            // Animation
+            while (true)
+            {
+                RefreshStuff(); // R
+
+                a.position = cubeParent.forward * (sideLengthHalved - cubesThickness / 2) - cubeParent.right * sideLengthHalved + cubeParent.position; // R
+                b.position = cubeParent.forward * (sideLengthHalved - cubesThickness / 2) + cubeParent.right * sideLengthHalved + cubeParent.position; // R
+                Vector3 dir = b.position - a.position;
+
+                for (int i = 0; i < cubes.Count; i++)
+                {
+                    Transform cube = cubes[i];
+                    cube.gameObject.SetActive(true);
+
+                    // Deterministic, baby
+                    float pos = (Time.time * cubesSpeed + (sideLength / cubesPerSide) * i) % (sideLength + cubesLength100);
+
+                    if (pos < cubesLength)                                              // Is growing
+                    {
+                        cube.position = dir.normalized * pos + a.position;
+                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (cubesLength - pos)));
+                    }
+                    else if (pos >= sideLength && pos <= sideLength + cubesLength)      // Is shrinking
+                    {
+                        cube.position = dir.normalized * sideLength + a.position;
+                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (pos - sideLength)));
+                    }
+                    else if (pos >= sideLength && pos >= sideLength + cubesLength)      // Is waiting
+                    {
+                        cube.gameObject.SetActive(false);
+                    }
+                    else                                                                // Need to move
+                    {
+                        cube.position = dir.normalized * pos + a.position;
+                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, cubesLength);
+                    }
+                }
+                yield return new WaitForSecondsRealtime(1 / updatesPerSecond);
+            }
+        }
+
+        /*private IEnumerator SideAnimation(int rotation, List<Transform> cubes)
         {
             // Spawn parent object, each which represent a side of the cube
             Transform parent = new GameObject().transform;
@@ -152,7 +262,6 @@ namespace PlanBuild.Utils
                 }
                 yield return new WaitForSecondsRealtime(1 / updatesPerSecond);
             }
-        }
-
+        }*/
     }
 }
