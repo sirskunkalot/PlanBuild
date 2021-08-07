@@ -47,7 +47,7 @@ namespace PlanBuild.Utils
                 Circle = gameObject.AddComponent<CircleProjector>();
                 Circle.m_prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 Circle.m_prefab.transform.localScale = new Vector3(0.15f, 0.1f, 1f);
-                //Circle.m_prefab.SetActive(true);
+                Destroy(Circle.m_prefab.GetComponent<BoxCollider>());
                 Circle.m_radius = Radius;
                 Circle.m_nrOfSegments = (int)Radius * 4;
                 Circle.Start();
