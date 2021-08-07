@@ -4,21 +4,20 @@ using UnityEngine;
 
 public class TSquareProjector : MonoBehaviour
 {
-
-    [Header("Zone")]
-    [SerializeField] private float sideLength;
-    [Range(0, 1)] [SerializeField] private float coverage = 0.5f;
-
-    [Header("Marker")]
-    [SerializeField] private GameObject cube;
-    [SerializeField] private int cubesPerSide = 5;
-    [SerializeField] private float cubesThickness = 0.2f;
     [SerializeField] private float cubesSpeed = 1f;
-    [SerializeField] private float updatesPerSecond = 60f;
-
+    [Range(1f, 20f)] [SerializeField] private float radius = 2f;
+    
+    private GameObject cube;
+    private float cubesThickness = 0.15f;
+    private float cubesHeight = 0.1f;
     private float cubesLength = 1f;
-    private float cubesLength100 = 1f;
-    private float sideLengthHalved = 1f;
+
+    private int cubesPerSide;
+    private float updatesPerSecond = 60f;
+    private float sideLength;
+    private float cubesLength100;
+    private float sideLengthHalved;
+    private bool isRunning = false;
 
     private List<Transform> cubesNorth = new List<Transform>();
     private List<Transform> cubesEast = new List<Transform>();
@@ -27,20 +26,28 @@ public class TSquareProjector : MonoBehaviour
 
     private void Start()
     {
+        cube = new GameObject("cube");
+        GameObject cubeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        cubeObject.transform.SetParent(cube.transform);
+        cubeObject.transform.localPosition = new Vector3(0f, 0f, -0.5f);
+        Destroy(cubeObject.GetComponent<BoxCollider>());
+        cube.transform.localScale = new Vector3(cubesThickness, cubesHeight, cubesLength);
+        cube.SetActive(false);
+        RefreshStuff();
         StartProjecting();
     }
 
     private void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.KeypadPlus))
-        //     StartProjecting();
-        // if (Input.GetKeyDown(KeyCode.KeypadMinus))
-        //     StopProjecting();
+        if (Input.GetKeyDown(KeyCode.KeypadPlus))
+            StartProjecting();
+        if (Input.GetKeyDown(KeyCode.KeypadMinus))
+            StopProjecting();
     }
 
     public void StartProjecting()
     {
-        RefreshStuff();
+        isRunning = true;
         StartCoroutine(SideAnimation(0, cubesNorth));
         StartCoroutine(SideAnimation(90, cubesEast));
         StartCoroutine(SideAnimation(180, cubesSouth));
@@ -49,9 +56,12 @@ public class TSquareProjector : MonoBehaviour
 
     public void StopProjecting()
     {
+        isRunning = false;
         StopAllCoroutines();
         for (int i = 0; i < transform.childCount; i++)
+        {
             Destroy(transform.GetChild(i).gameObject, 0);
+        }
         cubesNorth.Clear();
         cubesEast.Clear();
         cubesSouth.Clear();
@@ -60,9 +70,16 @@ public class TSquareProjector : MonoBehaviour
 
     void RefreshStuff()
     {
-        cubesLength = (sideLength * coverage) / cubesPerSide;
+        cubesPerSide = Mathf.FloorToInt(radius);
+        sideLength = radius * 2;
         cubesLength100 = sideLength / cubesPerSide;
         sideLengthHalved = sideLength / 2;
+
+        if (isRunning && cubesPerSide + 1 != cubesNorth.Count)
+        {
+            StopProjecting();
+            StartProjecting();
+        }
     }
 
     private IEnumerator SideAnimation(int rotation, List<Transform> cubes)
@@ -76,22 +93,23 @@ public class TSquareProjector : MonoBehaviour
 
         // Spawn cubes
         for (int i = 0; i < cubesPerSide + 1; i++)
+        {
             cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, parent).transform);
+        }
 
         // Spawn helper objects
-        Transform a = new GameObject().transform;
-        Transform b = new GameObject().transform;
-        a.SetParent(parent); a.name = "Start";
-        b.SetParent(parent); b.name = "End";
-        a.position = parent.forward * (sideLengthHalved - cubesThickness / 2) - parent.right * sideLengthHalved + parent.position;
-        b.position = parent.forward * (sideLengthHalved - cubesThickness / 2) + parent.right * sideLengthHalved + parent.position;
-        Vector3 dir = b.position - a.position;
+        Transform a = new GameObject("Start").transform;
+        Transform b = new GameObject("End").transform;
+        a.SetParent(parent);
+        b.SetParent(parent);
+        //a.position = parent.forward * (sideLengthHalved - cubesThickness / 2) - parent.right * sideLengthHalved + parent.position;
+        //b.position = parent.forward * (sideLengthHalved - cubesThickness / 2) + parent.right * sideLengthHalved + parent.position;
 
         // Initial cube values
         for (int i = 0; i < cubes.Count; i++)
         {
             cubes[i].forward = parent.right;
-            cubes[i].localScale = new Vector3(cubesThickness, cubesThickness, cubesLength);
+            //cubes[i].localScale = new Vector3(cubesThickness, cubesThickness, cubesLength);
         }
 
         // Animation
@@ -101,13 +119,13 @@ public class TSquareProjector : MonoBehaviour
 
             a.position = parent.forward * (sideLengthHalved - cubesThickness / 2) - parent.right * sideLengthHalved + parent.position; // R
             b.position = parent.forward * (sideLengthHalved - cubesThickness / 2) + parent.right * sideLengthHalved + parent.position; // R
-            dir = b.position - a.position;
+            Vector3 dir = b.position - a.position;
 
             for (int i = 0; i < cubes.Count; i++)
             {
                 Transform cube = cubes[i];
                 cube.gameObject.SetActive(true);
-                cube.localScale = new Vector3(cubesThickness, cubesThickness, cubesLength); // R
+                //cube.localScale = new Vector3(cubesThickness, cubesThickness, cubesLength); // R
 
                 // Deterministic, baby
                 float pos = (Time.time * cubesSpeed + (sideLength / cubesPerSide) * i) % (sideLength + cubesLength100);
