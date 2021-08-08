@@ -46,7 +46,7 @@ namespace PlanBuild.Utils
 
         private void OnEnable()
         {
-            if (isRunning)
+            if (isRunning || parentNorth == null)
             {
                 return;
             }
@@ -60,10 +60,6 @@ namespace PlanBuild.Utils
 
         private void OnDisable()
         {
-            if (!isRunning)
-            {
-                return;
-            }
             isRunning = false;
         }
 

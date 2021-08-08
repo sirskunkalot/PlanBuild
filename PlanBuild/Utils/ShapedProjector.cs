@@ -61,6 +61,24 @@ namespace PlanBuild.Utils
             }
         }
 
+        internal void Disable()
+        {
+            if (Shape == ProjectorShape.Circle && Circle != null)
+            {
+                foreach (GameObject segment in Circle.m_segments)
+                {
+                    Destroy(segment);
+                }
+                Destroy(Circle);
+            }
+
+            if (Shape == ProjectorShape.Square && Square != null)
+            {
+                Square.StopProjecting();
+                Destroy(Square);
+            }
+        }
+
         internal void SwitchShape()
         {
             if (Shape == ProjectorShape.Circle)
@@ -113,24 +131,6 @@ namespace PlanBuild.Utils
         internal float GetRadius()
         {
             return Radius;
-        }
-
-        internal void Disable()
-        {
-            if (Shape == ProjectorShape.Circle && Circle != null)
-            {
-                foreach (GameObject segment in Circle.m_segments)
-                {
-                    Destroy(segment);
-                }
-                Destroy(Circle);
-            }
-
-            if (Shape == ProjectorShape.Square && Square != null)
-            {
-                Square.StopProjecting();
-                Destroy(Square);
-            }
         }
     }
 }
