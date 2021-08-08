@@ -8,6 +8,7 @@ namespace PlanBuild.Utils
     {
         public float cubesSpeed = 1f;
         public float radius = 2f;
+        public GameObject prefab;
 
         private GameObject cube;
         private float cubesThickness = 0.15f;
@@ -33,10 +34,10 @@ namespace PlanBuild.Utils
         public void Start()
         {
             cube = new GameObject("cube");
-            GameObject cubeObject = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject cubeObject = Instantiate(prefab);
             cubeObject.transform.SetParent(cube.transform);
+            cubeObject.transform.localScale = new Vector3(1f, 1f, 1f);
             cubeObject.transform.localPosition = new Vector3(0f, 0f, -0.5f);
-            Destroy(cubeObject.GetComponent<BoxCollider>());
             cube.transform.localScale = new Vector3(cubesThickness, cubesHeight, cubesLength);
             cube.SetActive(false);
 
@@ -120,30 +121,30 @@ namespace PlanBuild.Utils
         private Transform CreateElements(int rotation, List<Transform> cubes)
         {
             // Spawn parent object, each which represent a side of the cube
-            Transform cubeParent = new GameObject(rotation.ToString()).transform;
-            cubeParent.transform.position = transform.position;
-            cubeParent.transform.RotateAround(transform.position, Vector3.up, rotation);
-            cubeParent.SetParent(transform);
+            Transform cubesParent = new GameObject(rotation.ToString()).transform;
+            cubesParent.transform.position = transform.position;
+            cubesParent.transform.RotateAround(transform.position, Vector3.up, rotation);
+            cubesParent.SetParent(transform);
 
             // Spawn cubes
             for (int i = 0; i < cubesPerSide + 1; i++)
             {
-                cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, cubeParent).transform);
+                cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, cubesParent).transform);
             }
 
             // Spawn helper objects
             Transform a = new GameObject("Start").transform;
             Transform b = new GameObject("End").transform;
-            a.SetParent(cubeParent);
-            b.SetParent(cubeParent);
+            a.SetParent(cubesParent);
+            b.SetParent(cubesParent);
 
             // Initial cube values
             for (int i = 0; i < cubes.Count; i++)
             {
-                cubes[i].forward = cubeParent.right;
+                cubes[i].forward = cubesParent.right;
             }
 
-            return cubeParent;
+            return cubesParent;
         }
 
         private IEnumerator AnimateElements(Transform cubeParent, List<Transform> cubes)
@@ -191,73 +192,5 @@ namespace PlanBuild.Utils
                 yield return new WaitForSecondsRealtime(1 / updatesPerSecond);
             }
         }
-
-        /*private IEnumerator SideAnimation(int rotation, List<Transform> cubes)
-        {
-            // Spawn parent object, each which represent a side of the cube
-            Transform parent = new GameObject().transform;
-            parent.name = rotation.ToString();
-            parent.transform.position = transform.position;
-            parent.transform.RotateAround(transform.position, transform.up, rotation);
-            parent.SetParent(transform);
-
-            // Spawn cubes
-            for (int i = 0; i < cubesPerSide + 1; i++)
-            {
-                cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, parent).transform);
-            }
-
-            // Spawn helper objects
-            Transform a = new GameObject("Start").transform;
-            Transform b = new GameObject("End").transform;
-            a.SetParent(parent);
-            b.SetParent(parent);
-
-            // Initial cube values
-            for (int i = 0; i < cubes.Count; i++)
-            {
-                cubes[i].forward = parent.right;
-            }
-
-            // Animation
-            while (true)
-            {
-                RefreshStuff(); // R
-
-                a.position = parent.forward * (sideLengthHalved - cubesThickness / 2) - parent.right * sideLengthHalved + parent.position; // R
-                b.position = parent.forward * (sideLengthHalved - cubesThickness / 2) + parent.right * sideLengthHalved + parent.position; // R
-                Vector3 dir = b.position - a.position;
-
-                for (int i = 0; i < cubes.Count; i++)
-                {
-                    Transform cube = cubes[i];
-                    cube.gameObject.SetActive(true);
-
-                    // Deterministic, baby
-                    float pos = (Time.time * cubesSpeed + (sideLength / cubesPerSide) * i) % (sideLength + cubesLength100);
-
-                    if (pos < cubesLength)                                              // Is growing
-                    {
-                        cube.position = dir.normalized * pos + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (cubesLength - pos)));
-                    }
-                    else if (pos >= sideLength && pos <= sideLength + cubesLength)      // Is shrinking
-                    {
-                        cube.position = dir.normalized * sideLength + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (pos - sideLength)));
-                    }
-                    else if (pos >= sideLength && pos >= sideLength + cubesLength)      // Is waiting
-                    {
-                        cube.gameObject.SetActive(false);
-                    }
-                    else                                                                // Need to move
-                    {
-                        cube.position = dir.normalized * pos + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, cubesLength);
-                    }
-                }
-                yield return new WaitForSecondsRealtime(1 / updatesPerSecond);
-            }
-        }*/
     }
 }

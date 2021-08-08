@@ -1,9 +1,4 @@
-﻿using PlanBuild.Blueprints;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Jotunn.Managers;
 using UnityEngine;
 
 namespace PlanBuild.Utils
@@ -22,6 +17,15 @@ namespace PlanBuild.Utils
 
         private CircleProjector Circle;
         private SquareProjector Square;
+
+        private GameObject SelectionSegment;
+
+        private void Awake()
+        {
+            GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
+            SelectionSegment = Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
+            SelectionSegment.SetActive(false);
+        }
 
         private void Update()
         {
@@ -45,9 +49,8 @@ namespace PlanBuild.Utils
             if (Shape == ProjectorShape.Circle && Circle == null)
             {
                 Circle = gameObject.AddComponent<CircleProjector>();
-                Circle.m_prefab = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                Circle.m_prefab.transform.localScale = new Vector3(0.15f, 0.1f, 1f);
-                Destroy(Circle.m_prefab.GetComponent<BoxCollider>());
+                Circle.m_prefab = SelectionSegment;
+                Circle.m_prefab.SetActive(true);
                 Circle.m_radius = Radius;
                 Circle.m_nrOfSegments = (int)Radius * 4;
                 Circle.Start();
@@ -56,6 +59,7 @@ namespace PlanBuild.Utils
             if (Shape == ProjectorShape.Square && Square == null)
             {
                 Square = gameObject.AddComponent<SquareProjector>();
+                Square.prefab = SelectionSegment;
                 Square.radius = Radius;
                 Square.Start();
             }
