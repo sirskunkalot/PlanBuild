@@ -67,7 +67,6 @@ namespace PlanBuild.Blueprints
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
                 // Hooks
-                //On.Player.OnSpawned += OnOnSpawned;
                 On.Player.PieceRayTest += OnPieceRayTest;
                 On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
                 On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
@@ -77,7 +76,6 @@ namespace PlanBuild.Blueprints
                 On.GameCamera.UpdateCamera += OnUpdateCamera;
                 On.Humanoid.EquipItem += OnEquipItem;
                 On.Humanoid.UnequipItem += OnUnequipItem;
-                //On.CircleProjector.Update += OnCircleProjectorUpdate;
             }
             catch (Exception ex)
             {
@@ -274,14 +272,6 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-
-        /*private void OnOnSpawned(On.Player.orig_OnSpawned orig, Player self)
-        {
-            orig(self); 
-            GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
-            SelectionSegment = Object.Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
-            SelectionSegment.SetActive(false);
-        }*/
 
         private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
