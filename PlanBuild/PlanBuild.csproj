@@ -45,30 +45,6 @@
     <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="assembly_googleanalytics">
-      <HintPath>..\libraries\pub\assembly_googleanalytics.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_guiutils">
-      <HintPath>..\libraries\pub\assembly_guiutils.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_lux">
-      <HintPath>..\libraries\pub\assembly_lux.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_simplemeshcombine">
-      <HintPath>..\libraries\pub\assembly_simplemeshcombine.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_steamworks">
-      <HintPath>..\libraries\pub\assembly_steamworks.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_sunshafts">
-      <HintPath>..\libraries\pub\assembly_sunshafts.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_utils">
-      <HintPath>..\libraries\pub\assembly_utils.dll</HintPath>
-    </Reference>
-    <Reference Include="assembly_valheim">
-      <HintPath>..\libraries\pub\assembly_valheim.dll</HintPath>
-    </Reference>
     <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
@@ -125,7 +101,9 @@
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
     <Compile Include="Blueprints\BlueprintSync.cs" />
-    <Compile Include="Blueprints\FlattenTerrain.cs" />
+    <Compile Include="Utils\ShapedProjector.cs" />
+    <Compile Include="Utils\SquareProjector.cs" />
+    <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
@@ -133,7 +111,7 @@
     <Compile Include="Blueprints\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
-    <Compile Include="DebugUtils.cs" />
+    <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
@@ -152,16 +130,16 @@
     <Compile Include="Properties\IgnoreAccessModifiers.cs" />
     <Compile Include="PlanBuildPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ShaderHelper.cs" />
+    <Compile Include="Utils\ShaderHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
     <None Include="assets\Translations\English\PlanBuild.English.json" />
-    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
-    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
     <EmbeddedResource Include="EmbeddedAssets\blueprintmenuui" />
+    <EmbeddedResource Include="EmbeddedAssets\blueprints" />
+    <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
     <None Include="README.md" />
   </ItemGroup>

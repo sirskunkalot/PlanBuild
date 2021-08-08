@@ -2,6 +2,7 @@
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Plans;
+using PlanBuild.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -643,10 +644,9 @@ namespace PlanBuild.Blueprints
                 Item = BlueprintRunePrefab.BlueprintRuneName,
                 Piece = PrefabName,
                 ButtonConfigs = new[]
-                    {
-                    new ButtonConfig { Name = BlueprintManager.PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                {
+                    new ButtonConfig { Name = BlueprintConfig.PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
-                    new ButtonConfig { Name = "Shift", HintToken = "$hud_bpflatten" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdirect" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate2" }
@@ -949,7 +949,7 @@ namespace PlanBuild.Blueprints
                 Hud.instance.Update();
 
                 // Remove SelectionCircle
-                BlueprintManager.Instance.ShowSelectionCircle = false;
+                ShapedProjector.ShowProjectors = false;
 
                 yield return new WaitForEndOfFrame();
 
@@ -984,7 +984,7 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(screenshot);
 
                 // Reactivate SelectionCircle
-                BlueprintManager.Instance.ShowSelectionCircle = true;
+                ShapedProjector.ShowProjectors = true;
 
                 // Reactivate Hud if it was active
                 Hud.instance.m_userHidden = oldHud;

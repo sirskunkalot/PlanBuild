@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using static PlanBuild.ShaderHelper;
+using static PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild
 {
