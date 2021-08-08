@@ -11,7 +11,7 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static bool ValheimBuildCamera_IsTool_Prefix(ItemDrop.ItemData itemData, ref bool __result)
         {
-            if (itemData?.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
+            if (itemData?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 __result = true;
                 return false;

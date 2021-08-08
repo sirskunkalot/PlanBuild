@@ -2,34 +2,20 @@
 using System.Linq;
 using System.Text;
 
-namespace PlanBuild.Blueprints
+namespace PlanBuild.Blueprints.Marketplace
 {
     internal class BlueprintDictionary : Dictionary<string, Blueprint>
     {
-        /// <summary>
-        ///     Location of this list
-        /// </summary>
-        private BlueprintLocation Location;
-
-        /// <summary>
-        ///     Create a location savvy BlueprintDictionary
-        /// </summary>
-        /// <param name="location"></param>
-        public BlueprintDictionary(BlueprintLocation location)
-        {
-            Location = location;
-        }
-
         /// <summary>
         ///     Create a <see cref="BlueprintDictionary" /> from a <see cref="ZPackage" />
         /// </summary>
         /// <param name="zpkg"></param>
         /// <returns></returns>
-        public static BlueprintDictionary FromZPackage(ZPackage zpkg, BlueprintLocation location)
+        public static BlueprintDictionary FromZPackage(ZPackage zpkg)
         {
             Jotunn.Logger.LogDebug("Deserializing blueprint list from ZPackage");
 
-            var ret = new BlueprintDictionary(location);
+            var ret = new BlueprintDictionary();
 
             var numBlueprints = zpkg.ReadInt();
             while (numBlueprints > 0)

@@ -1,4 +1,5 @@
 ﻿using Jotunn.Managers;
+using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.ModCompat;
 using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
@@ -47,8 +48,8 @@ namespace PlanBuild.Blueprints
             try
             {
                 // Init lists
-                LocalBlueprints = new BlueprintDictionary(BlueprintLocation.Local);
-                ServerBlueprints = new BlueprintDictionary(BlueprintLocation.Server);
+                LocalBlueprints = new BlueprintDictionary();
+                ServerBlueprints = new BlueprintDictionary();
 
                 // Init config
                 BlueprintConfig.Init();
@@ -91,7 +92,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public bool CanCapture(Piece piece, bool onlyPlanned = false)
         {
-            if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+            if (piece.name.StartsWith(BlueprintAssets.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintAssets.BlueprintCenterPointName))
             {
                 return true;
             }
@@ -293,8 +294,8 @@ namespace PlanBuild.Blueprints
         {
             Piece piece = self.GetSelectedPiece();
             if (piece &&
-                (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-              || piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName)))
+                (piece.name.Equals(BlueprintAssets.BlueprintCaptureName)
+              || piece.name.Equals(BlueprintAssets.BlueprintDeleteName)))
             {
                 return;
             }
@@ -344,7 +345,7 @@ namespace PlanBuild.Blueprints
                 if (piece != null)
                 {
                     // Capture Blueprint
-                    if (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName) && !piece.IsCreator())
+                    if (piece.name.Equals(BlueprintAssets.BlueprintCaptureName) && !piece.IsCreator())
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -404,7 +405,7 @@ namespace PlanBuild.Blueprints
                         }
                     }
                     // Delete Plans
-                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
+                    else if (piece.name.Equals(BlueprintAssets.BlueprintDeleteName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -448,7 +449,7 @@ namespace PlanBuild.Blueprints
                         }
                     }
                     // Object Tools
-                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintObjectsName))
+                    else if (piece.name.Equals(BlueprintAssets.BlueprintObjectsName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -472,7 +473,7 @@ namespace PlanBuild.Blueprints
                         }
                     }
                     // Terrain Tools
-                    else if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                    else if (piece.name.Equals(BlueprintAssets.BlueprintTerrainName))
                     {
                         if (!self.m_placementMarkerInstance)
                         {
@@ -607,10 +608,10 @@ namespace PlanBuild.Blueprints
             orig(self, flashGuardStone);
 
             if (self.m_placementMarkerInstance && self.m_placementGhost &&
-                (self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintDeleteName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintTerrainName)
-                || self.m_placementGhost.name.Equals(BlueprintRunePrefab.BlueprintObjectsName))
+                (self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintCaptureName)
+                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintDeleteName)
+                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintTerrainName)
+                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintObjectsName))
                )
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
@@ -651,10 +652,10 @@ namespace PlanBuild.Blueprints
             {
                 var pieceName = Player.m_localPlayer.m_placementGhost.name;
                 if (pieceName.StartsWith(Blueprint.PieceBlueprintName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintDeleteName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintTerrainName)
-                    || pieceName.Equals(BlueprintRunePrefab.BlueprintObjectsName))
+                    || pieceName.Equals(BlueprintAssets.BlueprintCaptureName)
+                    || pieceName.Equals(BlueprintAssets.BlueprintDeleteName)
+                    || pieceName.Equals(BlueprintAssets.BlueprintTerrainName)
+                    || pieceName.Equals(BlueprintAssets.BlueprintObjectsName))
                 {
                     self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
                 }
@@ -671,7 +672,7 @@ namespace PlanBuild.Blueprints
             if (!ZNet.instance.IsDedicated())
             {
                 // Capture a new blueprint
-                if (piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName))
+                if (piece.name.Equals(BlueprintAssets.BlueprintCaptureName))
                 {
                     return MakeBlueprint(self);
                 }
@@ -682,7 +683,7 @@ namespace PlanBuild.Blueprints
                     return PlaceBlueprint(self, piece);
                 }
                 // Delete plans
-                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName))
+                else if (piece.name.Equals(BlueprintAssets.BlueprintDeleteName))
                 {
                     if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     {
@@ -698,7 +699,7 @@ namespace PlanBuild.Blueprints
                     }
                 }
                 // Object Tools
-                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintObjectsName))
+                else if (piece.name.Equals(BlueprintAssets.BlueprintObjectsName))
                 {
                     if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
                     {
@@ -717,7 +718,7 @@ namespace PlanBuild.Blueprints
                     return false;
                 }
                 // Terrain Tools
-                else if (piece.name.Equals(BlueprintRunePrefab.BlueprintTerrainName))
+                else if (piece.name.Equals(BlueprintAssets.BlueprintTerrainName))
                 {
                     if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
                     {
@@ -959,7 +960,7 @@ namespace PlanBuild.Blueprints
         {
             orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer &&
-                item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
+                item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
                 Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
@@ -970,7 +971,7 @@ namespace PlanBuild.Blueprints
         {
             bool result = orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer && result &&
-                item != null && item.m_shared.m_name == BlueprintRunePrefab.BlueprintRuneItemName)
+                item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 RegisterKnownBlueprints();
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);

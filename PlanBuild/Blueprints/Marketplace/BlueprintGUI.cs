@@ -6,7 +6,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PlanBuild.Blueprints
+namespace PlanBuild.Blueprints.Marketplace
 {
     internal class BlueprintGUI
     {
@@ -58,7 +58,7 @@ namespace PlanBuild.Blueprints
         {
             return IsAvailable() && Instance.Window.activeSelf;
         }
-         
+
         /// <summary>
         ///     Check if any visible fiels have focus
         /// </summary>
@@ -79,12 +79,12 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            
+
             if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
             {
                 foreach (var detail in Instance.LocalTab.ListDisplay.Blueprints)
                 {
-                    GameObject.DestroyImmediate(detail.ContentHolder);
+                    UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
                 Instance.LocalTab.DetailDisplay.Clear();
@@ -93,7 +93,7 @@ namespace PlanBuild.Blueprints
             {
                 foreach (var detail in Instance.ServerTab.ListDisplay.Blueprints)
                 {
-                    GameObject.DestroyImmediate(detail.ContentHolder);
+                    UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
                 Instance.ServerTab.ListDisplay.Blueprints.Clear();
                 Instance.ServerTab.DetailDisplay.Clear();
@@ -174,7 +174,7 @@ namespace PlanBuild.Blueprints
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
                     Instance.ActionAppliedOverlay.Show();
-                    BlueprintSync.GetServerBlueprints((bool success, string message) =>
+                    BlueprintSync.GetServerBlueprints((success, message) =>
                     {
                         Instance.ActionAppliedOverlay.SetResult(success, message);
                     }, useCache: false);
@@ -229,7 +229,7 @@ namespace PlanBuild.Blueprints
                         bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
 
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushServerBlueprint(bpserver.ID, (bool success, string message) =>
+                        BlueprintSync.PushServerBlueprint(bpserver.ID, (success, message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
@@ -249,7 +249,7 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushLocalBlueprint(detail.ID, (bool success, string message) =>
+                        BlueprintSync.PushLocalBlueprint(detail.ID, (success, message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
@@ -283,7 +283,7 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
                     {
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.RemoveServerBlueprint(detail.ID, (bool success, string message) => 
+                        BlueprintSync.RemoveServerBlueprint(detail.ID, (success, message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
@@ -319,12 +319,12 @@ namespace PlanBuild.Blueprints
                     RectTransform windowRectTrans = Window.GetComponent<RectTransform>();
 
                     // The window is positioned in the center of the screen --
-                    Vector2 bottomLeftCorner = new Vector2((-1 * (Screen.width / 2)), (-1 * (Screen.height / 2)));
+                    Vector2 bottomLeftCorner = new Vector2(-1 * (Screen.width / 2), -1 * (Screen.height / 2));
                     Vector2 skillWindowSize = new Vector2(600, 400);
                     Vector2 bottomAlignedWindow = new Vector2(-(skillWindowSize.x / 2), bottomLeftCorner.y + skillWindowSize.y / 2);
 
                     // Half of the screen, - half of our window, centered position.
-                    Vector2 centerOScreen = new Vector2((Screen.width / 2) - (windowRectTrans.rect.size.x / 2), (Screen.height / 2) - (windowRectTrans.rect.size.y / 2));
+                    Vector2 centerOScreen = new Vector2(Screen.width / 2 - windowRectTrans.rect.size.x / 2, Screen.height / 2 - windowRectTrans.rect.size.y / 2);
                     windowRectTrans.anchoredPosition = new Vector2(0, 0);
 
                     // Simple drag and drop script. -- allows for drag/drop of any ui component.
@@ -500,7 +500,7 @@ namespace PlanBuild.Blueprints
             {
                 Blueprints.Remove(blueprintToRemove);
                 // I said see-yah later.
-                GameObject.Destroy(blueprintToRemove.ContentHolder);
+                UnityEngine.Object.Destroy(blueprintToRemove.ContentHolder);
                 return blueprintToRemove;
             }
             return null;
@@ -564,8 +564,8 @@ namespace PlanBuild.Blueprints
             Name.text = blueprint.Name;
             Description.text = blueprint.Description;
 
-            Name.onEndEdit.AddListener((string text) => { blueprint.Name = text; });
-            Description.onEndEdit.AddListener((string text) => { blueprint.Description = text; });
+            Name.onEndEdit.AddListener((text) => { blueprint.Name = text; });
+            Description.onEndEdit.AddListener((text) => { blueprint.Description = text; });
 
             SaveButton.onClick.RemoveAllListeners();
             TransferButton.onClick.RemoveAllListeners();
@@ -669,7 +669,7 @@ namespace PlanBuild.Blueprints
         {
             ContentHolder.gameObject.SetActive(true);
             ConfirmationDisplayText.text = displayText;
-            ConfirmButton.onClick.AddListener(() => 
+            ConfirmButton.onClick.AddListener(() =>
             {
                 confirmAction?.Invoke();
                 Close();

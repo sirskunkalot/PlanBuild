@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\JotunnLib.2.1.3\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.1.3\build\JotunnLib.props')" />
+  <Import Project="..\packages\JotunnLib.2.2.2\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.2.2\build\JotunnLib.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -42,8 +42,8 @@
   <PropertyGroup>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="0Harmony, Version=2.4.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\HarmonyX.2.4.2\lib\net45\0Harmony.dll</HintPath>
+    <Reference Include="0Harmony, Version=2.5.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HarmonyX.2.5.4\lib\net45\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -58,29 +58,29 @@
       <HintPath>..\libraries\pub\Gizmo.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Jotunn, Version=2.1.3.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\JotunnLib.2.1.3\lib\net462\Jotunn.dll</HintPath>
+    <Reference Include="Jotunn, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\JotunnLib.2.2.2\lib\net462\Jotunn.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.dll</HintPath>
+    <Reference Include="Mono.Cecil, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Mdb, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
+    <Reference Include="Mono.Cecil.Mdb, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Pdb, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
+    <Reference Include="Mono.Cecil.Pdb, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.Cecil.Rocks, Version=0.11.3.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
-      <HintPath>..\packages\Mono.Cecil.0.11.3\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
+    <Reference Include="Mono.Cecil.Rocks, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
+      <HintPath>..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
     </Reference>
-    <Reference Include="MonoMod, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoMod.21.4.29.1\lib\net40\MonoMod.exe</HintPath>
+    <Reference Include="MonoMod, Version=21.8.5.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoMod.21.8.5.1\lib\net40\MonoMod.exe</HintPath>
     </Reference>
-    <Reference Include="MonoMod.RuntimeDetour, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoMod.RuntimeDetour.21.4.29.1\lib\net40\MonoMod.RuntimeDetour.dll</HintPath>
+    <Reference Include="MonoMod.RuntimeDetour, Version=21.8.5.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoMod.RuntimeDetour.21.8.5.1\lib\net40\MonoMod.RuntimeDetour.dll</HintPath>
     </Reference>
-    <Reference Include="MonoMod.Utils, Version=21.4.29.1, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoMod.Utils.21.4.29.1\lib\net40\MonoMod.Utils.dll</HintPath>
+    <Reference Include="MonoMod.Utils, Version=21.8.5.1, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\MonoMod.Utils.21.8.5.1\lib\net40\MonoMod.Utils.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -97,18 +97,19 @@
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
     <Compile Include="Blueprints\BlueprintConfig.cs" />
-    <Compile Include="Blueprints\BlueprintDictionary.cs" />
+    <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
-    <Compile Include="Blueprints\BlueprintRunePrefab.cs" />
-    <Compile Include="Blueprints\BlueprintSync.cs" />
+    <Compile Include="Blueprints\BlueprintAssets.cs" />
+    <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
+    <Compile Include="Blueprints\Tools\ToolPiece.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />
-    <Compile Include="Blueprints\BlueprintLocation.cs" />
+    <Compile Include="Blueprints\Marketplace\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
-    <Compile Include="Blueprints\UIDragDrop.cs" />
-    <Compile Include="Blueprints\BlueprintGUI.cs" />
+    <Compile Include="Blueprints\Marketplace\UIDragDrop.cs" />
+    <Compile Include="Blueprints\Marketplace\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Utils\DebugUtils.cs" />
@@ -173,6 +174,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\JotunnLib.2.1.3\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.1.3\build\JotunnLib.props'))" />
+    <Error Condition="!Exists('..\packages\JotunnLib.2.2.2\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.2.2\build\JotunnLib.props'))" />
   </Target>
 </Project>

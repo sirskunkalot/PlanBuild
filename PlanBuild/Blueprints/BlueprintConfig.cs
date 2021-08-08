@@ -132,7 +132,7 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Item = BlueprintAssets.BlueprintRuneName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_blueprint_mode" },
@@ -142,8 +142,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintCaptureName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintCaptureName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -156,8 +156,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintSnapPointName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintSnapPointName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -169,8 +169,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintCenterPointName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintCenterPointName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -182,8 +182,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintDeleteName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintDeleteName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -197,8 +197,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintObjectsName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintObjectsName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
@@ -210,8 +210,8 @@ namespace PlanBuild.Blueprints
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
-                Piece = BlueprintRunePrefab.BlueprintTerrainName,
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.BlueprintTerrainName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },

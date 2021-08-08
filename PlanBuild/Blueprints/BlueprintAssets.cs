@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
-    internal class BlueprintRunePrefab
+    internal class BlueprintAssets
     {
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
@@ -24,7 +24,7 @@ namespace PlanBuild.Blueprints
 
         public static string BlueprintRuneItemName;
 
-        public BlueprintRunePrefab(AssetBundle assetBundle)
+        public BlueprintAssets(AssetBundle assetBundle)
         {
             // Rune piece table
             CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig

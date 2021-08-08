@@ -1,6 +1,7 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
@@ -454,14 +455,14 @@ namespace PlanBuild.Blueprints
 
             foreach (var piece in BlueprintManager.Instance.GetPiecesInRadius(position, radius))
             {
-                if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintSnapPointName))
+                if (piece.name.StartsWith(BlueprintAssets.BlueprintSnapPointName))
                 {
                     snapPoints.Add(piece.transform.position);
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
                     wearNTear.Remove();
                     continue;
                 }
-                if (piece.name.StartsWith(BlueprintRunePrefab.BlueprintCenterPointName))
+                if (piece.name.StartsWith(BlueprintAssets.BlueprintCenterPointName))
                 {
                     if (centerPiece == null)
                     {
@@ -631,7 +632,7 @@ namespace PlanBuild.Blueprints
 
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(
-                Prefab, BlueprintRunePrefab.PieceTableName, BlueprintRunePrefab.CategoryBlueprints);
+                Prefab, BlueprintAssets.PieceTableName, BlueprintAssets.CategoryBlueprints);
 
             if (Player.m_localPlayer)
             {
@@ -641,7 +642,7 @@ namespace PlanBuild.Blueprints
             // Create KeyHint
             KeyHint = new KeyHintConfig
             {
-                Item = BlueprintRunePrefab.BlueprintRuneName,
+                Item = BlueprintAssets.BlueprintRuneName,
                 Piece = PrefabName,
                 ButtonConfigs = new[]
                 {
@@ -838,15 +839,15 @@ namespace PlanBuild.Blueprints
             if (Prefab)
             {
                 // Remove from PieceTable
-                var table = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+                var table = PieceManager.Instance.GetPieceTable(BlueprintAssets.PieceTableName);
                 if (table == null)
                 {
-                    Logger.LogWarning($"{BlueprintRunePrefab.PieceTableName} not found");
+                    Logger.LogWarning($"{BlueprintAssets.PieceTableName} not found");
                     return;
                 }
                 if (table.m_pieces.Contains(Prefab))
                 {
-                    Logger.LogInfo($"Removing {PrefabName} from {BlueprintRunePrefab.BlueprintRuneName}");
+                    Logger.LogInfo($"Removing {PrefabName} from {BlueprintAssets.BlueprintRuneName}");
 
                     table.m_pieces.Remove(Prefab);
                 }

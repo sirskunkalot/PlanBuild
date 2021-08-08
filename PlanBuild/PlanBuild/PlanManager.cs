@@ -42,7 +42,7 @@ namespace PlanBuild.PlanBuild
         {
             // Create plan piece table for the plan mode
             var categories = PieceManager.Instance.GetPieceCategories()
-                .Where(x => x != BlueprintRunePrefab.CategoryBlueprints && x != BlueprintRunePrefab.CategoryTools);
+                .Where(x => x != BlueprintAssets.CategoryBlueprints && x != BlueprintAssets.CategoryTools);
 
             CustomPieceTable planPieceTable = new CustomPieceTable(
                 PlanPiecePrefab.PieceTableName,
@@ -66,7 +66,7 @@ namespace PlanBuild.PlanBuild
             Array.Resize(ref planPieceTable.PieceTable.m_selectedPiece, planPieceTable.PieceTable.m_availablePieces.Count);
 
             // Set table on the rune
-            ItemDrop rune = ItemManager.Instance.GetItem(BlueprintRunePrefab.BlueprintRuneName).ItemDrop;
+            ItemDrop rune = ItemManager.Instance.GetItem(BlueprintAssets.BlueprintRuneName).ItemDrop;
             rune.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
 
             // Needs to run only once 
@@ -99,7 +99,7 @@ namespace PlanBuild.PlanBuild
                 PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_buildPieces;
                 if (pieceTable == null ||
                     pieceTable.name.Equals(PlanPiecePrefab.PieceTableName) ||
-                    pieceTable.name.Equals(BlueprintRunePrefab.PieceTableName))
+                    pieceTable.name.Equals(BlueprintAssets.PieceTableName))
                 {
                     continue;
                 }
@@ -163,8 +163,8 @@ namespace PlanBuild.PlanBuild
                 && piece.GetComponent<Ship>() == null
                 && piece.GetComponent<PlanPiece>() == null
                 && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
-                && !piece.name.Equals(BlueprintRunePrefab.BlueprintCaptureName)
-                && !piece.name.Equals(BlueprintRunePrefab.BlueprintDeleteName);
+                && !piece.name.Equals(BlueprintAssets.BlueprintCaptureName)
+                && !piece.name.Equals(BlueprintAssets.BlueprintDeleteName);
         }
 
         private bool EnsurePrefabRegistered(Piece piece)
@@ -232,17 +232,17 @@ namespace PlanBuild.PlanBuild
 
         public void TogglePlanBuildMode()
         {
-            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintRunePrefab.BlueprintRuneName)
+            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintAssets.BlueprintRuneName)
             {
                 return;
             }
-            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintRunePrefab.BlueprintRuneItemName);
+            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintAssets.BlueprintRuneItemName);
             if (blueprintRune == null)
             {
                 return;
             }
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
-            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintRunePrefab.PieceTableName);
+            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintAssets.PieceTableName);
             if (blueprintRune.m_shared.m_buildPieces == planPieceTable)
             {
                 blueprintRune.m_shared.m_buildPieces = blueprintPieceTable;

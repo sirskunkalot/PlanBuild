@@ -9,6 +9,7 @@ using BepInEx.Configuration;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
+using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
@@ -37,7 +38,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> configTransparentGhostPlacement;
 
         internal PlanCrystalPrefab planCrystalPrefab;
-        internal BlueprintRunePrefab blueprintRunePrefab;
+        internal BlueprintAssets blueprintRunePrefab;
         private PlanTotemPrefab planTotemPrefab;
 
         internal static bool showRealTextures;
@@ -58,7 +59,7 @@ namespace PlanBuild
 
             // Init Blueprints
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-            blueprintRunePrefab = new BlueprintRunePrefab(blueprintsBundle);
+            blueprintRunePrefab = new BlueprintAssets(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
 

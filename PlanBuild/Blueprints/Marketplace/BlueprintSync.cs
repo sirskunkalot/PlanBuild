@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using Jotunn;
 
-namespace PlanBuild.Blueprints
+namespace PlanBuild.Blueprints.Marketplace
 {
     internal class BlueprintSync
     {
@@ -139,7 +139,7 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         BlueprintManager.ServerBlueprints.Clear();
-                        BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg, BlueprintLocation.Server);
+                        BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg);
                         BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
                     }
                     catch (Exception ex)
@@ -176,7 +176,7 @@ namespace PlanBuild.Blueprints
 
             blueprint.ToFile();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-            
+
             return true;
         }
 
@@ -318,7 +318,7 @@ namespace PlanBuild.Blueprints
                         success = false;
                         message = ex.Message;
                     }
-                    
+
                     // Invoke answer response
                     ZPackage package = new ZPackage();
                     package.Write(success);
