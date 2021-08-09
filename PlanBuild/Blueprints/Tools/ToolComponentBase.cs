@@ -92,17 +92,17 @@ namespace PlanBuild.Blueprints.Tools
         public float GetPlacementOffset(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
+            if (BlueprintConfig.InvertPlacementOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                return -BlueprintConfig.placementOffsetIncrementConfig.Value;
+                return -BlueprintConfig.PlacementOffsetIncrementConfig.Value;
             }
             else
             {
-                return BlueprintConfig.placementOffsetIncrementConfig.Value;
+                return BlueprintConfig.PlacementOffsetIncrementConfig.Value;
             }
         }
 
@@ -126,13 +126,13 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertSelectionScrollConfig.Value)
+            if (BlueprintConfig.InvertSelectionScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
+                SelectionRadius -= BlueprintConfig.SelectionIncrementConfig.Value;
                 if (SelectionRadius < 2f)
                 {
                     SelectionRadius = 2f;
@@ -140,7 +140,7 @@ namespace PlanBuild.Blueprints.Tools
             }
             else
             {
-                SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
+                SelectionRadius += BlueprintConfig.SelectionIncrementConfig.Value;
             }
 
             SelectionProjector.SetRadius(SelectionRadius);
@@ -171,17 +171,17 @@ namespace PlanBuild.Blueprints.Tools
             float minOffset = 2f;
             float maxOffset = 20f;
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertCameraOffsetScrollConfig.Value)
+            if (BlueprintConfig.InvertCameraOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                CameraOffset = Mathf.Clamp(CameraOffset += BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset += BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
             else
             {
-                CameraOffset = Mathf.Clamp(CameraOffset -= BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset -= BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
         }
 

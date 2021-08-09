@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class TerrainComponent : ToolComponentBase
+    internal class PaintComponent : ToolComponentBase
     {
         public override void UpdatePlacement(Player self)
         {
@@ -18,13 +18,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
-                    (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
-                {
-                    PlacementOffset.y += GetPlacementOffset(scrollWheel);
-                    UndoRotation(self, scrollWheel);
-                }
-                else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -37,7 +31,7 @@ namespace PlanBuild.Blueprints.Tools
             }
             if (Input.GetKeyDown(KeyCode.Q))
             {
-                SelectionProjector.SwitchShape();
+                SelectionProjector.SwitchMask();
             }
         }
 
@@ -51,17 +45,15 @@ namespace PlanBuild.Blueprints.Tools
 
             if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
             {
-                TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
+                
             }
             else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
-                TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
-                    SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
+                
             }
             else
             {
-                TerrainTools.Flatten(self.m_placementGhost.transform,
-                    SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
+                TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
             }
             PlacementOffset = Vector3.zero;
             return false;

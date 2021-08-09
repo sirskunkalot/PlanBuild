@@ -31,7 +31,7 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
+            if (!(BlueprintConfig.AllowTerrainmodConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                 return false;

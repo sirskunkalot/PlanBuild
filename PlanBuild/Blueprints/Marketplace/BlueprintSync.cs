@@ -33,14 +33,14 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             Logger.LogInfo("Loading known blueprints");
 
-            if (!Directory.Exists(BlueprintConfig.blueprintSaveDirectoryConfig.Value))
+            if (!Directory.Exists(BlueprintConfig.BlueprintSaveDirectoryConfig.Value))
             {
-                Directory.CreateDirectory(BlueprintConfig.blueprintSaveDirectoryConfig.Value);
+                Directory.CreateDirectory(BlueprintConfig.BlueprintSaveDirectoryConfig.Value);
             }
 
             List<string> blueprintFiles = new List<string>();
-            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
-            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.blueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.BlueprintSearchDirectoryConfig.Value, "*.blueprint", SearchOption.AllDirectories));
+            blueprintFiles.AddRange(Directory.EnumerateFiles(BlueprintConfig.BlueprintSearchDirectoryConfig.Value, "*.vbuild", SearchOption.AllDirectories));
 
             blueprintFiles = blueprintFiles.Select(absolute => absolute.Replace(BepInEx.Paths.BepInExRootPath, null)).ToList();
 
@@ -74,7 +74,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <param name="useCache">Return the internal cached list after loading, defaults to true</param>
         internal static void GetServerBlueprints(Action<bool, string> callback, bool useCache = true)
         {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, "Server blueprints disabled");
             }
@@ -106,7 +106,7 @@ namespace PlanBuild.Blueprints.Marketplace
         private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
         {
             // Globally disabled
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 return;
             }
@@ -187,7 +187,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <returns></returns>
         internal static bool SaveServerBlueprint(string id)
         {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 return false;
             }
@@ -224,7 +224,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <param name="callback">Is called after the server responded</param>
         internal static void PushLocalBlueprint(string id, Action<bool, string> callback)
         {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, "Server blueprints disabled");
             }
@@ -252,7 +252,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <param name="callback">Is called after the server responded</param>
         internal static void PushServerBlueprint(string id, Action<bool, string> callback)
         {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, "Server blueprints disabled");
             }
@@ -280,7 +280,7 @@ namespace PlanBuild.Blueprints.Marketplace
         private static void RPC_PlanBuild_PushBlueprint(long sender, ZPackage pkg)
         {
             // Globally disabled
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 return;
             }
@@ -391,7 +391,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <param name="callback">Is called after the server responded</param>
         internal static void RemoveServerBlueprint(string id, Action<bool, string> callback)
         {
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, "Server blueprints disabled");
             }
@@ -420,7 +420,7 @@ namespace PlanBuild.Blueprints.Marketplace
         private static void RPC_PlanBuild_RemoveServerBlueprint(long sender, ZPackage pkg)
         {
             // Globally disabled
-            if (!BlueprintConfig.allowServerBlueprints.Value)
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
                 return;
             }

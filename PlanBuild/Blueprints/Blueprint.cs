@@ -207,8 +207,8 @@ namespace PlanBuild.Blueprints
             ret.ID = id;
             ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
-            ret.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
-            ret.IconLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, $"{id}.png");
+            ret.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
+            ret.IconLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -768,7 +768,7 @@ namespace PlanBuild.Blueprints
                     }
                 }
 
-                if (BlueprintConfig.showGridConfig.Value)
+                if (BlueprintConfig.ShowGridConfig.Value)
                 {
                     DebugUtils.InitLaserGrid(baseObject, GetBounds());
                 }
@@ -912,7 +912,7 @@ namespace PlanBuild.Blueprints
                 newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
                 newbp.Name = text;
                 newbp.Creator = playerName;
-                newbp.FileLocation = Path.Combine(BlueprintConfig.blueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
+                newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 newbp.IconLocation = newbp.FileLocation.Replace(".blueprint", ".png");
                 if (newbp.ToFile())
                 {

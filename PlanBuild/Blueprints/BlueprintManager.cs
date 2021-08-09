@@ -308,7 +308,7 @@ namespace PlanBuild.Blueprints
             {
                 RegisterKnownBlueprints();
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
-                Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.rayDistanceConfig.Value;
+                Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
             }
             return result;
         }

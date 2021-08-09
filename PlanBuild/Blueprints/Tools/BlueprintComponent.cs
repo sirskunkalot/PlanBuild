@@ -55,7 +55,7 @@ namespace PlanBuild.Blueprints.Tools
             var rotation = transform.rotation;
 
             bool placeDirect = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            if (placeDirect && !(BlueprintConfig.allowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
+            if (placeDirect && !(BlueprintConfig.AllowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return false;
@@ -94,7 +94,7 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
-                if (!BlueprintConfig.allowFlattenConfig.Value
+                if (!BlueprintConfig.AllowTerrainmodConfig.Value
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
