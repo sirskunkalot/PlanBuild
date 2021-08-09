@@ -169,12 +169,6 @@
       JotunnPostBuildTaskWin
     </BuildDependsOn>
   </PropertyGroup>
-  <Target Name="EnsureEnvironmentPropsImport" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project needs a Environment.props file with the path to your Valheim installation. See https://github.com/Valheim-Modding/JotunnModStub. {0} is missing.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)Environment.props')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)Environment.props'))" />
-  </Target>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
