@@ -236,6 +236,5 @@ namespace PlanBuild.Blueprints
 
             GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
         }
-
     }
 }

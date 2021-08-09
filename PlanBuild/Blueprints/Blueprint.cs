@@ -105,7 +105,11 @@ namespace PlanBuild.Blueprints
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;
-        private Bounds bounds = new Bounds();
+
+        /// <summary>
+        ///     Bounds of this blueprint
+        /// </summary>
+        private Bounds Bounds;
 
         /// <summary>
         ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files. 
@@ -428,15 +432,15 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public Bounds GetBounds()
         {
-            if (bounds.size.magnitude != 0)
+            if (Bounds.size.magnitude != 0)
             {
-                return bounds;
+                return Bounds;
             }
             foreach (PieceEntry entry in PieceEntries)
             {
-                bounds.Encapsulate(entry.GetPosition());
+                Bounds.Encapsulate(entry.GetPosition());
             }
-            return bounds;
+            return Bounds;
         }
 
         /// <summary>
