@@ -128,6 +128,10 @@ namespace PlanBuild.Blueprints
                     {
                         comp.PaintCleared(startPosition, radius, TerrainModifier.PaintType.Reset, false, true);
                         hmap.Poke(false);
+                        if (ClutterSystem.instance)
+                        {
+                            ClutterSystem.instance.ResetGrass(hmap.transform.position, hmap.m_width * hmap.m_scale / 2f);
+                        }
                         ++tcompcnt;
                     }
                 }
