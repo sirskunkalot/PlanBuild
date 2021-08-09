@@ -12,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            EnableSelectionProjector(self);
+            EnableSelectionProjector(self, true);
 
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)

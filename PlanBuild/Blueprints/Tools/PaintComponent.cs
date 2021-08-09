@@ -1,5 +1,4 @@
 ﻿using Jotunn.Managers;
-using PlanBuild.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -13,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            EnableSelectionProjector(self);
+            EnableSelectionProjector(self, true);
 
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
@@ -29,10 +28,6 @@ namespace PlanBuild.Blueprints.Tools
                     UndoRotation(self, scrollWheel);
                 }
             }
-            if (Input.GetKeyDown(KeyCode.Q))
-            {
-                SelectionProjector.SwitchMask();
-            }
         }
 
         public override bool PlacePiece(Player self, Piece piece)
@@ -43,19 +38,8 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-            {
-                
-            }
-            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                
-            }
-            else
-            {
-                TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
-            }
-            PlacementOffset = Vector3.zero;
+            TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
+
             return false;
         }
     }

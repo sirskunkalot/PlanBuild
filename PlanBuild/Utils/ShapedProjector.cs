@@ -140,18 +140,19 @@ namespace PlanBuild.Utils
             return Radius;
         }
 
-        internal void SwitchMask()
+        internal void EnableMask()
         {
             if (Shape == ProjectorShape.Circle && Circle != null)
             {
-                if (Circle.m_mask == 0)
-                {
-                    Circle.m_mask = 2048;
-                }
-                else
-                {
-                    Circle.m_mask = 0;
-                }
+                Circle.m_mask = 2048; 
+            }
+        }
+
+        internal void DisableMask()
+        {
+            if (Shape == ProjectorShape.Circle && Circle != null)
+            {
+                Circle.m_mask = 0;
             }
         }
     }
