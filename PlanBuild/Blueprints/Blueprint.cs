@@ -606,14 +606,6 @@ namespace PlanBuild.Blueprints
             Prefab.AddComponent<BlueprintComponent>();
             Prefab.name = PrefabName;
 
-            // Instantiate child objects
-            /*if (!GhostInstantiate(Prefab))
-            {
-                Logger.LogWarning("Could not create prefab");
-                Object.DestroyImmediate(Prefab);
-                return false;
-            }*/
-
             // Set piece information
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;

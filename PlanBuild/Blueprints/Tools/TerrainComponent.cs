@@ -29,10 +29,6 @@ namespace PlanBuild.Blueprints.Tools
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                {
-                    // Nothing, just update the rotation ;)
-                }
                 else
                 {
                     UpdateSelectionRadius(scrollWheel);
