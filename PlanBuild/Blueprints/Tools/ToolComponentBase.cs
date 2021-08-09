@@ -26,7 +26,7 @@ namespace PlanBuild.Blueprints.Tools
             On.Player.PlacePiece += Player_PlacePiece;
             On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
 
-            Jotunn.Logger.LogMessage($"{gameObject.name} awoken");
+            Jotunn.Logger.LogDebug($"{gameObject.name} awoken");
         }
 
         public virtual void Init()
@@ -36,15 +36,15 @@ namespace PlanBuild.Blueprints.Tools
         private void OnDestroy()
         {
             Remove();
+            DisableSelectionProjector();
 
             On.Player.PieceRayTest -= Player_PieceRayTest;
             On.Player.UpdatePlacement -= Player_UpdatePlacement;
             On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
             On.Player.PlacePiece -= Player_PlacePiece;
             On.GameCamera.UpdateCamera -= GameCamera_UpdateCamera;
-            DisableSelectionProjector();
 
-            Jotunn.Logger.LogMessage($"{gameObject.name} destroyed");
+            Jotunn.Logger.LogDebug($"{gameObject.name} destroyed");
         }
 
         public virtual void Remove()
@@ -151,9 +151,9 @@ namespace PlanBuild.Blueprints.Tools
             if (SelectionProjector == null)
             {
                 SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
+                SelectionProjector.SetRadius(SelectionRadius);
                 SelectionProjector.Enable();
             }
-            SelectionProjector.SetRadius(SelectionRadius);
         }
 
         public void DisableSelectionProjector()
