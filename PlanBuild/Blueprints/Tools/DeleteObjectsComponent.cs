@@ -39,7 +39,7 @@ namespace PlanBuild.Blueprints.Tools
 
             if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
             {
-                TerrainTools.RemoveAll(self.m_placementGhost.transform, SelectionRadius);
+                TerrainTools.RemoveObjects(self.m_placementGhost.transform, SelectionRadius);
             }
             else
             {

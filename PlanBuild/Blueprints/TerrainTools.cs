@@ -154,8 +154,9 @@ namespace PlanBuild.Blueprints
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Piece>() && 
-                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<Character>());
+                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
+                                  !obj.GetComponent<TerrainModifier>() && !obj.GetComponent<Piece>() &&
+                                  !obj.GetComponent<ItemDrop>());
 
                 int delcnt = 0;
                 foreach (GameObject prefab in prefabs)
@@ -177,9 +178,9 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void RemoveAll(Transform transform, float radius)
+        public static void RemoveObjects(Transform transform, float radius)
         {
-            Logger.LogDebug($"Entered RemoveAll {transform.position} / {radius}");
+            Logger.LogDebug($"Entered RemoveObjects {transform.position} / {radius}");
 
             ZNetScene zNetScene = ZNetScene.instance;
             try
@@ -188,7 +189,8 @@ namespace PlanBuild.Blueprints
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>());
+                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
+                                  !obj.GetComponent<TerrainModifier>());
 
                 int delcnt = 0;
                 foreach (GameObject prefab in prefabs)
