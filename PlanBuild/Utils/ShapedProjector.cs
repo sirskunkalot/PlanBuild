@@ -7,6 +7,8 @@ namespace PlanBuild.Utils
     {
         internal static bool ShowProjectors = true;
 
+        private static GameObject SelectionSegment;
+
         internal enum ProjectorShape
         {
             Circle, Square
@@ -18,13 +20,14 @@ namespace PlanBuild.Utils
         private CircleProjector Circle;
         private SquareProjector Square;
 
-        private GameObject SelectionSegment;
-
         private void Awake()
         {
-            GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
-            SelectionSegment = Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
-            SelectionSegment.SetActive(false);
+            if (!SelectionSegment)
+            {
+                GameObject workbench = PrefabManager.Instance.GetPrefab("piece_workbench");
+                SelectionSegment = Instantiate(workbench.GetComponentInChildren<CircleProjector>().m_prefab);
+                SelectionSegment.SetActive(false);
+            }
         }
 
         private void Update()

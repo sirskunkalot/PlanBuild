@@ -2,6 +2,7 @@
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints.Marketplace;
+using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
@@ -455,14 +456,14 @@ namespace PlanBuild.Blueprints
 
             foreach (var piece in BlueprintManager.Instance.GetPiecesInRadius(position, radius))
             {
-                if (piece.name.StartsWith(BlueprintAssets.BlueprintSnapPointName))
+                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints.Add(piece.transform.position);
                     WearNTear wearNTear = piece.GetComponent<WearNTear>();
                     wearNTear.Remove();
                     continue;
                 }
-                if (piece.name.StartsWith(BlueprintAssets.BlueprintCenterPointName))
+                if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
                 {
                     if (centerPiece == null)
                     {
@@ -602,6 +603,7 @@ namespace PlanBuild.Blueprints
             ZNetView.m_forceDisableInit = true;
             Prefab = Object.Instantiate(stub);
             ZNetView.m_forceDisableInit = false;
+            Prefab.AddComponent<BlueprintComponent>();
             Prefab.name = PrefabName;
 
             // Instantiate child objects

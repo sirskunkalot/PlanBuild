@@ -163,8 +163,8 @@ namespace PlanBuild.PlanBuild
                 && piece.GetComponent<Ship>() == null
                 && piece.GetComponent<PlanPiece>() == null
                 && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
-                && !piece.name.Equals(BlueprintAssets.BlueprintCaptureName)
-                && !piece.name.Equals(BlueprintAssets.BlueprintDeleteName);
+                && !piece.name.Equals(BlueprintAssets.PieceCaptureName)
+                && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
         }
 
         private bool EnsurePrefabRegistered(Piece piece)

@@ -22,7 +22,7 @@ using Object = UnityEngine.Object;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.1.3")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.2.0")]
     [BepInDependency(Patches.buildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.craftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.gizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
@@ -38,7 +38,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> configTransparentGhostPlacement;
 
         internal PlanCrystalPrefab planCrystalPrefab;
-        internal BlueprintAssets blueprintRunePrefab;
+        internal BlueprintAssets blueprintRuneAssets;
         private PlanTotemPrefab planTotemPrefab;
 
         internal static bool showRealTextures;
@@ -59,7 +59,7 @@ namespace PlanBuild
 
             // Init Blueprints
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-            blueprintRunePrefab = new BlueprintAssets(blueprintsBundle);
+            blueprintRuneAssets = new BlueprintAssets(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
 

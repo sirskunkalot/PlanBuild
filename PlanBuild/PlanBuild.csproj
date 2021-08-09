@@ -101,7 +101,12 @@
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
-    <Compile Include="Blueprints\Tools\ToolPiece.cs" />
+    <Compile Include="Blueprints\Tools\BlueprintComponent.cs" />
+    <Compile Include="Blueprints\Tools\CaptureComponent.cs" />
+    <Compile Include="Blueprints\Tools\DeleteObjectsComponent.cs" />
+    <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
+    <Compile Include="Blueprints\Tools\TerrainComponent.cs" />
+    <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />

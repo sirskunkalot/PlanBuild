@@ -28,18 +28,12 @@ namespace PlanBuild.Blueprints
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
 
-        private ShapedProjector SelectionProjector;
-        private float SelectionRadius = 10.0f;
-
-        private Vector3 PlacementOffset = Vector3.zero;
         private float OriginalPlaceDistance;
-
-        private float CameraOffset = 5.0f;
 
         internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
 
-        private Piece LastHoveredPiece;
+        internal Piece LastHoveredPiece;
 
         internal void Init()
         {
@@ -68,15 +62,10 @@ namespace PlanBuild.Blueprints
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
                 // Hooks
-                On.Player.PieceRayTest += OnPieceRayTest;
-                On.Player.UpdateWearNTearHover += OnUpdateWearNTearHover;
-                On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
-                On.Player.UpdatePlacement += OnUpdatePlacement;
-                On.Player.UpdatePlacementGhost += OnUpdatePlacementGhost;
-                On.Player.PlacePiece += OnPlacePiece;
-                On.GameCamera.UpdateCamera += OnUpdateCamera;
-                On.Humanoid.EquipItem += OnEquipItem;
-                On.Humanoid.UnequipItem += OnUnequipItem;
+                On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
+                On.Player.PieceRayTest += Player_PieceRayTest;
+                On.Humanoid.EquipItem += Humanoid_EquipItem;
+                On.Humanoid.UnequipItem += Humanoid_UnequipItem;
             }
             catch (Exception ex)
             {
@@ -92,7 +81,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public bool CanCapture(Piece piece, bool onlyPlanned = false)
         {
-            if (piece.name.StartsWith(BlueprintAssets.BlueprintSnapPointName) || piece.name.StartsWith(BlueprintAssets.BlueprintCenterPointName))
+            if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName) || piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
             {
                 return true;
             }
@@ -257,7 +246,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Create prefabs for all known local Blueprints
+        ///     Create pieces for all known local Blueprints
         /// </summary>
         public void RegisterKnownBlueprints()
         {
@@ -274,41 +263,10 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private bool OnPieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
-        {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            LastHoveredPiece = piece;
-            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
-            {
-                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
-            }
-            return result;
-        }
-
         /// <summary>
-        ///     Dont highlight pieces when capture/delete tool is active
+        ///     Lazy ghost instantiation
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private void OnUpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
-        {
-            Piece piece = self.GetSelectedPiece();
-            if (piece &&
-                (piece.name.Equals(BlueprintAssets.BlueprintCaptureName)
-              || piece.name.Equals(BlueprintAssets.BlueprintDeleteName)))
-            {
-                return;
-            }
-
-            orig(self);
-        }
-
-        /// <summary>
-        ///     Lazy instantiate blueprint ghost
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        private void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
             if (self.m_buildPieces == null)
             {
@@ -333,641 +291,19 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Update the blueprint tools
+        ///     Save the reference to the last hovered piece
         /// </summary>
-        private void OnUpdatePlacement(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
+        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
-            orig(self, takeInput, dt);
-
-            if (self.m_placementGhost && takeInput)
-            {
-                var piece = self.m_placementGhost.GetComponent<Piece>();
-                if (piece != null)
-                {
-                    // Capture Blueprint
-                    if (piece.name.Equals(BlueprintAssets.BlueprintCaptureName) && !piece.IsCreator())
-                    {
-                        if (!self.m_placementMarkerInstance)
-                        {
-                            return;
-                        }
-
-                        EnableSelectionProjector(self);
-
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0f)
-                        {
-                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
-                            }
-                            else
-                            {
-                                UpdateSelectionRadius(scrollWheel);
-                            }
-                            UndoRotation(self, scrollWheel);
-                        }
-
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.green);
-                        }
-                    }
-                    // Place Blueprint
-                    else if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
-                    {
-                        DisableSelectionProjector();
-
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0f)
-                        {
-                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
-                                (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
-                            {
-                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-                            {
-                                PlacementOffset.x += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                            {
-                                PlacementOffset.z += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                        }
-                    }
-                    // Delete Plans
-                    else if (piece.name.Equals(BlueprintAssets.BlueprintDeleteName))
-                    {
-                        if (!self.m_placementMarkerInstance)
-                        {
-                            return;
-                        }
-
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            EnableSelectionProjector(self);
-                        }
-                        else
-                        {
-                            DisableSelectionProjector();
-                        }
-
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0)
-                        {
-                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                            {
-                                UpdateSelectionRadius(scrollWheel);
-                            }
-                            UndoRotation(self, scrollWheel);
-                        }
-
-                        if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                        {
-                            HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, Instance.SelectionRadius, Color.red, onlyPlanned: true);
-                        }
-                        else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-                        {
-                            HighlightHoveredBlueprint(Color.red);
-                        }
-                        else
-                        {
-                            HighlightHoveredPiece(Color.red);
-                        }
-                    }
-                    // Object Tools
-                    else if (piece.name.Equals(BlueprintAssets.BlueprintObjectsName))
-                    {
-                        if (!self.m_placementMarkerInstance)
-                        {
-                            return;
-                        }
-
-                        EnableSelectionProjector(self);
-
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0f)
-                        {
-                            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
-                            }
-                            else
-                            {
-                                UpdateSelectionRadius(scrollWheel);
-                            }
-                            UndoRotation(self, scrollWheel);
-                        }
-                    }
-                    // Terrain Tools
-                    else if (piece.name.Equals(BlueprintAssets.BlueprintTerrainName))
-                    {
-                        if (!self.m_placementMarkerInstance)
-                        {
-                            return;
-                        }
-
-                        EnableSelectionProjector(self);
-
-                        float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                        if (scrollWheel != 0f)
-                        {
-                            if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
-                                (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
-                            {
-                                PlacementOffset.y += GetPlacementOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
-                            {
-                                UpdateCameraOffset(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                            else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                            {
-                                // Nothing, just update the rotation ;)
-                            }
-                            else
-                            {
-                                UpdateSelectionRadius(scrollWheel);
-                                UndoRotation(self, scrollWheel);
-                            }
-                        }
-                        if (Input.GetKeyDown(KeyCode.Q))
-                        {
-                            SelectionProjector.SwitchShape();
-                        }
-                    }
-                    else
-                    {
-                        DisableSelectionProjector();
-
-                        Instance.CameraOffset = 5f;
-                        Instance.PlacementOffset = Vector3.zero;
-                    }
-                }
-            }
-        }
-
-        private float GetPlacementOffset(float scrollWheel)
-        {
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertPlacementOffsetScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                return -BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-            else
-            {
-                return BlueprintConfig.placementOffsetIncrementConfig.Value;
-            }
-        }
-
-        private void UndoRotation(Player player, float scrollWheel)
-        {
-            if (scrollWheel < 0f)
-            {
-                player.m_placeRotation++;
-            }
-            else
-            {
-                player.m_placeRotation--;
-            }
-        }
-
-        private void UpdateSelectionRadius(float scrollWheel)
-        {
-            if (SelectionProjector == null)
-            {
-                return;
-            }
-
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertSelectionScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                SelectionRadius -= BlueprintConfig.selectionIncrementConfig.Value;
-                if (SelectionRadius < 2f)
-                {
-                    SelectionRadius = 2f;
-                }
-            }
-            else
-            {
-                SelectionRadius += BlueprintConfig.selectionIncrementConfig.Value;
-            }
-
-            SelectionProjector.SetRadius(SelectionRadius);
-        }
-
-        private void EnableSelectionProjector(Player self)
-        {
-            if (SelectionProjector == null)
-            {
-                SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
-                SelectionProjector.Enable();
-            }
-        }
-
-        private void DisableSelectionProjector()
-        {
-            if (SelectionProjector != null)
-            {
-                SelectionProjector.Disable();
-                Object.Destroy(SelectionProjector);
-            }
+            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+            LastHoveredPiece = piece;
+            return result;
         }
 
         /// <summary>
-        ///     Flatten the circle selector transform
+        ///     Register blueprints and apply the config place distance
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
-        private void OnUpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
-        {
-            orig(self, flashGuardStone);
-
-            if (self.m_placementMarkerInstance && self.m_placementGhost &&
-                (self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintCaptureName)
-                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintDeleteName)
-                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintTerrainName)
-                || self.m_placementGhost.name.Equals(BlueprintAssets.BlueprintObjectsName))
-               )
-            {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
-            }
-        }
-
-        private void UpdateCameraOffset(float scrollWheel)
-        {
-            // TODO: base min/max off of selected piece dimensions
-            float minOffset = 2f;
-            float maxOffset = 20f;
-            bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.invertCameraOffsetScrollConfig.Value)
-            {
-                scrollingDown = !scrollingDown;
-            }
-            if (scrollingDown)
-            {
-                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset += BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
-            }
-            else
-            {
-                Instance.CameraOffset = Mathf.Clamp(Instance.CameraOffset -= BlueprintConfig.cameraOffsetIncrementConfig.Value, minOffset, maxOffset);
-            }
-        }
-
-        /// <summary>
-        ///     Adjust camera height when using certain tools
-        /// </summary>
-        private void OnUpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
-        {
-            orig(self, dt);
-
-            if (PatcherBuildCamera.UpdateCamera
-                && Player.m_localPlayer
-                && Player.m_localPlayer.InPlaceMode()
-                && Player.m_localPlayer.m_placementGhost)
-            {
-                var pieceName = Player.m_localPlayer.m_placementGhost.name;
-                if (pieceName.StartsWith(Blueprint.PieceBlueprintName)
-                    || pieceName.Equals(BlueprintAssets.BlueprintCaptureName)
-                    || pieceName.Equals(BlueprintAssets.BlueprintDeleteName)
-                    || pieceName.Equals(BlueprintAssets.BlueprintTerrainName)
-                    || pieceName.Equals(BlueprintAssets.BlueprintObjectsName))
-                {
-                    self.transform.position += new Vector3(0, Instance.CameraOffset, 0);
-                }
-            }
-        }
-
-        /// <summary>
-        ///     Incept placing of the meta pieces.
-        ///     Cancels the real placement of the placeholder pieces.
-        /// </summary>
-        private bool OnPlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
-        {
-            // Client only
-            if (!ZNet.instance.IsDedicated())
-            {
-                // Capture a new blueprint
-                if (piece.name.Equals(BlueprintAssets.BlueprintCaptureName))
-                {
-                    return MakeBlueprint(self);
-                }
-                // Place a known blueprint
-                if (self.m_placementStatus == Player.PlacementStatus.Valid
-                    && piece.name.StartsWith(Blueprint.PieceBlueprintName))
-                {
-                    return PlaceBlueprint(self, piece);
-                }
-                // Delete plans
-                else if (piece.name.Equals(BlueprintAssets.BlueprintDeleteName))
-                {
-                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    {
-                        return DeletePlans(self);
-                    }
-                    else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-                    {
-                        return UndoBlueprint();
-                    }
-                    else
-                    {
-                        return UndoPiece();
-                    }
-                }
-                // Object Tools
-                else if (piece.name.Equals(BlueprintAssets.BlueprintObjectsName))
-                {
-                    if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
-                    {
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
-                        return false;
-                    }
-
-                    if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    {
-                        TerrainTools.RemoveAll(self.m_placementGhost.transform, SelectionRadius);
-                    }
-                    else
-                    {
-                        TerrainTools.RemoveVegetation(self.m_placementGhost.transform, SelectionRadius);
-                    }
-                    return false;
-                }
-                // Terrain Tools
-                else if (piece.name.Equals(BlueprintAssets.BlueprintTerrainName))
-                {
-                    if (!(BlueprintConfig.allowFlattenConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
-                    {
-                        MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
-                        return false;
-                    }
-
-                    if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-                    {
-                        TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
-                    }
-                    else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    {
-                        TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
-                            SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
-                    }
-                    else
-                    {
-                        TerrainTools.Flatten(self.m_placementGhost.transform,
-                            SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
-                    }
-                    PlacementOffset = Vector3.zero;
-                    return false;
-                }
-            }
-
-            return orig(self, piece);
-        }
-
-        private bool MakeBlueprint(Player self)
-        {
-            var bpname = $"blueprint{LocalBlueprints.Count() + 1:000}";
-            Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
-
-            var bp = new Blueprint();
-            Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
-            if (bp.Capture(capturePosition, Instance.SelectionRadius))
-            {
-                TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
-                TextInput.instance.Show($"Save Blueprint ({bp.GetPieceCount()} pieces captured)", bpname, 50);
-            }
-            else
-            {
-                Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
-            }
-
-            // Don't place the piece and clutter the world with it
-            return false;
-        }
-
-        private bool PlaceBlueprint(Player player, Piece piece)
-        {
-            string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
-            Blueprint bp = LocalBlueprints[id];
-            var transform = player.m_placementGhost.transform;
-            var position = transform.position;
-            var rotation = transform.rotation;
-
-            bool placeDirect = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
-            if (placeDirect && !(BlueprintConfig.allowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
-            {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
-                return false;
-            }
-
-            uint cntEffects = 0u;
-            uint maxEffects = 10u;
-
-            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
-            GameObject blueprintObject = Object.Instantiate(blueprintPrefab, position, rotation);
-            ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
-            ZDOIDSet createdPlans = new ZDOIDSet();
-
-            for (int i = 0; i < bp.PieceEntries.Length; i++)
-            {
-                PieceEntry entry = bp.PieceEntries[i];
-
-                // Final position
-                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
-
-                // Final rotation
-                Quaternion entryQuat = transform.rotation * entry.GetRotation();
-
-                // Get the prefab of the piece or the plan piece
-                string prefabName = entry.name;
-                if (!placeDirect)
-                {
-                    prefabName += PlanPiecePrefab.PlannedSuffix;
-                }
-
-                GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
-                if (!prefab)
-                {
-                    Jotunn.Logger.LogWarning($"{entry.name} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
-                    continue;
-                }
-
-                if (!BlueprintConfig.allowFlattenConfig.Value
-                    && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
-                {
-                    Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
-                    continue;
-                }
-
-                // Instantiate a new object with the new prefab
-                GameObject gameObject = Object.Instantiate(prefab, entryPosition, entryQuat);
-                OnPiecePlaced(gameObject);
-
-                ZNetView zNetView = gameObject.GetComponent<ZNetView>();
-                if (!zNetView)
-                {
-                    Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
-                }
-                else if (gameObject.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
-                    createdPlans.Add(planPiece.GetPlanPieceID());
-                }
-
-                // Register special effects
-                CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
-                if (craftingStation)
-                {
-                    player.AddKnownStation(craftingStation);
-                }
-                Piece newpiece = gameObject.GetComponent<Piece>();
-                if (newpiece)
-                {
-                    newpiece.SetCreator(player.GetPlayerID());
-                }
-                PrivateArea privateArea = gameObject.GetComponent<PrivateArea>();
-                if (privateArea)
-                {
-                    privateArea.Setup(Game.instance.GetPlayerProfile().GetName());
-                }
-                WearNTear wearntear = gameObject.GetComponent<WearNTear>();
-                if (wearntear)
-                {
-                    wearntear.OnPlaced();
-                }
-                TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
-                if (textReceiver != null)
-                {
-                    textReceiver.SetText(entry.additionalInfo);
-                }
-
-                // Limited build effects
-                if (cntEffects < maxEffects)
-                {
-                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
-                    if (placeDirect)
-                    {
-                        player.AddNoise(50f);
-                    }
-                    cntEffects++;
-                }
-
-                // Count up player builds
-                Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
-            }
-
-            blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
-
-            // Dont set the blueprint piece and clutter the world with it
-            return false;
-        }
-
-        /// <summary>
-        ///     Hook for patching
-        /// </summary>
-        /// <param name="newpiece"></param>
-        internal virtual void OnPiecePlaced(GameObject placedPiece)
-        {
-
-        }
-
-        private bool UndoPiece()
-        {
-            if (LastHoveredPiece)
-            {
-                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Remove();
-                }
-            }
-
-            return false;
-        }
-
-        private bool UndoBlueprint()
-        {
-            if (LastHoveredPiece)
-            {
-                if (LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
-                {
-                    ZDOID blueprintID = planPiece.GetBlueprintID();
-                    if (blueprintID != ZDOID.None)
-                    {
-                        int removedPieces = 0;
-                        foreach (PlanPiece pieceToRemove in GetPlanPiecesInBlueprint(blueprintID))
-                        {
-                            pieceToRemove.Remove();
-                            removedPieces++;
-                        }
-
-                        GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                        if (blueprintObject)
-                        {
-                            ZNetScene.instance.Destroy(blueprintObject);
-                        }
-
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private bool DeletePlans(Player self)
-        {
-            Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
-            int removedPieces = 0;
-            foreach (Piece pieceToRemove in GetPiecesInRadius(deletePosition, SelectionRadius))
-            {
-                if (pieceToRemove.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Remove();
-                    removedPieces++;
-                }
-            }
-            self.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-
-            return false;
-        }
-
-        private void OnUnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
-        {
-            orig(self, item, triggerEquipEffects);
-            if (Player.m_localPlayer &&
-                item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
-            {
-                Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
-                Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
-            }
-        }
-
-        private bool OnEquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        private bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             bool result = orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer && result &&
@@ -976,9 +312,21 @@ namespace PlanBuild.Blueprints
                 RegisterKnownBlueprints();
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.rayDistanceConfig.Value;
-                Jotunn.Logger.LogDebug("Setting placeDistance to " + Player.m_localPlayer.m_maxPlaceDistance);
             }
             return result;
+        }
+
+        /// <summary>
+        ///     Restore the original place distance
+        /// </summary>
+        private void Humanoid_UnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        {
+            orig(self, item, triggerEquipEffects);
+            if (Player.m_localPlayer &&
+                item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
+            {
+                Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
+            }
         }
     }
 }
