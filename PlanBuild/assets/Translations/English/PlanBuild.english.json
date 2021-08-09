@@ -60,6 +60,7 @@
   "hud_bpterrain_marker": "Switch circle and square marker",
   "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance",
   "hud_bppaint": "Reset terrain paint",
+  "hud_bppaint_clutter": "Reset terrain clutter",
   "hud_bppaintradius": "Change radius, Shift: Camera distance",
   "msg_terrain_disabled": "Terrain tools disabled"
 }

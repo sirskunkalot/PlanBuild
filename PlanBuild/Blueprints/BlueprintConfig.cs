@@ -1,7 +1,6 @@
 ﻿using BepInEx.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
-using System;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -230,6 +229,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_clutter" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bppaintradius" }
                 }
             });

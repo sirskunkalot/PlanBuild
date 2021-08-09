@@ -38,8 +38,15 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
-
+            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            {
+                ClutterSystem.instance.ResetGrass(self.m_placementGhost.transform.position, SelectionProjector.GetRadius());
+            }
+            else
+            {
+                TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
+            }
+            
             return false;
         }
     }
