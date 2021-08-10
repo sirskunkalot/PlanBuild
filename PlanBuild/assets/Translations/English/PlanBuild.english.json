@@ -59,8 +59,9 @@
   "hud_bpterrain_delete": "Delete terrain modifier",
   "hud_bpterrain_marker": "Switch circle and square marker",
   "hud_bpterrainradius": "Change radius, Ctrl + Alt: Move Y-axis\nShift: Camera distance",
-  "hud_bppaint": "Reset terrain paint",
-  "hud_bppaint_clutter": "Reset terrain clutter",
+  "hud_bppaint_reset": "Reset paint",
+  "hud_bppaint_dirt": "Paint dirt",
+  "hud_bppaint_paved": "Paint paved",
   "hud_bppaintradius": "Change radius, Shift: Camera distance",
   "msg_terrain_disabled": "Terrain tools disabled"
 }

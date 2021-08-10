@@ -1,4 +1,6 @@
-﻿using Jotunn.Managers;
+﻿using System.Collections;
+using Jotunn.Managers;
+using Steamworks;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -38,16 +40,36 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                ClutterSystem.instance.ResetGrass(self.m_placementGhost.transform.position, SelectionProjector.GetRadius());
-            }
-            else
-            {
-                TerrainTools.Paint(self.m_placementGhost.transform, SelectionRadius, TerrainModifier.PaintType.Reset);
-            }
-            
+            StopAllCoroutines();
+            StartCoroutine(ConstantDraw(self.m_placementGhost.transform));
+
             return false;
+        }
+
+        private IEnumerator ConstantDraw(Transform ghost)
+        {
+            Vector3 lastPos = Vector3.zero;
+            while (ghost != null && ZInput.GetButton("Attack"))
+            {
+                TerrainModifier.PaintType type = TerrainModifier.PaintType.Reset;
+
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    type = TerrainModifier.PaintType.Dirt;
+                }
+                else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                {
+                    type = TerrainModifier.PaintType.Paved;
+                }
+
+                if (ghost.position != lastPos)
+                {
+                    TerrainTools.Paint(ghost, SelectionRadius, type);
+                    lastPos = ghost.position;
+                }
+
+                yield return new WaitForSeconds(0.1f);
+            }
         }
     }
 }

@@ -228,8 +228,9 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_clutter" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
+                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bppaintradius" }
                 }
             });
