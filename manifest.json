@@ -3,7 +3,7 @@
   "description": "Plan the construction of objects for free. Anyone can add resources and finish the construction. Includes wearable item to see planned construction without shader effect for planning.",
   "version_number": "0.3.6",
   "dependencies": [
-    "ValheimModding-Jotunn-2.2.2"
+    "ValheimModding-Jotunn-2.2.3"
   ],
   "website_url": "https://www.nexusmods.com/valheim/mods/1125"
 }
