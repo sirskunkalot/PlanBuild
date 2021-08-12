@@ -71,7 +71,7 @@ namespace PlanBuild
 
         private static void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
-            if (!PlanBuildPlugin.showRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            if (!PlanBuildPlugin.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
             {
                 planPiece.Highlight();
                 return;
@@ -85,11 +85,11 @@ namespace PlanBuild
             orig(self);
             if (self.m_placementGhost)
             {
-                if (PlanBuildPlugin.showRealTextures)
+                if (PlanBuildPlugin.ShowRealTextures)
                 {
                     UpdateTextures(self.m_placementGhost, ShaderState.Skuld);
                 }
-                else if (PlanBuildPlugin.configTransparentGhostPlacement.Value
+                else if (PlanBuildPlugin.ConfigTransparentGhostPlacement.Value
                   && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
                       || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
                   )

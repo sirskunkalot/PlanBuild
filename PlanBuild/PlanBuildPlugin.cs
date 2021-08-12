@@ -16,6 +16,7 @@ using PlanBuild.Utils;
 using System;
 using System.IO;
 using System.Reflection;
+using Jotunn.Entities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -35,13 +36,13 @@ namespace PlanBuild
         public const string PluginVersion = "0.3.6";
 
         public static PlanBuildPlugin Instance;
-        public static ConfigEntry<bool> configTransparentGhostPlacement;
+        public static ConfigEntry<bool> ConfigTransparentGhostPlacement;
 
-        internal PlanCrystalPrefab planCrystalPrefab;
-        internal BlueprintAssets blueprintRuneAssets;
-        private PlanTotemPrefab planTotemPrefab;
+        internal PlanCrystalPrefab PlanCrystalPrefab;
+        internal BlueprintAssets BlueprintRuneAssets;
+        private PlanTotemPrefab PlanTotemPrefab;
 
-        internal static bool showRealTextures;
+        internal static bool ShowRealTextures;
 
         public void Awake()
         {
@@ -53,13 +54,14 @@ namespace PlanBuild
 
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
-            planTotemPrefab = new PlanTotemPrefab(planbuildBundle);
+            PlanTotemPrefab = new PlanTotemPrefab(planbuildBundle);
+            PlanCrystalPrefab = new PlanCrystalPrefab(planbuildBundle);
             planbuildBundle.Unload(false);
             PlanManager.Instance.Init();
 
             // Init Blueprints
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-            blueprintRuneAssets = new BlueprintAssets(blueprintsBundle);
+            BlueprintRuneAssets = new BlueprintAssets(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
 
@@ -77,7 +79,7 @@ namespace PlanBuild
 
         private void OnItemsRegistered()
         {
-            planCrystalPrefab.FixShader();
+            PlanCrystalPrefab.FixShader();
         }
 
         private void SetupConfig()
@@ -86,7 +88,7 @@ namespace PlanBuild
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
-            configTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
+            ConfigTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
             ShaderHelper.unsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
             ShaderHelper.supportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
             ShaderHelper.transparencyConfig = Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
@@ -144,7 +146,7 @@ namespace PlanBuild
 
         private void UpdatePlanTotem(object sender, EventArgs e)
         {
-            planTotemPrefab.SettingsUpdated();
+            PlanTotemPrefab.SettingsUpdated();
             foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
             {
                 PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
@@ -160,14 +162,12 @@ namespace PlanBuild
         {
             try
             {
-                PlanCrystalPrefab.startPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StartEffect", "vfx_blocked");
-                PlanCrystalPrefab.startPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
-                PlanCrystalPrefab.stopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.prefabName + "StopEffect", "vfx_blocked");
-                PlanCrystalPrefab.stopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-
-                planCrystalPrefab = new PlanCrystalPrefab();
-                planCrystalPrefab.Setup();
-                ItemManager.Instance.AddItem(planCrystalPrefab);
+                PlanCrystalPrefab.StartPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.PrefabName + "StartEffect", "vfx_blocked");
+                PlanCrystalPrefab.StartPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
+                PlanCrystalPrefab.StopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.PrefabName + "StopEffect", "vfx_blocked");
+                PlanCrystalPrefab.StopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
+                
+                ItemManager.Instance.AddItem(PlanCrystalPrefab.Create());
             }
             finally
             {
@@ -183,7 +183,7 @@ namespace PlanBuild
 
         public static void UpdateAllPlanPieceTextures()
         {
-            if (showRealTextures
+            if (ShowRealTextures
                 && Player.m_localPlayer.m_placementGhost
                 && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {

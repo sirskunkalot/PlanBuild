@@ -150,7 +150,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="assets\icons\plan_crystal.png" />
     <Content Include="resources\BlueprintMarket.png" />
     <Content Include="resources\BlueprintMode.png" />
     <Content Include="resources\PlanTotem.png" />

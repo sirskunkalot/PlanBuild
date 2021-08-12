@@ -6,20 +6,31 @@ using UnityEngine;
 
 namespace PlanBuild.Plans
 {
-    internal class PlanCrystalPrefab : CustomItem
+    internal class PlanCrystalPrefab
     {
-        public const string prefabName = "PlanCrystal";
-        private const string localizationName = "plan_crystal";
-        private string iconPath = "icons/plan_crystal.png";
-        public static GameObject startPlanCrystalEffectPrefab;
-        public static GameObject stopPlanCrystalEffectPrefab;
+        public const string PrefabName = "PlanCrystal";
+        private const string LocalizationName = "plan_crystal";
+        public static GameObject StartPlanCrystalEffectPrefab;
+        public static GameObject StopPlanCrystalEffectPrefab;
+        private readonly Sprite CrystalIcon;
+        private CustomItem PlanCrystalItem;
 
-        public PlanCrystalPrefab() : base(prefabName, "Ruby")
+        public PlanCrystalPrefab(AssetBundle planbuildBundle)
         {
-            Recipe = new CustomRecipe(new RecipeConfig()
-            {
-                Item = prefabName,
-                Name = "$item_" + localizationName,
+            CrystalIcon = planbuildBundle.LoadAsset<Sprite>("plan_crystal");
+        }
+
+        public CustomItem Create()
+        {
+            Jotunn.Logger.LogDebug("Creating PlanCrystal item");
+
+            PlanCrystalItem = new CustomItem(PrefabName, "Ruby", new ItemConfig() {
+                Name = $"$item_{LocalizationName}",
+                Description = $"$item_{LocalizationName}_description",
+                Icons = new Sprite[]
+                {
+                    CrystalIcon
+                },
                 CraftingStation = "piece_workbench",
                 Requirements = new RequirementConfig[]
                 {
@@ -35,18 +46,9 @@ namespace PlanBuild.Plans
                     }
                 }
             });
-        }
-
-        public void Setup()
-        {
-            Jotunn.Logger.LogDebug("Configuring item drop for PlanCrystal");
-
-            ItemDrop.ItemData.SharedData sharedData = ItemDrop.m_itemData.m_shared;
-            sharedData.m_name = "$item_" + localizationName;
-            sharedData.m_description = "$item_" + localizationName + "_description";
-            Texture2D texture = AssetUtils.LoadTexture(PlanBuildPlugin.GetAssetPath(iconPath));
+            ItemDrop.ItemData.SharedData sharedData = PlanCrystalItem.ItemDrop.m_itemData.m_shared;
             StatusEffect statusEffect = ScriptableObject.CreateInstance(typeof(StatusEffect)) as StatusEffect;
-            statusEffect.m_icon = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), Vector2.zero);
+            statusEffect.m_icon = CrystalIcon;
             statusEffect.m_startMessageType = MessageHud.MessageType.Center;
             statusEffect.m_startMessage = "$message_plan_crystal_start";
             statusEffect.m_stopMessageType = MessageHud.MessageType.Center;
@@ -56,7 +58,7 @@ namespace PlanBuild.Plans
                 m_effectPrefabs = new EffectList.EffectData[] {
                 new EffectList.EffectData() {
                     m_enabled = true,
-                    m_prefab = startPlanCrystalEffectPrefab,
+                    m_prefab = StartPlanCrystalEffectPrefab,
                     m_attach = true
                 }
             }
@@ -66,7 +68,7 @@ namespace PlanBuild.Plans
                 m_effectPrefabs = new EffectList.EffectData[] {
                 new EffectList.EffectData() {
                     m_enabled = true,
-                    m_prefab = stopPlanCrystalEffectPrefab,
+                    m_prefab = StopPlanCrystalEffectPrefab,
                     m_attach = true
                 }
             }
@@ -75,20 +77,14 @@ namespace PlanBuild.Plans
             sharedData.m_itemType = ItemDrop.ItemData.ItemType.Utility;
             sharedData.m_maxStackSize = 1;
             sharedData.m_centerCamera = true;
-            if (texture == null)
-            {
-                Jotunn.Logger.LogWarning($"planHammer icon not found at {iconPath}");
-            }
-            else
-            {
-                sharedData.m_icons = new Sprite[] { Sprite.Create(texture, new Rect(0f, 0f, texture.width, texture.height), Vector2.zero) };
-            }
             sharedData.m_maxQuality = 1;
+
+            return PlanCrystalItem;
         }
 
         public void FixShader()
         {
-            ShaderHelper.UpdateTextures(ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
+            ShaderHelper.UpdateTextures(PlanCrystalItem.ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
         }
     }
 
@@ -102,7 +98,7 @@ namespace PlanBuild.Plans
 #if DEBUG
                 Jotunn.Logger.LogDebug("Triggering real textures");
 #endif
-                PlanBuildPlugin.showRealTextures = true;
+                PlanBuildPlugin.ShowRealTextures = true;
                 PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
@@ -118,7 +114,7 @@ namespace PlanBuild.Plans
 #if DEBUG
                 Jotunn.Logger.LogDebug("Removing real textures");
 #endif
-                PlanBuildPlugin.showRealTextures = false;
+                PlanBuildPlugin.ShowRealTextures = false;
                 PlanBuildPlugin.UpdateAllPlanPieceTextures();
             }
         }
