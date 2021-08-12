@@ -4,7 +4,7 @@ PlanBuild enables you to plan, copy and share your building creations in Valheim
 
 ## Planning mode
 
-![Plan mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanMode.png)
+![Plan mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/PlanMode.png)
 
 Plan the construction of pieces without the need to gather the resources first. Anyone can add the required resources to the planned structure later and finish the construction after it was placed.
 
@@ -16,7 +16,7 @@ Real pieces also snap to the planned pieces, so you could even use them as __spa
 
 ### PlanTotem
 
-![Plan Totem](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanTotem.png)
+![Plan Totem](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/PlanTotem.png)
 
 Build a __PlanTotem__ near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
 
@@ -24,7 +24,7 @@ This needs to be built with the vanilla Hammer tool and costs you __5 Fine Wood_
 
 ### Skuld Crystal
 
-![Skuld Crystal](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/assets/icons/plan_crystal.png)
+![Skuld Crystal](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/plan_crystal.png)
 
 Includes the __Skuld Crystal__, a wearable item that removes the shader effect from the blueprints, so you can see what the construction will look like when completed.
 
@@ -34,13 +34,13 @@ __Watch your step!__ The pieces are still not really there, and will not support
 
 ## Blueprint mode
 
-![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMode.png)
+![Blueprint mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMode.png)
 
 Copy existing structures into __Blueprints__ and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as __.blueprint__ files. Also supports __.vbuild__ files (you can load and build your BuildShare saves with this mod)! After switching to the blueprint mode, the piece table of the Blueprint Rune offers two different categories:
 
 ### Tools
 
-![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintTools.png)
+![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintTools.png)
 
 The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. Here is a handy list:
 
@@ -61,7 +61,7 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
 
 ### Blueprints
 
-![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintBlueprints.png)
+![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintBlueprints.png)
 
 Place a blueprint as planned pieces. Select your previously saved blueprint and place it anywhere in the world. This works just like any other vanilla building piece. Additionally there are some extra controls to make placing your structures exactly as you want them as easy as possible:
 
@@ -75,13 +75,13 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 
 ## Blueprint Marketplace
 
-![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMarket.png)
+![Blueprint mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMarket.png)
 
 Manage and share your blueprints through a custom GUI added to the game. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
 
 ### Marketplace Pieces
 
-![Blueprint pieces](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintPieces.png)
+![Blueprint pieces](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintPieces.png)
 
 Per default the marketplace is accessible via __End__ key (server side configurable). Alternatively you can place one of two new rune themed pieces in the world which provide access to the market on the server. If you want to completely stop clients from accessing the server blueprints via Hotkey, there is another server side config which disables that Hotkey for all clients.
 
@@ -123,7 +123,7 @@ Most values are configurable:
     * Color of supported plan pieces (default __50% white__)
     * Additional transparency for finer control (default __30%__)
 
-Source available on GitHub: [https://github.com/MathiasDecrock/ValheimMods/tree/master/PlanBuild](https://github.com/MathiasDecrock/ValheimMods/tree/master/PlanBuild)﻿. All contributions welcome!
+Source available on GitHub: [https://github.com/sirskunkalot/PlanBuild](https://github.com/sirskunkalot/PlanBuild)﻿. All contributions welcome!
 
 You can also find us at the [Valheim Modding Discord](https://discord.gg/RBq2mzeu4z) or the [Jötunn Discord](https://discord.gg/DdUt6g7gyA).
 
