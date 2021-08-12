@@ -51,7 +51,7 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="CraftFromContainers">
-      <HintPath>..\libraries\ext\CraftFromContainers.dll</HintPath>
+      <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Gizmo">
@@ -148,9 +148,6 @@
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Package\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="assets\icons\plan_crystal.png" />

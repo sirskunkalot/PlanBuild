@@ -371,5 +371,5 @@ FodyWeavers.xsd
 # not the valheim path file
 Environment.props 
 
+# not the dist packages
 /distribute
-*.dll

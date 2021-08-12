@@ -1,0 +1,112 @@
+﻿name: Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build_release:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: 'master'
+          token: ${{ secrets.PUSHY }}
+
+      - name: Get Valheim version
+        id: valheimversion
+        run: echo "::set-output name=valheimversion::$(curl -s https://api.steamcmd.net/v1/info/896660 | jq -r ".data.\"896660\".depots.branches.public.buildid")"
+
+      - name: Get project version
+        id: projectversion
+        shell: bash
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+          echo ::set-output name=VERSION_NUMBER::${GITHUB_REF/refs\/tags\/v/}
+
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1.7.2
+        with:
+          dotnet-version: 5.0.x
+
+      - name: Install NuGet
+        uses: nuget/setup-nuget@v1
+
+      - name: Restore project dependencies
+        run: |
+          nuget restore PlanBuild.sln
+          dotnet restore PlanBuild/PlanBuild.csproj
+
+      - name: Restore tools
+        run: |
+          dotnet tool restore
+
+      - name: Cache Valheim
+        id: cachevalheim
+        uses: actions/cache@v2
+        with:
+          path: ~/VHINSTALL
+          key: ${{ steps.valheimversion.outputs.valheimversion }}-${{ hashFiles('**/lockfiles') }}-BepInExPack-5.4.1500
+
+      - name: Install SteamCMD
+        if: steps.cachevalheim.outputs.cache-hit != 'true'
+        uses: CyberAndrii/setup-steamcmd@v1
+
+      - name: Prepare Valheim dependencies
+        if: steps.cachevalheim.outputs.cache-hit != 'true'
+        run: |
+          wget -O bepinex.zip "https://valheim.thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.1500/"
+          unzip bepinex.zip -d ~/BepInExRaw
+          steamcmd +login anonymous +force_install_dir ~/VHINSTALL +app_update 896660 validate +exit
+          mv ~/VHINSTALL/valheim_server_Data/ ~/VHINSTALL/valheim_Data/
+          mv ~/BepInExRaw/BepInExPack_Valheim/* ~/VHINSTALL/
+
+      - name: Remove old publicized and mmhook dlls from cache
+        if: steps.cachevalheim.outputs.cache-hit != 'true'
+        run: |
+          rm -rf ~/VHINSTALL/valheim_Data/Managed/publicized_assemblies
+          rm -rf ~/VHINSTALL/valheim_server_Data/Managed/publicized_assemblies
+          rm -rf ~/VHINSTALL/BepInEx/plugins/MMHOOK
+
+      - name: Create Environment.props
+        run: |
+          echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><Project ToolsVersion=\"Current\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><VALHEIM_INSTALL>$HOME/VHINSTALL/</VALHEIM_INSTALL></PropertyGroup></Project>" > Environment.props
+
+      - name: Create DoPrebuild.props
+        run: |
+          echo "<?xml version=\"1.0\" encoding=\"utf-8\"?><Project ToolsVersion=\"Current\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\"><PropertyGroup><ExecutePrebuild>true</ExecutePrebuild></PropertyGroup></Project>" > DoPrebuild.props
+
+      - name: Update assembly version
+        run: |
+          cat PlanBuild/Properties/AssemblyInfo.cs | sed -e 's/Version(".*")/Version("${{ steps.projectversion.outputs.VERSION_NUMBER }}.0")/' > tempAssemblyInfo.cs && mv tempAssemblyInfo.cs PlanBuild/Properties/AssemblyInfo.cs
+          
+      - name: Update PlanBuildPlugin.cs version
+        run: |
+          cat PlanBuild/PlanBuildPlugin.cs | sed -e 's/public const string PluginVersion = ".*";/public const string PluginVersion = "${{ steps.projectversion.outputs.VERSION_NUMBER }}";/' > tempPlanBuildPlugin.cs && mv tempPlanBuildPlugin.cs PlanBuild/PlanBuildPlugin.cs
+
+      - name: Build solution
+        run: |
+          msbuild PlanBuild.sln /p:Configuration=Release
+          mv PlanBuild/bin/Release/PlanBuild.dll PlanBuild.dll
+          
+      - name: Push version update to master
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add PlanBuild/Properties/AssemblyInfo.cs
+          git add PlanBuild/PlanBuild.cs
+          git commit -m "deploy: Released ${{ steps.projectversion.outputs.VERSION }}"
+          git push https://${{ secrets.PUSHY }}@github.com/sirskunkalot/PlanBuild HEAD:master
+
+      - name: Create GH Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            PlanBuild.dll
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
