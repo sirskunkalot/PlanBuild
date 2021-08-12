@@ -371,15 +371,5 @@ FodyWeavers.xsd
 # not the valheim path file
 Environment.props 
 
-JotunnModStub/Package/plugins/
-SeedTotem/Package/plugins/
-*/output
-*/Package/plugins/*
-
+/distribute
 *.dll
-JotunnModUnity/Assets/Assemblies/
-PlanBuildUnity/Assets/Plugins.meta
-PlanBuildUnity/Assets/Plugins/
-PulleysUnity/Assets/Plugins/
-PulleysUnity/Assets/Assemblies/
-PlanBuildUnity/Assets/Vanilla/
