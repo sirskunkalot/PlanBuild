@@ -15,8 +15,6 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-          ref: 'master'
-          token: ${{ secrets.PUSHY }}
 
       - name: Get Valheim version
         id: valheimversion
@@ -83,11 +81,15 @@ jobs:
 
       - name: Update assembly version
         run: |
-          cat PlanBuild/Properties/AssemblyInfo.cs | sed -e 's/Version(".*")/Version("${{ steps.projectversion.outputs.VERSION_NUMBER }}.0")/' > tempAssemblyInfo.cs && mv tempAssemblyInfo.cs PlanBuild/Properties/AssemblyInfo.cs
+          cat PlanBuild/Properties/AssemblyInfo.cs | sed -e 's/Version(".*")/Version("${{ steps.projectversion.outputs.VERSION_NUMBER }}.0")/' > PlanBuild/Properties/AssemblyInfo.tmp && mv PlanBuild/Properties/AssemblyInfo.tmp PlanBuild/Properties/AssemblyInfo.cs
           
       - name: Update PlanBuildPlugin.cs version
         run: |
-          cat PlanBuild/PlanBuildPlugin.cs | sed -e 's/public const string PluginVersion = ".*";/public const string PluginVersion = "${{ steps.projectversion.outputs.VERSION_NUMBER }}";/' > tempPlanBuildPlugin.cs && mv tempPlanBuildPlugin.cs PlanBuild/PlanBuildPlugin.cs
+          cat PlanBuild/PlanBuildPlugin.cs | sed -e 's/public const string PluginVersion = ".*";/public const string PluginVersion = "${{ steps.projectversion.outputs.VERSION_NUMBER }}";/' > PlanBuild/PlanBuildPlugin.tmp && mv PlanBuild/PlanBuildPlugin.tmp PlanBuild/PlanBuildPlugin.cs
+
+      - name: Update manifest.json version
+        run: |
+          cat manifest.json | sed -e 's/version_number": "[^"]*"/version_number": "${{ steps.get_version.outputs.VERSION_NUMBER }}"/' > manifest.tmp && mv manifest.tmp manifest.json
 
       - name: Build solution
         run: |
@@ -97,11 +99,12 @@ jobs:
       - name: Push version update to master
         run: |
           git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add PlanBuild/Properties/AssemblyInfo.cs
           git add PlanBuild/PlanBuild.cs
+          git add manifest.json
           git commit -m "deploy: Released ${{ steps.projectversion.outputs.VERSION }}"
-          git push https://${{ secrets.PUSHY }}@github.com/sirskunkalot/PlanBuild HEAD:master
+          git push
 
       - name: Create GH Release
         uses: softprops/action-gh-release@v1
