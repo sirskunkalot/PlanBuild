@@ -94,7 +94,7 @@ jobs:
 
       - name: Build solution
         run: |
-          dotnet build PlanBuild.sln /p:Configuration=Release
+          msbuild PlanBuild.sln /p:Configuration=Release
           mv PlanBuild/bin/Release/PlanBuild.dll PlanBuild.dll
           
       - name: Push version update to master
