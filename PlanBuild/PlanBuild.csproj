@@ -148,7 +148,6 @@
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="packages.config" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Package\" />

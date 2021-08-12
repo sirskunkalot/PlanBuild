@@ -1,96 +1,140 @@
-# JötunnModStub
+﻿# PlanBuild - Blueprint Edition
 
-A Valheim mod stub project using [Jötunn](https://github.com/Valheim-Modding/Jotunn) including build tools for debugging your code in Visual Studio and a basic Unity project stub. There is no actual plugin content included, just a bare minimum plugin class. 
+PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. Introducing a new item, the __Blueprint Rune__, which can be crafted from a single stone and festering willpower given to you by the gods. The rune comes with two modes you can switch between by pressing __P__ while having the rune equipped (can be adjusted via config file).
 
-# Quick Setup Guide
+## Planning mode
 
-These are quick setup steps with no context provided. Please see Jötunns [Github Pages](https://valheim-modding.github.io/Jotunn/home/home.html) for more in depth documentation.
+![Plan mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanMode.png)
 
-## Development Environment Setup
+Plan the construction of pieces without the need to gather the resources first. Anyone can add the required resources to the planned structure later and finish the construction after it was placed.
 
-How to setup the development enviroment for this project.
+The __Blueprint Rune__ is compatible with custom piece tables from other mods. All custom pieces will be incorporated into the runes table for the planned pieces. You still need a __Hammer__ and the required crafting station to finish the construction.
 
-1. Install [Visual Studio 2019](https://visualstudio.microsoft.com) and add the C# workload.
-2. Download this package: [BepInEx pack for Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/)
-3. Unpack into your Valheim root folder. You should now see a new folder called `<ValheimDir>\unstripped_corlib` and more additional stuff.
-6. Fork and clone this repository using git. That should create a new folder `JotunnModStub`. You can also [use the template function of github](https://github.com/Valheim-Modding/JotunnModStub/generate) to create a new, clean repo out of it and clone that.
-7. Create a new environment file `Environment.props` in the projects base path `<JotunnModStub>`. Paste this snippet and change the path according to your local Valheim installation.
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <!-- Needs to be your path to the base Valheim folder -->
-    <VALHEIM_INSTALL>F:\Steam\steamapps\common\Valheim</VALHEIM_INSTALL>
-  </PropertyGroup>
-</Project>
-```
-8. Open the Solution file `<JotunnModStub>\JotunnModStub.sln`. Right-click on the project or solution in the Solution Explorer and select `Manage NuGet packages...`. It should prompt you a message at the top that some NuGet-Packages are missing. Click "Restore" and restart Visual Studio when finished.
-9. Rename the Solution/Project and everything related so that it resembles your own projects name. This includes the assembly information as well as the Unity project.
+Planned pieces that are __unsupported__ can not be finished. These pieces are also slightly more transparent so you can see what is and isn't supported. The planned pieces themselves do not require support, so you can build forever (if you can reach far enough).
 
-### Build automations
+Real pieces also snap to the planned pieces, so you could even use them as __spacers__ or __rulers__.
 
-Included in this repo is a PowerShell script `publish.ps1`. The script is referenced in the project file as a post-build event. Depending on the chosen configuration in Visual Studio the script executes the following actions.
+### PlanTotem
 
-### Building Debug
+![Plan Totem](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/PlanTotem.png)
 
-* The compiled dll file for this project is copied to `<ValheimDir>\BepInEx\plugins`.
-* A .mdb file is generated for the compiled project dll and copied to `<ValheimDir>\BepInEx\plugins`.
-* `<JotunnModStub>\libraries\Debug\mono-2.0-bdwgc.dll` is copied to `<ValheimDir>\MonoBleedingEdge\EmbedRuntime` replacing the original file (a backup is created before).
+Build a __PlanTotem__ near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
 
-### Building Release
+This needs to be built with the vanilla Hammer tool and costs you __5 Fine Wood__, __5 Grey Dwarf Eye__ and __1 Surtling Core__.
 
-* A compressed file with the binaries is created in `<JotunnModStub>\Packages`ready for upload to ThunderStore. Dont forget to include your information in the manifest.json and to change this readme file.
+### Skuld Crystal
 
-## Developing Assets with Unity
+![Skuld Crystal](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/assets/icons/plan_crystal.png)
 
-New Assets can be created with Unity and imported into Valheim using the mod. A Unity project is included in this repository under `<JotunnModStub>\JotunnModUnity`.
+Includes the __Skuld Crystal__, a wearable item that removes the shader effect from the blueprints, so you can see what the construction will look like when completed.
 
-### Unity Editor Setup
+Create it by combining a __Ruby__ and a __Grey Dwarf Eye__.
 
-1. [Download](https://public-cdn.cloud.unity3d.com/hub/prod/UnityHubSetup.exe) UnityHub directly from Unity or install it with the Visual Studio Installer via `Individual Components` -> `Visual Studio Tools for Unity`.
-2. You will need an Unity account to register your PC and get a free licence. Create the account, login with it in Unity Hub and get your licence via `Settings` -> `Licence Management`.
-3. Install Unity Editor version 2019.4.20f.
-4. Open Unity and add the JotunnModUnity project.
-5. Install the `AssetBundle Browser` package in the Unity Editor via `Window`-> `Package Manager`.
-6. Copy all `assembly_*.dll` from `<ValheimDir>\valheim_Data\Managed` into `<JotunnModStub>\JotunnModUnity\Assets\Assemblies`. **Do this directly in the filesystem - don't import the dlls in Unity**.
-7. Go back to the Unity Editor and press `Ctrl+R`. This should reload all files and add the Valheim assemblies under `Assets\Assemblies`
-8. **Warning:** These assembly files are copyrighted material and you can theoretically get into trouble when you distribute them in your github repository. To avoid that there is a .gitignore file in the Unity project folder. Keep that when you clone or copy this repository.
+__Watch your step!__ The pieces are still not really there, and will not support you!
 
-## Debugging with dnSpy
+## Blueprint mode
 
-Thanks to mono and unity-mono being open source, we patched and compiled our own mono runtime to enable actual live debugging of the game and the mod itself with dnSpy.
+![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMode.png)
 
-1. Download [dnSpy-net-win64](https://github.com/dnSpy/dnSpy/releases) and extract the exe.
-2. Load all assemblies from `<ValheimDir>\unstripped_corlib` into dnSpy (just drag&drop the folder onto it).
-3. Load all `assembly_*` from `<ValheimDir>\valheim_Data\Managed` into dnSpy (*do not load the publicized ones, they will not be loaded into the process and therefore can not be debugged*).
-4. Load `JotunnModStub.dll` from `<ValheimDir>\BepInEx\plugins` into dnSpy.
-5. Copy `<JotunnModStub>\libraries\Debug\mono-2.0-bdwgc.dll` into `<ValheimDir>\MonoBleedingEdge\EmbedRuntime` and overwrite the existing file.
-6. Now go to `Debug` -> `Start Debugging` and select Unity debug engine. Select your valheim.exe as the executable and hit OK.
-7. If you did set some breakpoints, the game will halt when it hits the breakpoint in memory and dnSpy will show you the objects in memory and much more useful stuff.
+Copy existing structures into __Blueprints__ and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as __.blueprint__ files. Also supports __.vbuild__ files (you can load and build your BuildShare saves with this mod)! After switching to the blueprint mode, the piece table of the Blueprint Rune offers two different categories:
 
-## Debugging with Visual Studio
+### Tools
 
-Your own code can be debugged in source with Visual Studio itself. You cannot debug game disassemblies as with dnSpy, though.
+![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintTools.png)
 
-1. Install Visual Studio Tools for Unity (can be done in Visual Studio installer via `Individual Components` -> `Visual Studio Tools for Unity`)
-3. Build the project with target `Debug`. The publish.ps1 PowerShell script from this repo...
-   * copies the generated mod .dll and .pdb to \<ValheimDir>\BepInEx\plugins after a successful build
-   * automatically generates a JotunnModStub.dll.mdb file, which is needed for Unity/mono debugging. It should be in \<ValheimDir>\BepInEx\plugins, too.
-   * copies the patched mono-2.0-bdwgc.dll from .\libraries\Debug to \<ValheimDir>\MonoBleedingEdge\EmbedRuntime and makes a backup copy of the original.
-4. Start Valheim (either directly from Steam or hit F5 in Visual Studio when Steam is running)
-5. Go to `Debug` -> `Attach Unity debugger`
-6. Since the patched mono dll does not open the same port as Unity Dev builds, you have to click on `Input IP`. It should fill in your local IP automatically. you just have to change the port to `55555`and the debugger should connect.
+The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. Here is a handy list:
 
-## Actions after a game update
+* __Create new blueprint:__ Create a blueprint of a construction. Planned pieces are captured as real pieces. 
+  * Press __Ctrl__ to see what pieces are currently selected. 
+  * Use the __Scroll Wheel__ to change the capture radius. 
+  * Use __Shift + Scroll__ to adjust the camera distance.
 
-When Valheim updates it is likely that parts of the assembly files change. If this is the case, the references to the assembly files must be renewed in Visual Studio and Unity.
+* __Snap point marker:__ Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
 
-### Visual Studio actions
+* __Center point marker:__ Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 
-1. There is a file called DoPrebuild.props included in the solution. When you set its only value to true, Jötunn will automatically generate publicized and MMHook assemblies for you. Otherwise you have to do this step manually.
+* __Remove planned pieces:__ Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
+  * Press __Alt__ to delete all plans that are associated with a placed blueprint. Plans that are already finished will not be removed. Resources that were already added to the unfinished plans will be refunded.
+  * Press __Ctrl__ to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the deletion radius.
+  * Use __Shift + Scroll__ to adjust the camera distance.
 
-### Unity actions
+### Blueprints
 
-1. Copy all `assembly_*.dll` from `<ValheimDir>\valheim_Data\Managed` into `<JotunnModStub>\JotunnModUnity\Assets\Assemblies`. <br />
-  **Do this directly in the filesystem - don't import the dlls in Unity**.
-2. Go to Unity Editor and press `Ctrl+R`. This reloads all files from the filesystem and "re-imports" the copied dlls into the project.
+![Blueprint tools](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintBlueprints.png)
+
+Place a blueprint as planned pieces. Select your previously saved blueprint and place it anywhere in the world. This works just like any other vanilla building piece. Additionally there are some extra controls to make placing your structures exactly as you want them as easy as possible:
+
+* Use __Scroll__ to rotate the blueprint.
+* Use __Ctrl + Scroll__ to move the blueprint on the Z-axis.
+* Use __Alt + Scroll__ to move the blueprint on the X-axis.
+* Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
+* Use __Shift + Scroll__ to adjust the camera distance.
+* You can automatically flatten the terrain to the lowest Y of the blueprint. Hold __Shift__ while placing for that.
+* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint.
+
+## Blueprint Marketplace
+
+![Blueprint mode](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintMarket.png)
+
+Manage and share your blueprints through a custom GUI added to the game. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
+
+### Marketplace Pieces
+
+![Blueprint pieces](https://raw.githubusercontent.com/MathiasDecrock/ValheimMods/master/PlanBuild/resources/BlueprintPieces.png)
+
+Per default the marketplace is accessible via __End__ key (server side configurable). Alternatively you can place one of two new rune themed pieces in the world which provide access to the market on the server. If you want to completely stop clients from accessing the server blueprints via Hotkey, there is another server side config which disables that Hotkey for all clients.
+
+## Compatibility
+
+Fully compatible with:
+* [Build Camera](https://www.nexusmods.com/valheim/mods/226)﻿
+* [Craft from Containers](https://www.nexusmods.com/valheim/mods/40)﻿
+* [ValheimRAFT](https://www.nexusmods.com/valheim/mods/1136)
+
+The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with __P__ which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
+
+## Installing
+
+Use Vortex to install, or if you want to install it manually, drop the "PlanBuild" folder into BepInEx\plugins (so you end up with BepInEx\plugins\PlanBuild). Make sure to include all files, not just the DLL!
+
+This mod adds interactable objects, so __all__ clients & server will need this mod!
+
+Most values are configurable:
+* General
+    * Show all plans, even for pieces you don't know yet (default __false__)
+    * Build radius of the Plan Totem (default __30__)
+* Blueprint Market
+    * Allow clients to use the Hotkey to access the marketplace (default __true__)
+    * Hotkey for the Blueprint Marketplace GUI (default __End__)
+    * Allow sharing of blueprints on this server (default __false__)
+* Blueprint Rune
+    * Hotkey to switch between Blueprint Rune modes (default __P__)
+    * Allow building of blueprints as actual pieces without needing the resources (default __false__)
+    * Allow flattening the terrain when placing blueprints (default __false__)
+    * Place distance of the Blueprint Rune (default __50__)
+    * Invert and sensitivity options for each input with the scroll wheel
+* Directories
+    * Blueprint search directory (default __.__ (current working directory, usually Valheim game install directory))
+    * Blueprint save directory (default __BepInEx/config/PlanBuild/blueprints__)
+* Visual
+    * Apply plan shader to ghost placement (currently placing piece) (default __false__)
+    * Color of unsupported plan pieces (default __10% white__)
+    * Color of supported plan pieces (default __50% white__)
+    * Additional transparency for finer control (default __30%__)
+
+Source available on GitHub: [https://github.com/MathiasDecrock/ValheimMods/tree/master/PlanBuild](https://github.com/MathiasDecrock/ValheimMods/tree/master/PlanBuild)﻿. All contributions welcome!
+
+You can also find us at the [Valheim Modding Discord](https://discord.gg/RBq2mzeu4z) or the [Jötunn Discord](https://discord.gg/DdUt6g7gyA).
+
+## Credits
+
+The original PlanBuild mod was created by __[MarcoPogo](https://github.com/MathiasDecrock)__
+
+Blueprint functionality originally created and merged by __[Algorithman](https://github.com/Algorithman)__ & __[Jules](https://github.com/sirskunkalot)__
+
+Blueprint Marketplace GUI created by __[Dreous](https://github.com/imcanida)__
+
+All further coding by __[MarcoPogo](https://github.com/MathiasDecrock)__ & __[Jules](https://github.com/sirskunkalot)__
+
+Made with Löve and __[Jötunn](https://github.com/Valheim-Modding/Jotunn)__
