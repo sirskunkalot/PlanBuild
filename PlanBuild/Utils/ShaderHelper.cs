@@ -39,7 +39,7 @@ namespace PlanBuild.Utils
 
         public static List<Renderer> GetRenderers(GameObject gameObject)
         {
-            List<Renderer> result = new();
+            List<Renderer> result = new List<Renderer>();
             result.AddRange(gameObject.GetComponentsInChildren<MeshRenderer>());
             result.AddRange(gameObject.GetComponentsInChildren<SkinnedMeshRenderer>());
             return result;

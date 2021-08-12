@@ -10,32 +10,30 @@ namespace PlanBuild.Plans
     {
         public const string PlannedSuffix = "_planned";
         public const string PieceTableName = "_planHammerPieceTable";
-        public Piece originalPiece;
-        public static bool logPiece = true;
-        public static bool logComponents = false;
-        public static readonly Dictionary<string, Piece> planToOriginalMap = new();
+        public Piece OriginalPiece;
+        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
 
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
-            this.originalPiece = piece;
-            Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", originalPiece.m_name);
-            Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", originalPiece.m_name);
+            this.OriginalPiece = piece;
+            Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", OriginalPiece.m_name);
+            Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", OriginalPiece.m_name);
             Piece.m_resources = new Piece.Requirement[0];
             Piece.m_craftingStation = null;
             Piece.m_placeEffect.m_effectPrefabs = new EffectList.EffectData[0];
             Piece.m_comfort = 0;
             Piece.m_canBeRemoved = true;
 
-            Piece.m_category = originalPiece.m_category == Piece.PieceCategory.Max ? Piece.PieceCategory.Misc : originalPiece.m_category;
-            Piece.m_groundOnly = originalPiece.m_groundOnly;
-            Piece.m_groundPiece = originalPiece.m_groundPiece;
-            Piece.m_icon = originalPiece.m_icon;
-            Piece.m_inCeilingOnly = originalPiece.m_inCeilingOnly;
-            Piece.m_isUpgrade = originalPiece.m_isUpgrade;
-            Piece.m_haveCenter = originalPiece.m_haveCenter;
-            Piece.m_dlc = originalPiece.m_dlc;
-            Piece.m_allowAltGroundPlacement = originalPiece.m_allowAltGroundPlacement;
-            Piece.m_allowedInDungeons = originalPiece.m_allowedInDungeons;
+            Piece.m_category = OriginalPiece.m_category == Piece.PieceCategory.Max ? Piece.PieceCategory.Misc : OriginalPiece.m_category;
+            Piece.m_groundOnly = OriginalPiece.m_groundOnly;
+            Piece.m_groundPiece = OriginalPiece.m_groundPiece;
+            Piece.m_icon = OriginalPiece.m_icon;
+            Piece.m_inCeilingOnly = OriginalPiece.m_inCeilingOnly;
+            Piece.m_isUpgrade = OriginalPiece.m_isUpgrade;
+            Piece.m_haveCenter = OriginalPiece.m_haveCenter;
+            Piece.m_dlc = OriginalPiece.m_dlc;
+            Piece.m_allowAltGroundPlacement = OriginalPiece.m_allowAltGroundPlacement;
+            Piece.m_allowedInDungeons = OriginalPiece.m_allowedInDungeons;
             Piece.m_randomTarget = false;
             Piece.m_primaryTarget = false;
 
@@ -57,12 +55,12 @@ namespace PlanBuild.Plans
             wearNTear.m_hitNoise = 0f;
 
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
-            planPieceScript.originalPiece = originalPiece;
-            planToOriginalMap.Add(PiecePrefab.name, originalPiece);
+            planPieceScript.originalPiece = OriginalPiece;
+            PlanToOriginalMap.Add(PiecePrefab.name, OriginalPiece);
             DisablePiece(PiecePrefab);
         }
 
-        private static readonly List<Type> typesToDestroyInChildren = new List<Type>()
+        private static readonly List<Type> TypesToDestroyInChildren = new List<Type>()
             {
                 typeof(GuidePoint),
                 typeof(Light),
@@ -73,19 +71,19 @@ namespace PlanBuild.Plans
                 typeof(Hoverable)
             };
 
-        public static int planLayer = LayerMask.NameToLayer("piece_nonsolid");
-        public static int m_placeRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle");
+        public static int PlanLayer = LayerMask.NameToLayer("piece_nonsolid");
+        public static int PlaceRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle");
 
         public void DisablePiece(GameObject gameObject)
         {
-            gameObject.layer = planLayer;
+            gameObject.layer = PlanLayer;
             Transform playerBaseTransform = gameObject.transform.Find("PlayerBase");
             if (playerBaseTransform)
             {
                 Object.Destroy(playerBaseTransform.gameObject);
             }
 
-            foreach (Type toDestroy in typesToDestroyInChildren)
+            foreach (Type toDestroy in TypesToDestroyInChildren)
             {
                 Component[] componentsInChildren = gameObject.GetComponentsInChildren(toDestroy);
                 for (int i = 0; i < componentsInChildren.Length; i++)

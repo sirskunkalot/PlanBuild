@@ -211,7 +211,7 @@ namespace PlanBuild.PlanBuild
             Jotunn.Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in planPiecePrefabs.Values)
             {
-                if (!showAllPieces.Value && !player.HaveRequirements(planPiece.originalPiece, Player.RequirementMode.IsKnown))
+                if (!showAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
