@@ -139,7 +139,7 @@ MonoBehaviour:
   m_primaryTarget: 0
   m_randomTarget: 0
   m_targetNonPlayerBuilt: 1
-  m_icon: {fileID: 21300000, guid: 801998e39579c01469e3a1f02e0975d6, type: 3}
+  m_icon: {fileID: 21300000, guid: 05fb16254496b614e93fb24c44db6949, type: 3}
   m_name: $piece_blueprint_objects
   m_description: $piece_blueprint_objects_desc
   m_enabled: 1
