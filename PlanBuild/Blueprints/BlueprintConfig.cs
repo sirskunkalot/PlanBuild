@@ -197,19 +197,6 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceDeleteObjectsName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpobjects_deleteall" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpobjectsradius" }
-                }
-            });
-
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceTerrainName,
                 ButtonConfigs = new[]
                 {
@@ -218,6 +205,19 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_delete" },
                     new ButtonConfig { Name = "Q", HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceDeleteObjectsName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpobjects_deleteall" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpobjectsradius" }
                 }
             });
 

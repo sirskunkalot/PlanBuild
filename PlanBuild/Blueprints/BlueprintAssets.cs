@@ -92,7 +92,7 @@ namespace PlanBuild.Blueprints
             foreach (string pieceName in new string[]
             {
                 PieceCaptureName, PieceSnapPointName, PieceCenterPointName,
-                PieceDeletePlansName, PieceDeleteObjectsName, PieceTerrainName,
+                PieceDeletePlansName,  PieceTerrainName, PieceDeleteObjectsName,
                 PiecePaintName
             })
             {
@@ -109,11 +109,11 @@ namespace PlanBuild.Blueprints
                     case PieceCaptureName:
                         prefabs[pieceName].AddComponent<CaptureComponent>();
                         break;
-                    case PieceDeletePlansName:
-                        prefabs[pieceName].AddComponent<DeletePlansComponent>();
-                        break;
                     case PieceDeleteObjectsName:
                         prefabs[pieceName].AddComponent<DeleteObjectsComponent>();
+                        break;
+                    case PieceDeletePlansName:
+                        prefabs[pieceName].AddComponent<DeletePlansComponent>();
                         break;
                     case PieceTerrainName:
                         prefabs[pieceName].AddComponent<TerrainComponent>();

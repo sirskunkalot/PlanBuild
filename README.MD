@@ -24,7 +24,7 @@ This needs to be built with the vanilla Hammer tool and costs you __5 Fine Wood_
 
 ### Skuld Crystal
 
-![Skuld Crystal](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/plan_crystal.png)
+![Skuld Crystal](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuildUnity/Assets/PlanBuild/Icons/plan_crystal.png)
 
 Includes the __Skuld Crystal__, a wearable item that removes the shader effect from the blueprints, so you can see what the construction will look like when completed.
 
@@ -42,7 +42,7 @@ Copy existing structures into __Blueprints__ and rebuild them as planned or regu
 
 ![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintTools.png)
 
-The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. Here is a handy list:
+The Blueprint Rune comes with a handful of tools to aid handling blueprint creation and building. All terrain tools can be disabled via server side enforced configuration. Here is a handy list:
 
 * __Create new blueprint:__ Create a blueprint of a construction. Planned pieces are captured as real pieces. 
   * Press __Ctrl__ to see what pieces are currently selected. 
@@ -59,6 +59,24 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
   * Use the __Scroll Wheel__ while holding __Ctrl__ to change the deletion radius.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
+* __Terrain Tools:__ Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
+  * Press __Q__ to switch between a circle and a square shaped marker.
+  * Press __Ctrl__ to remove terrain modifications.
+  * Use the __Scroll Wheel__ to change the tool radius.
+  * Use __Ctrl + Alt + Scroll__ to move the marker on the Y-axis.
+  * Use __Shift + Scroll__ to adjust the camera distance.
+
+* __Delete Objects:__ Allows you to remove vegetation objects in a chosen radius.
+  * Press __Ctrl__ to remove all objects including Pieces and Items (__Warning:__ Very destructive).
+  * Use the __Scroll Wheel__ to change the tool radius.
+  * Use __Shift + Scroll__ to adjust the camera distance.
+
+* __Paint terrain:__ Allows you to reset the terrain "paint" per biome (grass in the Meadows, sand at beaches, etc). Can also paint dirt or paved onto every terrain. Can be used as a "brush" by holding down the Attack button continously.
+  * Press __Ctrl__ to paint "dirt".
+  * Press __Alt__ to paint "paved".
+  * Use the __Scroll Wheel__ to change the tool radius.
+  * Use __Shift + Scroll__ to adjust the camera distance.
+
 ### Blueprints
 
 ![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintBlueprints.png)
@@ -70,7 +88,6 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
 * Use __Shift + Scroll__ to adjust the camera distance.
-* You can automatically flatten the terrain to the lowest Y of the blueprint. Hold __Shift__ while placing for that.
 * There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint.
 
 ## Blueprint Marketplace
