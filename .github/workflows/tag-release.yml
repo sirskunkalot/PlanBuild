@@ -93,7 +93,7 @@ jobs:
 
       - name: Build solution
         run: |
-          msbuild PlanBuild.sln /p:Configuration=Release
+          msbuild PlanBuild.sln /t:PlanBuild /p:Configuration=Release
           mv PlanBuild/bin/Release/PlanBuild.dll PlanBuild.dll
           
       - name: Push version update to master
