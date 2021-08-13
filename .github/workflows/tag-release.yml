@@ -89,7 +89,7 @@ jobs:
 
       - name: Update manifest.json version
         run: |
-          cat manifest.json | sed -e 's/version_number": "[^"]*"/version_number": "${{ steps.get_version.outputs.VERSION_NUMBER }}"/' > manifest.tmp && mv manifest.tmp manifest.json
+          cat manifest.json | sed -e 's/version_number": "[^"]*"/version_number": "${{ steps.projectversion.outputs.VERSION_NUMBER }}"/' > manifest.tmp && mv manifest.tmp manifest.json
 
       - name: Build solution
         run: |
