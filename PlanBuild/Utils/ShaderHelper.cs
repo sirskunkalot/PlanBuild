@@ -15,19 +15,19 @@ namespace PlanBuild.Utils
             Skuld
         }
 
-        private static readonly Dictionary<string, Material> originalMaterialDict = new Dictionary<string, Material>();
-        private static readonly Dictionary<string, Material> supportedMaterialDict = new Dictionary<string, Material>();
-        private static readonly Dictionary<string, Material> unsupportedMaterialDict = new Dictionary<string, Material>();
+        private static readonly Dictionary<string, Material> OriginalMaterialDict = new Dictionary<string, Material>();
+        private static readonly Dictionary<string, Material> SupportedMaterialDict = new Dictionary<string, Material>();
+        private static readonly Dictionary<string, Material> UnsupportedMaterialDict = new Dictionary<string, Material>();
 
-        public static Shader planShader;
-        public static ConfigEntry<Color> unsupportedColorConfig;
-        public static ConfigEntry<Color> supportedPlanColorConfig;
-        internal static ConfigEntry<float> transparencyConfig;
+        public static Shader PlanShader;
+        public static ConfigEntry<Color> UnsupportedColorConfig;
+        public static ConfigEntry<Color> SupportedPlanColorConfig;
+        internal static ConfigEntry<float> TransparencyConfig;
 
         public static void ClearCache()
         {
-            unsupportedMaterialDict.Clear();
-            supportedMaterialDict.Clear();
+            UnsupportedMaterialDict.Clear();
+            SupportedMaterialDict.Clear();
         }
 
         public static Texture2D GetTexture(Color color)
@@ -75,9 +75,9 @@ namespace PlanBuild.Utils
                 {
                     continue;
                 }
-                if (!originalMaterialDict.ContainsKey(originalMaterial.name))
+                if (!OriginalMaterialDict.ContainsKey(originalMaterial.name))
                 {
-                    originalMaterialDict[originalMaterial.name] = originalMaterial;
+                    OriginalMaterialDict[originalMaterial.name] = originalMaterial;
                 }
                 sharedMaterials[j] = GetMaterial(shaderState, originalMaterial);
             }
@@ -85,44 +85,44 @@ namespace PlanBuild.Utils
 
         private static Material GetMaterial(ShaderState shaderState, Material originalMaterial)
         {
-            float transparency = transparencyConfig.Value;
+            float transparency = TransparencyConfig.Value;
             transparency *= transparency; //x² mapping for finer control
             switch (shaderState)
             {
                 case ShaderState.Skuld:
-                    return originalMaterialDict[originalMaterial.name];
+                    return OriginalMaterialDict[originalMaterial.name];
                 case ShaderState.Supported:
-                    if (!supportedMaterialDict.TryGetValue(originalMaterial.name, out Material supportedMaterial))
+                    if (!SupportedMaterialDict.TryGetValue(originalMaterial.name, out Material supportedMaterial))
                     {
                         supportedMaterial = new Material(originalMaterial)
                         {
                             name = originalMaterial.name
                         };
                         supportedMaterial.SetOverrideTag("RenderType", "Transparent");
-                        supportedMaterial.shader = planShader;
-                        Color supportedMaterialColor = supportedPlanColorConfig.Value;
+                        supportedMaterial.shader = PlanShader;
+                        Color supportedMaterialColor = SupportedPlanColorConfig.Value;
                         supportedMaterialColor.a *= transparency;
                         supportedMaterial.color = supportedMaterialColor;
                         supportedMaterial.EnableKeyword("_EMISSION");
                         supportedMaterial.DisableKeyword("DIRECTIONAL");
-                        supportedMaterialDict[originalMaterial.name] = supportedMaterial;
+                        SupportedMaterialDict[originalMaterial.name] = supportedMaterial;
                     }
                     return supportedMaterial;
                 case ShaderState.Floating:
-                    if (!unsupportedMaterialDict.TryGetValue(originalMaterial.name, out Material unsupportedMaterial))
+                    if (!UnsupportedMaterialDict.TryGetValue(originalMaterial.name, out Material unsupportedMaterial))
                     {
                         unsupportedMaterial = new Material(originalMaterial)
                         {
                             name = originalMaterial.name
                         };
                         unsupportedMaterial.SetOverrideTag("RenderType", "Transparent");
-                        unsupportedMaterial.shader = planShader;
-                        Color unsupportedMaterialColor = unsupportedColorConfig.Value;
+                        unsupportedMaterial.shader = PlanShader;
+                        Color unsupportedMaterialColor = UnsupportedColorConfig.Value;
                         unsupportedMaterialColor.a *= transparency;
                         unsupportedMaterial.color = unsupportedMaterialColor;
                         unsupportedMaterial.EnableKeyword("_EMISSION");
                         unsupportedMaterial.DisableKeyword("DIRECTIONAL");
-                        unsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
+                        UnsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
                     }
                     return unsupportedMaterial;
                 default:

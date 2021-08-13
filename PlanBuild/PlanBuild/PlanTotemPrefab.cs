@@ -13,12 +13,12 @@ namespace PlanBuild.Plans
     internal class PlanTotemPrefab
     {
         public const string PlanTotemPieceName = "piece_plan_totem";
-        public static ConfigEntry<Color> glowColorConfig;
-        private KitbashObject planTotemKitbash;
+        public static ConfigEntry<Color> GlowColorConfig;
+        private KitbashObject PlanTotemKitbash;
 
         public PlanTotemPrefab(AssetBundle planbuildBundle)
         {
-            planTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>(PlanTotemPieceName), new KitbashConfig
+            PlanTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>(PlanTotemPieceName), new KitbashConfig
             {
                 FixReferences = true,
                 KitbashSources = new List<KitbashSourceConfig> {
@@ -52,12 +52,12 @@ namespace PlanBuild.Plans
                     }
                 }
             });
-            planTotemKitbash.OnKitbashApplied += () =>
+            PlanTotemKitbash.OnKitbashApplied += () =>
             {
                 GameObject connectionPrefab = PrefabManager.Instance.GetPrefab("forge_ext1").GetComponent<StationExtension>().m_connectionPrefab;
                 GameObject planBuildConnectionPrefab = PrefabManager.Instance.CreateClonedPrefab("vfx_PlanBuildConnection", connectionPrefab);
 
-                GameObject planTotemPrefab = planTotemKitbash.Prefab;
+                GameObject planTotemPrefab = PlanTotemKitbash.Prefab;
 
                 ShaderHelper.UpdateTextures(planTotemPrefab.transform.Find("new/pivot/hammer").gameObject, ShaderHelper.ShaderState.Supported);
 
@@ -74,14 +74,14 @@ namespace PlanBuild.Plans
                 meshRenderer.materials
                     .Where(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
                     .First()
-                    .SetColor("_EmissionColor", glowColorConfig.Value);
+                    .SetColor("_EmissionColor", GlowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
                 circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
                 circleProjector.m_radius = PlanTotem.radiusConfig.Value;
             };
 
-            CustomPiece planTotemPiece = new CustomPiece(planTotemKitbash.Prefab, new PieceConfig()
+            CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, new PieceConfig()
             {
                 PieceTable = "Hammer",
                 Requirements = new RequirementConfig[]
@@ -96,7 +96,7 @@ namespace PlanBuild.Plans
 
         internal void SettingsUpdated()
         {
-            UpdateGlowColor(planTotemKitbash.Prefab);
+            UpdateGlowColor(PlanTotemKitbash.Prefab);
         }
 
         public static void UpdateGlowColor(GameObject prefab)
@@ -105,7 +105,7 @@ namespace PlanBuild.Plans
             meshRenderer.materials
                 .Where(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
                 .First()
-                .SetColor("_EmissionColor", glowColorConfig.Value);
+                .SetColor("_EmissionColor", GlowColorConfig.Value);
         }
     }
 }

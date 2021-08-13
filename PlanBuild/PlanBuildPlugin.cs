@@ -16,7 +16,6 @@ using PlanBuild.Utils;
 using System;
 using System.IO;
 using System.Reflection;
-using Jotunn.Entities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -66,7 +65,7 @@ namespace PlanBuild
             BlueprintManager.Instance.Init();
 
             // Init Shader
-            ShaderHelper.planShader = Shader.Find("Lux Lit Particles/ Bumped");
+            ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");
 
             // Harmony patching
             Patches.Apply();
@@ -89,15 +88,15 @@ namespace PlanBuild
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
             ConfigTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
-            ShaderHelper.unsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
-            ShaderHelper.supportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
-            ShaderHelper.transparencyConfig = Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
-            PlanTotemPrefab.glowColorConfig = Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
+            ShaderHelper.UnsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
+            ShaderHelper.SupportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
+            ShaderHelper.TransparencyConfig = Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
+            PlanTotemPrefab.GlowColorConfig = Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
 
-            ShaderHelper.unsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.supportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.transparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            PlanTotemPrefab.glowColorConfig.SettingChanged += UpdatePlanTotem;
+            ShaderHelper.UnsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            ShaderHelper.SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            ShaderHelper.TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
+            PlanTotemPrefab.GlowColorConfig.SettingChanged += UpdatePlanTotem;
 
         }
 
@@ -166,7 +165,7 @@ namespace PlanBuild
                 PlanCrystalPrefab.StartPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
                 PlanCrystalPrefab.StopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.PrefabName + "StopEffect", "vfx_blocked");
                 PlanCrystalPrefab.StopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-                
+
                 ItemManager.Instance.AddItem(PlanCrystalPrefab.Create());
             }
             finally

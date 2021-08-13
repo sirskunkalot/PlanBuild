@@ -119,7 +119,7 @@ namespace PlanBuild.Plans
 
         internal void Highlight()
         {
-            m_wearNTear.Highlight(ShaderHelper.unsupportedColorConfig.Value);
+            m_wearNTear.Highlight(ShaderHelper.UnsupportedColorConfig.Value);
         }
 
         public static int m_planLayer = LayerMask.NameToLayer("piece_nonsolid");
