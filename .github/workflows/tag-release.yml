@@ -104,7 +104,7 @@ jobs:
           git add PlanBuild/PlanBuildPlugin.cs
           git add manifest.json
           git commit -m "deploy: Released ${{ steps.projectversion.outputs.VERSION }}"
-          git push
+          git push origin HEAD:master
 
       - name: Create GH Release
         uses: softprops/action-gh-release@v1
