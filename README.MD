@@ -128,7 +128,7 @@ Most values are configurable:
 * Blueprint Rune
     * Hotkey to switch between Blueprint Rune modes (default __P__)
     * Allow building of blueprints as actual pieces without needing the resources (default __false__)
-    * Allow flattening the terrain when placing blueprints (default __false__)
+    * Allow usage of the terrain modification tools (default __false__)
     * Place distance of the Blueprint Rune (default __50__)
     * Invert and sensitivity options for each input with the scroll wheel
 * Directories
