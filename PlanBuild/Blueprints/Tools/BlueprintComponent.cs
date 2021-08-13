@@ -6,6 +6,11 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class BlueprintComponent : ToolComponentBase
     {
+        public override void Init()
+        {
+            SuppressPieceHighlight = false;
+        }
+
         public override void UpdatePlacement(Player self)
         {
             DisableSelectionProjector();

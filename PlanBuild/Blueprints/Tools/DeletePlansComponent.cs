@@ -5,26 +5,6 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class DeletePlansComponent : ToolComponentBase
     {
-        public override void Init()
-        {
-            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
-        }
-
-        public override void Remove()
-        {
-            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
-        }
-
-        /// <summary>
-        ///     Dont highlight pieces while deleting
-        /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
-        {
-            return;
-        }
-
         public override void UpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)

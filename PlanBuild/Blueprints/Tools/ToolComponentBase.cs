@@ -11,6 +11,8 @@ namespace PlanBuild.Blueprints.Tools
         public static float CameraOffset = 5.0f;
         public static Vector3 PlacementOffset = Vector3.zero;
 
+        internal bool SuppressPieceHighlight = true;
+        
         private void Awake()
         {
             if (!Player.m_localPlayer || Player.m_localPlayer.m_buildPieces == null)
@@ -19,7 +21,8 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             Init();
-
+            
+            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
             On.Player.UpdatePlacement += Player_UpdatePlacement;
             On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
@@ -38,6 +41,7 @@ namespace PlanBuild.Blueprints.Tools
             Remove();
             DisableSelectionProjector();
 
+            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
             On.Player.PieceRayTest -= Player_PieceRayTest;
             On.Player.UpdatePlacement -= Player_UpdatePlacement;
             On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
@@ -49,6 +53,17 @@ namespace PlanBuild.Blueprints.Tools
 
         public virtual void Remove()
         {
+        }
+
+        /// <summary>
+        ///     Dont highlight pieces while capturing when enabled
+        /// </summary>
+        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
+        {
+            if (!SuppressPieceHighlight)
+            {
+                orig(self);
+            }
         }
 
         /// <summary>
