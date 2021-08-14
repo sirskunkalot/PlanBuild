@@ -1,7 +1,7 @@
 # Version 0.4.0
 * Added new tools for terrain modification, terrain painting and vegetation/object deletion to the Blueprint Rune (controlled by server side config)
-* Changed the flatten from TerrainMod to TerrainComp
-* Removed flatten while placing a blueprint
+* Use the TerrainComp system from Valheim for all tools
+* Removed flatten while placing a blueprint (too inaccurate, use the terrain tools before placing the blueprint)
 * Added a square marker for terrain tools
 
 # Version 0.3.5
