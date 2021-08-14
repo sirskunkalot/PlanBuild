@@ -1,3 +1,8 @@
+# Version 0.4.0
+* Added new tools for terrain modification, terrain painting and vegetation/object deletion to the Blueprint Rune (controlled by server side config)
+* Removed flatten while placing a blueprint
+* Added a square marker for terrain tools
+
 # Version 0.3.5
 * Hopefully fixed some NullReferenceExceptions
 
