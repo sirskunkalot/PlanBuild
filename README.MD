@@ -1,6 +1,10 @@
 ﻿# PlanBuild - Blueprint Edition
 
-PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. Introducing a new item, the __Blueprint Rune__, which can be crafted from a single stone and festering willpower given to you by the gods. The rune comes with two modes you can switch between by pressing __P__ while having the rune equipped (can be adjusted via config file).
+PlanBuild enables you to plan, copy and share your building creations in Valheim with ease.
+
+![BlueprintRune](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuildUnity/Assets/Blueprints/Icons/BlueprintRuneIcon.png)
+
+Introducing a new item, the __Blueprint Rune__, which can be crafted from a single stone and festering willpower given to you by the gods. The rune comes with two modes you can switch between by pressing __P__ while having the rune equipped (can be adjusted via config file).
 
 ## Planning mode
 
