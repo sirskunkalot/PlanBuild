@@ -1,5 +1,6 @@
 # Version 0.4.0
 * Added new tools for terrain modification, terrain painting and vegetation/object deletion to the Blueprint Rune (controlled by server side config)
+* Changed the flatten from TerrainMod to TerrainComp
 * Removed flatten while placing a blueprint
 * Added a square marker for terrain tools
 
@@ -20,7 +21,7 @@
 * Fixed material swap issue when hovering over a piece and using the Skuld Crystal
 
 # Version 0.3.1
-* *Fixed center point marker issue with pieces lower than the marker
+* Fixed center point marker issue with pieces lower than the marker
 
 # Version 0.3.0
 * New blueprint marketplace! Press "End" to open the server GUI. The server must be configured to accept the blueprints!

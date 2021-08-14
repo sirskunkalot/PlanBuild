@@ -152,11 +152,16 @@ namespace PlanBuild.Blueprints
             {
                 Vector3 startPosition = transform.position;
 
+                if (Location.IsInsideNoBuildLocation(startPosition))
+                {
+                    return;
+                }
+
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
                                   obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
                                   !obj.GetComponent<TerrainModifier>() && !obj.GetComponent<Piece>() &&
-                                  !obj.GetComponent<ItemDrop>());
+                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<ZSFX>());
 
                 int delcnt = 0;
                 foreach (GameObject prefab in prefabs)
@@ -187,10 +192,15 @@ namespace PlanBuild.Blueprints
             {
                 Vector3 startPosition = transform.position;
 
+                if (Location.IsInsideNoBuildLocation(startPosition))
+                {
+                    return;
+                }
+
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
                                   obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
-                                  !obj.GetComponent<TerrainModifier>());
+                                  !obj.GetComponent<TerrainModifier>() && !obj.GetComponent<ZSFX>());
 
                 int delcnt = 0;
                 foreach (GameObject prefab in prefabs)
