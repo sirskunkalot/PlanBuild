@@ -142,11 +142,6 @@ if($Target.Equals("Release")) {
     $tsio_tmp_directory = "$output_dir\ts_io_tmp\$name$mod_version"
     New-Item -ItemType Directory -Force -Path "$tsio_tmp_directory"
 
-    # Update Manifest to have correct version number
-    $manifest = Get-Content "$SolutionPath\manifest.json" -raw | ConvertFrom-Json
-    $manifest.version_number = $mod_version
-    $manifest | ConvertTo-Json -depth 32| set-content "$tsio_tmp_directory\manifest.json"
-
     # Copy README and icon into tmp directory
     Copy-Item "$SolutionPath\README.md" "$tsio_tmp_directory"
     Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
