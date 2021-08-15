@@ -19,6 +19,7 @@ namespace PlanBuild.PlanBuild
         static internal GameObject m_connectionPrefab;
         private Bounds m_chestBounds;
         internal static ConfigEntry<float> radiusConfig;
+        internal static ConfigEntry<bool> showParticleEffects;
         private List<KeyValuePair<string, int>> m_sortedRequired;
         private readonly List<PlanPiece> m_connectedPieces = new List<PlanPiece>();
         private readonly Dictionary<string, int> m_remainingRequirements = new Dictionary<string, int>();
@@ -113,7 +114,10 @@ namespace PlanBuild.PlanBuild
                     {
                         if (planPiece.HasRequiredCraftingStationInRange())
                         {
-                            TriggerConnection(GetCenter(planPiece.gameObject));
+                            if(showParticleEffects.Value)
+                            {
+                                TriggerConnection(GetCenter(planPiece.gameObject));
+                            }
                             planPiece.Build(m_piece.m_creator);
                             continue;
                         }
@@ -231,12 +235,12 @@ namespace PlanBuild.PlanBuild
             GameObject m_connection = Object.Instantiate(m_connectionPrefab, center, Quaternion.identity);
 
             TimedDestruction timedDestruction = m_connection.AddComponent<TimedDestruction>();
+            
 
             Vector3 vector = targetPos - center;
-            Quaternion rotation = Quaternion.LookRotation(vector.normalized);
             timedDestruction.Trigger(vector.magnitude);
             m_connection.transform.position = center;
-            m_connection.transform.rotation = rotation;
+            m_connection.transform.rotation = Quaternion.LookRotation(vector.normalized);
             m_connection.transform.localScale = new Vector3(1f, 1f, vector.magnitude);
         }
     }

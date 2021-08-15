@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
+using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
 using System;
 using UnityEngine;
@@ -36,7 +37,7 @@ namespace PlanBuild.ModCompat
             }
         }
 
-        [HarmonyPatch(typeof(BlueprintManager), "OnPiecePlaced")]
+        [HarmonyPatch(typeof(BlueprintComponent), "OnPiecePlaced")]
         [HarmonyPrefix]
         private static void BlueprintManager_OnPiecePlaced_Postfix(GameObject placedPiece)
         {

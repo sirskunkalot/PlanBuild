@@ -71,9 +71,8 @@ namespace PlanBuild.Plans
                 planTotem.m_width = 6;
 
                 MeshRenderer meshRenderer = planTotemPrefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
-                meshRenderer.materials
-                    .Where(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
-                    .First()
+                meshRenderer.materials 
+                    .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
                     .SetColor("_EmissionColor", GlowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
@@ -103,8 +102,7 @@ namespace PlanBuild.Plans
         {
             MeshRenderer meshRenderer = prefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
             meshRenderer.materials
-                .Where(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
-                .First()
+                .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat")) 
                 .SetColor("_EmissionColor", GlowColorConfig.Value);
         }
     }
