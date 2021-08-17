@@ -32,7 +32,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.4.1";
+        public const string PluginVersion = "0.4.2";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> ConfigTransparentGhostPlacement;
@@ -84,6 +84,7 @@ namespace PlanBuild
         private void SetupConfig()
         {
             PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+            PlanTotem.showParticleEffects = Config.Bind("General", "Plan totem particle effects", true, new ConfigDescription("Build radius of the Plan totem"));
 
             PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
 
@@ -97,6 +98,7 @@ namespace PlanBuild
             ShaderHelper.SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             PlanTotemPrefab.GlowColorConfig.SettingChanged += UpdatePlanTotem;
+
 
         }
 

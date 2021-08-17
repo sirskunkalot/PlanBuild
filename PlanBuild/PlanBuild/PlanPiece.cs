@@ -607,7 +607,7 @@ namespace PlanBuild.Plans
             {
                 builder.Append(requirement.m_resItem.m_itemData.m_shared.m_name + ": " + GetResourceCount(requirement.m_resItem.m_itemData.m_shared.m_name) + "/" + requirement.m_amount + "\n");
             }
-            m_hoverText = builder.ToString();
+            m_hoverText = builder.ToString(); 
         }
 
         private void RPC_SpawnPieceAndDestroy(long sender, long creatorID)
@@ -619,7 +619,7 @@ namespace PlanBuild.Plans
             GameObject actualPiece = Object.Instantiate(originalPiece.gameObject, gameObject.transform.position, gameObject.transform.rotation);
             OnPiecePlaced(actualPiece);
             // Register special effects
-            if (creatorID == Player.m_localPlayer.GetPlayerID())
+            if (creatorID == Player.m_localPlayer?.GetPlayerID())
             {
                 CraftingStation craftingStation = actualPiece.GetComponentInChildren<CraftingStation>();
                 if (craftingStation)
