@@ -39,6 +39,7 @@
   "piece_blueprint_paint_desc": "Reset terrain paint or apply new paint",
   "hud_bpcapture": "Capture",
   "hud_bpcapture_highlight": "Hold to highlight captured pieces",
+  "msg_bpcapture_save": "Save Blueprint ($1 pieces captured)",
   "hud_bpradius": "Change radius\nShift: Camera distance",
   "hud_bpplace": "Place",
   "hud_bpdirect": "Direct build (no plan)",
