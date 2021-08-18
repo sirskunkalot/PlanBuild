@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
         private GameObject MenuPrefab;
         private GameObject ContainerPrefab;
+        private bool Localized;
 
         public GameObject Window { get; set; }
 
@@ -157,6 +158,13 @@ namespace PlanBuild.Blueprints.Marketplace
 
             // Toggle input
             GUIManager.BlockInput(newState);
+
+            //TODO: Jötunn event for localization added
+            // Localize stuff
+            if (!Localized)
+            {
+                Localization.instance.Localize(Window.transform);
+            }
         }
 
         /// <summary>
@@ -388,6 +396,10 @@ namespace PlanBuild.Blueprints.Marketplace
 
                     // Init blueprint lists
                     ReloadBlueprints(BlueprintLocation.Both);
+
+                    // Reset localization flag
+                    //TODO: Jötunn event
+                    Localized = false;
                 }
                 catch (Exception ex)
                 {

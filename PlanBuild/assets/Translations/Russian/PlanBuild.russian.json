@@ -46,7 +46,6 @@
   "hud_bprotate1": "Вращение, Ctrl + Alt: Движение оси Y\nCtrl: Движение оси Z, Alt: Движение оси X",
   "hud_bprotate2": "Shift: Дальность камеры",
   "msg_direct_build_disabled": "Непосредственная сборка отключена",
-  "msg_flatten_disabled": "Выравнивание отключено",
   "hud_bpsnappoint": "Установить точку опоры",
   "hud_bpcenterpoint": "Установить точку центра",
   "hud_bpdelete": "Удалить выбранную часть плана",

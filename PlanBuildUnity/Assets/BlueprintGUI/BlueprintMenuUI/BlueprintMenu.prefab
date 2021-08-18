@@ -227,9 +227,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Name
-
-'
+  m_Text: $gui_bpmarket_name
 --- !u!1 &299559621262724551
 GameObject:
   m_ObjectHideFlags: 0
@@ -343,7 +341,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Confirm
+  m_Text: $gui_bpmarket_confirm
 --- !u!1 &336388523960699129
 GameObject:
   m_ObjectHideFlags: 0
@@ -421,7 +419,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Delete
+  m_Text: $gui_bpmarket_delete
 --- !u!1 &365453430112838330
 GameObject:
   m_ObjectHideFlags: 0
@@ -1540,9 +1538,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Name
-
-'
+  m_Text: $gui_bpmarket_name
 --- !u!1 &1084974148908979932
 GameObject:
   m_ObjectHideFlags: 0
@@ -1694,7 +1690,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Description...
+  m_Text: $gui_bpmarket_description_placeholder
 --- !u!1 &1227642878934841727
 GameObject:
   m_ObjectHideFlags: 0
@@ -1811,7 +1807,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: OK
+  m_Text: $gui_bpmarket_ok
 --- !u!1 &1492818177347554813
 GameObject:
   m_ObjectHideFlags: 0
@@ -1889,7 +1885,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save
+  m_Text: $gui_bpmarket_save
 --- !u!1 &1661557789922007280
 GameObject:
   m_ObjectHideFlags: 0
@@ -2197,7 +2193,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Delete
+  m_Text: $gui_bpmarket_delete
 --- !u!1 &2221950928560282790
 GameObject:
   m_ObjectHideFlags: 0
@@ -2512,7 +2508,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Action Is Being Applied
+  m_Text: $gui_bpmarket_overlay_applied
 --- !u!1 &2966911093071297503
 GameObject:
   m_ObjectHideFlags: 0
@@ -2989,7 +2985,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: <b>Server</b> blueprints
+  m_Text: $gui_bpmarket_serverblueprints
 --- !u!1 &3548883098809023157
 GameObject:
   m_ObjectHideFlags: 0
@@ -3187,7 +3183,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: <b>My</b> blueprints
+  m_Text: $gui_bpmarket_myblueprints
 --- !u!1 &3753152888311387657
 GameObject:
   m_ObjectHideFlags: 0
@@ -3265,9 +3261,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Action is Being Applied
-
-'
+  m_Text: $gui_bpmarket_overlay_applied
 --- !u!1 &3758902577671658340
 GameObject:
   m_ObjectHideFlags: 0
@@ -3345,7 +3339,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: $gui_bpmarket_cancel
 --- !u!1 &3770706079634675671
 GameObject:
   m_ObjectHideFlags: 0
@@ -3969,7 +3963,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Confirm
+  m_Text: $gui_bpmarket_confirm
 --- !u!1 &4258711812856440993
 GameObject:
   m_ObjectHideFlags: 0
@@ -4047,9 +4041,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Action is Being Applied
-
-'
+  m_Text: $gui_bpmarket_overlay_applied
 --- !u!1 &4368120349154631487
 GameObject:
   m_ObjectHideFlags: 0
@@ -4127,9 +4119,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Action is Being Applied
-
-'
+  m_Text: $gui_bpmarket_overlay_applied
 --- !u!1 &4568791424328602058
 GameObject:
   m_ObjectHideFlags: 0
@@ -4207,7 +4197,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Description...
+  m_Text: $gui_bpmarket_description_placeholder
 --- !u!1 &4721264292477689000
 GameObject:
   m_ObjectHideFlags: 0
@@ -4285,7 +4275,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save
+  m_Text: $gui_bpmarket_save
 --- !u!1 &4857662831046347000
 GameObject:
   m_ObjectHideFlags: 0
@@ -4437,7 +4427,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Confirm
+  m_Text: $gui_bpmarket_confirm
 --- !u!1 &5009091098930355977
 GameObject:
   m_ObjectHideFlags: 0
@@ -4515,7 +4505,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Download
+  m_Text: $gui_bpmarket_download
 --- !u!1 &5048272944668322475
 GameObject:
   m_ObjectHideFlags: 0
@@ -5563,7 +5553,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Upload
+  m_Text: $gui_bpmarket_upload
 --- !u!1 &5564060777124642785
 GameObject:
   m_ObjectHideFlags: 0
@@ -5641,7 +5631,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Creator:'
+  m_Text: $gui_bpmarket_creator
 --- !u!1 &5650785726007480132
 GameObject:
   m_ObjectHideFlags: 0
@@ -5793,7 +5783,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Description
+  m_Text: $gui_bpmarket_description
 --- !u!1 &5782711177606181002
 GameObject:
   m_ObjectHideFlags: 0
@@ -6767,7 +6757,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Confirm
+  m_Text: $gui_bpmarket_confirm
 --- !u!1 &6950053894988161979
 GameObject:
   m_ObjectHideFlags: 0
@@ -7326,7 +7316,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: $gui_bpmarket_cancel
 --- !u!1 &7232425102466987258
 GameObject:
   m_ObjectHideFlags: 0
@@ -7404,7 +7394,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Description
+  m_Text: $gui_bpmarket_description
 --- !u!1 &7302862262426531506
 GameObject:
   m_ObjectHideFlags: 0
@@ -7518,7 +7508,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Name...
+  m_Text: $gui_bpmarket_name_placeholder
 --- !u!1 &7534477692639843663
 GameObject:
   m_ObjectHideFlags: 0
@@ -7716,7 +7706,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: $gui_bpmarket_cancel
 --- !u!1 &7820190370589198072
 GameObject:
   m_ObjectHideFlags: 0
@@ -7794,7 +7784,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Creator:'
+  m_Text: $gui_bpmarket_creator
 --- !u!1 &7869987137882073762
 GameObject:
   m_ObjectHideFlags: 0
@@ -8151,7 +8141,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: $gui_bpmarket_cancel
 --- !u!1 &8114918163408570589
 GameObject:
   m_ObjectHideFlags: 0
@@ -8509,7 +8499,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Enter Name...
+  m_Text: $gui_bpmarket_name_placeholder
 --- !u!1 &8560083717792394557
 GameObject:
   m_ObjectHideFlags: 0
@@ -9119,6 +9109,4 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Action is Being Applied
-
-'
+  m_Text: $gui_bpmarket_overlay_applied
