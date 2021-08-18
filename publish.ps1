@@ -37,9 +37,6 @@ Write-Host "Publishing for $Target from $TargetPath"
 # name without .dll
 $name = "$TargetAssembly" -Replace('.dll')
 
-# mod version
-$version = (Get-Command $mod_dll).FileVersionInfo.FileVersion
-
 # Create the mdb file
 $pdb = "$TargetPath\$name.pdb"
 if (Test-Path -Path "$pdb") {
