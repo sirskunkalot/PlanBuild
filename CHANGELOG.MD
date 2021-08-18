@@ -1,3 +1,11 @@
+# Version 0.4.2
+* Fixed new particle effects config option ...
+* Added null check in RPC call, should fix infinite build issue
+
+# Version 0.4.1
+* Fixed compatibility with ValheimRAFT
+* Added config for particle effects of Plan Totem
+
 # Version 0.4.0
 * Added new tools for terrain modification, terrain painting and vegetation/object deletion to the Blueprint Rune (controlled by server side config)
 * Use the TerrainComp system from Valheim for all tools
