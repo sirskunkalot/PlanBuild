@@ -1,3 +1,6 @@
+# Version 0.4.3
+* Added new russian translation
+
 # Version 0.4.2
 * Fixed new particle effects config option ...
 * Added null check in RPC call, should fix infinite build issue
