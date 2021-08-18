@@ -94,7 +94,7 @@ jobs:
       - name: Build solution
         run: |
           msbuild PlanBuild.sln /t:PlanBuild /p:Configuration=Release
-          mv PlanBuild/bin/Release/PlanBuild.dll PlanBuild.dll
+          mv distribute/PlanBuild.zip PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip
           
       - name: Push version update to master
         run: |
@@ -110,6 +110,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            PlanBuild.dll
+            PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

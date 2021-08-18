@@ -159,6 +159,9 @@
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
     <Exec Command="powershell.exe -ExecutionPolicy RemoteSigned -File &quot;$(SolutionDir)publish.ps1&quot; -Target &quot;$(ConfigurationName)&quot; -TargetPath &quot;$(TargetDir.TrimEnd('\'))&quot; -TargetAssembly &quot;$(TargetFileName)&quot; -ValheimPath &quot;$(VALHEIM_INSTALL.TrimEnd('\'))&quot; -ProjectPath &quot;$(ProjectDir.TrimEnd('\'))&quot; -SolutionPath &quot;$(SolutionDir.TrimEnd('\'))&quot;" />
   </Target>
+  <Target Name="PostBuildTaskUnix" Condition="'$(OS)' != 'Windows_NT'">
+    <Exec Command="pwsh -ExecutionPolicy RemoteSigned -File &quot;$(SolutionDir)publish.ps1&quot; -Target &quot;GitHub&quot; -TargetPath &quot;$(TargetDir.TrimEnd('\'))&quot; -TargetAssembly &quot;$(TargetFileName)&quot; -ValheimPath &quot;$(VALHEIM_INSTALL.TrimEnd('\'))&quot; -ProjectPath &quot;$(ProjectDir.TrimEnd('\'))&quot; -SolutionPath &quot;$(SolutionDir.TrimEnd('\'))&quot;" />
+  </Target>
   <PropertyGroup>
     <BuildDependsOn>
       $(BuildDependsOn);

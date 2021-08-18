@@ -37,6 +37,9 @@ Write-Host "Publishing for $Target from $TargetPath"
 # name without .dll
 $name = "$TargetAssembly" -Replace('.dll')
 
+# mod version
+$version = (Get-Command $mod_dll).FileVersionInfo.FileVersion
+
 # Create the mdb file
 $pdb = "$TargetPath\$name.pdb"
 if (Test-Path -Path "$pdb") {
@@ -104,7 +107,7 @@ if($Target.Equals("Release")) {
     $mod_version = (Get-Command $mod_dll).FileVersionInfo.FileVersion
 
     # Locations to put artifacts
-    $artifact_path = $output_dir + "\artifacts"
+    $artifact_path = $output_dir + "\artifact"
     $nexus_path = $output_dir + "\nexus"
     $tsio_path = $output_dir + "\ts_io"
     $raw_path = $output_dir + "\raw"
@@ -118,16 +121,29 @@ if($Target.Equals("Release")) {
     New-Item -ItemType Directory -Force -Path $raw_dir_path
      
     ###################################
-    ####### Raw DLL
+    ####### Raw DLL and assets
     ###################################
     
     Copy-Item $mod_dll "$raw_dir_path\"
     Copy-Item -Path "$resources_dir\*" -Destination "$raw_dir_path\" -Recurse -Force
+    Copy-Item "$SolutionPath\README.md" "$raw_dir_path\" -Force
+    
+    ###################################
+    ####### Plain packaging
+    ###################################
+    
+    $raw_zip = "$artifact_path\$name-$mod_version.zip"
+    cd "$raw_path"
+    $zip_cmd_raw = '& "C:\Program Files\7-Zip\7zG.exe" "a" ' + $raw_zip + ' "."'
+    Remove-Item "$raw_zip"
+    echo $zip_cmd_raw
+    Invoke-Expression $zip_cmd_raw
 
     ###################################
-    ####### Nexus Packaging
+    ####### Nexus packaging
     ###################################
-    $nexus_zip = "$nexus_path\$name-$mod_version.zip"
+
+    $nexus_zip = "$nexus_path\$name-$mod_version-nexus.zip"
     cd "$raw_path"
     $zip_cmd_nexus = '& "C:\Program Files\7-Zip\7zG.exe" "a" ' + $nexus_zip + ' "."'
     Remove-Item "$nexus_zip"
@@ -152,8 +168,6 @@ if($Target.Equals("Release")) {
     New-Item -ItemType Directory -Path "$tsio_tmp_directory\files\plugins\" -Force
     Copy-Item "$raw_dir_path" "$tsio_tmp_directory\files\plugins\" -Force -Recurse
 
-
-
     $tsio_zip = "$tsio_path\$name-$mod_version-tsio.zip"
     Remove-Item "$tsio_zip"
     cd "$tsio_tmp_directory"
@@ -164,16 +178,31 @@ if($Target.Equals("Release")) {
     sleep 1
 
     cd $ProjectPath
-    Remove-Item  $tsio_tmp_directory -Recurse
+    Remove-Item -Path "$tsio_tmp_directory"
 
-    New-Item -ItemType Directory -Force -Path $target_dir
+    New-Item -ItemType Directory -Force -Path "$target_dir"
     Copy-Item "$nexus_zip" "$target_dir" -Force
     Copy-Item "$tsio_zip" "$target_dir" -Force
+    Copy-Item "$raw_zip" "$target_dir" -Force
     Copy-Item "$mod_dll" "$target_dir" -Force
 
     echo "
     === All done ==="
+}
 
+if($Target.Equals("GitHub")) {
+    ###################################
+    ####### Raw DLL and assets
+    ###################################
+    
+    $dist = New-Item -ItemType Directory -Force -Path "$SolutionPath\distribute"
+    $plan = New-Item -ItemType Directory -Force -Path "$dist\PlanBuild"
+    Copy-Item -Path "$TargetPath\$TargetAssembly" -Destination "$plan" -Force
+    Copy-Item -Path "$ProjectPath\assets\*" -Destination "$plan" -Recurse -Force
+    Copy-Item -Path "$SolutionPath\README.md" -Destination "$plan" -Force
+    cd "$dist"
+    Invoke-Expression "& `"p7zip`" `"$plan`""
+    $plan.Remove($true)
 }
 
 # Pop Location
