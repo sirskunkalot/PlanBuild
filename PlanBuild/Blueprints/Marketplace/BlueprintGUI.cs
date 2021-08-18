@@ -556,8 +556,7 @@ namespace PlanBuild.Blueprints.Marketplace
     internal class BlueprintDetailDisplay
     {
         public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
-
-        //Use Id passed to link more details or whatever..
+        
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
         // Inputs Fields.
@@ -581,8 +580,7 @@ namespace PlanBuild.Blueprints.Marketplace
             {
                 return;
             }
-
-            // Grab additional details from the id..or append model.
+            
             SelectedBlueprintDetail = blueprint;
 
             Name.onEndEdit.RemoveAllListeners();
@@ -602,7 +600,11 @@ namespace PlanBuild.Blueprints.Marketplace
 
             SaveButton.onClick.AddListener(() =>
             {
-                ConfirmationOverlay.Show($"Saving blueprint {Name.text}", () =>
+                /*ConfirmationOverlay.Show($"Saving blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
+                });*/
+                ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_savebp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
                 });
@@ -610,7 +612,11 @@ namespace PlanBuild.Blueprints.Marketplace
 
             TransferButton.onClick.AddListener(() =>
             {
-                ConfirmationOverlay.Show($"Transfer {TabType} blueprint {Name.text}", () =>
+                /*ConfirmationOverlay.Show($"Transfer {TabType} blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
+                });*/
+                ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_transferbp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
                 });
@@ -618,7 +624,11 @@ namespace PlanBuild.Blueprints.Marketplace
 
             DeleteButton.onClick.AddListener(() =>
             {
-                ConfirmationOverlay.Show($"Delete {TabType} blueprint {Name.text}", () =>
+                /*ConfirmationOverlay.Show($"Delete {TabType} blueprint {Name.text}", () =>
+                {
+                    BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
+                });*/
+                ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_deletebp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
                 });
@@ -722,7 +732,7 @@ namespace PlanBuild.Blueprints.Marketplace
             ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
             ConfirmButton = overlayTransform.Find("ConfirmationButton").GetComponent<Button>();
             CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
-            CancelButton.onClick.AddListener(() => { Close(); });
+            CancelButton.onClick.AddListener(Close);
         }
     }
 
@@ -736,7 +746,7 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             ContentHolder.gameObject.SetActive(true);
             OKButton.gameObject.SetActive(false);
-            DisplayText.text = "Working";
+            DisplayText.text = Localization.instance.Localize("$gui_bpmarket_working");
         }
 
         public void SetResult(bool success, string message)
@@ -762,10 +772,7 @@ namespace PlanBuild.Blueprints.Marketplace
             ContentHolder = overlayTransform;
             DisplayText = overlayTransform.Find("DisplayText").GetComponent<Text>();
             OKButton = overlayTransform.Find("OKButton").GetComponent<Button>();
-            OKButton.onClick.AddListener(() =>
-            {
-                Close();
-            });
+            OKButton.onClick.AddListener(Close);
         }
     }
 }

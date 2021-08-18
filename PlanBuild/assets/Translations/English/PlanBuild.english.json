@@ -78,5 +78,13 @@
   "gui_bpmarket_confirm": "Confirm",
   "gui_bpmarket_cancel": "Cancel",
   "gui_bpmarket_ok": "OK",
-  "gui_bpmarket_overlay_applied": "Action Is Being Applied"
+  "gui_bpmarket_overlay_applied": "Action Is Being Applied",
+  "gui_bpmarket_working": "Working",
+  "gui_bpmarket_savebp": "Save $1 Blueprint $2",
+  "gui_bpmarket_transferbp": "Transfer $1 Blueprint $2",
+  "gui_bpmarket_deletebp": "Delete $1 Blueprint $2",
+  "msg_bpmarket_server_disabled": "Server blueprints disabled",
+  "msg_bpmarket_notconnected": "Not connected",
+  "msg_bpmarket_admin_restricted": "Only admins can edit server blueprints",
+  "msg_bpmarket_save_failed": "Could not save blueprint"
 }

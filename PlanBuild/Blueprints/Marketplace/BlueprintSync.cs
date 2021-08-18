@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Jotunn;
+using Jotunn.Managers;
 
 namespace PlanBuild.Blueprints.Marketplace
 {
@@ -76,7 +77,7 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                callback?.Invoke(false, "Server blueprints disabled");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -94,7 +95,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             else
             {
-                callback?.Invoke(false, "Not connected");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
 
@@ -226,7 +227,7 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                callback?.Invoke(false, "Server blueprints disabled");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -240,7 +241,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             else
             {
-                callback?.Invoke(false, "Not connected");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
 
@@ -254,7 +255,7 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                callback?.Invoke(false, "Server blueprints disabled");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -268,7 +269,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             else
             {
-                callback?.Invoke(false, "Not connected");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
 
@@ -300,11 +301,11 @@ namespace PlanBuild.Blueprints.Marketplace
                         Blueprint bp = Blueprint.FromZPackage(pkg);
                         if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID) && !ZNet.instance.IsAdmin(sender))
                         {
-                            throw new Exception($"Only admins can overwrite server blueprints");
+                            throw new Exception(Localization.instance.Localize("$msg_bpmarket_admin_restricted"));
                         }
                         if (!bp.ToFile())
                         {
-                            throw new Exception("Could not save blueprint");
+                            throw new Exception(Localization.instance.Localize("$msg_bpmarket_save_failed"));
                         }
                         if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
                         {
@@ -393,7 +394,7 @@ namespace PlanBuild.Blueprints.Marketplace
         {
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                callback?.Invoke(false, "Server blueprints disabled");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -408,7 +409,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             else
             {
-                callback?.Invoke(false, "Not connected");
+                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
 
@@ -440,7 +441,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         string id = pkg.ReadString();
                         if (BlueprintManager.LocalBlueprints.ContainsKey(id) && !ZNet.instance.IsAdmin(sender))
                         {
-                            throw new Exception($"Only admins can remove server blueprints");
+                            throw new Exception(Localization.instance.Localize("$msg_bpmarket_admin_restricted"));
                         }
                         if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
                         {
