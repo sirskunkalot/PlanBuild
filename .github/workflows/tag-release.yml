@@ -113,12 +113,13 @@ jobs:
           cp -R PlanBuild/assets/* distribute/PlanBuild
           cp README.MD distribute/PlanBuild
           cp CHANGELOG.MD distribute/PlanBuild
-          zip -r PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip distribute/PlanBuild
+          cd distribute
+          zip -r PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip PlanBuild
           
       - name: Create GH Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip
+            distribute/PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
