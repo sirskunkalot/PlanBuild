@@ -94,7 +94,6 @@ jobs:
       - name: Build solution
         run: |
           msbuild PlanBuild.sln /t:PlanBuild /p:Configuration=Release
-          mv distribute/PlanBuild.zip PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip
           
       - name: Push version update to master
         run: |
@@ -105,7 +104,17 @@ jobs:
           git add manifest.json
           git commit -m "deploy: Released ${{ steps.projectversion.outputs.VERSION }}"
           git push origin HEAD:master
-
+      
+      - name: Prepare release files
+        run: |
+          mkdir distribute
+          mkdir distribute/PlanBuild
+          cp PlanBuild/bin/Release/PlanBuild.dll distribute/PlanBuild
+          cp -R PlanBuild/assets/* distribute/PlanBuild
+          cp README.MD distribute/PlanBuild
+          cp CHANGELOG.MD distribute/PlanBuild
+          zip -r PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip distribute/PlanBuild
+          
       - name: Create GH Release
         uses: softprops/action-gh-release@v1
         with:

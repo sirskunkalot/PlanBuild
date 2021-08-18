@@ -190,20 +190,5 @@ if($Target.Equals("Release")) {
     === All done ==="
 }
 
-if($Target.Equals("GitHub")) {
-    ###################################
-    ####### Raw DLL and assets
-    ###################################
-    
-    $dist = New-Item -ItemType Directory -Force -Path "$SolutionPath\distribute"
-    $plan = New-Item -ItemType Directory -Force -Path "$dist\PlanBuild"
-    Copy-Item -Path "$TargetPath\$TargetAssembly" -Destination "$plan" -Force
-    Copy-Item -Path "$ProjectPath\assets\*" -Destination "$plan" -Recurse -Force
-    Copy-Item -Path "$SolutionPath\README.md" -Destination "$plan" -Force
-    cd "$dist"
-    Invoke-Expression "& `"p7zip`" `"$plan`""
-    $plan.Remove($true)
-}
-
 # Pop Location
 Pop-Location
