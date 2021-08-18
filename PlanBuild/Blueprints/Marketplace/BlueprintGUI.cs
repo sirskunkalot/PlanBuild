@@ -38,6 +38,8 @@ namespace PlanBuild.Blueprints.Marketplace
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 bundle.Unload(false);
 
+                //TODO: Use Jötunn v2.3.0 event
+                //LocalizationManager.OnLocalizationAdded += Instance.Localize;
                 GUIManager.OnPixelFixCreated += Instance.Register;
             }
         }
@@ -159,7 +161,7 @@ namespace PlanBuild.Blueprints.Marketplace
             // Toggle input
             GUIManager.BlockInput(newState);
 
-            //TODO: Jötunn event for localization added
+            //TODO: Use Jötunn 2.3.0 event
             // Localize stuff
             if (!Localized)
             {
@@ -396,10 +398,6 @@ namespace PlanBuild.Blueprints.Marketplace
 
                     // Init blueprint lists
                     ReloadBlueprints(BlueprintLocation.Both);
-
-                    // Reset localization flag
-                    //TODO: Jötunn event
-                    Localized = false;
                 }
                 catch (Exception ex)
                 {
@@ -408,8 +406,27 @@ namespace PlanBuild.Blueprints.Marketplace
 
                 // Dont display directly
                 Window.SetActive(false);
+
+                //TODO: Use Jötunn 2.3.0 event
+                // Reset localization flag
+                Localized = false;
             }
         }
+
+        /*public void Localize()
+        {
+            if (Window)
+            {
+                Localization.instance.Localize(Instance.Window.transform);
+            }
+
+            if (MenuPrefab)
+            {
+                Localization.instance.Localize(Instance.MenuPrefab.transform);
+            }
+
+            LocalizationManager.OnLocalizationAdded -= Localize;
+        }*/
     }
 
     internal class BlueprintMenuElements
