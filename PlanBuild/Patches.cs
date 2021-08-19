@@ -1,26 +1,20 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
-using Jotunn.Managers;
-using Mono.Cecil.Cil;
-using MonoMod.Cil;
 using PlanBuild.Blueprints;
 using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using UnityEngine;
 using static PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild
 {
     internal class Patches
     {
-        public const string buildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
-        public const string craftFromContainersGUID = "aedenthorn.CraftFromContainers";
-        public const string gizmoGUID = "com.rolopogo.Gizmo";
-        public const string valheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
-        private static Harmony harmony;
+        public const string BuildCameraGUID = "org.dkillebrew.plugins.valheim.buildCamera";
+        public const string CraftFromContainersGUID = "aedenthorn.CraftFromContainers";
+        public const string GizmoGUID = "com.rolopogo.Gizmo";
+        public const string ValheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
+        private static Harmony Harmony;
 
         internal static void Apply()
         {
@@ -28,28 +22,28 @@ namespace PlanBuild
             On.WearNTear.Highlight += OnHighlight;
             On.Player.HaveRequirements_Piece_RequirementMode += Player_HaveRequirements_Piece_RequirementMode;
 
-            harmony = new Harmony("marcopogo.PlanBuild");
-            harmony.PatchAll(typeof(PlanPiece));
-            if (Chainloader.PluginInfos.ContainsKey(buildCameraGUID))
+            Harmony = new Harmony("marcopogo.PlanBuild");
+            Harmony.PatchAll(typeof(PlanPiece));
+            if (Chainloader.PluginInfos.ContainsKey(BuildCameraGUID))
             {
                 Jotunn.Logger.LogInfo("Applying BuildCamera patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherBuildCamera));
+                Harmony.PatchAll(typeof(ModCompat.PatcherBuildCamera));
                 On.GameCamera.UpdateCamera += ModCompat.PatcherBuildCamera.OnUpdateCamera;
             }
-            if (Chainloader.PluginInfos.ContainsKey(craftFromContainersGUID))
+            if (Chainloader.PluginInfos.ContainsKey(CraftFromContainersGUID))
             {
                 Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
+                Harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
             }
-            if (Chainloader.PluginInfos.ContainsKey(gizmoGUID))
+            if (Chainloader.PluginInfos.ContainsKey(GizmoGUID))
             {
                 Jotunn.Logger.LogInfo("Applying Gizmo patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
+                Harmony.PatchAll(typeof(ModCompat.PatcherGizmo));
             }
-            if (Chainloader.PluginInfos.ContainsKey(valheimRaftGUID))
+            if (Chainloader.PluginInfos.ContainsKey(ValheimRaftGUID))
             {
                 Jotunn.Logger.LogInfo("Applying ValheimRAFT patches");
-                harmony.PatchAll(typeof(ModCompat.PatcherValheimRaft));
+                Harmony.PatchAll(typeof(ModCompat.PatcherValheimRaft));
             }
         }
 
@@ -102,7 +96,7 @@ namespace PlanBuild
 
         internal static void Remove()
         {
-            harmony?.UnpatchAll(PlanBuildPlugin.PluginGUID);
+            Harmony?.UnpatchAll(PlanBuildPlugin.PluginGUID);
         }
     }
 }

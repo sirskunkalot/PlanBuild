@@ -577,8 +577,8 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a prefab from this blueprint, instantiating the stub piece and all pieces
-        ///     used in this blueprint. Adds it to the <see cref="ZNetScene"/> and rune <see cref="PieceTable"/>.
+        ///     Creates a prefab from this blueprint, instantiating the stub piece.
+        ///     Adds it to the rune <see cref="PieceTable"/> and creates a <see cref="KeyHint"/>.
         /// </summary>
         /// <returns>true if the prefab could be created</returns>
         public bool CreatePiece()
@@ -614,14 +614,14 @@ namespace PlanBuild.Blueprints
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;
             piece.m_enabled = true;
-            piece.m_description += "\nFile name: " + Path.GetFileName(FileLocation);
+            piece.m_description += $"{Environment.NewLine}File name: {Path.GetFileName(FileLocation)}";
             if (!string.IsNullOrEmpty(Creator))
             {
-                piece.m_description += "\nCreator: " + Creator;
+                piece.m_description += $"{Environment.NewLine}Creator: {Creator}";
             }
             if (!string.IsNullOrEmpty(Description))
             {
-                piece.m_description += "\nDescription: " + Description;
+                piece.m_description += $"{Environment.NewLine}Description: {Description}";
             }
             if (Thumbnail != null)
             {
@@ -907,6 +907,11 @@ namespace PlanBuild.Blueprints
 
             public void SetText(string text)
             {
+                if (string.IsNullOrEmpty(text))
+                {
+                    return;
+                }
+
                 string playerName = Player.m_localPlayer.GetPlayerName();
                 string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
 
