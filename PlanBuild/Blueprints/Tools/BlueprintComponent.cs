@@ -1,4 +1,5 @@
-﻿using Jotunn.Managers;
+﻿using System;
+using Jotunn.Managers;
 using PlanBuild.Plans;
 using UnityEngine;
 
@@ -46,12 +47,21 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (self.m_placementStatus == Player.PlacementStatus.Valid)
             {
-                return PlaceBlueprint(self, piece);
+                try
+                {
+                    PlaceBlueprint(self, piece);
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}");
+                }
             }
+
+            // Dont set the blueprint piece and clutter the world with it
             return false;
         }
 
-        private bool PlaceBlueprint(Player player, Piece piece)
+        private void PlaceBlueprint(Player player, Piece piece)
         {
             string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
             Blueprint bp = BlueprintManager.LocalBlueprints[id];
@@ -63,7 +73,7 @@ namespace PlanBuild.Blueprints.Tools
             if (placeDirect && !(BlueprintConfig.AllowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin))
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
-                return false;
+                return;
             }
 
             uint cntEffects = 0u;
@@ -164,9 +174,6 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
-
-            // Dont set the blueprint piece and clutter the world with it
-            return false;
         }
 
         /// <summary>
