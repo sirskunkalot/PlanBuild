@@ -709,13 +709,11 @@ namespace PlanBuild.Blueprints
                     var go = PrefabManager.Instance.GetPrefab(piece.name);
                     if (!go)
                     {
-                        throw new Exception($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
+                        Logger.LogWarning($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
+                        continue;
                     }
-                    else
-                    {
-                        go.transform.SetPositionAndRotation(go.transform.position, quat);
-                        prefabs.Add(piece.name, go);
-                    }
+                    go.transform.SetPositionAndRotation(go.transform.position, quat);
+                    prefabs.Add(piece.name, go);
                 }
 
                 for (int i = 0; i < pieces.Count; i++)
@@ -779,7 +777,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Logger.LogError($"Error while instantiating {Name}: {ex}");
+                Logger.LogWarning($"Error caught while instantiating {Name}: {ex}");
                 ret = false;
             }
             finally

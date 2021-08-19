@@ -98,8 +98,6 @@ namespace PlanBuild
             ShaderHelper.SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             ShaderHelper.TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             PlanTotemPrefab.GlowColorConfig.SettingChanged += UpdatePlanTotem;
-
-
         }
 
         public void Update()
