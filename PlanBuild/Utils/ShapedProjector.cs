@@ -46,6 +46,11 @@ namespace PlanBuild.Utils
             }
         }
 
+        private void OnDestroy()
+        {
+            Disable();
+        }
+
         internal void Enable()
         {
             if (!ShowProjectors)

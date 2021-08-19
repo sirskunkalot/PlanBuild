@@ -1,4 +1,5 @@
-﻿using PlanBuild.ModCompat;
+﻿using Jotunn;
+using PlanBuild.ModCompat;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -15,7 +16,7 @@ namespace PlanBuild.Blueprints.Tools
         
         private void Awake()
         {
-            if (!Player.m_localPlayer || Player.m_localPlayer.m_buildPieces == null)
+            if (!Player.m_localPlayer || !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
             {
                 return;
             }
@@ -167,7 +168,6 @@ namespace PlanBuild.Blueprints.Tools
             {
                 SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
                 SelectionProjector.SetRadius(SelectionRadius);
-                SelectionProjector.Enable();
                 if (enableMask)
                 {
                     SelectionProjector.EnableMask();
@@ -179,7 +179,6 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (SelectionProjector != null)
             {
-                SelectionProjector.Disable();
                 Destroy(SelectionProjector);
             }
         }
