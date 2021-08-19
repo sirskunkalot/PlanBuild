@@ -197,7 +197,6 @@ namespace PlanBuild.Plans
         {
             Jotunn.Logger.LogWarning("Invalid PlanPiece , destroying self: " + name + " @ " + gameObject.transform.position);
             ZNetScene.instance.Destroy(gameObject);
-            Destroy(this.gameObject);
         }
 
         internal void UpdateTextures()
