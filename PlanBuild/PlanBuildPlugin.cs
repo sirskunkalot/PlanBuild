@@ -32,7 +32,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.4.4";
+        public const string PluginVersion = "0.5.0";
 
         public static PlanBuildPlugin Instance;
         public static ConfigEntry<bool> ConfigTransparentGhostPlacement;
