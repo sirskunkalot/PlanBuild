@@ -1,4 +1,4 @@
-# Version 0.4.5
+# Version 0.5.0
 * Made the mod mandatory on server and client again - too many griefing oppertunities with the new terrain tools
 * Blueprint market GUI is now translatable (check PlanBuild\assets\Translations)
 * Show ghosts for blueprints with missing pieces
