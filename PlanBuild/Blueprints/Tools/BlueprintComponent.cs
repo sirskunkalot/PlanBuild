@@ -1,6 +1,6 @@
-﻿using System;
-using Jotunn.Managers;
+﻿using Jotunn.Managers;
 using PlanBuild.Plans;
+using System;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools

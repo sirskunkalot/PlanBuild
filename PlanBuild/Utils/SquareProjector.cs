@@ -97,7 +97,7 @@ namespace PlanBuild.Utils
             Destroy(parentEast.gameObject);
             Destroy(parentSouth.gameObject);
             Destroy(parentWest.gameObject);
-            
+
             cubesNorth.Clear();
             cubesEast.Clear();
             cubesSouth.Clear();

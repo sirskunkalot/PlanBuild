@@ -1,5 +1,4 @@
-﻿using Jotunn;
-using PlanBuild.ModCompat;
+﻿using PlanBuild.ModCompat;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -13,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
         public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
-        
+
         private void Awake()
         {
             if (!Player.m_localPlayer || !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
@@ -22,7 +21,7 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             Init();
-            
+
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
             On.Player.UpdatePlacement += Player_UpdatePlacement;

@@ -27,13 +27,13 @@ namespace PlanBuild.Utils
         {
             Circle, Square
         }
-        
+
         private ProjectorShape Shape = ProjectorShape.Circle;
         private float Radius = 10f;
 
         private CircleProjector Circle;
         private SquareProjector Square;
-        
+
         private void Update()
         {
             if (ShowProjectors)
@@ -153,7 +153,7 @@ namespace PlanBuild.Utils
         {
             if (Shape == ProjectorShape.Circle && Circle != null)
             {
-                Circle.m_mask = 2048; 
+                Circle.m_mask = 2048;
             }
         }
 
