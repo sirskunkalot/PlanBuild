@@ -123,7 +123,8 @@ if($Target.Equals("Release")) {
     
     Copy-Item $mod_dll "$raw_dir_path\"
     Copy-Item -Path "$resources_dir\*" -Destination "$raw_dir_path\" -Recurse -Force
-    Copy-Item "$SolutionPath\README.md" "$raw_dir_path\" -Force
+    Copy-Item "$SolutionPath\README.MD" "$raw_dir_path\" -Force
+    Copy-Item "$SolutionPath\CHANGELOG.MD" "$raw_dir_path\" -Force
     
     ###################################
     ####### Plain packaging
@@ -155,15 +156,17 @@ if($Target.Equals("Release")) {
     $tsio_tmp_directory = "$output_dir\ts_io_tmp\$name$mod_version"
     New-Item -ItemType Directory -Force -Path "$tsio_tmp_directory"
 
-    # Copy README and icon into tmp directory
-    Copy-Item "$SolutionPath\README.md" "$tsio_tmp_directory"
-    Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
+    # Copy mandatory thunder files to tmp directory
+    Copy-Item "$SolutionPath\README.MD" "$tsio_tmp_directory"
+    #Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
  
     Copy-Item "$SolutionPath\icon.png" "$tsio_tmp_directory"
 
-    # Copy mod dll into tmp file\plugins directory
-    New-Item -ItemType Directory -Path "$tsio_tmp_directory\files\plugins\" -Force
-    Copy-Item "$raw_dir_path" "$tsio_tmp_directory\files\plugins\" -Force -Recurse
+    Copy-Item "$SolutionPath\manifest.json" "$tsio_tmp_directory"
+
+    # Copy mod dll into tmp plugins directory
+    New-Item -ItemType Directory -Path "$tsio_tmp_directory\plugins\" -Force
+    Copy-Item "$raw_dir_path" "$tsio_tmp_directory\plugins\" -Force -Recurse
 
     $tsio_zip = "$tsio_path\$name-$mod_version-tsio.zip"
     Remove-Item "$tsio_zip"
