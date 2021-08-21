@@ -309,6 +309,8 @@ namespace PlanBuild.Blueprints
                 RegisterKnownBlueprints();
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
+
+                On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
             }
             return result;
         }
@@ -323,7 +325,14 @@ namespace PlanBuild.Blueprints
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
+
+                On.Player.CheckCanRemovePiece -= Player_CheckCanRemovePiece;
             }
+        }
+
+        private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
+        {
+            return CanCapture(piece, true);
         }
     }
 }
