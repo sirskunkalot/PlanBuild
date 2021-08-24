@@ -125,7 +125,7 @@ namespace PlanBuild.Blueprints
             {
                 Name = "GUIToggle",
                 Config = ServerGuiSwitchConfig,
-                ActiveInGUI = true
+                ActiveInCustomGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
 

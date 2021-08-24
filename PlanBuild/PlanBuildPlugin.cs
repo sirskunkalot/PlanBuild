@@ -22,7 +22,7 @@ using Object = UnityEngine.Object;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.2.0")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.2.4")]
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]

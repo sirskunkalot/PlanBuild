@@ -14,7 +14,6 @@ namespace PlanBuild.Blueprints.Marketplace
 
         private GameObject MenuPrefab;
         private GameObject ContainerPrefab;
-        private bool Localized;
 
         public GameObject Window { get; set; }
 
@@ -37,10 +36,9 @@ namespace PlanBuild.Blueprints.Marketplace
                 Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 bundle.Unload(false);
-
-                //TODO: Use Jötunn v2.3.0 event
-                //LocalizationManager.OnLocalizationAdded += Instance.Localize;
-                GUIManager.OnPixelFixCreated += Instance.Register;
+                
+                LocalizationManager.OnLocalizationAdded += Instance.Localize;
+                GUIManager.OnCustomGUIAvailable += Instance.Register;
             }
         }
 
@@ -160,13 +158,6 @@ namespace PlanBuild.Blueprints.Marketplace
 
             // Toggle input
             GUIManager.BlockInput(newState);
-
-            //TODO: Use Jötunn 2.3.0 event
-            // Localize stuff
-            if (!Localized)
-            {
-                Localization.instance.Localize(Window.transform);
-            }
         }
 
         /// <summary>
@@ -311,7 +302,7 @@ namespace PlanBuild.Blueprints.Marketplace
                 Jotunn.Logger.LogDebug("Recreating BlueprintGUI");
 
                 // Assigning the main window, so we can disable/enable it as we please.
-                Window = UnityEngine.Object.Instantiate(MenuPrefab, GUIManager.PixelFix.transform);
+                Window = UnityEngine.Object.Instantiate(MenuPrefab, GUIManager.CustomGUIFront.transform);
 
                 // Setting some vanilla styles
                 foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
@@ -334,7 +325,6 @@ namespace PlanBuild.Blueprints.Marketplace
                     Vector2 bottomAlignedWindow = new Vector2(-(skillWindowSize.x / 2), bottomLeftCorner.y + skillWindowSize.y / 2);
 
                     // Half of the screen, - half of our window, centered position.
-                    Vector2 centerOScreen = new Vector2(Screen.width / 2 - windowRectTrans.rect.size.x / 2, Screen.height / 2 - windowRectTrans.rect.size.y / 2);
                     windowRectTrans.anchoredPosition = new Vector2(0, 0);
 
                     // Simple drag and drop script. -- allows for drag/drop of any ui component.
@@ -406,14 +396,10 @@ namespace PlanBuild.Blueprints.Marketplace
 
                 // Dont display directly
                 Window.SetActive(false);
-
-                //TODO: Use Jötunn 2.3.0 event
-                // Reset localization flag
-                Localized = false;
             }
         }
 
-        /*public void Localize()
+        public void Localize()
         {
             if (Window)
             {
@@ -426,7 +412,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
 
             LocalizationManager.OnLocalizationAdded -= Localize;
-        }*/
+        }
     }
 
     internal class BlueprintMenuElements
