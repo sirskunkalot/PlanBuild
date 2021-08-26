@@ -1,0 +1,57 @@
+[h2]PlanBuild installation and basic usage[/h2]
+PlanBuild is a Valheim mod similar to BuildShare with additional terraforming features, GUI components and immersive additions. Follow this instructions if you want to install and use PlanBuild to share your creations on Valheimians. For a more in-depth overview of the features of PlanBuild check out [url=/article/the-planbuild-mod-a-buildshare-alternative]this article[/url] about the mod.
+
+[h2]Prerequisites[/h2]
+For PlanBuild to function starting with an unmodded Valheim installation there are some things you need to download first:
+[list]
+[*][url=https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim/]BepInExPack for Valheim[/url][/*]
+[*][url=https://valheim.thunderstore.io/package/ValheimModding/HookGenPatcher/]HookGenPatcher[/url][/*]
+[*][url=https://valheim.thunderstore.io/package/ValheimModding/Jotunn/]Jötunn, the Valheim Library[/url][/*]
+[*][url=https://valheim.thunderstore.io/package/MathiasDecrock/PlanBuild]PlanBuild[/url][/*]
+[/list]
+Extract all of the zip files into a separate directory. It should look like this when finished:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/1_download_and_extract.png[/img]
+
+[h2]Open your Valheim installation folder[/h2]
+Browse to your Valheim's local file. Boot up Steam. Go to your Library, then select Valheim. To the way right, below the Valheim banner you will see a gear. Click the gear then Manage>Browse Local Files. This will pop up a window and show you where your Valheim folder is. 
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/2_open_valheim_folder.png[/img]
+
+[h2]Copy the BepInExPack[/h2]
+Inside the extracted BepInExPack folder is another Folder "BepInExPack_Valheim". Copy all files included in there into your Valheim install folder. It should look like this now:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/3_after_bepinex.png[/img]
+Browse inside the newly created folder BepInEx in your Valheim installation folder:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/4_bepinex_folder.png[/img]
+
+[h2]Copy HookGenPatcher, Jötunn and PlanBuild files[/h2]
+Copy all folders you find inside your extracted mod files inside the BepInEx folder of your Valheim installation. The folders are named "config", "patchers" and "plugins" inside the extracted files as well as in the game folder. All files in these folders need to be in their respective counterparts inside the BepInEx folder of your game install for the mod to function.
+
+[h2]Start Valheim[/h2]
+When everything was installed correctly, you can start Valheim and will see a console window popping up with some text running while starting the game. This means BepInEx is loaded correctly and you successfully installed the mods to the game.
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/5_bepinex_console.png[/img]
+
+[h2]Crafting the BlueprintRune[/h2]
+Unlike BuildShare, PlanBuild uses an actual in-game item to access the functionality of the mod. After picking up your first stone with a new character you will learn the recipe for the BlueprintRune. If you use an existing character you likely will learn the recipe immediately after loading a world. The item can be crafted inside the Player's crafting menu. No crafting station is needed.
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/6_rune_crafting.png[/img]
+
+[h2]Using the rune to create a blueprint[/h2]
+After equipping the rune the first time, it is still in "planning mode". See the [url=/article/the-planbuild-mod-a-buildshare-alternative]in-depth article[/url] about the PlanBuild mod to learn about its other functionalities. Press [b]P[/b] on your keyboard to switch to the "blueprint mode" of the rune. Open the build menu and you will see a "Tools" section with various tools to select from.
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/7_blueprint_tools.png[/img]
+
+The first tool is used to create blueprints. You will see a circle shaped selection marker in the world. Everything inside this marker will be saved into the blueprint. To have a visual clue on what will be captured by the rune, press and hold [b]Ctrl[/b] on your keyboard. Pieces that will be captured will be displayed in green color. When you are happy with the selection, click the [b]left mouse button[/b] to capture all pieces. A dialogue will appear where you can name your blueprint to whatever you like.
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/8_capture.png[/img]
+
+[h2]Building your blueprints[/h2]
+After you captured your first blueprint (or if you already had BuildShare files in your game folder) you should see an icon for every blueprint inside the "Blueprints" tab of the build menu of the rune:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/9_blueprints.png[/img]
+
+Select a blueprint and you should see the structure as a "ghost piece" just like when building "normal" pieces of the game. You can also rotate the structures like you would do normally. When you are satisfied with the positioning, press the [b]left mouse button[/b] to place your blueprint. Per default PlanBuild will place a "planned" version of the blueprint. This means you have to gather all resources and finish building the structure manually. You can activate a configuration setting that allows you to build blueprints with "normal" pieces. That setting is turned off per default. To activate direct build, press [b]Esc[/b] and click on [b]Mod Settings[/b]. The mod settings window is provided by Jötunn and has the settings for all mods using Jötunn. Click on the PlanBuild section and scroll down to activate the setting:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/10_settings_directbuild.png[/img]
+
+[h2]Finding your blueprints[/h2]
+The blueprint files of your captured structures can be found in your Valheim installation folder under BepInEx/config/PlanBuild/blueprints:
+[img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/installation_and_usage/11_blueprint_path.png[/img]
+
+This is also the place where you can copy your downloaded .blueprint or .vbuild files to when you want to use them in the game. The mod also looks for files in the BuildShare path, so you don't need to copy previous BuildShare files to this new location to use them.
+
+[h2]Further reading[/h2]
+PlanBuild offers a lot more tools and settings for you to explore. Read all about it on the [url=/article/the-planbuild-mod-a-buildshare-alternative]in-depth article[/url] about PlanBuild.
