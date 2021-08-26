@@ -105,7 +105,7 @@ namespace PlanBuild.Blueprints
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
             // Create Buttons and KeyHints if and when PixelFix is created
-            GUIManager.OnPixelFixCreated += CreateCustomKeyHints;
+            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace PlanBuild.Blueprints
                 }
             });
 
-            GUIManager.OnPixelFixCreated -= CreateCustomKeyHints;
+            GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
         }
     }
 }
