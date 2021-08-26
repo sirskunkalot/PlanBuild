@@ -98,13 +98,13 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 
 ![Blueprint mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMarket.png)
 
-Manage and share your blueprints through a custom GUI added to the game. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
+Manage and share your blueprints through a custom GUI added to the game. Per default the marketplace is accessible via __End__ key. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
 
 ### Marketplace Pieces
 
 ![Blueprint pieces](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintPieces.png)
 
-Per default the marketplace is accessible via __End__ key (server side configurable). Alternatively you can place one of two new rune themed pieces in the world which provide access to the market on the server. If you want to completely stop clients from accessing the server blueprints via Hotkey, there is another server side config which disables that Hotkey for all clients.
+You can place one of two new rune themed pieces in the world which provide access to your own blueprints and the market on the server. If you want to completely stop clients from accessing the server blueprints via Hotkey, there is a server enforced config which disables that Hotkey for all clients.
 
 ## Compatibility
 
@@ -147,6 +147,10 @@ Most values are configurable:
 Source available on GitHub: [https://github.com/sirskunkalot/PlanBuild](https://github.com/sirskunkalot/PlanBuild)﻿. All contributions welcome!
 
 You can also find us at the [Valheim Modding Discord](https://discord.gg/RBq2mzeu4z) or the [Jötunn Discord](https://discord.gg/DdUt6g7gyA).
+
+## Building community
+
+Head over to the [Valheimians](https://www.valheimians.com) page to find a community of builders and share your own creations. PlanBuild blueprints are supported.
 
 ## Credits
 
