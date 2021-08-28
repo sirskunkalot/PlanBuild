@@ -1,7 +1,7 @@
 ﻿// PlanBuild
-// a Valheim mod skeleton using Jötunn
+// a Valheim mod using Jötunn
 //
-// File:    PlanBuild.cs
+// File:    PlanBuildPlugin.cs
 // Project: PlanBuild
 
 using BepInEx;
@@ -72,7 +72,6 @@ namespace PlanBuild
             // Hooks
             ItemManager.OnVanillaItemsAvailable += AddClonedItems;
             ItemManager.OnItemsRegistered += OnItemsRegistered;
-
         }
 
         private void OnItemsRegistered()

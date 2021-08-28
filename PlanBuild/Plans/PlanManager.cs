@@ -25,17 +25,23 @@ namespace PlanBuild.Plans
             }
         }
 
-        public static ConfigEntry<bool> showAllPieces;
-        public readonly Dictionary<string, PlanPiecePrefab> planPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
+        public static ConfigEntry<bool> ShowAllPieces;
+
+        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
+
+        public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         internal void Init()
         {
-            showAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
-            showAllPieces.SettingChanged += (object sender, EventArgs e) => UpdateKnownRecipes();
+            ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
+            ShowAllPieces.SettingChanged += (object sender, EventArgs e) => UpdateKnownRecipes();
 
             PieceManager.OnPiecesRegistered += CreatePlanTable;
             SceneManager.sceneLoaded += OnSceneLoaded;
             On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
+            On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
+            On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
+            On.WearNTear.Highlight += OnHighlight;
         }
 
         private void CreatePlanTable()
@@ -89,6 +95,53 @@ namespace PlanBuild.Plans
             orig(self);
         }
 
+        private bool OnHaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
+        {
+            try
+            {
+                if (piece && !PlanManager.ShowAllPieces.Value && PlanManager.PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                {
+                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                }
+            }
+            catch (Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
+            }
+            return orig(self, piece, mode);
+        }
+        
+        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            PlanPiece.m_forceDisableInit = true;
+            orig(self);
+            if (self.m_placementGhost)
+            {
+                if (PlanBuildPlugin.ShowRealTextures)
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                }
+                else if (PlanBuildPlugin.ConfigTransparentGhostPlacement.Value
+                         && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
+                             || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                )
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                }
+            }
+            PlanPiece.m_forceDisableInit = false;
+        }
+        
+        private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        {
+            if (!PlanBuildPlugin.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
+                return;
+            }
+            orig(self);
+        }
+
         private bool ScanPieceTables()
         {
             Logger.LogDebug("Scanning PieceTables for Pieces");
@@ -122,7 +175,7 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
-                        if (planPiecePrefabs.ContainsKey(piece.name))
+                        if (PlanPiecePrefabs.ContainsKey(piece.name))
                         {
                             continue;
                         }
@@ -137,7 +190,7 @@ namespace PlanBuild.Plans
 
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                         PieceManager.Instance.AddPiece(planPiece);
-                        planPiecePrefabs.Add(piece.name, planPiece);
+                        PlanPiecePrefabs.Add(piece.name, planPiece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                         if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                         {
@@ -209,9 +262,9 @@ namespace PlanBuild.Plans
             }
 
             Logger.LogDebug("Updating known Recipes");
-            foreach (PlanPiecePrefab planPiece in planPiecePrefabs.Values)
+            foreach (PlanPiecePrefab planPiece in PlanPiecePrefabs.Values)
             {
-                if (!showAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
+                if (!ShowAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
@@ -259,7 +312,5 @@ namespace PlanBuild.Plans
 
             Player.m_localPlayer.UpdateKnownRecipesList();
         }
-
-        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
     }
 }
