@@ -1,4 +1,5 @@
 # Version 0.5.1
+* Remove the ability of the BlueprintRune to "middle-mouse-delete" non-planned pieces
 * Don't make noise attracting mobs when placing planned pieces
 
 # Version 0.5.0
