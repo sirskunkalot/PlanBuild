@@ -1,4 +1,5 @@
-﻿using Jotunn.Entities;
+﻿using Jotunn;
+using Jotunn.Entities;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,7 +15,8 @@ namespace PlanBuild.Plans
 
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
-            this.OriginalPiece = piece;
+            OriginalPiece = piece;
+
             Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", OriginalPiece.m_name);
             Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", OriginalPiece.m_name);
             Piece.m_resources = Array.Empty<Piece.Requirement>();
@@ -22,6 +24,8 @@ namespace PlanBuild.Plans
             Piece.m_placeEffect.m_effectPrefabs = Array.Empty<EffectList.EffectData>();
             Piece.m_comfort = 0;
             Piece.m_canBeRemoved = true;
+            Piece.m_randomTarget = false;
+            Piece.m_primaryTarget = false;
 
             Piece.m_category = OriginalPiece.m_category == Piece.PieceCategory.Max ? Piece.PieceCategory.Misc : OriginalPiece.m_category;
             Piece.m_groundOnly = OriginalPiece.m_groundOnly;
@@ -33,17 +37,10 @@ namespace PlanBuild.Plans
             Piece.m_dlc = OriginalPiece.m_dlc;
             Piece.m_allowAltGroundPlacement = OriginalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = OriginalPiece.m_allowedInDungeons;
-            Piece.m_randomTarget = false;
-            Piece.m_primaryTarget = false;
 
-            this.PieceTable = PieceTableName;
+            PieceTable = PieceTableName;
 
-            WearNTear wearNTear = PiecePrefab.GetComponent<WearNTear>();
-            if (wearNTear == null)
-            {
-                wearNTear = PiecePrefab.AddComponent<WearNTear>();
-            }
-
+            WearNTear wearNTear = PiecePrefab.GetOrAddComponent<WearNTear>();
             wearNTear.m_noSupportWear = true;
             wearNTear.m_noRoofWear = false;
             wearNTear.m_autoCreateFragments = false;
@@ -96,25 +93,22 @@ namespace PlanBuild.Plans
                 }
             }
 
-            AudioSource[] componentsInChildren8 = gameObject.GetComponentsInChildren<AudioSource>();
-            for (int i = 0; i < componentsInChildren8.Length; i++)
+            foreach (var audioSource in gameObject.GetComponentsInChildren<AudioSource>())
             {
-                componentsInChildren8[i].enabled = false;
+                audioSource.enabled = false;
             }
-            ZSFX[] componentsInChildren9 = gameObject.GetComponentsInChildren<ZSFX>();
-            for (int i = 0; i < componentsInChildren9.Length; i++)
+            foreach (var zsfx in gameObject.GetComponentsInChildren<ZSFX>())
             {
-                componentsInChildren9[i].enabled = false;
+                zsfx.enabled = false;
             }
-            Windmill componentInChildren2 = gameObject.GetComponentInChildren<Windmill>();
-            if ((bool)componentInChildren2)
+            Windmill windmill = gameObject.GetComponentInChildren<Windmill>();
+            if (windmill != null)
             {
-                componentInChildren2.enabled = false;
+                windmill.enabled = false;
             }
-            ParticleSystem[] componentsInChildren10 = gameObject.GetComponentsInChildren<ParticleSystem>();
-            for (int i = 0; i < componentsInChildren10.Length; i++)
+            foreach (var particleSystem in gameObject.GetComponentsInChildren<ParticleSystem>())
             {
-                componentsInChildren10[i].gameObject.SetActive(value: false);
+                particleSystem.gameObject.SetActive(value: false);
             }
         }
     }
