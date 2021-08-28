@@ -1,7 +1,6 @@
 ﻿using BepInEx.Bootstrap;
 using HarmonyLib;
 using PlanBuild.Blueprints;
-using PlanBuild.PlanBuild;
 using PlanBuild.Plans;
 using System;
 using static PlanBuild.Utils.ShaderHelper;

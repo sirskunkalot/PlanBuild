@@ -1,12 +1,11 @@
-﻿using BepInEx.Configuration;
-using PlanBuild.Plans;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using BepInEx.Configuration;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace PlanBuild.PlanBuild
+namespace PlanBuild.Plans
 {
     internal class PlanTotem : Container
     {

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PlanBuild
+namespace PlanBuild.Plans
 {
     internal class OdinLevel : MonoBehaviour, Interactable, Hoverable
     {
