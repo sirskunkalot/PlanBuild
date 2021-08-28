@@ -26,15 +26,14 @@ namespace PlanBuild.Plans
         }
 
         public static ConfigEntry<bool> ShowAllPieces;
-
         public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
-
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         internal void Init()
         {
-            ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, new ConfigDescription("Show all plans, even for pieces you don't know yet"));
-            ShowAllPieces.SettingChanged += (object sender, EventArgs e) => UpdateKnownRecipes();
+            ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, 
+                new ConfigDescription("Show all plans, even for pieces you don't know yet"));
+            ShowAllPieces.SettingChanged += (_, _) => UpdateKnownRecipes();
 
             PieceManager.OnPiecesRegistered += CreatePlanTable;
             SceneManager.sceneLoaded += OnSceneLoaded;
@@ -43,7 +42,20 @@ namespace PlanBuild.Plans
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
         }
-
+        
+        public bool CanCreatePlan(Piece piece)
+        {
+            return piece.m_enabled
+                   && piece.GetComponent<Plant>() == null
+                   && piece.GetComponent<TerrainOp>() == null
+                   && piece.GetComponent<TerrainModifier>() == null
+                   && piece.GetComponent<Ship>() == null
+                   && piece.GetComponent<PlanPiece>() == null
+                   && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
+                   && !piece.name.Equals(BlueprintAssets.PieceCaptureName)
+                   && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
+        }
+        
         private void CreatePlanTable()
         {
             // Create plan piece table for the plan mode
@@ -87,65 +99,10 @@ namespace PlanBuild.Plans
                 ScanPieceTables();
             }
         }
-
-        private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
-        {
-            // Prefix the recipe loading for the plans to avoid spamming unlock messages
-            UpdateKnownRecipes();
-            orig(self);
-        }
-
-        private bool OnHaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
-        {
-            try
-            {
-                if (piece && !PlanManager.ShowAllPieces.Value && PlanManager.PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
-                {
-                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
-                }
-            }
-            catch (Exception e)
-            {
-                Jotunn.Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
-            }
-            return orig(self, piece, mode);
-        }
         
-        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
-        {
-            PlanPiece.m_forceDisableInit = true;
-            orig(self);
-            if (self.m_placementGhost)
-            {
-                if (PlanBuildPlugin.ShowRealTextures)
-                {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
-                }
-                else if (PlanBuildPlugin.ConfigTransparentGhostPlacement.Value
-                         && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
-                             || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
-                )
-                {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
-                }
-            }
-            PlanPiece.m_forceDisableInit = false;
-        }
-        
-        private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
-        {
-            if (!PlanBuildPlugin.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
-            {
-                planPiece.Highlight();
-                return;
-            }
-            orig(self);
-        }
-
-        private bool ScanPieceTables()
+        private void ScanPieceTables()
         {
             Logger.LogDebug("Scanning PieceTables for Pieces");
-            bool addedPiece = false;
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
             foreach (GameObject item in ObjectDB.instance.m_items)
             {
@@ -189,13 +146,12 @@ namespace PlanBuild.Plans
                         }
 
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
+                        PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                         PieceManager.Instance.AddPiece(planPiece);
                         PlanPiecePrefabs.Add(piece.name, planPiece);
-                        PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                         if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                         {
                             planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
-                            addedPiece = true;
                         }
                     }
                     catch (Exception e)
@@ -204,20 +160,6 @@ namespace PlanBuild.Plans
                     }
                 }
             }
-            return addedPiece;
-        }
-
-        public static bool CanCreatePlan(Piece piece)
-        {
-            return piece.m_enabled
-                && piece.GetComponent<Plant>() == null
-                && piece.GetComponent<TerrainOp>() == null
-                && piece.GetComponent<TerrainModifier>() == null
-                && piece.GetComponent<Ship>() == null
-                && piece.GetComponent<PlanPiece>() == null
-                && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
-                && !piece.name.Equals(BlueprintAssets.PieceCaptureName)
-                && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
         }
 
         private bool EnsurePrefabRegistered(Piece piece)
@@ -253,6 +195,13 @@ namespace PlanBuild.Plans
             return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
         }
 
+        private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
+        {
+            // Prefix the recipe loading for the plans to avoid spamming unlock messages
+            UpdateKnownRecipes();
+            orig(self);
+        }
+        
         private void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
@@ -283,34 +232,51 @@ namespace PlanBuild.Plans
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
         }
 
-        public void TogglePlanBuildMode()
+        private bool OnHaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
         {
-            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintAssets.BlueprintRuneName)
+            try
             {
+                if (piece && !ShowAllPieces.Value && PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                {
+                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                }
+            }
+            catch (Exception e)
+            {
+                Jotunn.Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
+            }
+            return orig(self, piece, mode);
+        }
+        
+        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            PlanPiece.m_forceDisableInit = true;
+            orig(self);
+            if (self.m_placementGhost)
+            {
+                if (PlanBuildPlugin.ShowRealTextures)
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                }
+                else if (PlanBuildPlugin.ConfigTransparentGhostPlacement.Value
+                         && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
+                             || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                )
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                }
+            }
+            PlanPiece.m_forceDisableInit = false;
+        }
+        
+        private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        {
+            if (!PlanBuildPlugin.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
                 return;
             }
-            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintAssets.BlueprintRuneItemName);
-            if (blueprintRune == null)
-            {
-                return;
-            }
-            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
-            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintAssets.PieceTableName);
-            if (blueprintRune.m_shared.m_buildPieces == planPieceTable)
-            {
-                blueprintRune.m_shared.m_buildPieces = blueprintPieceTable;
-            }
-            else
-            {
-                blueprintRune.m_shared.m_buildPieces = planPieceTable;
-            }
-            Player.m_localPlayer.UnequipItem(blueprintRune);
-            Player.m_localPlayer.EquipItem(blueprintRune);
-
-            Color color = blueprintRune.m_shared.m_buildPieces == planPieceTable ? Color.red : Color.cyan;
-            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
-
-            Player.m_localPlayer.UpdateKnownRecipesList();
+            orig(self);
         }
     }
 }

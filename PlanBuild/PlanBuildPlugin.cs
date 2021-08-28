@@ -137,8 +137,38 @@ namespace PlanBuild
             // Rune mode toogle
             if (ZInput.GetButtonDown(BlueprintConfig.PlanSwitchButton.Name))
             {
-                PlanManager.Instance.TogglePlanBuildMode();
+                TogglePlanBuildMode();
             }
+        }
+        
+        public void TogglePlanBuildMode()
+        {
+            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintAssets.BlueprintRuneName)
+            {
+                return;
+            }
+            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintAssets.BlueprintRuneItemName);
+            if (blueprintRune == null)
+            {
+                return;
+            }
+            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
+            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintAssets.PieceTableName);
+            if (blueprintRune.m_shared.m_buildPieces == planPieceTable)
+            {
+                blueprintRune.m_shared.m_buildPieces = blueprintPieceTable;
+            }
+            else
+            {
+                blueprintRune.m_shared.m_buildPieces = planPieceTable;
+            }
+            Player.m_localPlayer.UnequipItem(blueprintRune);
+            Player.m_localPlayer.EquipItem(blueprintRune);
+
+            Color color = blueprintRune.m_shared.m_buildPieces == planPieceTable ? Color.red : Color.cyan;
+            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
+
+            Player.m_localPlayer.UpdateKnownRecipesList();
         }
 
         private void UpdatePlanTotem(object sender, EventArgs e)
@@ -202,36 +232,6 @@ namespace PlanBuild
                 && !Menu.IsVisible()
                 && !Minimap.IsOpen()
                 && !Player.m_localPlayer.InCutscene();
-        }
-
-        public static string GetAssetPath(string assetName, bool isDirectory = false)
-        {
-            string text = Path.Combine(BepInEx.Paths.PluginPath, PluginName, assetName);
-            if (isDirectory)
-            {
-                if (!Directory.Exists(text))
-                {
-                    Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-                    text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
-                    if (!Directory.Exists(text))
-                    {
-                        Jotunn.Logger.LogWarning($"Could not find directory ({assetName}).");
-                        return null;
-                    }
-                }
-                return text;
-            }
-            if (!File.Exists(text))
-            {
-                Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-                text = Path.Combine(Path.GetDirectoryName(assembly.Location), assetName);
-                if (!File.Exists(text))
-                {
-                    Jotunn.Logger.LogWarning($"Could not find asset ({assetName}).");
-                    return null;
-                }
-            }
-            return text;
         }
     }
 }
