@@ -1,3 +1,6 @@
+# Version 0.5.1
+* Don't make noise attracting mobs when placing planned pieces
+
 # Version 0.5.0
 * Made the mod mandatory on server and client again - too many griefing oppertunities with the new terrain tools
 * Blueprint market GUI is now translatable (check PlanBuild\assets\Translations)

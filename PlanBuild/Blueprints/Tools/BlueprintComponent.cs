@@ -158,8 +158,8 @@ namespace PlanBuild.Blueprints.Tools
                     textReceiver.SetText(entry.additionalInfo);
                 }
 
-                // Limited build effects
-                if (cntEffects < maxEffects)
+                // Limited build effects and none for planned pieces
+                if (placeDirect && cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
                     if (placeDirect)
