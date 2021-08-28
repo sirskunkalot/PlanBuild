@@ -9,6 +9,7 @@ using PlanBuild.Blueprints;
 using PlanBuild.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Plans
@@ -90,7 +91,7 @@ namespace PlanBuild.Plans
 
         private bool ScanPieceTables()
         {
-            Jotunn.Logger.LogDebug("Scanning PieceTables for Pieces");
+            Logger.LogDebug("Scanning PieceTables for Pieces");
             bool addedPiece = false;
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
             foreach (GameObject item in ObjectDB.instance.m_items)
@@ -106,13 +107,13 @@ namespace PlanBuild.Plans
                 {
                     if (!piecePrefab)
                     {
-                        Jotunn.Logger.LogWarning($"Invalid prefab in {item.name} PieceTable");
+                        Logger.LogWarning($"Invalid prefab in {item.name} PieceTable");
                         continue;
                     }
                     Piece piece = piecePrefab.GetComponent<Piece>();
                     if (!piece)
                     {
-                        Jotunn.Logger.LogWarning($"Recipe in {item.name} has no Piece?! {piecePrefab.name}");
+                        Logger.LogWarning($"Recipe in {item.name} has no Piece?! {piecePrefab.name}");
                         continue;
                     }
                     try
@@ -146,7 +147,7 @@ namespace PlanBuild.Plans
                     }
                     catch (Exception e)
                     {
-                        Jotunn.Logger.LogWarning($"Error while creating plan of {piece.name}: {e}");
+                        Logger.LogWarning($"Error while creating plan of {piece.name}: {e}");
                     }
                 }
             }
@@ -173,27 +174,27 @@ namespace PlanBuild.Plans
             {
                 return true;
             }
-            Jotunn.Logger.LogWarning("Piece " + piece.name + " in Hammer not fully registered? Could not find prefab " + piece.gameObject.name);
+            Logger.LogWarning("Piece " + piece.name + " in Hammer not fully registered? Could not find prefab " + piece.gameObject.name);
             if (!ZNetScene.instance.m_prefabs.Contains(piece.gameObject))
             {
-                Jotunn.Logger.LogWarning(" Not registered in ZNetScene.m_prefabs! Adding now");
+                Logger.LogWarning(" Not registered in ZNetScene.m_prefabs! Adding now");
                 ZNetScene.instance.m_prefabs.Add(piece.gameObject);
             }
             if (!ZNetScene.instance.m_namedPrefabs.ContainsKey(piece.gameObject.name.GetStableHashCode()))
             {
-                Jotunn.Logger.LogWarning(" Not registered in ZNetScene.m_namedPrefabs! Adding now");
+                Logger.LogWarning(" Not registered in ZNetScene.m_namedPrefabs! Adding now");
                 ZNetScene.instance.m_namedPrefabs[piece.gameObject.name.GetStableHashCode()] = piece.gameObject;
             }
             //Prefab was added incorrectly, make sure the game doesn't delete it when logging out
             GameObject prefabParent = piece.gameObject.transform.parent?.gameObject;
             if (!prefabParent)
             {
-                Jotunn.Logger.LogWarning(" Prefab has no parent?! Adding to Jotunn");
+                Logger.LogWarning(" Prefab has no parent?! Adding to Jotunn");
                 PrefabManager.Instance.AddPrefab(piece.gameObject);
             }
             else if (prefabParent.scene.buildIndex != -1)
             {
-                Jotunn.Logger.LogWarning(" Prefab container not marked as DontDestroyOnLoad! Marking now");
+                Logger.LogWarning(" Prefab container not marked as DontDestroyOnLoad! Marking now");
                 Object.DontDestroyOnLoad(prefabParent);
             }
             return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
@@ -207,7 +208,7 @@ namespace PlanBuild.Plans
                 return;
             }
 
-            Jotunn.Logger.LogDebug("Updating known Recipes");
+            Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in planPiecePrefabs.Values)
             {
                 if (!showAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
@@ -215,13 +216,13 @@ namespace PlanBuild.Plans
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
                         player.m_knownRecipes.Remove(planPiece.Piece.m_name);
-                        Jotunn.Logger.LogDebug($"Removing planned piece from m_knownRecipes: {planPiece.Piece.m_name}");
+                        Logger.LogDebug($"Removing planned piece from m_knownRecipes: {planPiece.Piece.m_name}");
                     }
                 }
                 else if (!player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                 {
                     player.m_knownRecipes.Add(planPiece.Piece.m_name);
-                    Jotunn.Logger.LogDebug($"Adding planned piece to m_knownRecipes: {planPiece.Piece.m_name}");
+                    Logger.LogDebug($"Adding planned piece to m_knownRecipes: {planPiece.Piece.m_name}");
                 }
             }
 
@@ -258,5 +259,7 @@ namespace PlanBuild.Plans
 
             Player.m_localPlayer.UpdateKnownRecipesList();
         }
+
+        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
     }
 }

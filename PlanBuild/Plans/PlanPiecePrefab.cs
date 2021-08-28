@@ -11,7 +11,6 @@ namespace PlanBuild.Plans
         public const string PlannedSuffix = "_planned";
         public const string PieceTableName = "_planHammerPieceTable";
         public Piece OriginalPiece;
-        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
 
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
@@ -50,13 +49,13 @@ namespace PlanBuild.Plans
             wearNTear.m_autoCreateFragments = false;
             wearNTear.m_supports = true;
             wearNTear.m_hitEffect = new EffectList();
+            wearNTear.m_hitNoise = 0f;
             wearNTear.m_destroyedEffect = new EffectList();
             wearNTear.m_destroyNoise = 0f;
-            wearNTear.m_hitNoise = 0f;
 
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = OriginalPiece;
-            PlanToOriginalMap.Add(PiecePrefab.name, OriginalPiece);
+            PlanManager.PlanToOriginalMap.Add(PiecePrefab.name, OriginalPiece);
             DisablePiece(PiecePrefab);
         }
 

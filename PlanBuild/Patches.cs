@@ -50,7 +50,7 @@ namespace PlanBuild
         {
             try
             {
-                if (piece && !PlanManager.showAllPieces.Value && PlanPiecePrefab.PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                if (piece && !PlanManager.showAllPieces.Value && PlanManager.PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
                 {
                     return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
                 }
