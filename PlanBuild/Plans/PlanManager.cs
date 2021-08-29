@@ -26,6 +26,11 @@ namespace PlanBuild.Plans
 
         public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
+        /// <summary>
+        ///     Different pieces can have the same m_name (also across different mods), but m_knownRecipes is a HashSet, so can not handle duplicates well
+        ///     This map keeps track of the duplicate mappings
+        /// </summary>
+        public readonly Dictionary<string, List<Piece>> NamePiecePrefabMapping = new Dictionary<string, List<Piece>>();
 
         internal void Init()
         {
@@ -142,12 +147,19 @@ namespace PlanBuild.Plans
                         if (!EnsurePrefabRegistered(piece))
                         {
                             continue;
-                        }
-
+                        } 
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                         PieceManager.Instance.AddPiece(planPiece);
                         PlanPiecePrefabs.Add(piece.name, planPiece);
+
+                        if(!NamePiecePrefabMapping.TryGetValue(piece.m_name, out List<Piece> nameList))
+                        {
+                            nameList = new List<Piece>();
+                            NamePiecePrefabMapping.Add(piece.m_name, nameList);
+                        }  
+                        nameList.Add(piece);
+
                         if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
                         {
                             planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
@@ -157,6 +169,15 @@ namespace PlanBuild.Plans
                     {
                         Logger.LogWarning($"Error while creating plan of {piece.name}: {e}");
                     }
+                }
+            }
+            IEnumerable<KeyValuePair<string, List<Piece>>> nameDuplicates = NamePiecePrefabMapping.Where(x => x.Value.Count > 1);
+            if (nameDuplicates.Any())
+            {
+                Jotunn.Logger.LogWarning("Multiple pieces with the same m_name, this will cause issues with Player.m_knownRecipes!");
+                foreach (KeyValuePair<string, List<Piece>> entry in nameDuplicates)
+                {
+                    Jotunn.Logger.LogWarning($"m_name: {entry.Key} -> {string.Join(",", entry.Value.Select(x => x.name))}");
                 }
             }
         }
@@ -211,8 +232,8 @@ namespace PlanBuild.Plans
 
             Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in PlanPiecePrefabs.Values)
-            {
-                if (!PlanConfig.ShowAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
+            { 
+                if (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
@@ -229,6 +250,29 @@ namespace PlanBuild.Plans
 
             PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName)
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
+        }
+
+        /// <summary>
+        ///     Check if the player knows this piece
+        ///     Has some additional handling for pieces with duplicate m_name
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="originalPiece"></param>
+        /// <returns></returns>
+        private bool PlayerKnowsPiece(Player player, Piece originalPiece)
+        {
+            if (!NamePiecePrefabMapping.TryGetValue(originalPiece.m_name, out List<Piece> originalPieces))
+            {
+                return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+            }
+            foreach (Piece piece in originalPieces)
+            {
+                if (player.HaveRequirements(piece, Player.RequirementMode.IsKnown))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool OnHaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
