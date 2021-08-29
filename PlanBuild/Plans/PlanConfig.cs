@@ -62,11 +62,17 @@ namespace PlanBuild.Plans
                 new ConfigDescription("Color of the glowing lines on the Plan totem", null,
                     new ConfigurationManagerAttributes() { Order = 5 }));
 
+            ConfigTransparentGhostPlacement.SettingChanged += UpdateGhostPlanPieceTextures;
             UnsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             GlowColorConfig.SettingChanged += UpdateAllPlanTotems;
 
+        }
+
+        private static void UpdateGhostPlanPieceTextures(object sender, EventArgs e)
+        {
+            PlanManager.Instance.UpdateAllPlanPieceTextures();
         }
         
         private static void UpdateAllPlanPieceTextures(object sender, EventArgs e)

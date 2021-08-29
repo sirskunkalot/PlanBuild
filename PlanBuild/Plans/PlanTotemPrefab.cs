@@ -11,12 +11,16 @@ namespace PlanBuild.Plans
     internal class PlanTotemPrefab
     {
         public const string PlanTotemPieceName = "piece_plan_totem";
-        private static KitbashObject PlanTotemKitbash;
+        public static KitbashObject PlanTotemKitbash;
         
-        public static void UpdateGlowColor(GameObject prefab = null)
+        public static void UpdateGlowColor(GameObject prefab)
         {
-            GameObject totem = prefab ?? PlanTotemKitbash.Prefab;
-            MeshRenderer meshRenderer = totem.transform.Find("new/totem").GetComponent<MeshRenderer>();
+            if (!prefab)
+            {
+                return;
+            }
+
+            MeshRenderer meshRenderer = prefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
             meshRenderer.materials
                 .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
                 .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);

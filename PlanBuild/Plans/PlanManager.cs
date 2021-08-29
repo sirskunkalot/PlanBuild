@@ -281,11 +281,19 @@ namespace PlanBuild.Plans
         
         public void UpdateAllPlanPieceTextures()
         {
-            if (PlanCrystalPrefab.ShowRealTextures
-                && Player.m_localPlayer.m_placementGhost
-                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
+            Player self = Player.m_localPlayer;
+            if (self && self.m_placementGhost &&
+                (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName) ||
+                 self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix)))
             {
-                ShaderHelper.UpdateTextures(Player.m_localPlayer.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                if (PlanCrystalPrefab.ShowRealTextures || !PlanConfig.ConfigTransparentGhostPlacement.Value)
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                }
+                else
+                {
+                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                }
             }
             foreach (PlanPiece planPiece in Object.FindObjectsOfType<PlanPiece>())
             {
@@ -295,7 +303,7 @@ namespace PlanBuild.Plans
         
         public void UpdateAllPlanTotems()
         {
-            PlanTotemPrefab.UpdateGlowColor();
+            PlanTotemPrefab.UpdateGlowColor(PlanTotemPrefab.PlanTotemKitbash?.Prefab);
             foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
             {
                 PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
