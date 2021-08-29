@@ -162,10 +162,7 @@ namespace PlanBuild.Blueprints.Tools
                 if (placeDirect && cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
-                    if (placeDirect)
-                    {
-                        player.AddNoise(50f);
-                    }
+                    player.AddNoise(50f);
                     cntEffects++;
                 }
 
