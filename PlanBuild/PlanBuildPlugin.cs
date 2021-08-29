@@ -32,8 +32,8 @@ namespace PlanBuild
         public static PlanBuildPlugin Instance;
 
         internal PlanCrystalPrefab PlanCrystalPrefab;
+        internal PlanTotemPrefab PlanTotemPrefab;
         internal BlueprintAssets BlueprintRuneAssets;
-        private PlanTotemPrefab PlanTotemPrefab;
 
         public void Awake()
         {
@@ -58,6 +58,11 @@ namespace PlanBuild
 
             // Harmony patching
             Patches.Apply();
+        }
+        
+        public void OnDestroy()
+        {
+            Patches.Remove();
         }
 
         public void Update()
@@ -131,11 +136,6 @@ namespace PlanBuild
             ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
 
             Player.m_localPlayer.UpdateKnownRecipesList();
-        }
-
-        public void OnDestroy()
-        {
-            Patches.Remove();
         }
 
         private bool CheckInput()
