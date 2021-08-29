@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BepInEx.Configuration;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -111,7 +110,7 @@ namespace PlanBuild.Plans
                     {
                         if (planPiece.HasRequiredCraftingStationInRange())
                         {
-                            if(PlanConfig.ShowParticleEffects.Value)
+                            if (PlanConfig.ShowParticleEffects.Value)
                             {
                                 TriggerConnection(GetCenter(planPiece.gameObject));
                             }
@@ -232,7 +231,7 @@ namespace PlanBuild.Plans
             GameObject m_connection = Object.Instantiate(m_connectionPrefab, center, Quaternion.identity);
 
             TimedDestruction timedDestruction = m_connection.AddComponent<TimedDestruction>();
-            
+
 
             Vector3 vector = targetPos - center;
             timedDestruction.Trigger(vector.magnitude);

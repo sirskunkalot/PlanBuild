@@ -5,17 +5,14 @@
 // Project: PlanBuild
 
 using BepInEx;
-using BepInEx.Configuration;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
 using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
-using System;
 using System.Reflection;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild
 {
@@ -42,7 +39,7 @@ namespace PlanBuild
         {
             Instance = this;
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-            
+
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             PlanTotemPrefab = new PlanTotemPrefab(planbuildBundle);

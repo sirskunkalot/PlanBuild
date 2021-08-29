@@ -606,7 +606,7 @@ namespace PlanBuild.Plans
             {
                 builder.Append(requirement.m_resItem.m_itemData.m_shared.m_name + ": " + GetResourceCount(requirement.m_resItem.m_itemData.m_shared.m_name) + "/" + requirement.m_amount + "\n");
             }
-            m_hoverText = builder.ToString(); 
+            m_hoverText = builder.ToString();
         }
 
         private void RPC_SpawnPieceAndDestroy(long sender, long creatorID)
@@ -660,7 +660,7 @@ namespace PlanBuild.Plans
 
         internal virtual void OnPiecePlaced(GameObject actualPiece)
         {
-             
+
         }
 
         [HarmonyPatch(typeof(WearNTear), "Damage")]

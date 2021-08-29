@@ -38,12 +38,12 @@ namespace PlanBuild.Blueprints
 
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials", null, 
+                new ConfigDescription("Allow placement of blueprints without materials", null,
                     new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", false,
-                new ConfigDescription("Allow usage of the terrain modification tools", null, 
+                new ConfigDescription("Allow usage of the terrain modification tools", null,
                     new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints
 
             RayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Place distance", 50f,
-                new ConfigDescription("Place distance while using the Blueprint Rune", 
+                new ConfigDescription("Place distance while using the Blueprint Rune",
                     new AcceptableValueRange<float>(8f, 80f)));
 
             CameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -87,12 +87,12 @@ namespace PlanBuild.Blueprints
 
             AllowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow serverside blueprints", false,
-                new ConfigDescription("Allow sharing of blueprints on this server", null, 
+                new ConfigDescription("Allow sharing of blueprints on this server", null,
                     new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             AllowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow clients to use the GUI toggle key", true,
-                new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null, 
+                new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null,
                     new ConfigurationManagerAttributes() { IsAdminOnly = true }));
 
             ServerGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(

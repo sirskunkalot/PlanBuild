@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using BepInEx.Configuration;
-using Jotunn.Configs;
+﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints;
 using PlanBuild.Utils;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using Logger = Jotunn.Logger;
@@ -42,7 +41,7 @@ namespace PlanBuild.Plans
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
         }
-        
+
         public bool CanCreatePlan(Piece piece)
         {
             return piece.m_enabled
@@ -55,7 +54,7 @@ namespace PlanBuild.Plans
                    && !piece.name.Equals(BlueprintAssets.PieceCaptureName)
                    && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
         }
-        
+
         private void CreatePlanTable()
         {
             // Create plan piece table for the plan mode
@@ -99,7 +98,7 @@ namespace PlanBuild.Plans
                 ScanPieceTables();
             }
         }
-        
+
         private void ScanPieceTables()
         {
             Logger.LogDebug("Scanning PieceTables for Pieces");
@@ -201,7 +200,7 @@ namespace PlanBuild.Plans
             UpdateKnownRecipes();
             orig(self);
         }
-        
+
         public void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
@@ -247,7 +246,7 @@ namespace PlanBuild.Plans
             }
             return orig(self, piece, mode);
         }
-        
+
         private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
             PlanPiece.m_forceDisableInit = true;
@@ -268,7 +267,7 @@ namespace PlanBuild.Plans
             }
             PlanPiece.m_forceDisableInit = false;
         }
-        
+
         private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
             if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
@@ -278,7 +277,7 @@ namespace PlanBuild.Plans
             }
             orig(self);
         }
-        
+
         public void UpdateAllPlanPieceTextures()
         {
             Player self = Player.m_localPlayer;
@@ -300,7 +299,7 @@ namespace PlanBuild.Plans
                 planPiece.UpdateTextures();
             }
         }
-        
+
         public void UpdateAllPlanTotems()
         {
             PlanTotemPrefab.UpdateGlowColor(PlanTotemPrefab.PlanTotemKitbash?.Prefab);

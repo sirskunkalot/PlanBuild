@@ -42,23 +42,23 @@ namespace PlanBuild.Plans
             // Visual Section
 
             ConfigTransparentGhostPlacement = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Transparent Ghost Placement", false, 
+                VisualSection, "Transparent Ghost Placement", false,
                 new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)", null,
                     new ConfigurationManagerAttributes() { Order = 1 }));
             UnsupportedColorConfig = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Unsupported color", new Color(1f, 1f, 1f, 0.1f), 
+                VisualSection, "Unsupported color", new Color(1f, 1f, 1f, 0.1f),
                 new ConfigDescription("Color of unsupported plan pieces", null,
                     new ConfigurationManagerAttributes() { Order = 2 }));
             SupportedPlanColorConfig = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Supported color", new Color(1f, 1f, 1f, 0.5f), 
+                VisualSection, "Supported color", new Color(1f, 1f, 1f, 0.5f),
                 new ConfigDescription("Color of supported plan pieces", null,
                     new ConfigurationManagerAttributes() { Order = 3 }));
             TransparencyConfig = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Transparency", 0.30f, 
+                VisualSection, "Transparency", 0.30f,
                 new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f),
                     new ConfigurationManagerAttributes() { Order = 4 }));
             GlowColorConfig = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Plan totem glow color", Color.cyan, 
+                VisualSection, "Plan totem glow color", Color.cyan,
                 new ConfigDescription("Color of the glowing lines on the Plan totem", null,
                     new ConfigurationManagerAttributes() { Order = 5 }));
 
@@ -74,7 +74,7 @@ namespace PlanBuild.Plans
         {
             PlanManager.Instance.UpdateAllPlanPieceTextures();
         }
-        
+
         private static void UpdateAllPlanPieceTextures(object sender, EventArgs e)
         {
             ShaderHelper.ClearCache();

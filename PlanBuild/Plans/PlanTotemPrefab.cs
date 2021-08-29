@@ -12,7 +12,7 @@ namespace PlanBuild.Plans
     {
         public const string PlanTotemPieceName = "piece_plan_totem";
         public static KitbashObject PlanTotemKitbash;
-        
+
         public static void UpdateGlowColor(GameObject prefab)
         {
             if (!prefab)
