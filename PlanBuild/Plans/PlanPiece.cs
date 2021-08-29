@@ -206,7 +206,7 @@ namespace PlanBuild.Plans
 
         private ShaderHelper.ShaderState GetShaderState()
         {
-            if (PlanBuildPlugin.ShowRealTextures)
+            if (PlanCrystalPrefab.ShowRealTextures)
             {
                 return ShaderHelper.ShaderState.Skuld;
             }

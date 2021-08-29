@@ -254,7 +254,7 @@ namespace PlanBuild.Plans
             orig(self);
             if (self.m_placementGhost)
             {
-                if (PlanBuildPlugin.ShowRealTextures)
+                if (PlanCrystalPrefab.ShowRealTextures)
                 {
                     ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
                 }
@@ -271,7 +271,7 @@ namespace PlanBuild.Plans
         
         private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
-            if (!PlanBuildPlugin.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
             {
                 planPiece.Highlight();
                 return;

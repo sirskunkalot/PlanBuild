@@ -13,7 +13,6 @@ using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
-using System.IO;
 using System.Reflection;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -39,8 +38,6 @@ namespace PlanBuild
         internal PlanCrystalPrefab PlanCrystalPrefab;
         internal BlueprintAssets BlueprintRuneAssets;
         private PlanTotemPrefab PlanTotemPrefab;
-
-        internal static bool ShowRealTextures;
 
         public void Awake()
         {
@@ -68,17 +65,8 @@ namespace PlanBuild
 
             // Harmony patching
             Patches.Apply();
-
-            // Hooks
-            ItemManager.OnVanillaItemsAvailable += AddClonedItems;
-            ItemManager.OnItemsRegistered += OnItemsRegistered;
         }
-
-        private void OnItemsRegistered()
-        {
-            PlanCrystalPrefab.FixShader();
-        }
-
+        
         private void SetupConfig()
         {
             PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
@@ -140,7 +128,7 @@ namespace PlanBuild
                 TogglePlanBuildMode();
             }
         }
-        
+
         public void TogglePlanBuildMode()
         {
             if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintAssets.BlueprintRuneName)
@@ -185,23 +173,6 @@ namespace PlanBuild
             Patches.Remove();
         }
 
-        private void AddClonedItems()
-        {
-            try
-            {
-                PlanCrystalPrefab.StartPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.PrefabName + "StartEffect", "vfx_blocked");
-                PlanCrystalPrefab.StartPlanCrystalEffectPrefab.AddComponent<StartPlanCrystalStatusEffect>();
-                PlanCrystalPrefab.StopPlanCrystalEffectPrefab = PrefabManager.Instance.CreateClonedPrefab(PlanCrystalPrefab.PrefabName + "StopEffect", "vfx_blocked");
-                PlanCrystalPrefab.StopPlanCrystalEffectPrefab.AddComponent<StopPlanCrystalStatusEffect>();
-
-                ItemManager.Instance.AddItem(PlanCrystalPrefab.Create());
-            }
-            finally
-            {
-                ItemManager.OnVanillaItemsAvailable -= AddClonedItems;
-            }
-        }
-
         private void UpdateAllPlanPieceTextures(object sender, EventArgs e)
         {
             ShaderHelper.ClearCache();
@@ -210,7 +181,7 @@ namespace PlanBuild
 
         public static void UpdateAllPlanPieceTextures()
         {
-            if (ShowRealTextures
+            if (PlanCrystalPrefab.ShowRealTextures
                 && Player.m_localPlayer.m_placementGhost
                 && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
