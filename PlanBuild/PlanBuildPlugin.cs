@@ -33,7 +33,6 @@ namespace PlanBuild
         public const string PluginVersion = "0.5.0";
 
         public static PlanBuildPlugin Instance;
-        public static ConfigEntry<bool> ConfigTransparentGhostPlacement;
 
         internal PlanCrystalPrefab PlanCrystalPrefab;
         internal BlueprintAssets BlueprintRuneAssets;
@@ -43,10 +42,7 @@ namespace PlanBuild
         {
             Instance = this;
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-
-            // Configs
-            SetupConfig();
-
+            
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
             PlanTotemPrefab = new PlanTotemPrefab(planbuildBundle);
@@ -65,25 +61,6 @@ namespace PlanBuild
 
             // Harmony patching
             Patches.Apply();
-        }
-        
-        private void SetupConfig()
-        {
-            PlanTotem.radiusConfig = Config.Bind("General", "Plan totem build radius", 30f, new ConfigDescription("Build radius of the Plan totem", null, new ConfigurationManagerAttributes() { IsAdminOnly = true }));
-            PlanTotem.showParticleEffects = Config.Bind("General", "Plan totem particle effects", true, new ConfigDescription("Build radius of the Plan totem"));
-
-            PlanTotem.radiusConfig.SettingChanged += UpdatePlanTotem;
-
-            ConfigTransparentGhostPlacement = Config.Bind("Visual", "Transparent Ghost Placement", false, new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)"));
-            ShaderHelper.UnsupportedColorConfig = Config.Bind("Visual", "Unsupported color", new Color(1f, 1f, 1f, 0.1f), new ConfigDescription("Color of unsupported plan pieces"));
-            ShaderHelper.SupportedPlanColorConfig = Config.Bind("Visual", "Supported color", new Color(1f, 1f, 1f, 0.5f), new ConfigDescription("Color of supported plan pieces"));
-            ShaderHelper.TransparencyConfig = Config.Bind("Visual", "Transparency", 0.30f, new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f)));
-            PlanTotemPrefab.GlowColorConfig = Config.Bind("Visual", "Plan totem glow color", Color.cyan, new ConfigDescription("Color of the glowing lines on the Plan totem"));
-
-            ShaderHelper.UnsupportedColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            ShaderHelper.TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
-            PlanTotemPrefab.GlowColorConfig.SettingChanged += UpdatePlanTotem;
         }
 
         public void Update()
@@ -159,38 +136,9 @@ namespace PlanBuild
             Player.m_localPlayer.UpdateKnownRecipesList();
         }
 
-        private void UpdatePlanTotem(object sender, EventArgs e)
-        {
-            PlanTotemPrefab.SettingsUpdated();
-            foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
-            {
-                PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
-            }
-        }
-
         public void OnDestroy()
         {
             Patches.Remove();
-        }
-
-        private void UpdateAllPlanPieceTextures(object sender, EventArgs e)
-        {
-            ShaderHelper.ClearCache();
-            UpdateAllPlanPieceTextures();
-        }
-
-        public static void UpdateAllPlanPieceTextures()
-        {
-            if (PlanCrystalPrefab.ShowRealTextures
-                && Player.m_localPlayer.m_placementGhost
-                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
-            {
-                ShaderHelper.UpdateTextures(Player.m_localPlayer.m_placementGhost, ShaderHelper.ShaderState.Skuld);
-            }
-            foreach (PlanPiece planPiece in Object.FindObjectsOfType<PlanPiece>())
-            {
-                planPiece.UpdateTextures();
-            }
         }
 
         private bool CheckInput()

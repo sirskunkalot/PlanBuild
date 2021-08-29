@@ -1,5 +1,4 @@
-﻿using BepInEx.Configuration;
-using Jotunn.Configs;
+﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Utils;
@@ -12,8 +11,16 @@ namespace PlanBuild.Plans
     internal class PlanTotemPrefab
     {
         public const string PlanTotemPieceName = "piece_plan_totem";
-        public static ConfigEntry<Color> GlowColorConfig;
-        private KitbashObject PlanTotemKitbash;
+        private static KitbashObject PlanTotemKitbash;
+        
+        public static void UpdateGlowColor(GameObject prefab = null)
+        {
+            GameObject totem = prefab ?? PlanTotemKitbash.Prefab;
+            MeshRenderer meshRenderer = totem.transform.Find("new/totem").GetComponent<MeshRenderer>();
+            meshRenderer.materials
+                .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
+                .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);
+        }
 
         public PlanTotemPrefab(AssetBundle planbuildBundle)
         {
@@ -70,13 +77,13 @@ namespace PlanBuild.Plans
                 planTotem.m_width = 6;
 
                 MeshRenderer meshRenderer = planTotemPrefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
-                meshRenderer.materials 
+                meshRenderer.materials
                     .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
-                    .SetColor("_EmissionColor", GlowColorConfig.Value);
+                    .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
                 circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
-                circleProjector.m_radius = PlanTotem.radiusConfig.Value;
+                circleProjector.m_radius = PlanConfig.RadiusConfig.Value;
             };
 
             CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, new PieceConfig()
@@ -90,19 +97,6 @@ namespace PlanBuild.Plans
                 }
             });
             PieceManager.Instance.AddPiece(planTotemPiece);
-        }
-
-        internal void SettingsUpdated()
-        {
-            UpdateGlowColor(PlanTotemKitbash.Prefab);
-        }
-
-        public static void UpdateGlowColor(GameObject prefab)
-        {
-            MeshRenderer meshRenderer = prefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
-            meshRenderer.materials
-                .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat")) 
-                .SetColor("_EmissionColor", GlowColorConfig.Value);
         }
     }
 }

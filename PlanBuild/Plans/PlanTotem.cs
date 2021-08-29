@@ -17,8 +17,6 @@ namespace PlanBuild.Plans
         private int m_supportedPieces = 0;
         static internal GameObject m_connectionPrefab;
         private Bounds m_chestBounds;
-        internal static ConfigEntry<float> radiusConfig;
-        internal static ConfigEntry<bool> showParticleEffects;
         private List<KeyValuePair<string, int>> m_sortedRequired;
         private readonly List<PlanPiece> m_connectedPieces = new List<PlanPiece>();
         private readonly Dictionary<string, int> m_remainingRequirements = new Dictionary<string, int>();
@@ -50,7 +48,7 @@ namespace PlanBuild.Plans
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
-            m_areaMarker.m_radius = radiusConfig.Value;
+            m_areaMarker.m_radius = PlanConfig.RadiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
             HideMarker();
@@ -68,7 +66,7 @@ namespace PlanBuild.Plans
             {
                 Vector3 pieceCenter = GetCenter(piece.gameObject);
                 float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
-                if (distance <= radiusConfig.Value)
+                if (distance <= PlanConfig.RadiusConfig.Value)
                 {
                     PlanPiece planPiece = piece.GetComponent<PlanPiece>();
                     if (planPiece)
@@ -113,7 +111,7 @@ namespace PlanBuild.Plans
                     {
                         if (planPiece.HasRequiredCraftingStationInRange())
                         {
-                            if(showParticleEffects.Value)
+                            if(PlanConfig.ShowParticleEffects.Value)
                             {
                                 TriggerConnection(GetCenter(planPiece.gameObject));
                             }

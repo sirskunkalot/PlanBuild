@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using System;
 using System.Collections.Generic;
+using PlanBuild.Plans;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -20,9 +21,6 @@ namespace PlanBuild.Utils
         private static readonly Dictionary<string, Material> UnsupportedMaterialDict = new Dictionary<string, Material>();
 
         public static Shader PlanShader;
-        public static ConfigEntry<Color> UnsupportedColorConfig;
-        public static ConfigEntry<Color> SupportedPlanColorConfig;
-        internal static ConfigEntry<float> TransparencyConfig;
 
         public static void ClearCache()
         {
@@ -85,7 +83,7 @@ namespace PlanBuild.Utils
 
         private static Material GetMaterial(ShaderState shaderState, Material originalMaterial)
         {
-            float transparency = TransparencyConfig.Value;
+            float transparency = PlanConfig.TransparencyConfig.Value;
             transparency *= transparency; //x² mapping for finer control
             switch (shaderState)
             {
@@ -100,7 +98,7 @@ namespace PlanBuild.Utils
                         };
                         supportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         supportedMaterial.shader = PlanShader;
-                        Color supportedMaterialColor = SupportedPlanColorConfig.Value;
+                        Color supportedMaterialColor = PlanConfig.SupportedPlanColorConfig.Value;
                         supportedMaterialColor.a *= transparency;
                         supportedMaterial.color = supportedMaterialColor;
                         supportedMaterial.EnableKeyword("_EMISSION");
@@ -117,7 +115,7 @@ namespace PlanBuild.Utils
                         };
                         unsupportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         unsupportedMaterial.shader = PlanShader;
-                        Color unsupportedMaterialColor = UnsupportedColorConfig.Value;
+                        Color unsupportedMaterialColor = PlanConfig.UnsupportedColorConfig.Value;
                         unsupportedMaterialColor.a *= transparency;
                         unsupportedMaterial.color = unsupportedMaterialColor;
                         unsupportedMaterial.EnableKeyword("_EMISSION");

@@ -126,7 +126,7 @@ namespace PlanBuild.Plans
                 Logger.LogDebug("Triggering real textures");
 #endif
                 PlanCrystalPrefab.ShowRealTextures = true;
-                PlanBuildPlugin.UpdateAllPlanPieceTextures();
+                PlanManager.Instance.UpdateAllPlanPieceTextures();
             }
         }
     }
@@ -142,7 +142,7 @@ namespace PlanBuild.Plans
                 Logger.LogDebug("Removing real textures");
 #endif
                 PlanCrystalPrefab.ShowRealTextures = false;
-                PlanBuildPlugin.UpdateAllPlanPieceTextures();
+                PlanManager.Instance.UpdateAllPlanPieceTextures();
             }
         }
     }

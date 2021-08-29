@@ -25,18 +25,18 @@ namespace PlanBuild.Plans
             }
         }
 
-        public static ConfigEntry<bool> ShowAllPieces;
         public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
         internal void Init()
         {
-            ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind("General", "Plan unknown pieces", false, 
-                new ConfigDescription("Show all plans, even for pieces you don't know yet"));
-            ShowAllPieces.SettingChanged += (_, _) => UpdateKnownRecipes();
+            // Init config
+            PlanConfig.Init();
 
+            // Hooks
             PieceManager.OnPiecesRegistered += CreatePlanTable;
             SceneManager.sceneLoaded += OnSceneLoaded;
+
             On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
@@ -202,7 +202,7 @@ namespace PlanBuild.Plans
             orig(self);
         }
         
-        private void UpdateKnownRecipes()
+        public void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
             if (player == null)
@@ -213,7 +213,7 @@ namespace PlanBuild.Plans
             Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in PlanPiecePrefabs.Values)
             {
-                if (!ShowAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
+                if (!PlanConfig.ShowAllPieces.Value && !player.HaveRequirements(planPiece.OriginalPiece, Player.RequirementMode.IsKnown))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
@@ -236,7 +236,7 @@ namespace PlanBuild.Plans
         {
             try
             {
-                if (piece && !ShowAllPieces.Value && PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                if (piece && !PlanConfig.ShowAllPieces.Value && PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
                 {
                     return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
                 }
@@ -258,7 +258,7 @@ namespace PlanBuild.Plans
                 {
                     ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
                 }
-                else if (PlanBuildPlugin.ConfigTransparentGhostPlacement.Value
+                else if (PlanConfig.ConfigTransparentGhostPlacement.Value
                          && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
                              || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
                 )
@@ -277,6 +277,29 @@ namespace PlanBuild.Plans
                 return;
             }
             orig(self);
+        }
+        
+        public void UpdateAllPlanPieceTextures()
+        {
+            if (PlanCrystalPrefab.ShowRealTextures
+                && Player.m_localPlayer.m_placementGhost
+                && Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                ShaderHelper.UpdateTextures(Player.m_localPlayer.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+            }
+            foreach (PlanPiece planPiece in Object.FindObjectsOfType<PlanPiece>())
+            {
+                planPiece.UpdateTextures();
+            }
+        }
+        
+        public void UpdateAllPlanTotems()
+        {
+            PlanTotemPrefab.UpdateGlowColor();
+            foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+            {
+                PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
+            }
         }
     }
 }
