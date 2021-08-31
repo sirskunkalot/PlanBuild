@@ -1,7 +1,8 @@
 # Version 0.5.1
 * Remove the ability of the BlueprintRune to "middle-mouse-delete" non-planned pieces
-* Don't make noise and attract mobs when placing planned pieces
+* Don't make noise and attract mobs when placing blueprints
 * "Plan unknown pieces" is now a server enforced configuration
+* Handle duplicate piece names to avoid new piece notification spam
 
 # Version 0.5.0
 * Made the mod mandatory on server and client again - too many griefing oppertunities with the new terrain tools
