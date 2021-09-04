@@ -75,3 +75,5 @@ crashlytics-build.properties
 
 # AssetBundles (manual copy these)
 /[Aa]ssetBundles*
+
+/[Aa]ssets/Plugins*
