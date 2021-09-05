@@ -408,12 +408,12 @@ namespace PlanBuild.Blueprints
 
         public override string ToString()
         {
-            return $"{ID} ({GetPieceCount()} pieces)";
+            return Localization.instance.Localize($"{ID} ($gui_bpmarket_pieces)", GetPieceCount().ToString());
         }
 
         public string ToGUIString()
         {
-            return $"<b>{Name}</b>\n({GetPieceCount()} pieces)";
+            return Localization.instance.Localize($"<b>{Name}</b>\n ($gui_bpmarket_pieces)", GetPieceCount().ToString());
         }
 
         /// <summary>
