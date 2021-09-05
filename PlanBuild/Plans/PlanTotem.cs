@@ -188,21 +188,22 @@ namespace PlanBuild.Plans
         public new string GetHoverText()
         {
             ShowAreaMarker();
-            StringBuilder sb = new StringBuilder($"Plan totem\n" +
-                $"[<color=yellow>$KEY_Use</color>] Open\n" +
+            StringBuilder sb = new StringBuilder($"$piece_plan_totem\n" +
+                $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {
-                sb.Append($"Missing crafting stations: \n");
+                sb.Append($"$piece_plan_totem_missing \n");
                 foreach (string missingStation in m_missingCraftingStations)
                 {
                     sb.Append($"<color=red>{missingStation}</color>\n");
                 }
             }
-            sb.Append($"{m_connectedPieces.Count} connected plans ({m_supportedPieces} supported)\n");
+            sb.Append(Localization.instance.Localize("$piece_plan_totem_connected \n", m_connectedPieces.Count.ToString(), m_supportedPieces.ToString()));
+            
             if (m_remainingRequirements.Count > 0)
             {
-                sb.Append("Required materials:\n");
+                sb.Append("$piece_plan_totem_required\n");
                 foreach (var pair in m_sortedRequired)
                 {
                     sb.Append($" <color=yellow>{pair.Value}</color> {pair.Key}\n");
