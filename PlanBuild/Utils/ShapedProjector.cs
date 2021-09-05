@@ -151,7 +151,7 @@ namespace PlanBuild.Utils
 
         internal void EnableMask()
         {
-            if (Shape == ProjectorShape.Circle && Circle != null)
+            if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 2048)
             {
                 Circle.m_mask = 2048;
             }
@@ -159,7 +159,7 @@ namespace PlanBuild.Utils
 
         internal void DisableMask()
         {
-            if (Shape == ProjectorShape.Circle && Circle != null)
+            if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 0)
             {
                 Circle.m_mask = 0;
             }

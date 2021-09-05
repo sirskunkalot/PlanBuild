@@ -1,3 +1,6 @@
+# Version 0.5.2
+* Fixed projector mask for paint / deletion tools
+
 # Version 0.5.1
 * Remove the ability of the BlueprintRune to "middle-mouse-delete" non-planned pieces
 * Don't make noise and attract mobs when placing blueprints
