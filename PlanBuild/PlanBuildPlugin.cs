@@ -10,14 +10,14 @@ using Jotunn.Utils;
 using PlanBuild.Blueprints;
 using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
-using PlanBuild.Utils;
 using System.Reflection;
 using UnityEngine;
+using ShaderHelper = PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.2.4")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.2.7")]
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
@@ -59,7 +59,7 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
         }
-        
+
         public void OnDestroy()
         {
             Patches.Remove();
