@@ -24,14 +24,6 @@ namespace PlanBuild.Plans
             }
         }
 
-        public static readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
-        public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
-        /// <summary>
-        ///     Different pieces can have the same m_name (also across different mods), but m_knownRecipes is a HashSet, so can not handle duplicates well
-        ///     This map keeps track of the duplicate mappings
-        /// </summary>
-        public readonly Dictionary<string, List<Piece>> NamePiecePrefabMapping = new Dictionary<string, List<Piece>>();
-
         internal void Init()
         {
             // Init config
@@ -45,19 +37,6 @@ namespace PlanBuild.Plans
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
-        }
-
-        public bool CanCreatePlan(Piece piece)
-        {
-            return piece.m_enabled
-                   && piece.GetComponent<Plant>() == null
-                   && piece.GetComponent<TerrainOp>() == null
-                   && piece.GetComponent<TerrainModifier>() == null
-                   && piece.GetComponent<Ship>() == null
-                   && piece.GetComponent<PlanPiece>() == null
-                   && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
-                   && !piece.name.Equals(BlueprintAssets.PieceCaptureName)
-                   && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
         }
 
         private void CreatePlanTable()
@@ -100,120 +79,10 @@ namespace PlanBuild.Plans
             // Scan piece tables after scene has loaded to catch non-Jötunn mods, too
             if (scene.name == "main")
             {
-                ScanPieceTables();
+                PlanDB.Instance.ScanPieceTables();
             }
         }
 
-        private void ScanPieceTables()
-        {
-            Logger.LogDebug("Scanning PieceTables for Pieces");
-            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
-            foreach (GameObject item in ObjectDB.instance.m_items)
-            {
-                PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_buildPieces;
-                if (pieceTable == null ||
-                    pieceTable.name.Equals(PlanPiecePrefab.PieceTableName) ||
-                    pieceTable.name.Equals(BlueprintAssets.PieceTableName))
-                {
-                    continue;
-                }
-                foreach (GameObject piecePrefab in pieceTable.m_pieces)
-                {
-                    if (!piecePrefab)
-                    {
-                        Logger.LogWarning($"Invalid prefab in {item.name} PieceTable");
-                        continue;
-                    }
-                    Piece piece = piecePrefab.GetComponent<Piece>();
-                    if (!piece)
-                    {
-                        Logger.LogWarning($"Recipe in {item.name} has no Piece?! {piecePrefab.name}");
-                        continue;
-                    }
-                    try
-                    {
-                        if (piece.name == "piece_repair")
-                        {
-                            continue;
-                        }
-                        if (PlanPiecePrefabs.ContainsKey(piece.name))
-                        {
-                            continue;
-                        }
-                        if (!CanCreatePlan(piece))
-                        {
-                            continue;
-                        }
-                        if (!EnsurePrefabRegistered(piece))
-                        {
-                            continue;
-                        } 
-                        PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
-                        PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                        PieceManager.Instance.AddPiece(planPiece);
-                        PlanPiecePrefabs.Add(piece.name, planPiece);
-
-                        if(!NamePiecePrefabMapping.TryGetValue(piece.m_name, out List<Piece> nameList))
-                        {
-                            nameList = new List<Piece>();
-                            NamePiecePrefabMapping.Add(piece.m_name, nameList);
-                        }  
-                        nameList.Add(piece);
-
-                        if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
-                        {
-                            planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogWarning($"Error while creating plan of {piece.name}: {e}");
-                    }
-                }
-            }
-            IEnumerable<KeyValuePair<string, List<Piece>>> nameDuplicates = NamePiecePrefabMapping.Where(x => x.Value.Count > 1);
-            if (nameDuplicates.Any())
-            {
-                Jotunn.Logger.LogWarning("Multiple pieces with the same m_name, this will cause issues with Player.m_knownRecipes!");
-                foreach (KeyValuePair<string, List<Piece>> entry in nameDuplicates)
-                {
-                    Jotunn.Logger.LogWarning($"m_name: {entry.Key} -> {string.Join(",", entry.Value.Select(x => x.name))}");
-                }
-            }
-        }
-
-        private bool EnsurePrefabRegistered(Piece piece)
-        {
-            GameObject prefab = PrefabManager.Instance.GetPrefab(piece.gameObject.name);
-            if (prefab)
-            {
-                return true;
-            }
-            Logger.LogWarning("Piece " + piece.name + " in Hammer not fully registered? Could not find prefab " + piece.gameObject.name);
-            if (!ZNetScene.instance.m_prefabs.Contains(piece.gameObject))
-            {
-                Logger.LogWarning(" Not registered in ZNetScene.m_prefabs! Adding now");
-                ZNetScene.instance.m_prefabs.Add(piece.gameObject);
-            }
-            if (!ZNetScene.instance.m_namedPrefabs.ContainsKey(piece.gameObject.name.GetStableHashCode()))
-            {
-                Logger.LogWarning(" Not registered in ZNetScene.m_namedPrefabs! Adding now");
-                ZNetScene.instance.m_namedPrefabs[piece.gameObject.name.GetStableHashCode()] = piece.gameObject;
-            }
-            //Prefab was added incorrectly, make sure the game doesn't delete it when logging out
-            GameObject prefabParent = piece.gameObject.transform.parent?.gameObject;
-            if (!prefabParent)
-            {
-                Logger.LogWarning(" Prefab has no parent?! Adding to Jotunn");
-                PrefabManager.Instance.AddPrefab(piece.gameObject);
-            }
-            else if (prefabParent.scene.buildIndex != -1)
-            {
-                Logger.LogWarning(" Prefab container not marked as DontDestroyOnLoad! Marking now");
-                Object.DontDestroyOnLoad(prefabParent);
-            }
-            return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
-        }
 
         private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
@@ -231,7 +100,7 @@ namespace PlanBuild.Plans
             }
 
             Logger.LogDebug("Updating known Recipes");
-            foreach (PlanPiecePrefab planPiece in PlanPiecePrefabs.Values)
+            foreach (PlanPiecePrefab planPiece in PlanDB.Instance.GetPlanPiecePrefabs())
             { 
                 if (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece))
                 {
@@ -261,7 +130,7 @@ namespace PlanBuild.Plans
         /// <returns></returns>
         private bool PlayerKnowsPiece(Player player, Piece originalPiece)
         {
-            if (!NamePiecePrefabMapping.TryGetValue(originalPiece.m_name, out List<Piece> originalPieces))
+            if (PlanDB.Instance.FindByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
             {
                 return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
             }
@@ -279,7 +148,7 @@ namespace PlanBuild.Plans
         {
             try
             {
-                if (piece && !PlanConfig.ShowAllPieces.Value && PlanToOriginalMap.TryGetValue(piece.gameObject.name, out Piece originalPiece))
+                if (piece && !PlanConfig.ShowAllPieces.Value && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
                 {
                     return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
                 }

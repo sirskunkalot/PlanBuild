@@ -52,7 +52,6 @@ namespace PlanBuild.Plans
 
             PlanPiece planPieceScript = PiecePrefab.AddComponent<PlanPiece>();
             planPieceScript.originalPiece = OriginalPiece;
-            PlanManager.PlanToOriginalMap.Add(PiecePrefab.name, OriginalPiece);
             DisablePiece(PiecePrefab);
         }
 

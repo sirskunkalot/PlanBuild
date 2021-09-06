@@ -81,7 +81,7 @@ namespace PlanBuild.Blueprints
             {
                 return true;
             }
-            return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanManager.Instance.CanCreatePlan(piece));
+            return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanDB.Instance.CanCreatePlan(piece));
         }
 
         /// <summary>
