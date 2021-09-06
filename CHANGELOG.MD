@@ -1,5 +1,7 @@
 # Version 0.5.2
 * Fixed projector mask for paint / deletion tools
+* Almost every aspect of the mod is translatable now (thx Dominowood371)
+* Added more german translation
 
 # Version 0.5.1
 * Remove the ability of the BlueprintRune to "middle-mouse-delete" non-planned pieces
