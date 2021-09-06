@@ -10,7 +10,7 @@
     <RootNamespace>PlanBuild</RootNamespace>
     <AssemblyName>PlanBuild</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>8.0</LangVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <NuGetPackageImportStamp>
