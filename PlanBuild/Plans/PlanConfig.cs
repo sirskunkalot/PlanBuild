@@ -36,7 +36,7 @@ namespace PlanBuild.Plans
                 new ConfigDescription("Show particle effects when building pieces with the plan totem", null,
                     new ConfigurationManagerAttributes() { Order = 3, IsAdminOnly = true }));
 
-            ShowAllPieces.SettingChanged += (_, _) => PlanManager.Instance.UpdateKnownRecipes();
+            ShowAllPieces.SettingChanged += (obj, attr) => PlanManager.Instance.UpdateKnownRecipes();
             //RadiusConfig.SettingChanged += (_, _) => PlanManager.Instance.UpdateAllPlanTotems();  // that doesnt change the radius...
 
             // Visual Section
@@ -67,7 +67,6 @@ namespace PlanBuild.Plans
             SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             GlowColorConfig.SettingChanged += UpdateAllPlanTotems;
-
         }
 
         private static void UpdateGhostPlanPieceTextures(object sender, EventArgs e)

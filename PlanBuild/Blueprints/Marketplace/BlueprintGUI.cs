@@ -37,8 +37,8 @@ namespace PlanBuild.Blueprints.Marketplace
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 bundle.Unload(false);
                 
-                LocalizationManager.OnLocalizationAdded += Instance.Localize;
                 GUIManager.OnCustomGUIAvailable += Instance.Register;
+                LocalizationManager.OnLocalizationAdded += Instance.Localize;
             }
         }
 
