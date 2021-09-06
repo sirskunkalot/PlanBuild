@@ -75,6 +75,8 @@ namespace PlanBuild.Plans
 
                 PlanTotem.m_connectionPrefab = planBuildConnectionPrefab;
 
+                planTotem.m_name = "$piece_plan_totem_container";
+
                 planTotem.m_open = planTotemPrefab.transform.Find("new/chest/privatechesttop_open").gameObject;
                 planTotem.m_closed = planTotemPrefab.transform.Find("new/chest/privatechesttop_closed").gameObject;
                 planTotem.m_height = 2;
