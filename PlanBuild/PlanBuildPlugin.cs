@@ -17,7 +17,7 @@ using ShaderHelper = PlanBuild.Utils.ShaderHelper;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.2.8")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.2.9")]
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
