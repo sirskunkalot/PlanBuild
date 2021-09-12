@@ -99,7 +99,7 @@ Blueprint Marketplace[/b][/size]
 
 [img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMarket.png[/img]
 
-Manage and share your blueprints through a custom GUI added to the game. Per default the marketplace is accessible via __End__ key. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
+Manage and share your blueprints through a custom GUI added to the game. Per default the marketplace is accessible via [b]End[/b] key. Rename your local blueprints and add a description to them. If a server has this feature enabled, upload your local blueprints to that server so others can download and build your creations as well. Players with admin rights on a server can also manage the server side list through that interface.
 
 [size=4][b]Marketplace Pieces[/b][/size]
 
@@ -115,7 +115,8 @@ Fully compatible with:
 [*][url=https://www.nexusmods.com/valheim/mods/226]Build Camera[/url]﻿
 [*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]﻿
 [*][url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url]
-[/list]The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with [b]P[/b] which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
+[/list]
+The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with [b]P[/b] which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
 
 [size=5][b]Installing[/b][/size]
 
@@ -156,7 +157,7 @@ Most values are configurable:
 
 All contributions welcome!
 
-You can also find us at the [url=https://discord.gg/RBq2mzeu4z]Valheim Modding Discord[/url] or the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url].
+You can also find us at the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url].
 
 [size=5][b]Building community[/b][/size]
 
@@ -165,7 +166,7 @@ Head over to the [url=https://www.valheimians.com]Valheimians[/url] page to find
 [size=5][b]Credits[/b][/size]
 The original PlanBuild mod was created by [b][url=https://github.com/MathiasDecrock]MarcoPogo[/url][/b]
 
-Blueprint functionality originally created and merged by [b][url=https://github.com/Algorithman]Algorithman[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
+Blueprint functionality originally created by [b][url=https://github.com/Algorithman]Algorithman[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
 
 Blueprint Marketplace GUI created by [b][url=https://github.com/imcanida]Dreous[/url][/b]
 
