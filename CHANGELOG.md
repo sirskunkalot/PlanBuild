@@ -1,3 +1,6 @@
+# Version 0.6.0
+* Hearth & Home update
+
 # Version 0.5.2
 * Fixed projector mask for paint / deletion tools
 * Almost every aspect of the mod is translatable now (thx Dominowood371)

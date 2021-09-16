@@ -364,7 +364,7 @@ namespace PlanBuild.Plans
             player.GetInventory().RemoveItem(resourceName, amount);
         }
 
-        public bool Interact(Humanoid user, bool hold)
+        public bool Interact(Humanoid user, bool hold, bool alt)
         {
             if (hold)
             {
