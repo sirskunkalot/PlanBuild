@@ -14,7 +14,7 @@ namespace PlanBuild.Plans
             return Localization.instance.Localize("[<color=yellow>$KEY_Use</color>] Toggle grid");
         }
 
-        public bool Interact(Humanoid user, bool hold)
+        public bool Interact(Humanoid user, bool hold, bool alt)
         {
             return true;
         }

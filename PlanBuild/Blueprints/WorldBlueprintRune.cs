@@ -36,11 +36,11 @@ namespace PlanBuild.Blueprints
         {
             return Localization.instance.Localize(
                 $"{GetHoverName()}\n" +
-                $"[<color=yellow>$KEY_Use</color>] Open Blueprint Marketplace"
+                $"[<color=yellow>$KEY_Use</color>] $piece_world_blueprint_rune_open"	
             );
         }
 
-        public bool Interact(Humanoid user, bool hold)
+        public bool Interact(Humanoid user, bool hold, bool alt)
         {
             if (hold)
             {
