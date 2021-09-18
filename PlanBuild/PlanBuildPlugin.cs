@@ -19,6 +19,7 @@ namespace PlanBuild
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, "2.3.0")]
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.BuildCamera2GUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ValheimRaftGUID, BepInDependency.DependencyFlags.SoftDependency)]
@@ -27,7 +28,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.6.0";
+        public const string PluginVersion = "0.6.1";
 
         public static PlanBuildPlugin Instance;
 
