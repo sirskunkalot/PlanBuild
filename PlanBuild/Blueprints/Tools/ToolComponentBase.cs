@@ -6,10 +6,10 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class ToolComponentBase : MonoBehaviour
     {
-        public static ShapedProjector SelectionProjector;
-        public static float SelectionRadius = 10.0f;
-        public static float CameraOffset = 5.0f;
-        public static Vector3 PlacementOffset = Vector3.zero;
+        public ShapedProjector SelectionProjector;
+        public float SelectionRadius = 10.0f;
+        public float CameraOffset = 5.0f;
+        public Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
 

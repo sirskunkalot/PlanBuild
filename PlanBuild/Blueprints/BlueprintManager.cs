@@ -31,6 +31,8 @@ namespace PlanBuild.Blueprints
 
         internal Piece LastHoveredPiece;
 
+        internal readonly Selection activeSelection = new Selection();
+
         internal void Init()
         {
             Jotunn.Logger.LogInfo("Initializing BlueprintManager");

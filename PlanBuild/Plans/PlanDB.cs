@@ -145,8 +145,8 @@ namespace PlanBuild.Plans
 
         private void WarnDuplicatesWithDifferentResources()
         {
-            Dictionary<string, IEnumerable<IGrouping<PieceRequirements, Piece>>> warnDict = new();
-            foreach (KeyValuePair<string, List<Piece>> entry in NamePiecePrefabMapping)
+            var warnDict = new Dictionary<string, IEnumerable<IGrouping<PieceRequirements, Piece>>>();
+            foreach (var entry in NamePiecePrefabMapping)
             {
                 List<Piece> pieces = entry.Value;
                 if (pieces.Count == 1)
@@ -154,7 +154,7 @@ namespace PlanBuild.Plans
                     continue;
                 }
 
-                IEnumerable<IGrouping<PieceRequirements, Piece>> grouping = pieces.GroupBy(x => GetResourceMap(x));
+                var grouping = pieces.GroupBy(x => GetResourceMap(x));
                 if (grouping.Count() > 1)
                 {
                     warnDict[entry.Key] = grouping;
@@ -165,10 +165,10 @@ namespace PlanBuild.Plans
             {
                 StringBuilder builder = new StringBuilder();
                 builder.AppendLine("Warning for mod developers:\nMultiple pieces with the same m_name but different resource requirements, this will cause issues with Player.m_knownRecipes!");
-                foreach (KeyValuePair<string, IEnumerable<IGrouping<PieceRequirements, Piece>>> entry in warnDict)
+                foreach (var entry in warnDict)
                 {
                     builder.AppendLine($"Piece.m_name: {entry.Key}");
-                    foreach (IGrouping<PieceRequirements, Piece> groupEntry in entry.Value)
+                    foreach (var groupEntry in entry.Value)
                     { 
                         builder.AppendLine($" Requirements: {groupEntry.Key}");
                         builder.AppendLine($" Pieces: {string.Join(", ", groupEntry.Select(x => x.name))}\n"); 

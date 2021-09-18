@@ -46,7 +46,7 @@ namespace PlanBuild.Utils
             }
         }
 
-        private void OnDestroy()
+        protected void OnDestroy()
         {
             Disable();
         }
