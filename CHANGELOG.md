@@ -1,3 +1,9 @@
+# Version 0.6.2
+* Fixed ValheimRAFT compat
+
+# Version 0.6.1
+* Fixed BuildCamera compat
+
 # Version 0.6.0
 * Hearth & Home update
 

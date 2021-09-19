@@ -19,7 +19,7 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static bool PlanPiece_HasSupport_Prefix(PlanPiece __instance, ref bool __result)
         {
-            if(__instance.GetComponentInParent<MoveableBaseRoot>())
+            if(__instance.GetComponentInParent<MoveableBaseRootComponent>())
             {
                 __result = true;
                 return false;
@@ -31,7 +31,7 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static void PlanPiece_OnPiecePlaced_Postfix(PlanPiece __instance, GameObject actualPiece)
         {
-            MoveableBaseRoot moveableBaseRoot = __instance.GetComponentInParent<MoveableBaseRoot>();
+            MoveableBaseRootComponent moveableBaseRoot = __instance.GetComponentInParent<MoveableBaseRootComponent>();
             if (moveableBaseRoot) {
                 moveableBaseRoot.AddNewPiece(actualPiece.GetComponent<Piece>());
             }

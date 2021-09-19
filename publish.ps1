@@ -123,8 +123,8 @@ if($Target.Equals("Release")) {
     
     Copy-Item $mod_dll "$raw_dir_path\"
     Copy-Item -Path "$resources_dir\*" -Destination "$raw_dir_path\" -Recurse -Force
-    Copy-Item "$SolutionPath\README.MD" "$raw_dir_path\" -Force
-    Copy-Item "$SolutionPath\CHANGELOG.MD" "$raw_dir_path\" -Force
+    Copy-Item "$SolutionPath\README.md" "$raw_dir_path\" -Force
+    Copy-Item "$SolutionPath\CHANGELOG.md" "$raw_dir_path\" -Force
     
     ###################################
     ####### Plain packaging
@@ -157,7 +157,7 @@ if($Target.Equals("Release")) {
     New-Item -ItemType Directory -Force -Path "$tsio_tmp_directory"
 
     # Copy mandatory thunder files to tmp directory
-    Copy-Item "$SolutionPath\README.MD" "$tsio_tmp_directory"
+    Copy-Item "$SolutionPath\README.md" "$tsio_tmp_directory"
     #Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
  
     Copy-Item "$SolutionPath\icon.png" "$tsio_tmp_directory"

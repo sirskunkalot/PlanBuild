@@ -111,8 +111,8 @@ jobs:
           mkdir distribute/PlanBuild
           cp PlanBuild/bin/Release/PlanBuild.dll distribute/PlanBuild
           cp -R PlanBuild/assets/* distribute/PlanBuild
-          cp README.MD distribute/PlanBuild
-          cp CHANGELOG.MD distribute/PlanBuild
+          cp README.md distribute/PlanBuild
+          cp CHANGELOG.md distribute/PlanBuild
           cd distribute
           zip -r PlanBuild-${{ steps.projectversion.outputs.VERSION_NUMBER }}.zip PlanBuild
           
