@@ -39,7 +39,7 @@ namespace PlanBuild.Blueprints.Tools
         private void OnDestroy()
         {
             Remove();
-            DisableSelectionProjector();
+            DisableSelectionProjector(); 
 
             On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
             On.Player.PieceRayTest -= Player_PieceRayTest;
