@@ -92,7 +92,7 @@ namespace PlanBuild.Plans
                 circleProjector.m_radius = PlanConfig.RadiusConfig.Value;
             };
 
-            CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, new PieceConfig()
+            CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, false, new PieceConfig()
             {
                 PieceTable = "Hammer",
                 Requirements = new RequirementConfig[]

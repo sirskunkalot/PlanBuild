@@ -1,3 +1,6 @@
+# Version 0.6.3
+* Enable clients without PlanBuild to connect to servers with PlanBuild installed but prevent clients with PlanBuild to connect to servers without it (needs Jötunn v2.3.3)
+
 # Version 0.6.2
 * Fixed ValheimRAFT compat
 
