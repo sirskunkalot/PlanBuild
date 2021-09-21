@@ -26,6 +26,11 @@ namespace PlanBuild.Blueprints
         public const string PieceTerrainName = "piece_bpterrain";
         public const string PiecePaintName = "piece_bppaint";
 
+        public const string PieceSelectAddName = "piece_bpselectadd";
+        public const string PieceSelectRemoveName = "piece_bpselectremove";
+        public const string PieceSelectSaveName = "piece_bpselectsave";
+        public const string PieceSelectCancelName = "piece_bpselectcancel";
+
         public static string BlueprintRuneItemName;
 
         public BlueprintAssets(AssetBundle assetBundle)
@@ -93,7 +98,8 @@ namespace PlanBuild.Blueprints
             {
                 PieceCaptureName, PieceSnapPointName, PieceCenterPointName,
                 PieceDeletePlansName,  PieceTerrainName, PieceDeleteObjectsName,
-                PiecePaintName
+                PiecePaintName, PieceSelectAddName, PieceSelectRemoveName, 
+                PieceSelectSaveName, PieceSelectCancelName
             })
             {
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], new PieceConfig
@@ -120,6 +126,12 @@ namespace PlanBuild.Blueprints
                         break;
                     case PiecePaintName:
                         prefabs[pieceName].AddComponent<PaintComponent>();
+                        break;
+                    case PieceSelectAddName:
+                        prefabs[pieceName].AddComponent<SelectAddComponent>();
+                        break;
+                    case PieceSelectRemoveName:
+                        prefabs[pieceName].AddComponent<SelectRemoveComponent>();
                         break;
                     default:
                         break;

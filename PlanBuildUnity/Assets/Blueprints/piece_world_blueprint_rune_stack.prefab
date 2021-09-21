@@ -415,6 +415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_primaryTarget: 0
   m_randomTarget: 0
+  m_targetNonPlayerBuilt: 1
   m_icon: {fileID: 21300000, guid: 2e0ff54aa38fc8f47b1371668e501b40, type: 3}
   m_name: $piece_world_blueprint_rune_stack
   m_description: $piece_world_blueprint_rune_stack_desc
@@ -423,6 +424,7 @@ MonoBehaviour:
   m_isUpgrade: 0
   m_comfort: 0
   m_comfortGroup: 0
+  m_comfortObject: {fileID: 0}
   m_groundPiece: 0
   m_allowAltGroundPlacement: 0
   m_groundOnly: 0
@@ -441,17 +443,20 @@ MonoBehaviour:
   m_spaceRequirement: 0
   m_repairPiece: 0
   m_canBeRemoved: 1
+  m_allowRotatedOverlap: 0
   m_onlyInBiome: 0
   m_placeEffect:
     m_effectPrefabs:
     - m_prefab: {fileID: 7075398906591101105, guid: 99fe6f221bb4d9a4da4edea214a89d58,
         type: 3}
       m_enabled: 1
+      m_variant: -1
       m_attach: 0
       m_inheritParentRotation: 0
       m_inheritParentScale: 0
       m_randomRotation: 0
       m_scale: 0
+      m_childTransform: 
   m_dlc: 
   m_craftingStation: {fileID: 0}
   m_resources: []

@@ -90,7 +90,7 @@ GameObject:
   - component: {fileID: 7400023259357764795}
   - component: {fileID: 284956298854988783}
   m_Layer: 10
-  m_Name: piece_bppaint
+  m_Name: piece_bpselectcancel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -139,9 +139,9 @@ MonoBehaviour:
   m_primaryTarget: 0
   m_randomTarget: 0
   m_targetNonPlayerBuilt: 1
-  m_icon: {fileID: 21300000, guid: bb217d59890006d4398ad3cd7f439751, type: 3}
-  m_name: $piece_blueprint_paint
-  m_description: $piece_blueprint_paint_desc
+  m_icon: {fileID: 21300000, guid: ffc7ed2e25b8d514aa7437468d564eda, type: 3}
+  m_name: $piece_blueprint_select_cancel
+  m_description: $piece_blueprint_select_cancel_desc
   m_enabled: 1
   m_category: 0
   m_isUpgrade: 0

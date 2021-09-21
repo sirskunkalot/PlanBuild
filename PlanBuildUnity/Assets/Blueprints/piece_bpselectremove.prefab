@@ -139,7 +139,7 @@ MonoBehaviour:
   m_primaryTarget: 0
   m_randomTarget: 0
   m_targetNonPlayerBuilt: 1
-  m_icon: {fileID: 21300000, guid: bb217d59890006d4398ad3cd7f439751, type: 3}
+  m_icon: {fileID: 21300000, guid: 838197350ea83d84e999043ff76b0c22, type: 3}
   m_name: $piece_blueprint_select_remove
   m_description: $piece_blueprint_select_remove_desc
   m_enabled: 1
@@ -147,6 +147,7 @@ MonoBehaviour:
   m_isUpgrade: 0
   m_comfort: 0
   m_comfortGroup: 0
+  m_comfortObject: {fileID: 0}
   m_groundPiece: 0
   m_allowAltGroundPlacement: 0
   m_groundOnly: 0
@@ -165,6 +166,7 @@ MonoBehaviour:
   m_spaceRequirement: 0
   m_repairPiece: 0
   m_canBeRemoved: 1
+  m_allowRotatedOverlap: 0
   m_onlyInBiome: 0
   m_placeEffect:
     m_effectPrefabs: []

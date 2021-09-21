@@ -36,7 +36,13 @@ namespace PlanBuild.Blueprints
         {
             No, Yes, AdminOnly
         }
-
+         
+        public static bool Allowed(AllowOption option)
+        {
+            return option == AllowOption.Yes
+                || option == AllowOption.AdminOnly && SynchronizationManager.Instance.PlayerIsAdmin;
+        }
+     
         internal static void Init()
         {
             // Rune Section
