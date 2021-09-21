@@ -21,7 +21,7 @@ namespace PlanBuild.Plans
         public PlanCrystalPrefab(AssetBundle planbuildBundle)
         {
             CrystalIcon = planbuildBundle.LoadAsset<Sprite>("plan_crystal");
-            ItemManager.OnVanillaItemsAvailable += CreatePlanCrytalItem;
+            PrefabManager.OnVanillaPrefabsAvailable += CreatePlanCrytalItem;
             ItemManager.OnItemsRegistered += FixShader;
         }
 
@@ -105,7 +105,7 @@ namespace PlanBuild.Plans
             }
             finally
             {
-                ItemManager.OnVanillaItemsAvailable -= CreatePlanCrytalItem;
+                PrefabManager.OnVanillaPrefabsAvailable -= CreatePlanCrytalItem;
             }
         }
 
