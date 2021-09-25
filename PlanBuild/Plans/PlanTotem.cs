@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
@@ -63,15 +64,22 @@ namespace PlanBuild.Plans
             Dictionary<PlanPiece, float> result = new Dictionary<PlanPiece, float>();
             foreach (var piece in Piece.m_allPieces)
             {
-                Vector3 pieceCenter = GetCenter(piece.gameObject);
-                float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
-                if (distance <= PlanConfig.RadiusConfig.Value)
+                try
                 {
-                    PlanPiece planPiece = piece.GetComponent<PlanPiece>();
-                    if (planPiece)
+                    Vector3 pieceCenter = GetCenter(piece.gameObject);
+                    float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
+                    if (distance <= PlanConfig.RadiusConfig.Value)
                     {
-                        result.Add(planPiece, distance);
+                        PlanPiece planPiece = piece.GetComponent<PlanPiece>();
+                        if (planPiece)
+                        {
+                            result.Add(planPiece, distance);
+                        }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogWarning($"Exception caught while collecting plan piece {piece}: {ex}");
                 }
             }
             return result.AsEnumerable()
