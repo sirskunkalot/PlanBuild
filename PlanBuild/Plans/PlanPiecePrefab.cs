@@ -73,11 +73,13 @@ namespace PlanBuild.Plans
 
         public void DisablePiece(GameObject gameObject)
         {
+            // Set our layer
             gameObject.layer = PlanLayer;
-            Transform playerBaseTransform = gameObject.transform.Find("PlayerBase");
-            if (playerBaseTransform)
+
+            // Remove all GOs with an effect area
+            foreach (var component in gameObject.GetComponentsInChildren<EffectArea>())
             {
-                Object.Destroy(playerBaseTransform.gameObject);
+                Object.DestroyImmediate(component.gameObject);
             }
 
             // A Ghost doesn't need fancy scripts
@@ -85,42 +87,42 @@ namespace PlanBuild.Plans
             {
                 if (!TypesToKeepInChildren.Any(x => x.IsSameOrSubclass(component.GetType())))
                 {
-                    Object.Destroy(component);
+                    Object.DestroyImmediate(component);
                 }
             }
 
             /*
-                        foreach (Type toDestroy in TypesToDestroyInChildren)
-                        {
-                            Component[] componentsInChildren = gameObject.GetComponentsInChildren(toDestroy);
-                            for (int i = 0; i < componentsInChildren.Length; i++)
-                            {
-                                Component subComponent = componentsInChildren[i];
-                                if (subComponent.GetType() == typeof(PlanPiece))
-                                {
-                                    continue;
-                                }
-                                Object.Destroy(subComponent);
-                            }
-                        }
+            foreach (Type toDestroy in TypesToDestroyInChildren)
+            {
+                Component[] componentsInChildren = gameObject.GetComponentsInChildren(toDestroy);
+                for (int i = 0; i < componentsInChildren.Length; i++)
+                {
+                    Component subComponent = componentsInChildren[i];
+                    if (subComponent.GetType() == typeof(PlanPiece))
+                    {
+                        continue;
+                    }
+                    Object.Destroy(subComponent);
+                }
+            }
 
-                        foreach (var audioSource in gameObject.GetComponentsInChildren<AudioSource>())
-                        {
-                            audioSource.enabled = false;
-                        }
-                        foreach (var zsfx in gameObject.GetComponentsInChildren<ZSFX>())
-                        {
-                            zsfx.enabled = false;
-                        }
-                        Windmill windmill = gameObject.GetComponentInChildren<Windmill>();
-                        if (windmill != null)
-                        {
-                            windmill.enabled = false;
-                        }
-                        foreach (var particleSystem in gameObject.GetComponentsInChildren<ParticleSystem>())
-                        {
-                            particleSystem.gameObject.SetActive(value: false);
-                        }*/
+            foreach (var audioSource in gameObject.GetComponentsInChildren<AudioSource>())
+            {
+                audioSource.enabled = false;
+            }
+            foreach (var zsfx in gameObject.GetComponentsInChildren<ZSFX>())
+            {
+                zsfx.enabled = false;
+            }
+            Windmill windmill = gameObject.GetComponentInChildren<Windmill>();
+            if (windmill != null)
+            {
+                windmill.enabled = false;
+            }
+            foreach (var particleSystem in gameObject.GetComponentsInChildren<ParticleSystem>())
+            {
+                particleSystem.gameObject.SetActive(value: false);
+            }*/
         }
     }
 }
