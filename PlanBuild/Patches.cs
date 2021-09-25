@@ -10,6 +10,7 @@ namespace PlanBuild
         public const string CraftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string GizmoGUID = "com.rolopogo.Gizmo";
         public const string ValheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
+        public const string ItemDrawersGUID = "mkz.itemdrawers";
 
         private static Harmony Harmony;
 

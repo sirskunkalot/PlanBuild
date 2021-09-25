@@ -22,6 +22,7 @@ namespace PlanBuild
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ValheimRaftGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(Patches.ItemDrawersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.ServerMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {

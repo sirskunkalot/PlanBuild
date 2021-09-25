@@ -550,25 +550,31 @@ namespace PlanBuild.Blueprints
                 var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
 
                 string pieceName = piece.name.Split('(')[0];
+                if (piece.gameObject.GetComponent<ZNetView>() is ZNetView znet &&
+                    znet.m_zdo != null &&
+                    ZNetScene.instance.GetPrefab(znet.m_zdo.m_prefab) is GameObject prefab)
+                {
+                    pieceName = prefab.name;
+                }
                 if (pieceName.EndsWith(PlanPiecePrefab.PlannedSuffix))
                 {
                     pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
-                }
+                }   
                 PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
             // Create instance snap points
             if (SnapPoints == null)
             {
-                SnapPoints = new SnapPoint[snapPoints.Count()];
+                SnapPoints = new SnapPoint[snapPoints.Count];
             }
             else if (SnapPoints.Length > 0)
             {
                 Array.Clear(SnapPoints, 0, SnapPoints.Length - 1);
-                Array.Resize(ref SnapPoints, snapPoints.Count());
+                Array.Resize(ref SnapPoints, snapPoints.Count);
             }
 
-            for (int j = 0; j < snapPoints.Count(); j++)
+            for (int j = 0; j < snapPoints.Count; j++)
             {
                 SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
             }

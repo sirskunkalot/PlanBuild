@@ -152,6 +152,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="itemdrawers.dll" />
     <Content Include="resources\BlueprintMarket.png" />
     <Content Include="resources\BlueprintMode.png" />
     <Content Include="resources\PlanTotem.png" />
