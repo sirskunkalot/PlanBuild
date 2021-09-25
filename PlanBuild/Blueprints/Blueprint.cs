@@ -422,7 +422,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public int GetPieceCount()
         {
-            return PieceEntries.Count();
+            return PieceEntries.Length;
         }
 
 
@@ -527,16 +527,17 @@ namespace PlanBuild.Blueprints
                     .OrderBy(x => x.transform.position.y)
                     .ThenBy(x => x.transform.position.x)
                     .ThenBy(x => x.transform.position.z);
+            var piecesCount = pieces.Count();
 
             // Create instance piece entries
             if (PieceEntries == null)
             {
-                PieceEntries = new PieceEntry[pieces.Count()];
+                PieceEntries = new PieceEntry[piecesCount];
             }
             else if (PieceEntries.Length > 0)
             {
                 Array.Clear(PieceEntries, 0, PieceEntries.Length - 1);
-                Array.Resize(ref PieceEntries, pieces.Count());
+                Array.Resize(ref PieceEntries, piecesCount);
             }
 
             uint i = 0;
@@ -559,7 +560,7 @@ namespace PlanBuild.Blueprints
                 if (pieceName.EndsWith(PlanPiecePrefab.PlannedSuffix))
                 {
                     pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
-                }   
+                }
                 PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
             }
 
