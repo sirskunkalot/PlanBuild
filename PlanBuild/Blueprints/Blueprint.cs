@@ -24,6 +24,8 @@ namespace PlanBuild.Blueprints
         public const string PlaceColliderName = "place_collider";
 
         private const string HeaderName = "#Name:";
+         
+
         private const string HeaderCreator = "#Creator:";
         private const string HeaderDescription = "#Description:";
         private const string HeaderSnapPoints = "#SnapPoints";
@@ -301,7 +303,7 @@ namespace PlanBuild.Blueprints
             ret.Add(HeaderName + Name);
             ret.Add(HeaderCreator + Creator);
             ret.Add(HeaderDescription + SimpleJson.SimpleJson.SerializeObject(Description));
-            if (SnapPoints.Count() > 0)
+            if (SnapPoints.Any())
             {
                 ret.Add(HeaderSnapPoints);
                 foreach (SnapPoint snapPoint in SnapPoints)
@@ -443,13 +445,17 @@ namespace PlanBuild.Blueprints
             return Bounds;
         }
 
+        public bool Capture(Vector3 position, float radius)
+        {
+            return Capture(BlueprintManager.Instance.GetPiecesInRadius(position, radius));
+        }
+
         /// <summary>
         ///     Capture all pieces within the radius at a certain position
         /// </summary>
-        /// <param name="position">Center position of the capture</param>
-        /// <param name="radius">Capture radius</param>
+        /// <param name="selectedPieces">Selected pieces</param>
         /// <returns></returns>
-        public bool Capture(Vector3 position, float radius)
+        public bool Capture(IEnumerable<Piece> selectedPieces)
         {
             Logger.LogDebug("Collecting piece information");
 
@@ -458,7 +464,8 @@ namespace PlanBuild.Blueprints
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
 
-            foreach (var piece in BlueprintManager.Instance.GetPiecesInRadius(position, radius))
+            
+            foreach (var piece in selectedPieces)
             {
                 if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
@@ -491,12 +498,12 @@ namespace PlanBuild.Blueprints
                 numPieces++;
             }
 
-            if (collected.Count() == 0)
+            if (!collected.Any())
             {
                 return false;
             }
 
-            Logger.LogDebug($"Found {numPieces} in a radius of {radius:F2}");
+            Logger.LogDebug($"Found {numPieces} pieces");
 
             Vector3 center;
             if (centerPiece == null)
@@ -677,9 +684,7 @@ namespace PlanBuild.Blueprints
 
             try
             {
-                var pieces = new List<PieceEntry>(PieceEntries);
-                var maxX = pieces.Max(x => x.posX);
-                var maxZ = pieces.Max(x => x.posZ);
+                var pieces = new List<PieceEntry>(PieceEntries); 
 
                 foreach (SnapPoint snapPoint in SnapPoints)
                 {

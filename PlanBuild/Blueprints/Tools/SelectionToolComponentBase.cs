@@ -20,7 +20,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 // yield return new WaitForSeconds(1);
                 yield return null;
-                foreach (GameObject selected in new List<GameObject>(BlueprintManager.Instance.activeSelection))
+                foreach (Piece selected in new List<Piece>(BlueprintManager.Instance.activeSelection))
                 {
                     if (selected && selected.TryGetComponent(out WearNTear wearNTear))
                     {

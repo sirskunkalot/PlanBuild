@@ -229,7 +229,7 @@ namespace PlanBuild.Blueprints
             }
             ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
             planPieces?.Remove(planPiece.GetPlanPieceID());
-            if (planPieces == null || planPieces.Count() == 0)
+            if (planPieces == null || !planPieces.Any())
             {
                 GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
                 if (blueprintObject)

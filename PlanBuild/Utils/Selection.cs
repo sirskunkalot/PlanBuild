@@ -9,10 +9,11 @@ using static WearNTear;
 
 namespace PlanBuild.Blueprints
 {
-    class Selection: IEnumerable<GameObject>
+    class Selection: IEnumerable<Piece>
     {
 
-        private readonly ZDOIDSet zDOIDs = new ZDOIDSet();
+        private readonly ZDOIDSet zDOIDs = new ZDOIDSet(); 
+        private readonly Dictionary<ZDOID, Piece> selectedObjectsCache = new Dictionary<ZDOID, Piece>();
 
         internal void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
@@ -102,13 +103,21 @@ namespace PlanBuild.Blueprints
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Add(zdoid.Value))
             {
-                selectedObjectsCache[zdoid.Value] = piece.gameObject;
+                selectedObjectsCache[zdoid.Value] = piece;
                 return true;
             }
             return false;
         }
 
-        private readonly Dictionary<ZDOID, GameObject> selectedObjectsCache = new Dictionary<ZDOID, GameObject>();
+        public void Show()
+        {
+            //TODO
+        }
+
+        public void Hide()
+        {
+            //TODO
+        }
 
         public void Clear()
         {
@@ -130,7 +139,7 @@ namespace PlanBuild.Blueprints
             } 
         }
 
-        public IEnumerator<GameObject> GetEnumerator()
+        public IEnumerator<Piece> GetEnumerator()
         {
             return selectedObjectsCache.Values.GetEnumerator();
         }
