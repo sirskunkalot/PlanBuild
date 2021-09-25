@@ -2,6 +2,8 @@
 * Made the totem piece collection more failsafe
 * Better plan pieces compatibility
 * Remove all GOs with EffectArea from plan pieces
+* Reverted the reset between switching tools
+* Capped the circle size to 100
 
 # Version 0.6.5
 * Fixed terrain tool removal not saving

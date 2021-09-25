@@ -148,16 +148,13 @@ namespace PlanBuild.Blueprints.Tools
             if (scrollingDown)
             {
                 SelectionRadius -= BlueprintConfig.SelectionIncrementConfig.Value;
-                if (SelectionRadius < 2f)
-                {
-                    SelectionRadius = 2f;
-                }
             }
             else
             {
                 SelectionRadius += BlueprintConfig.SelectionIncrementConfig.Value;
             }
 
+            SelectionRadius = Mathf.Clamp(SelectionRadius, 2f, 100f);
             SelectionProjector.SetRadius(SelectionRadius);
         }
 
