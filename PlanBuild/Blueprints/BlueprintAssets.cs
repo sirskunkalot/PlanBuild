@@ -102,7 +102,7 @@ namespace PlanBuild.Blueprints
                 PieceSelectSaveName, PieceSelectCancelName
             })
             {
-                CustomPiece piece = new CustomPiece(prefabs[pieceName], new PieceConfig
+                CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
                 {
                     PieceTable = PieceTableName,
                     Category = CategoryTools

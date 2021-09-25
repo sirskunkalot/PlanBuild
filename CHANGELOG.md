@@ -1,3 +1,12 @@
+# Version 0.6.5
+* Fixed terrain tool removal not saving
+
+# Version 0.6.4
+* Enable clients without PlanBuild to connect to servers with PlanBuild installed but prevent clients with PlanBuild to connect to servers without it (needs Jötunn v2.3.3)
+
+# Version 0.6.3
+* Reset selection radius & offset when switching tools
+
 # Version 0.6.2
 * Fixed ValheimRAFT compat
 

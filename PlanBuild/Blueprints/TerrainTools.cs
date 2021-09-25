@@ -127,6 +127,7 @@ namespace PlanBuild.Blueprints
                     if (modified)
                     {
                         comp.PaintCleared(startPosition, radius, TerrainModifier.PaintType.Reset, false, true);
+                        comp.Save();
                         hmap.Poke(false);
                         if (ClutterSystem.instance)
                         {

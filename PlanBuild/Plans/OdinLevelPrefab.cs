@@ -27,7 +27,7 @@ namespace PlanBuild.Plans
                 }
             });
             odinLevelPrefab.OnKitbashApplied += InitLaserGrid;
-            CustomPiece odinLevelPiece = new CustomPiece(odinLevelPrefab.Prefab, new PieceConfig
+            CustomPiece odinLevelPiece = new CustomPiece(odinLevelPrefab.Prefab, false, new PieceConfig
             {
                 PieceTable = "Hammer",
                 Requirements = new RequirementConfig[]
