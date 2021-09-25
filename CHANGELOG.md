@@ -1,5 +1,6 @@
 # Version 0.6.6
 * Made the totem piece collection more failsafe
+* Better plan pieces compatibility
 
 # Version 0.6.5
 * Fixed terrain tool removal not saving
