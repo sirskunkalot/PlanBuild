@@ -293,23 +293,33 @@ namespace PlanBuild.Plans
 
         private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
-            PlanPiece.m_forceDisableInit = true;
-            orig(self);
-            if (self.m_placementGhost)
+            try
             {
-                if (PlanCrystalPrefab.ShowRealTextures)
+                PlanPiece.m_forceDisableInit = true;
+                orig(self);
+                if (self.m_placementGhost)
                 {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
-                }
-                else if (PlanConfig.ConfigTransparentGhostPlacement.Value
-                         && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
-                             || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
-                )
-                {
-                    ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                    if (PlanCrystalPrefab.ShowRealTextures)
+                    {
+                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                    }
+                    else if (PlanConfig.ConfigTransparentGhostPlacement.Value
+                             && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
+                                 || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                    )
+                    {
+                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                    }
                 }
             }
-            PlanPiece.m_forceDisableInit = false;
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {ex}");
+            }
+            finally
+            {
+                PlanPiece.m_forceDisableInit = false;
+            }
         }
 
         private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
