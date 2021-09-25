@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
@@ -9,15 +8,21 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                BlueprintManager.Instance.activeSelection.AddPiecesInRadius(transform.position, this.SelectionRadius); 
-            } else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-            {
-                BlueprintManager.Instance.activeSelection.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
-            } else
-            {
-                BlueprintManager.Instance.activeSelection.AddPiece(BlueprintManager.Instance.LastHoveredPiece);
+                Selection.Instance.AddPiecesInRadius(transform.position, this.SelectionRadius);
             }
+            else if (BlueprintManager.Instance.LastHoveredPiece)
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    Selection.Instance.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
+                }
+                else
+                {
+                    Selection.Instance.AddPiece(BlueprintManager.Instance.LastHoveredPiece);
+                }
+            }
+            UpdateDescription();
             return false;
-        } 
+        }
     }
 }

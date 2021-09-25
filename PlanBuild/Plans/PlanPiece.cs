@@ -119,7 +119,7 @@ namespace PlanBuild.Plans
 
         internal void Highlight()
         {
-            m_wearNTear.Highlight(PlanConfig.UnsupportedColorConfig.Value);
+            m_wearNTear.Highlight(PlanConfig.UnsupportedColorConfig.Value, BlueprintManager.HighlightTimeout + 0.1f);
         }
 
         public static int m_planLayer = LayerMask.NameToLayer("piece_nonsolid");

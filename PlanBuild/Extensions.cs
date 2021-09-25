@@ -7,7 +7,7 @@ namespace PlanBuild
 {
     internal static class Extensions
     {
-        public static void Highlight(this WearNTear self, Color color)
+        public static void Highlight(this WearNTear self, Color color, float highlightTime)
         {
             if (self.m_oldMaterials == null)
             {
@@ -46,7 +46,10 @@ namespace PlanBuild
                 }
             }
             self.CancelInvoke("ResetHighlight");
-            self.Invoke("ResetHighlight", BlueprintManager.HighlightTimeout + 0.1f);
+            if(highlightTime > 0)
+            {
+                self.Invoke("ResetHighlight", highlightTime);
+            }
         }
     }
 }

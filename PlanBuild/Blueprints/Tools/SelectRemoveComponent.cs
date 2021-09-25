@@ -7,7 +7,22 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override bool PlacePiece(Player self, Piece piece)
         {
-            BlueprintManager.Instance.activeSelection.RemovePiecesInRadius(transform.position, this.SelectionRadius); 
+            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            {
+                Selection.Instance.RemovePiecesInRadius(transform.position, this.SelectionRadius);
+            }
+            else if (BlueprintManager.Instance.LastHoveredPiece)
+            {
+                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                {
+                    Selection.Instance.RemoveGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
+                }
+                else
+                {
+                    Selection.Instance.RemovePiece(BlueprintManager.Instance.LastHoveredPiece);
+                }
+            }
+            UpdateDescription();
             return false;
         } 
     }

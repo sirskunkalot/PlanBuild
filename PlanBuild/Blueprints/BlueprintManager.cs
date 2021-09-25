@@ -29,9 +29,7 @@ namespace PlanBuild.Blueprints
         internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
 
-        internal Piece LastHoveredPiece;
-
-        internal readonly Selection activeSelection = new Selection();
+        internal Piece LastHoveredPiece; 
 
         internal void Init()
         {
@@ -125,7 +123,7 @@ namespace PlanBuild.Blueprints
             {
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
-                    wearNTear.Highlight(color);
+                    wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
                 }
             }
             LastHightlightTime = Time.time;
@@ -141,7 +139,7 @@ namespace PlanBuild.Blueprints
             {
                 if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
                 {
-                    hoveredPlanPiece.m_wearNTear.Highlight(color);
+                    hoveredPlanPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
                 }
                 LastHightlightTime = Time.time;
             }
@@ -162,7 +160,7 @@ namespace PlanBuild.Blueprints
                     {
                         foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
                         {
-                            planPiece.m_wearNTear.Highlight(color);
+                            planPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
                         }
                     }
                 }

@@ -6,8 +6,14 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class SelectSaveComponent : ToolComponentBase
+    internal class SelectSaveComponent : SelectionToolComponentBase
     {
+        public override void Init()
+        {
+            base.Init();
+            DisableSelectionProjector(); 
+        }
+
         public override bool PlacePiece(Player self, Piece piece)
         {
             return MakeBlueprint();
@@ -19,8 +25,9 @@ namespace PlanBuild.Blueprints.Tools
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
             var bp = new Blueprint();
-            if (bp.Capture(BlueprintManager.Instance.activeSelection))
+            if (bp.Capture(Selection.Instance))
             {
+                Selection.Instance.Clear();
                 TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
                 TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
             }

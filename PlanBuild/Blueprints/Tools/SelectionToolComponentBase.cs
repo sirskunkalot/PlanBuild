@@ -1,34 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    class SelectionToolComponentBase : ToolComponentBase
+    internal class SelectionToolComponentBase : ToolComponentBase
     {
         public override void Init()
         {
-            StartCoroutine(FlashSelection());
+            UpdateDescription();
+            On.Hud.SetupPieceInfo += OnSetupPieceInfo;
+            Selection.Instance.Highlight();
         }
 
-        public IEnumerator<YieldInstruction> FlashSelection()
+        private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
-            while (true)
-            {
-                // yield return new WaitForSeconds(1);
-                yield return null;
-                foreach (Piece selected in new List<Piece>(BlueprintManager.Instance.activeSelection))
-                {
-                    if (selected && selected.TryGetComponent(out WearNTear wearNTear))
-                    {
-                        wearNTear.Highlight(Color.green);
-                    }
-                    yield return null;
-                }
-            }
+            orig(self, piece);
+            UpdateDescription();
+        }
+
+        public override void Remove()
+        {
+            Selection.Instance.Unhighlight();
+            On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
         }
 
         public override void UpdatePlacement(Player self)
@@ -43,18 +38,23 @@ namespace PlanBuild.Blueprints.Tools
                 EnableSelectionProjector(self);
                 float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
                 if (scrollWheel != 0f)
-                { 
+                {
                     UpdateSelectionRadius(scrollWheel);
                 }
                 else
                 {
                     UndoRotation(self, scrollWheel);
                 }
-            } else
+            }
+            else
             {
                 DisableSelectionProjector();
-            } 
+            }
         }
 
+        internal void UpdateDescription()
+        {
+            Hud.instance.m_pieceDescription.text = Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
+        }
     }
 }
