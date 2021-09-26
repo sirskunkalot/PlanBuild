@@ -141,7 +141,7 @@ MonoBehaviour:
   m_targetNonPlayerBuilt: 1
   m_icon: {fileID: 21300000, guid: 9e1f3691995a6634ebde5801fcb14e9c, type: 3}
   m_name: $piece_blueprint_select_save
-  m_description: $piece_blueprint_select_desc
+  m_description: 
   m_enabled: 1
   m_category: 0
   m_isUpgrade: 0

@@ -172,6 +172,48 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectAddName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_blueprint_select_add_connected" },
+                    new ButtonConfig { Name = "Shift", HintToken = "$hud_blueprint_select_add_radius" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectAddName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_blueprint_select_remove_connected" },
+                    new ButtonConfig { Name = "Shift", HintToken = "$hud_blueprint_select_remove_radius" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectSaveName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_save" },
+                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }, 
+                }
+            });
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSnapPointName,
                 ButtonConfigs = new[]
                 {

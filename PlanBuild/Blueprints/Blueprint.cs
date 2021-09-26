@@ -445,17 +445,12 @@ namespace PlanBuild.Blueprints
             return Bounds;
         }
 
-        public bool Capture(Vector3 position, float radius)
-        {
-            return Capture(BlueprintManager.Instance.GetPiecesInRadius(position, radius));
-        }
-
         /// <summary>
-        ///     Capture all pieces within the radius at a certain position
+        ///     Capture all pieces in the selection
         /// </summary>
-        /// <param name="selectedPieces">Selected pieces</param>
+        /// <param name="selection">Selection</param>
         /// <returns></returns>
-        public bool Capture(IEnumerable<Piece> selectedPieces)
+        public bool Capture(Selection selection)
         {
             Logger.LogDebug("Collecting piece information");
 
@@ -463,9 +458,8 @@ namespace PlanBuild.Blueprints
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
-
-            
-            foreach (var piece in selectedPieces)
+             
+            foreach (var piece in selection)
             {
                 if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {

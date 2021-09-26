@@ -40,6 +40,8 @@ namespace PlanBuild.Blueprints
                 // Init lists
                 LocalBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
+                
+                Selection.growMask = LayerMask.GetMask("piece", "piece_nonsolid");
 
                 // Init config
                 BlueprintConfig.Init();

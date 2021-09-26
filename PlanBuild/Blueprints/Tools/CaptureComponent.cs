@@ -46,7 +46,9 @@ namespace PlanBuild.Blueprints.Tools
 
             var bp = new Blueprint();
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
-            if (bp.Capture(BlueprintManager.Instance.GetPiecesInRadius(capturePosition, SelectionRadius)))
+            Selection selection = new Selection();
+            selection.AddPiecesInRadius(capturePosition, SelectionRadius);
+            if (bp.Capture(selection))
             {
                 TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp); 
                 TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);

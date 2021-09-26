@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
     {
         public const int MAX_HIGHLIGHT_PER_FRAME = 20;
         public const int MAX_GROW_PER_FRAME = 20;
+        public static int growMask;
 
         private static Selection _instance;
 
@@ -25,10 +26,39 @@ namespace PlanBuild.Blueprints
                 return _instance;
             }
         }
+
         private readonly ZDOIDSet zDOIDs = new ZDOIDSet();
-        private readonly Dictionary<ZDOID, Piece> selectedObjectsCache = new Dictionary<ZDOID, Piece>();
-        private Coroutine highlightRoutine;
+        private readonly Dictionary<ZDOID, Piece> selectedPieces = new Dictionary<ZDOID, Piece>();
+        private bool hidden = false;
+
+        private Coroutine highlightRoutine; 
         private Coroutine unhighlightRoutine;
+
+        public IEnumerator<Piece> GetEnumerator()
+        {
+            foreach(ZDOID zdoid in new List<ZDOID>(zDOIDs))
+            {
+                Piece piece = selectedPieces[zdoid];
+                if(piece)
+                {
+                    yield return piece;
+                }
+                else
+                {
+#if DEBUG
+                    Logger.LogInfo($"Loading ZDOID {zdoid}");
+#endif
+                    piece = ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)).GetComponent<Piece>();
+                    selectedPieces[zdoid] = piece;
+                    yield return piece;
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         internal void Highlight()
         {
@@ -59,8 +89,7 @@ namespace PlanBuild.Blueprints
 #if DEBUG
             Logger.LogInfo("Waiting for cancel");
 #endif 
-            yield return new WaitForEndOfFrame();
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForSeconds(0.5f);
 
             //Don't stop me now
             unhighlightRoutine = null;
@@ -110,6 +139,7 @@ namespace PlanBuild.Blueprints
 #endif
             highlightRoutine = null;
         }
+         
         internal void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
@@ -125,13 +155,12 @@ namespace PlanBuild.Blueprints
         }
 
         internal void AddGrowFromPiece(Piece piece)
-        {
-            //Use global MonoBehavior to avoid switching tools stopping the iteration
+        { 
             PlanBuildPlugin.Instance.StartCoroutine(AddGrowIterator(piece));
         }
 
         internal void RemoveGrowFromPiece(Piece piece)
-        { //Use global MonoBehavior to avoid switching tools stopping the iteration
+        { 
             PlanBuildPlugin.Instance.StartCoroutine(RemoveGrowIterator(piece));
         }
 
@@ -147,7 +176,7 @@ namespace PlanBuild.Blueprints
                 }
                 foreach (BoundData bound in wearNTear.m_bounds)
                 {
-                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size, m_tempColliders, bound.m_rot, m_rayMask);
+                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size, m_tempColliders, bound.m_rot, growMask);
                     for (int i = 0; i < num; i++)
                     {
                         Collider collider = m_tempColliders[i];
@@ -169,7 +198,8 @@ namespace PlanBuild.Blueprints
 
         private IEnumerator<YieldInstruction> AddGrowIterator(Piece originalPiece)
         {
-            Queue<Piece> workingSet = new Queue<Piece>(GetSupportingPieces(originalPiece));
+            Queue<Piece> workingSet = new Queue<Piece>();
+            workingSet.Enqueue(originalPiece);
             int n = 0;
             while (workingSet.Any())
             {
@@ -193,7 +223,8 @@ namespace PlanBuild.Blueprints
 
         private IEnumerator<YieldInstruction> RemoveGrowIterator(Piece originalPiece)
         {
-            Queue<Piece> workingSet = new Queue<Piece>(GetSupportingPieces(originalPiece));
+            Queue<Piece> workingSet = new Queue<Piece>();
+            workingSet.Enqueue(originalPiece);
             int n = 0;
             while (workingSet.Any())
             {
@@ -226,7 +257,7 @@ namespace PlanBuild.Blueprints
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Remove(zdoid.Value))
             {
-                selectedObjectsCache.Remove(zdoid.Value);
+                selectedPieces.Remove(zdoid.Value);
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.ResetHighlight();
@@ -241,7 +272,7 @@ namespace PlanBuild.Blueprints
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Add(zdoid.Value))
             {
-                selectedObjectsCache[zdoid.Value] = piece;
+                selectedPieces[zdoid.Value] = piece;
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.Highlight(Color.green, 0);
@@ -251,20 +282,10 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
-        public void Show()
-        {
-            //TODO
-        }
-
-        public void Hide()
-        {
-            //TODO
-        }
-
         public void Clear()
         {
             zDOIDs.Clear();
-            selectedObjectsCache.Clear();
+            selectedPieces.Clear();
         }
 
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
@@ -281,14 +302,22 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public IEnumerator<Piece> GetEnumerator()
-        {
-            return selectedObjectsCache.Values.GetEnumerator();
-        }
 
-        IEnumerator IEnumerable.GetEnumerator()
+        public new string ToString()
         {
-            return selectedObjectsCache.Values.GetEnumerator();
+            int snapPointCount = Selection.Instance.Count(piece => piece.name.StartsWith(BlueprintAssets.PieceSnapPointName));
+            bool hasCenter = Selection.Instance.Any(piece => piece.name.StartsWith(BlueprintAssets.PieceCenterPointName));
+
+            string result = Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
+            if(snapPointCount > 0)
+            {
+                result += Localization.instance.Localize(" ($piece_blueprint_select_snappoints_desc)", snapPointCount.ToString());
+            }
+            if(hasCenter)
+            {
+                result += Localization.instance.Localize(" ($piece_blueprint_select_center_desc)");
+            }
+            return result;
         }
     }
 }

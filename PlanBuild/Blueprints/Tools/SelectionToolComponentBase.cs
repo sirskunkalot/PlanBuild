@@ -27,7 +27,7 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         public override void UpdatePlacement(Player self)
-        {
+        {  
             if (!self.m_placementMarkerInstance)
             {
                 return;
@@ -54,7 +54,7 @@ namespace PlanBuild.Blueprints.Tools
 
         internal void UpdateDescription()
         {
-            Hud.instance.m_pieceDescription.text = Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
+            Hud.instance.m_pieceDescription.text = Selection.Instance.ToString();
         }
     }
 }
