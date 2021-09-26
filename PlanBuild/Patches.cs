@@ -23,7 +23,6 @@ namespace PlanBuild
             {
                 Jotunn.Logger.LogInfo("Applying BuildCamera patches");
                 Harmony.PatchAll(typeof(ModCompat.PatcherBuildCamera));
-                On.GameCamera.UpdateCamera += ModCompat.PatcherBuildCamera.OnUpdateCamera;
             }
 
             if (Chainloader.PluginInfos.ContainsKey(CraftFromContainersGUID))
