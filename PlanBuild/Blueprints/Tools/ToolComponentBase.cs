@@ -6,10 +6,10 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class ToolComponentBase : MonoBehaviour
     {
-        public ShapedProjector SelectionProjector;
-        public float SelectionRadius = 10.0f;
-        public float CameraOffset = 5.0f;
-        public Vector3 PlacementOffset = Vector3.zero;
+        public static ShapedProjector SelectionProjector;
+        public static float SelectionRadius = 10.0f;
+        public static float CameraOffset = 5.0f;
+        public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
 
@@ -39,7 +39,7 @@ namespace PlanBuild.Blueprints.Tools
         private void OnDestroy()
         {
             Remove();
-            DisableSelectionProjector(); 
+            DisableSelectionProjector();
 
             On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
             On.Player.PieceRayTest -= Player_PieceRayTest;
@@ -148,16 +148,13 @@ namespace PlanBuild.Blueprints.Tools
             if (scrollingDown)
             {
                 SelectionRadius -= BlueprintConfig.SelectionIncrementConfig.Value;
-                if (SelectionRadius < 2f)
-                {
-                    SelectionRadius = 2f;
-                }
             }
             else
             {
                 SelectionRadius += BlueprintConfig.SelectionIncrementConfig.Value;
             }
 
+            SelectionRadius = Mathf.Clamp(SelectionRadius, 2f, 100f);
             SelectionProjector.SetRadius(SelectionRadius);
         }
 

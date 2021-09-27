@@ -19,11 +19,20 @@ namespace PlanBuild.ModCompat
             return true;
         }
 
-        internal static void OnUpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        [HarmonyPatch(typeof(Valheim_Build_Camera.Valheim_Build_Camera), "EnableBuildMode")]
+        [HarmonyPostfix]
+        internal static void ValheimBuildCamera_EnableBuildMode_Postfix()
         {
-            UpdateCamera = !Valheim_Build_Camera.Valheim_Build_Camera.InBuildMode();
-            orig(self, dt);
+            UpdateCamera = false;
+        }
+
+
+        [HarmonyPatch(typeof(Valheim_Build_Camera.Valheim_Build_Camera), "DisableBuildMode")]
+        [HarmonyPostfix]
+        internal static void ValheimBuildCamera_DisableBuildMode_Postfix()
+        {
             UpdateCamera = true;
         }
+
     }
 }

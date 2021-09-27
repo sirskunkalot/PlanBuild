@@ -1,7 +1,9 @@
 ﻿using Jotunn;
 using Jotunn.Entities;
+using Jotunn.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -55,29 +57,40 @@ namespace PlanBuild.Plans
             DisablePiece(PiecePrefab);
         }
 
-        private static readonly List<Type> TypesToDestroyInChildren = new List<Type>()
-            {
-                typeof(GuidePoint),
-                typeof(Light),
-                typeof(LightLod),
-                typeof(LightFlicker),
-                typeof(Smelter),
-                typeof(Interactable),
-                typeof(Hoverable)
-            };
+        private static readonly List<Type> TypesToKeepInChildren = new List<Type>()
+        {
+            typeof(ZNetView),
+            typeof(WearNTear),
+            typeof(Piece),
+            typeof(Interactable),
+            typeof(Hoverable),
+            typeof(PlanPiece)
+        };
 
         public static int PlanLayer = LayerMask.NameToLayer("piece_nonsolid");
         public static int PlaceRayMask = LayerMask.GetMask("Default", "static_solid", "Default_small", "piece", "piece_nonsolid", "terrain", "vehicle");
 
         public void DisablePiece(GameObject gameObject)
         {
+            // Set our layer
             gameObject.layer = PlanLayer;
-            Transform playerBaseTransform = gameObject.transform.Find("PlayerBase");
-            if (playerBaseTransform)
+
+            // Remove all GOs with an effect area
+            foreach (var component in gameObject.GetComponentsInChildren<EffectArea>())
             {
-                Object.Destroy(playerBaseTransform.gameObject);
+                Object.DestroyImmediate(component.gameObject);
             }
 
+            // A Ghost doesn't need fancy scripts
+            foreach (var component in gameObject.GetComponentsInChildren<MonoBehaviour>())
+            {
+                if (!TypesToKeepInChildren.Any(x => x.IsSameOrSubclass(component.GetType())))
+                {
+                    Object.DestroyImmediate(component);
+                }
+            }
+
+            /*
             foreach (Type toDestroy in TypesToDestroyInChildren)
             {
                 Component[] componentsInChildren = gameObject.GetComponentsInChildren(toDestroy);
@@ -108,7 +121,7 @@ namespace PlanBuild.Plans
             foreach (var particleSystem in gameObject.GetComponentsInChildren<ParticleSystem>())
             {
                 particleSystem.gameObject.SetActive(value: false);
-            }
+            }*/
         }
     }
 }

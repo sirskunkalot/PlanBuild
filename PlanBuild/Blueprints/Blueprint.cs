@@ -424,7 +424,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public int GetPieceCount()
         {
-            return PieceEntries.Count();
+            return PieceEntries.Length;
         }
 
 
@@ -528,16 +528,17 @@ namespace PlanBuild.Blueprints
                     .OrderBy(x => x.transform.position.y)
                     .ThenBy(x => x.transform.position.x)
                     .ThenBy(x => x.transform.position.z);
+            var piecesCount = pieces.Count();
 
             // Create instance piece entries
             if (PieceEntries == null)
             {
-                PieceEntries = new PieceEntry[pieces.Count()];
+                PieceEntries = new PieceEntry[piecesCount];
             }
             else if (PieceEntries.Length > 0)
             {
                 Array.Clear(PieceEntries, 0, PieceEntries.Length - 1);
-                Array.Resize(ref PieceEntries, pieces.Count());
+                Array.Resize(ref PieceEntries, piecesCount);
             }
 
             uint i = 0;
@@ -551,6 +552,12 @@ namespace PlanBuild.Blueprints
                 var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
 
                 string pieceName = piece.name.Split('(')[0];
+                if (piece.gameObject.GetComponent<ZNetView>() is ZNetView znet &&
+                    znet.m_zdo != null &&
+                    ZNetScene.instance.GetPrefab(znet.m_zdo.m_prefab) is GameObject prefab)
+                {
+                    pieceName = prefab.name;
+                }
                 if (pieceName.EndsWith(PlanPiecePrefab.PlannedSuffix))
                 {
                     pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
@@ -561,15 +568,15 @@ namespace PlanBuild.Blueprints
             // Create instance snap points
             if (SnapPoints == null)
             {
-                SnapPoints = new SnapPoint[snapPoints.Count()];
+                SnapPoints = new SnapPoint[snapPoints.Count];
             }
             else if (SnapPoints.Length > 0)
             {
                 Array.Clear(SnapPoints, 0, SnapPoints.Length - 1);
-                Array.Resize(ref SnapPoints, snapPoints.Count());
+                Array.Resize(ref SnapPoints, snapPoints.Count);
             }
 
-            for (int j = 0; j < snapPoints.Count(); j++)
+            for (int j = 0; j < snapPoints.Count; j++)
             {
                 SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
             }
