@@ -54,9 +54,9 @@
       <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="Gizmo">
-      <HintPath>..\libraries\pub\Gizmo.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="GizmoReloaded, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\GizmoReloaded.dll</HintPath>
     </Reference>
     <Reference Include="Jotunn, Version=2.3.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.3.3\lib\net462\Jotunn.dll</HintPath>
