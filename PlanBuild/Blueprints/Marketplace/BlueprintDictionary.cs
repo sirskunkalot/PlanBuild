@@ -40,7 +40,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
             ZPackage package = new ZPackage();
 
-            package.Write(this.Count());
+            package.Write(Count);
             foreach (var entry in this)
             {
                 Jotunn.Logger.LogDebug($"{entry.Key}");

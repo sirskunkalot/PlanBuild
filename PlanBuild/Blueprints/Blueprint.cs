@@ -165,7 +165,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Create a blueprint instance with a given ID from a BLOB.
+        ///     Create a blueprint instance with a given ID from a compressed BLOB.
         /// </summary>
         /// <param name="id">The unique blueprint ID</param>
         /// <param name="payload">BLOB with blueprint data</param>
@@ -174,24 +174,22 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret;
             List<string> lines = new List<string>();
-            using (MemoryStream m = new MemoryStream(payload))
+            using MemoryStream m = new MemoryStream(global::Utils.Decompress(payload));
+            using (BinaryReader reader = new BinaryReader(m))
             {
-                using (BinaryReader reader = new BinaryReader(m))
+                int numLines = reader.ReadInt32();
+                for (int i = 0; i < numLines; i++)
                 {
-                    int numLines = reader.ReadInt32();
-                    for (int i = 0; i < numLines; i++)
-                    {
-                        lines.Add(reader.ReadString());
-                    }
-                    ret = FromArray(id, lines.ToArray(), Format.Blueprint);
+                    lines.Add(reader.ReadString());
+                }
+                ret = FromArray(id, lines.ToArray(), Format.Blueprint);
 
-                    int numBytes = reader.ReadInt32();
-                    if (numBytes > 0)
-                    {
-                        byte[] thumbnailBytes = reader.ReadBytes(numBytes);
-                        ret.Thumbnail = new Texture2D(1, 1);
-                        ret.Thumbnail.LoadImage(thumbnailBytes);
-                    }
+                int numBytes = reader.ReadInt32();
+                if (numBytes > 0)
+                {
+                    byte[] thumbnailBytes = reader.ReadBytes(numBytes);
+                    ret.Thumbnail = new Texture2D(1, 1);
+                    ret.Thumbnail.LoadImage(thumbnailBytes);
                 }
             }
 
@@ -301,7 +299,7 @@ namespace PlanBuild.Blueprints
             ret.Add(HeaderName + Name);
             ret.Add(HeaderCreator + Creator);
             ret.Add(HeaderDescription + SimpleJson.SimpleJson.SerializeObject(Description));
-            if (SnapPoints.Count() > 0)
+            if (SnapPoints.Length > 0)
             {
                 ret.Add(HeaderSnapPoints);
                 foreach (SnapPoint snapPoint in SnapPoints)
@@ -319,7 +317,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
+        ///     Creates a compressed BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
         /// <returns>A byte array representation of this blueprint including the thumbnail</returns>
         public byte[] ToBlob()
@@ -330,29 +328,27 @@ namespace PlanBuild.Blueprints
                 return null;
             }
 
-            using (MemoryStream m = new MemoryStream())
+            using MemoryStream m = new MemoryStream();
+            using (BinaryWriter writer = new BinaryWriter(m))
             {
-                using (BinaryWriter writer = new BinaryWriter(m))
+                writer.Write(lines.Length);
+                foreach (string line in lines)
                 {
-                    writer.Write(lines.Length);
-                    foreach (string line in lines)
-                    {
-                        writer.Write(line);
-                    }
-
-                    if (Thumbnail == null)
-                    {
-                        writer.Write(0);
-                    }
-                    else
-                    {
-                        byte[] thumbBytes = Thumbnail.EncodeToPNG();
-                        writer.Write(thumbBytes.Length);
-                        writer.Write(thumbBytes);
-                    }
+                    writer.Write(line);
                 }
-                return m.ToArray();
+
+                if (Thumbnail == null)
+                {
+                    writer.Write(0);
+                }
+                else
+                {
+                    byte[] thumbBytes = Thumbnail.EncodeToPNG();
+                    writer.Write(thumbBytes.Length);
+                    writer.Write(thumbBytes);
+                }
             }
+            return global::Utils.Compress(m.ToArray());
         }
 
         /// <summary>
@@ -491,7 +487,7 @@ namespace PlanBuild.Blueprints
                 numPieces++;
             }
 
-            if (collected.Count() == 0)
+            if (!collected.Any())
             {
                 return false;
             }
@@ -685,8 +681,6 @@ namespace PlanBuild.Blueprints
             try
             {
                 var pieces = new List<PieceEntry>(PieceEntries);
-                var maxX = pieces.Max(x => x.posX);
-                var maxZ = pieces.Max(x => x.posZ);
 
                 foreach (SnapPoint snapPoint in SnapPoints)
                 {
@@ -773,7 +767,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception e)
                     {
-                        Jotunn.Logger.LogWarning($"Error while creating ghost of line: {piece.line}\n{e}");
+                        Logger.LogWarning($"Error while creating ghost of line: {piece.line}\n{e}");
                     }
                 }
 
