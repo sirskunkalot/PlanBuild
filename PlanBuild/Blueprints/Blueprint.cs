@@ -85,11 +85,55 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
-
+        
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
-        public Texture2D Thumbnail;
+        public Texture2D Thumbnail
+        {
+            get => ResizedThumbnail;
+            set
+            {
+                const int maxWidth = 160;
+
+                if (value.width > maxWidth)
+                {
+                    // Calculate proper height
+                    int width = maxWidth;
+                    int height = (int) Math.Round((float)maxWidth * value.height / value.width);
+
+                    // Create thumbnail image from screenshot
+                    ResizedThumbnail = new Texture2D(width, height);
+                    for (var y = 0; y < height; y++)
+                    {
+                        for (var x = 0; x < width; x++)
+                        {
+                            var xp = 1f * x / width;
+                            var yp = 1f * y / height;
+                            var xo = (int) Mathf.Round(xp * value.width); // Other X pos
+                            var yo = (int) Mathf.Round(yp * value.height); // Other Y pos
+                            Color origPixel = value.GetPixel(xo, yo);
+                            origPixel.a = 1f;
+                            ResizedThumbnail.SetPixel(x, y, origPixel);
+                        }
+                    }
+                
+                    ResizedThumbnail.Apply();
+
+                    // Destroy properly
+                    Object.Destroy(value);
+                }
+                else
+                {
+                    ResizedThumbnail = value;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Internal representation of the Thumbnail, always resized to max 160 width
+        /// </summary>
+        private Texture2D ResizedThumbnail;
 
         /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
@@ -188,8 +232,9 @@ namespace PlanBuild.Blueprints
                 if (numBytes > 0)
                 {
                     byte[] thumbnailBytes = reader.ReadBytes(numBytes);
-                    ret.Thumbnail = new Texture2D(1, 1);
-                    ret.Thumbnail.LoadImage(thumbnailBytes);
+                    Texture2D tex = new Texture2D(1, 1);
+                    tex.LoadImage(thumbnailBytes);
+                    ret.Thumbnail = tex;
                 }
             }
 
@@ -885,7 +930,7 @@ namespace PlanBuild.Blueprints
                 File.Delete(IconLocation);
             }
         }
-
+        
         /// <summary>
         ///     Helper class for naming and saving a captured blueprint via GUI
         ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
@@ -956,35 +1001,11 @@ namespace PlanBuild.Blueprints
 
                 yield return new WaitForEndOfFrame();
 
-                // Get a screenshot
-                Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-
-                // Calculate proper height
-                int width = 160;
-                int height = (int)Math.Round(160f * screenshot.height / screenshot.width);
-
-                // Create thumbnail image from screenshot
-                newbp.Thumbnail = new Texture2D(width, height);
-                for (var y = 0; y < height; y++)
-                {
-                    for (var x = 0; x < width; x++)
-                    {
-                        var xp = 1f * x / width;
-                        var yp = 1f * y / height;
-                        var xo = (int)Mathf.Round(xp * screenshot.width); // Other X pos
-                        var yo = (int)Mathf.Round(yp * screenshot.height); // Other Y pos
-                        Color origPixel = screenshot.GetPixel(xo, yo);
-                        origPixel.a = 1f;
-                        newbp.Thumbnail.SetPixel(x, y, origPixel);
-                    }
-                }
-                newbp.Thumbnail.Apply();
-
+                // Set a screenshot
+                newbp.Thumbnail = ScreenCapture.CaptureScreenshotAsTexture();
+                
                 // Save to file
                 File.WriteAllBytes(newbp.IconLocation, newbp.Thumbnail.EncodeToPNG());
-
-                // Destroy properly
-                Object.Destroy(screenshot);
 
                 // Reactivate SelectionCircle
                 ShapedProjector.ShowProjectors = true;
