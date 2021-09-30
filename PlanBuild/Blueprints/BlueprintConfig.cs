@@ -32,6 +32,10 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<string> BlueprintSearchDirectoryConfig;
         internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
+        private const string KeybindSection = "Keybindings";
+        internal static ConfigEntry<KeyCode> CaptureHighlightConfig;
+        internal static ButtonConfig CaptureHighlightButton;
+
         internal static void Init()
         {
             // Rune Section
@@ -109,6 +113,12 @@ namespace PlanBuild.Blueprints
                 DirectorySection, "Save directory", "BepInEx/config/PlanBuild/blueprints",
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
+            // Keybind section
+
+            CaptureHighlightConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "CaptureHighlightModifier", KeyCode.LeftControl,
+                "Modifier key to highlight captured pieces");
+
             // Create Buttons and KeyHints if and when PixelFix is created
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
@@ -118,6 +128,8 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private static void CreateCustomKeyHints()
         {
+            // Global buttons
+
             PlanSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
@@ -143,6 +155,15 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
+            
+            // Capture buttons
+            
+            CaptureHighlightButton = new ButtonConfig
+            {
+                Name = nameof(CaptureHighlightButton),
+                Config = CaptureHighlightConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CaptureHighlightButton);
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -152,8 +173,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = CaptureHighlightButton.Name, HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -166,7 +186,6 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -179,7 +198,6 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
@@ -192,7 +210,6 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }

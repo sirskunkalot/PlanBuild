@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Jotunn.Managers;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -28,7 +29,7 @@ namespace PlanBuild.Blueprints.Tools
                 UndoRotation(self, scrollWheel);
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            if (ZInput.GetButton(BlueprintConfig.CaptureHighlightButton.Name))
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }
