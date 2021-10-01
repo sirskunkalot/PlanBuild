@@ -1,4 +1,7 @@
 {
+  "jotunn_modsettings": "Mod Einstellungen",
+  "jotunn_cat_tools": "Werkzeuge",
+  "jotunn_cat_blueprints": "Blaupausen",
 	"item_plan_crystal": "Skuld-Kristall",
 	"item_plan_crystal_description": "Ein Kristall, der mit der Macht von Skuld durchdrungen ist. Ermöglicht es dem Träger, in die Zukunft zu sehen.",
 	"message_plan_crystal_start": "Du kannst die Zukunft sehen",
