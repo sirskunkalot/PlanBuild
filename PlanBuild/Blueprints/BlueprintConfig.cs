@@ -47,12 +47,12 @@ namespace PlanBuild.Blueprints
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", false,
                 new ConfigDescription("Allow usage of the terrain modification tools", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert camera offset scroll", false,
@@ -96,12 +96,12 @@ namespace PlanBuild.Blueprints
             AllowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow serverside blueprints", false,
                 new ConfigDescription("Allow sharing of blueprints on this server", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow clients to use the GUI toggle key", true,
                 new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             ServerGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
