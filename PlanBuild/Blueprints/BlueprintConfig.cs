@@ -33,8 +33,12 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
         private const string KeybindSection = "Keybindings";
-        internal static ConfigEntry<KeyCode> CaptureHighlightConfig;
-        internal static ButtonConfig CaptureHighlightButton;
+        internal static ConfigEntry<KeyCode> RadiusModifierConfig;
+        internal static ButtonConfig RadiusModifierButton;
+        internal static ConfigEntry<KeyCode> MarkerSwitchConfig;
+        internal static ButtonConfig MarkerSwitchButton;
+        internal static ConfigEntry<KeyCode> DeleteModifierConfig;
+        internal static ButtonConfig DeleteModifierButton;
 
         internal static void Init()
         {
@@ -115,9 +119,20 @@ namespace PlanBuild.Blueprints
 
             // Keybind section
 
-            CaptureHighlightConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "CaptureHighlightModifier", KeyCode.LeftControl,
-                "Modifier key to highlight captured pieces");
+            RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "RadiusModifier", KeyCode.LeftControl,
+                new ConfigDescription("Modifier key to use radius based selection on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 1}));
+
+            DeleteModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "DeleteModifier", KeyCode.LeftAlt,
+                new ConfigDescription("Modifier key for removal operations on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 2}));
+
+            MarkerSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "MarkerSwitch", KeyCode.Q,
+                new ConfigDescription("Key to switch between marker shapes on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 3}));
 
             // Create Buttons and KeyHints if and when PixelFix is created
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
@@ -128,7 +143,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private static void CreateCustomKeyHints()
         {
-            // Global buttons
+            // Global
 
             PlanSwitchButton = new ButtonConfig
             {
@@ -145,6 +160,31 @@ namespace PlanBuild.Blueprints
                 ActiveInCustomGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
+            
+            // Shared
+
+            RadiusModifierButton = new ButtonConfig
+            {
+                Name = nameof(RadiusModifierButton),
+                Config = RadiusModifierConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, RadiusModifierButton);
+            
+            DeleteModifierButton = new ButtonConfig
+            {
+                Name = nameof(DeleteModifierButton),
+                Config = DeleteModifierConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, DeleteModifierButton);
+
+            MarkerSwitchButton = new ButtonConfig
+            {
+                Name = nameof(MarkerSwitchButton),
+                Config = MarkerSwitchConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MarkerSwitchButton);
+
+            // Mode Switch
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -156,15 +196,8 @@ namespace PlanBuild.Blueprints
                 }
             });
             
-            // Capture buttons
+            // Capture
             
-            CaptureHighlightButton = new ButtonConfig
-            {
-                Name = nameof(CaptureHighlightButton),
-                Config = CaptureHighlightConfig
-            };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CaptureHighlightButton);
-
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -173,10 +206,12 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = CaptureHighlightButton.Name, HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
+
+            // Snap Point
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -190,6 +225,8 @@ namespace PlanBuild.Blueprints
                 }
             });
 
+            // Center point
+
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -202,6 +239,8 @@ namespace PlanBuild.Blueprints
                 }
             });
 
+            // Remove
+            
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -210,11 +249,13 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
-                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
+
+            // Terrain
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -224,11 +265,13 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_delete" },
-                    new ButtonConfig { Name = "Q", HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
+                    new ButtonConfig { Name = MarkerSwitchButton.Name, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });
+
+            // Delete
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -238,10 +281,12 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpobjects_deleteall" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpobjects_deleteall" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpobjectsradius" }
                 }
             });
+
+            // Paint
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {

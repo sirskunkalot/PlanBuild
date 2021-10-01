@@ -29,7 +29,7 @@ namespace PlanBuild.Blueprints.Tools
                 UndoRotation(self, scrollWheel);
             }
 
-            if (ZInput.GetButton(BlueprintConfig.CaptureHighlightButton.Name))
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }
