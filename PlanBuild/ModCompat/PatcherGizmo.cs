@@ -11,8 +11,9 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static bool GizmoPlugin_UpdatePlacement_Prefix(Transform ___gizmoRoot)
         {
-            if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
-                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName))
+            if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces && Player.m_localPlayer.m_placementGhost &&
+                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
+                !Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
                 if (___gizmoRoot)
                 {

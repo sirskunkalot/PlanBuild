@@ -81,7 +81,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
-                if (useCache && BlueprintManager.ServerBlueprints.Count() > 0)
+                if (useCache && BlueprintManager.ServerBlueprints.Any())
                 {
                     Logger.LogMessage("Getting server blueprint list from cache");
                     callback?.Invoke(true, string.Empty);
