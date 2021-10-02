@@ -85,11 +85,55 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
-
+        
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
-        public Texture2D Thumbnail;
+        public Texture2D Thumbnail
+        {
+            get => ResizedThumbnail;
+            set
+            {
+                const int maxWidth = 160;
+
+                if (value.width > maxWidth)
+                {
+                    // Calculate proper height
+                    int width = maxWidth;
+                    int height = (int) Math.Round((float)maxWidth * value.height / value.width);
+
+                    // Create thumbnail image from screenshot
+                    ResizedThumbnail = new Texture2D(width, height);
+                    for (var y = 0; y < height; y++)
+                    {
+                        for (var x = 0; x < width; x++)
+                        {
+                            var xp = 1f * x / width;
+                            var yp = 1f * y / height;
+                            var xo = (int) Mathf.Round(xp * value.width); // Other X pos
+                            var yo = (int) Mathf.Round(yp * value.height); // Other Y pos
+                            Color origPixel = value.GetPixel(xo, yo);
+                            origPixel.a = 1f;
+                            ResizedThumbnail.SetPixel(x, y, origPixel);
+                        }
+                    }
+                
+                    ResizedThumbnail.Apply();
+
+                    // Destroy properly
+                    Object.Destroy(value);
+                }
+                else
+                {
+                    ResizedThumbnail = value;
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Internal representation of the Thumbnail, always resized to max 160 width
+        /// </summary>
+        private Texture2D ResizedThumbnail;
 
         /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
@@ -165,7 +209,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Create a blueprint instance with a given ID from a BLOB.
+        ///     Create a blueprint instance with a given ID from a compressed BLOB.
         /// </summary>
         /// <param name="id">The unique blueprint ID</param>
         /// <param name="payload">BLOB with blueprint data</param>
@@ -174,24 +218,23 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret;
             List<string> lines = new List<string>();
-            using (MemoryStream m = new MemoryStream(payload))
+            using MemoryStream m = new MemoryStream(global::Utils.Decompress(payload));
+            using (BinaryReader reader = new BinaryReader(m))
             {
-                using (BinaryReader reader = new BinaryReader(m))
+                int numLines = reader.ReadInt32();
+                for (int i = 0; i < numLines; i++)
                 {
-                    int numLines = reader.ReadInt32();
-                    for (int i = 0; i < numLines; i++)
-                    {
-                        lines.Add(reader.ReadString());
-                    }
-                    ret = FromArray(id, lines.ToArray(), Format.Blueprint);
+                    lines.Add(reader.ReadString());
+                }
+                ret = FromArray(id, lines.ToArray(), Format.Blueprint);
 
-                    int numBytes = reader.ReadInt32();
-                    if (numBytes > 0)
-                    {
-                        byte[] thumbnailBytes = reader.ReadBytes(numBytes);
-                        ret.Thumbnail = new Texture2D(1, 1);
-                        ret.Thumbnail.LoadImage(thumbnailBytes);
-                    }
+                int numBytes = reader.ReadInt32();
+                if (numBytes > 0)
+                {
+                    byte[] thumbnailBytes = reader.ReadBytes(numBytes);
+                    Texture2D tex = new Texture2D(1, 1);
+                    tex.LoadImage(thumbnailBytes);
+                    ret.Thumbnail = tex;
                 }
             }
 
@@ -301,7 +344,7 @@ namespace PlanBuild.Blueprints
             ret.Add(HeaderName + Name);
             ret.Add(HeaderCreator + Creator);
             ret.Add(HeaderDescription + SimpleJson.SimpleJson.SerializeObject(Description));
-            if (SnapPoints.Count() > 0)
+            if (SnapPoints.Length > 0)
             {
                 ret.Add(HeaderSnapPoints);
                 foreach (SnapPoint snapPoint in SnapPoints)
@@ -319,7 +362,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Creates a BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
+        ///     Creates a compressed BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
         /// <returns>A byte array representation of this blueprint including the thumbnail</returns>
         public byte[] ToBlob()
@@ -330,29 +373,27 @@ namespace PlanBuild.Blueprints
                 return null;
             }
 
-            using (MemoryStream m = new MemoryStream())
+            using MemoryStream m = new MemoryStream();
+            using (BinaryWriter writer = new BinaryWriter(m))
             {
-                using (BinaryWriter writer = new BinaryWriter(m))
+                writer.Write(lines.Length);
+                foreach (string line in lines)
                 {
-                    writer.Write(lines.Length);
-                    foreach (string line in lines)
-                    {
-                        writer.Write(line);
-                    }
-
-                    if (Thumbnail == null)
-                    {
-                        writer.Write(0);
-                    }
-                    else
-                    {
-                        byte[] thumbBytes = Thumbnail.EncodeToPNG();
-                        writer.Write(thumbBytes.Length);
-                        writer.Write(thumbBytes);
-                    }
+                    writer.Write(line);
                 }
-                return m.ToArray();
+
+                if (Thumbnail == null)
+                {
+                    writer.Write(0);
+                }
+                else
+                {
+                    byte[] thumbBytes = Thumbnail.EncodeToPNG();
+                    writer.Write(thumbBytes.Length);
+                    writer.Write(thumbBytes);
+                }
             }
+            return global::Utils.Compress(m.ToArray());
         }
 
         /// <summary>
@@ -491,7 +532,7 @@ namespace PlanBuild.Blueprints
                 numPieces++;
             }
 
-            if (collected.Count() == 0)
+            if (!collected.Any())
             {
                 return false;
             }
@@ -685,8 +726,6 @@ namespace PlanBuild.Blueprints
             try
             {
                 var pieces = new List<PieceEntry>(PieceEntries);
-                var maxX = pieces.Max(x => x.posX);
-                var maxZ = pieces.Max(x => x.posZ);
 
                 foreach (SnapPoint snapPoint in SnapPoints)
                 {
@@ -773,7 +812,7 @@ namespace PlanBuild.Blueprints
                     }
                     catch (Exception e)
                     {
-                        Jotunn.Logger.LogWarning($"Error while creating ghost of line: {piece.line}\n{e}");
+                        Logger.LogWarning($"Error while creating ghost of line: {piece.line}\n{e}");
                     }
                 }
 
@@ -891,7 +930,7 @@ namespace PlanBuild.Blueprints
                 File.Delete(IconLocation);
             }
         }
-
+        
         /// <summary>
         ///     Helper class for naming and saving a captured blueprint via GUI
         ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
@@ -962,35 +1001,11 @@ namespace PlanBuild.Blueprints
 
                 yield return new WaitForEndOfFrame();
 
-                // Get a screenshot
-                Texture2D screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-
-                // Calculate proper height
-                int width = 160;
-                int height = (int)Math.Round(160f * screenshot.height / screenshot.width);
-
-                // Create thumbnail image from screenshot
-                newbp.Thumbnail = new Texture2D(width, height);
-                for (var y = 0; y < height; y++)
-                {
-                    for (var x = 0; x < width; x++)
-                    {
-                        var xp = 1f * x / width;
-                        var yp = 1f * y / height;
-                        var xo = (int)Mathf.Round(xp * screenshot.width); // Other X pos
-                        var yo = (int)Mathf.Round(yp * screenshot.height); // Other Y pos
-                        Color origPixel = screenshot.GetPixel(xo, yo);
-                        origPixel.a = 1f;
-                        newbp.Thumbnail.SetPixel(x, y, origPixel);
-                    }
-                }
-                newbp.Thumbnail.Apply();
-
+                // Set a screenshot
+                newbp.Thumbnail = ScreenCapture.CaptureScreenshotAsTexture();
+                
                 // Save to file
                 File.WriteAllBytes(newbp.IconLocation, newbp.Thumbnail.EncodeToPNG());
-
-                // Destroy properly
-                Object.Destroy(screenshot);
 
                 // Reactivate SelectionCircle
                 ShapedProjector.ShowProjectors = true;
