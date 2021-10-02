@@ -6,13 +6,13 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            if (Input.GetKey(BlueprintConfig.RadiusModifierButton.Key))
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.Instance.LastHoveredPiece)
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (Input.GetKey(BlueprintConfig.DeleteModifierButton.Key))
                 {
                     Selection.Instance.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
                 }

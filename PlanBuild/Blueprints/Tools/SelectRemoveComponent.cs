@@ -7,13 +7,18 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            bool radiusModifier = Input.GetKey(BlueprintConfig.RadiusModifierButton.Key);
+            bool connectedModifier = Input.GetKey(BlueprintConfig.DeleteModifierButton.Key);
+            if(radiusModifier && connectedModifier)
             {
+                Selection.Instance.Clear();
+            }else if (radiusModifier)
+            { 
                 Selection.Instance.RemovePiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.Instance.LastHoveredPiece)
             {
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (connectedModifier)
                 {
                     Selection.Instance.RemoveGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
                 }

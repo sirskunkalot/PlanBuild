@@ -319,7 +319,15 @@ namespace PlanBuild.Blueprints
         }
 
         public void Clear()
-        {
+        { 
+            foreach (ZDOID zdoid in this)
+            {
+                GameObject selected = GetGameObject(zdoid);
+                if (selected && selected.TryGetComponent(out WearNTear wearNTear))
+                {
+                    wearNTear.ResetHighlight();
+                } 
+            }
             zDOIDs.Clear(); 
         }
 

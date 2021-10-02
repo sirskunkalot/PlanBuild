@@ -33,6 +33,8 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
         private const string KeybindSection = "Keybindings";
+        internal static ConfigEntry<KeyCode> CameraModifierConfig;
+        internal static ButtonConfig CameraModifierButton;
         internal static ConfigEntry<KeyCode> RadiusModifierConfig;
         internal static ButtonConfig RadiusModifierButton;
         internal static ConfigEntry<KeyCode> MarkerSwitchConfig;
@@ -119,6 +121,11 @@ namespace PlanBuild.Blueprints
 
             // Keybind section
 
+            CameraModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "CameraModifier", KeyCode.LeftShift,
+                new ConfigDescription("Modifier key to modify camera behavior on various tools", null,
+                    new ConfigurationManagerAttributes { Order = 1 }));
+
             RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "RadiusModifier", KeyCode.LeftControl,
                 new ConfigDescription("Modifier key to use radius based selection on various tools", null,
@@ -160,8 +167,14 @@ namespace PlanBuild.Blueprints
                 ActiveInCustomGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
-            
-            // Shared
+
+            // Shared 
+            CameraModifierButton = new ButtonConfig
+            {
+                Name = nameof(CameraModifierButton),
+                Config = CameraModifierConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CameraModifierButton);
 
             RadiusModifierButton = new ButtonConfig
             {
@@ -222,8 +235,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
                     //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_blueprint_select_add_connected" },
-                    new ButtonConfig { Name = "Shift", HintToken = "$hud_blueprint_select_add_radius" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_blueprint_select_add_connected" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_blueprint_select_add_radius" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -231,14 +244,15 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceSelectAddName,
+                Piece = BlueprintAssets.PieceSelectRemoveName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
                     //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_blueprint_select_remove_connected" },
-                    new ButtonConfig { Name = "Shift", HintToken = "$hud_blueprint_select_remove_radius" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_blueprint_select_remove_connected" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_blueprint_select_remove_radius" },
+                    new ButtonConfig { Name = $"{DeleteModifierButton.Key} + {RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_remove_clear" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });

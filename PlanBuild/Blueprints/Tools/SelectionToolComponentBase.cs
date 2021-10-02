@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+            if (Input.GetKey(BlueprintConfig.RadiusModifierButton.Key))
             {
                 EnableSelectionProjector(self);
                 float scrollWheel = Input.GetAxis("Mouse ScrollWheel");

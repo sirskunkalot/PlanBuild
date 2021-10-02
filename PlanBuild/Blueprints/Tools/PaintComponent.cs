@@ -18,7 +18,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                if (Input.GetKey(BlueprintConfig.CameraModifierButton.Key))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -30,8 +30,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
         }
-         
-
+          
         public override bool PlacePiece(Player self, Piece piece)
         { 
             if (!BlueprintConfig.AllowTerrainmodConfig.Value)
@@ -53,11 +52,11 @@ namespace PlanBuild.Blueprints.Tools
             {
                 TerrainModifier.PaintType type = TerrainModifier.PaintType.Reset;
 
-                if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                if (Input.GetKey(BlueprintConfig.RadiusModifierButton.Key))
                 {
                     type = TerrainModifier.PaintType.Dirt;
                 }
-                else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                else if (Input.GetKey(BlueprintConfig.DeleteModifierButton.Key))
                 {
                     type = TerrainModifier.PaintType.Paved;
                 }

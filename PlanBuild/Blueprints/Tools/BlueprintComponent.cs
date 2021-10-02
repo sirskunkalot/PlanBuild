@@ -19,23 +19,24 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if ((Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt)) ||
-                    (Input.GetKey(KeyCode.RightControl) && Input.GetKey(KeyCode.RightAlt)))
+                bool radiusModifier = Input.GetKey(BlueprintConfig.RadiusModifierButton.Key);
+                bool deleteModifier = Input.GetKey(BlueprintConfig.DeleteModifierButton.Key);
+                if (radiusModifier && deleteModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+                else if (deleteModifier)
                 {
                     PlacementOffset.x += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                else if (radiusModifier)
                 {
                     PlacementOffset.z += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
+                else if (Input.GetKey(BlueprintConfig.CameraModifierButton.Key))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -69,7 +70,7 @@ namespace PlanBuild.Blueprints.Tools
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            bool placeDirect = Input.GetKey(BlueprintConfig.RadiusModifierButton.Key);
             if (placeDirect && !BlueprintConfig.AllowDirectBuildConfig.Value)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");

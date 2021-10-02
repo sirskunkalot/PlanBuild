@@ -195,11 +195,11 @@ namespace PlanBuild.Blueprints.Tools
             }
             if (scrollingDown)
             {
-                CameraOffset = Mathf.Clamp(CameraOffset += BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset + BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
             else
             {
-                CameraOffset = Mathf.Clamp(CameraOffset -= BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset - BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
         }
 
