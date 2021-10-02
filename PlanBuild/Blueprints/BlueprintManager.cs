@@ -64,11 +64,18 @@ namespace PlanBuild.Blueprints
                 On.Player.PieceRayTest += Player_PieceRayTest;
                 On.Humanoid.EquipItem += Humanoid_EquipItem;
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
+                On.Piece.Awake += Piece_Awake;
             }
             catch (Exception ex)
             {
                 Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
             }
+        }
+
+        private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
+        {
+            orig(self);
+            Selection.Instance.OnPieceAwake(self);
         }
 
         /// <summary>

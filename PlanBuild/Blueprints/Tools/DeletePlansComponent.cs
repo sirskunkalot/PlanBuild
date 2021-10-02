@@ -12,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 EnableSelectionProjector(self);
             }
@@ -28,18 +28,18 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+                else if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
                 UndoRotation(self, scrollWheel);
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red, onlyPlanned: true);
             }
-            else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+            else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
             {
                 BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red);
             }
@@ -51,18 +51,17 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 return DeletePlans(self);
             }
-            else if (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
+
+            if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
             {
                 return UndoBlueprint();
             }
-            else
-            {
-                return UndoPiece();
-            }
+            
+            return UndoPiece();
         }
 
         private bool UndoPiece()

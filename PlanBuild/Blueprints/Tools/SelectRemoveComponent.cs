@@ -9,7 +9,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                Selection.Instance.RemovePiecesInRadius(transform.position, this.SelectionRadius);
+                Selection.Instance.RemovePiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.Instance.LastHoveredPiece)
             {

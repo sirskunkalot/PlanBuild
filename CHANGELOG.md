@@ -1,3 +1,12 @@
+# Version 0.6.9
+* Made modifier keys in blueprint mode configurable
+
+# Version 0.6.8
+* Compatibility patch for Gizmo Reloaded (Gizmo is disabled in blueprint mode because of conflicting usage of modifier keys)
+
+# Version 0.6.7
+* Fixed compatibility with Build Camera
+
 # Version 0.6.6
 * Made the totem piece collection more failsafe
 * Better plan pieces compatibility

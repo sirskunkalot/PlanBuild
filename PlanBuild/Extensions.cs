@@ -7,7 +7,7 @@ namespace PlanBuild
 {
     internal static class Extensions
     {
-        public static void Highlight(this WearNTear self, Color color, float highlightTime)
+        public static void Highlight(this WearNTear self, Color color, float highlightTime = 0)
         {
             if (self.m_oldMaterials == null)
             {

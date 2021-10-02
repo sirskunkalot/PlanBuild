@@ -8,7 +8,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
             {
-                Selection.Instance.AddPiecesInRadius(transform.position, this.SelectionRadius);
+                Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.Instance.LastHoveredPiece)
             {

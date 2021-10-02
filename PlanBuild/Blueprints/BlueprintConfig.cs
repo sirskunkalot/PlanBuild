@@ -32,6 +32,14 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<string> BlueprintSearchDirectoryConfig;
         internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
+        private const string KeybindSection = "Keybindings";
+        internal static ConfigEntry<KeyCode> RadiusModifierConfig;
+        internal static ButtonConfig RadiusModifierButton;
+        internal static ConfigEntry<KeyCode> MarkerSwitchConfig;
+        internal static ButtonConfig MarkerSwitchButton;
+        internal static ConfigEntry<KeyCode> DeleteModifierConfig;
+        internal static ButtonConfig DeleteModifierButton;
+
         internal enum AllowOption
         {
             No, Yes, AdminOnly
@@ -50,12 +58,12 @@ namespace PlanBuild.Blueprints
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow direct build", AllowOption.No,
                 new ConfigDescription("Allow placement of blueprints without materials", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", AllowOption.No,
                 new ConfigDescription("Allow usage of the terrain modification tools", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert camera offset scroll", false,
@@ -99,12 +107,12 @@ namespace PlanBuild.Blueprints
             AllowServerBlueprints = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow serverside blueprints", false,
                 new ConfigDescription("Allow sharing of blueprints on this server", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Allow clients to use the GUI toggle key", AllowOption.Yes,
                 new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null,
-                    new ConfigurationManagerAttributes() { IsAdminOnly = true }));
+                    new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             ServerGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
                 MarketSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
@@ -120,6 +128,23 @@ namespace PlanBuild.Blueprints
                 DirectorySection, "Save directory", "BepInEx/config/PlanBuild/blueprints",
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
+            // Keybind section
+
+            RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "RadiusModifier", KeyCode.LeftControl,
+                new ConfigDescription("Modifier key to use radius based selection on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 1}));
+
+            DeleteModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "DeleteModifier", KeyCode.LeftAlt,
+                new ConfigDescription("Modifier key for removal operations on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 2}));
+
+            MarkerSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "MarkerSwitch", KeyCode.Q,
+                new ConfigDescription("Key to switch between marker shapes on various tools", null,
+                    new ConfigurationManagerAttributes{Order = 3}));
+
             // Create Buttons and KeyHints if and when PixelFix is created
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
@@ -129,6 +154,8 @@ namespace PlanBuild.Blueprints
         /// </summary>
         private static void CreateCustomKeyHints()
         {
+            // Global
+
             PlanSwitchButton = new ButtonConfig
             {
                 Name = "RuneModeToggle",
@@ -144,6 +171,31 @@ namespace PlanBuild.Blueprints
                 ActiveInCustomGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
+            
+            // Shared
+
+            RadiusModifierButton = new ButtonConfig
+            {
+                Name = nameof(RadiusModifierButton),
+                Config = RadiusModifierConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, RadiusModifierButton);
+            
+            DeleteModifierButton = new ButtonConfig
+            {
+                Name = nameof(DeleteModifierButton),
+                Config = DeleteModifierConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, DeleteModifierButton);
+
+            MarkerSwitchButton = new ButtonConfig
+            {
+                Name = nameof(MarkerSwitchButton),
+                Config = MarkerSwitchConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MarkerSwitchButton);
+
+            // Mode Switch
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -154,7 +206,9 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
-
+            
+            // Capture
+            
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -163,11 +217,12 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
+
+            // Snap Point
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -219,10 +274,11 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
+
+            // Center point
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -232,11 +288,12 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
             });
 
+            // Remove
+            
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -245,12 +302,13 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    //new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpdelete_radius" },
-                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpdelete_all" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
+
+            // Terrain
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -260,11 +318,13 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpterrain_delete" },
-                    new ButtonConfig { Name = "Q", HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
+                    new ButtonConfig { Name = MarkerSwitchButton.Name, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });
+
+            // Delete
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
@@ -274,10 +334,12 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bpobjects_deleteall" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpobjects_deleteall" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpobjectsradius" }
                 }
             });
+
+            // Paint
 
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {

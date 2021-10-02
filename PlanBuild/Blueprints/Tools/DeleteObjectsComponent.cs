@@ -37,7 +37,7 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
+            if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
             {
                 TerrainTools.RemoveObjects(self.m_placementGhost.transform, SelectionRadius);
             }
