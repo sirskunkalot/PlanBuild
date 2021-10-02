@@ -10,7 +10,7 @@ using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
 {
-    class Selection : IEnumerable<Piece>
+    class Selection : IEnumerable<ZDOID>
     {
         public const int MAX_HIGHLIGHT_PER_FRAME = 30;
         public const int MAX_GROW_PER_FRAME = 30;
@@ -28,7 +28,7 @@ namespace PlanBuild.Blueprints
         }
 
         private readonly ZDOIDSet zDOIDs = new ZDOIDSet();
-        private readonly Dictionary<ZDOID, Piece> selectedPieces = new Dictionary<ZDOID, Piece>();
+        
         private int snapPoints = 0;
         private int centerMarkers = 0;
         private bool highlighted = false;
@@ -36,22 +36,31 @@ namespace PlanBuild.Blueprints
 
         private Coroutine highlightRoutine; 
         private Coroutine unhighlightRoutine;
-
-        public IEnumerator<Piece> GetEnumerator()
+         
+        public IEnumerator<ZDOID> GetEnumerator()
         {
-            foreach(ZDOID zdoid in new List<ZDOID>(zDOIDs))
+           foreach(ZDOID zdoid in new List<ZDOID>(zDOIDs))
+           {
+                yield return zdoid;
+          
+           }
+        }
+
+        public GameObject GetGameObject(ZDOID zdoid, bool required = false)
+        {
+            GameObject go = ZNetScene.instance.FindInstance(zdoid);
+            if (go)
             {
-                Piece piece = selectedPieces[zdoid];
-                if(!piece)
-                {
-                    piece = ZNetScene.instance.FindInstance(zdoid)?.GetComponent<Piece>();
-                    if(piece)
-                    {
-                        selectedPieces[zdoid] = piece;
-                    }
-                }
-                yield return piece; 
+                return go;
             }
+            if(!required)
+            {
+                return null;
+            }
+#if DEBUG
+            Logger.LogWarning($"Creating object for {zdoid}");
+#endif
+            return ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid));
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -97,8 +106,9 @@ namespace PlanBuild.Blueprints
             Logger.LogInfo("Unhighlighting");
 #endif
             int n = 0;
-            foreach (Piece selected in new List<Piece>(this))
+            foreach (ZDOID zdoid in new List<ZDOID>(this))
             {
+                GameObject selected = GetGameObject(zdoid);
                 if (selected && selected.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.ResetHighlight();
@@ -118,7 +128,10 @@ namespace PlanBuild.Blueprints
         internal void OnPieceAwake(Piece piece)
         {
             if (highlighted && Contains(piece)) {
-                Highlight(piece);
+#if DEBUG
+                Logger.LogInfo($"Awake highlighting {piece.name} @ {piece.transform.position}");
+#endif
+                Highlight(piece.gameObject); 
             }
         }
 
@@ -129,8 +142,9 @@ namespace PlanBuild.Blueprints
 #endif
             highlighted = true;
             int n = 0;
-            foreach (Piece selected in new List<Piece>(this))
+            foreach (ZDOID zdoid in new List<ZDOID>(this))
             {
+                GameObject selected = GetGameObject(zdoid);
                 Highlight(selected);
                 if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
                 {
@@ -145,7 +159,7 @@ namespace PlanBuild.Blueprints
             highlightRoutine = null;
         }
 
-        private static void Highlight(Piece selected)
+        public static void Highlight(GameObject selected)
         {
             if (selected && selected.TryGetComponent(out WearNTear wearNTear))
             {
@@ -264,13 +278,12 @@ namespace PlanBuild.Blueprints
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             return zdoid.HasValue && zDOIDs.Contains(zdoid.Value);
         }
-
+         
         internal bool RemovePiece(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Remove(zdoid.Value))
-            {
-                selectedPieces.Remove(zdoid.Value);
+            { 
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.ResetHighlight();
@@ -292,9 +305,8 @@ namespace PlanBuild.Blueprints
         { 
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Add(zdoid.Value))
-            {
-                selectedPieces[zdoid.Value] = piece;
-                Highlight(piece);
+            { 
+                Highlight(piece.gameObject);
                 if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints++;
@@ -311,8 +323,7 @@ namespace PlanBuild.Blueprints
 
         public void Clear()
         {
-            zDOIDs.Clear();
-            selectedPieces.Clear();
+            zDOIDs.Clear(); 
         }
 
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)

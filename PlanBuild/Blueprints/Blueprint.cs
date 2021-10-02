@@ -459,35 +459,36 @@ namespace PlanBuild.Blueprints
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
              
-            foreach (var piece in selection)
+            foreach (var zdoid in selection)
             {
-                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
+                GameObject selected = selection.GetGameObject(zdoid, true);
+                if (selected.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
-                    snapPoints.Add(piece.transform.position);
-                    WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                    snapPoints.Add(selected.transform.position);
+                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
                     wearNTear.Remove();
                     continue;
                 }
-                if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
+                if (selected.name.StartsWith(BlueprintAssets.PieceCenterPointName))
                 {
                     if (centerPiece == null)
                     {
-                        centerPiece = piece.transform;
+                        centerPiece = selected.transform;
                     }
                     else
                     {
-                        Logger.LogWarning($"Multiple center points! Ignoring @ {piece.transform.position}");
+                        Logger.LogWarning($"Multiple center points! Ignoring @ {selected.transform.position}");
                     }
-                    WearNTear wearNTear = piece.GetComponent<WearNTear>();
+                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
                     wearNTear.Remove();
                     continue;
                 }
+                Piece piece = selected.GetComponent<Piece>();
                 if (!BlueprintManager.Instance.CanCapture(piece))
                 {
                     Logger.LogWarning($"Ignoring piece {piece}, not able to make Plan");
                     continue;
-                }
-                piece.GetComponent<WearNTear>()?.Highlight();
+                } 
                 collected.Add(piece);
                 numPieces++;
             }

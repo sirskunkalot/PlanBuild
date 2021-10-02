@@ -20,6 +20,7 @@ namespace PlanBuild.Plans
 
         internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
 
+        private Piece m_piece;
         private ZNetView m_nView;
         internal WearNTear m_wearNTear;
 
@@ -50,13 +51,13 @@ namespace PlanBuild.Plans
             }
 
             m_planPieces.Add(this);
-
-            //logger.LogInfo("Prefab loaded for " + name + " -> " + originalPrefab.name);
-            DisablePiece(gameObject);
-
-            //logger.LogInfo("PlanPiece awake: " + gameObject.GetInstanceID());
+             
             m_wearNTear = GetComponent<WearNTear>();
             m_nView = GetComponent<ZNetView>();
+            m_piece = GetComponent<Piece>();
+             
+            DisablePiece(gameObject);
+
             m_wearNTear.m_onDestroyed += OnDestroyed;
             if (m_nView.IsOwner())
             {
@@ -202,6 +203,10 @@ namespace PlanBuild.Plans
         internal void UpdateTextures()
         {
             ShaderHelper.UpdateTextures(gameObject, GetShaderState());
+            if (Selection.Instance.Contains(m_piece))
+            {
+                Selection.Highlight(gameObject);
+            } 
         }
 
         private ShaderHelper.ShaderState GetShaderState()
