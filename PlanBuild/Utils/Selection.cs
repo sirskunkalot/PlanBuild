@@ -127,10 +127,7 @@ namespace PlanBuild.Blueprints
 
         internal void OnPieceAwake(Piece piece)
         {
-            if (highlighted && Contains(piece)) {
-#if DEBUG
-                Logger.LogInfo($"Awake highlighting {piece.name} @ {piece.transform.position}");
-#endif
+            if (highlighted && Contains(piece)) { 
                 Highlight(piece.gameObject); 
             }
         }
