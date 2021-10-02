@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
+using PlanBuild.Blueprints.Tools;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -29,12 +30,27 @@ namespace PlanBuild.ModCompat
         private static bool GizmoPlugin_GetPlacementAngle_Prefix(ref Quaternion __result)
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
-                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName))
+                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
+                !Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
                 __result = Quaternion.Euler(0f, 22.5f * (float)Player.m_localPlayer.m_placeRotation, 0f);
                 return false;
             }
             return true;
         }
+
+        [HarmonyPatch(typeof(GizmoReloaded.Plugin), "UpdateRotation")]
+        [HarmonyPrefix]
+        private static bool UndoRotation_UpdateRotation_Prefix(string axis)
+        {
+            if (axis == "Y" && Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
+             Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
+             Input.GetKey(BlueprintConfig.CameraModifierButton.Key))
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 }
