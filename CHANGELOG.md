@@ -1,6 +1,5 @@
 # Version 0.6.9
 * Made modifier keys in blueprint mode configurable
-* Reverted the Gizmo patch since keys are configurable now
 * Compress blueprints before transfer and always resize PNG files to max 160 width
 
 # Version 0.6.8
