@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
-using PlanBuild.Blueprints.Tools;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -45,7 +44,7 @@ namespace PlanBuild.ModCompat
         {
             if (axis == "Y" && Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
              Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
-             Input.GetKey(BlueprintConfig.CameraModifierButton.Key))
+             ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
             {
                 return false;
             }
