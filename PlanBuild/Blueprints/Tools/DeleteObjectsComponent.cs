@@ -31,7 +31,7 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (!BlueprintConfig.Allowed(BlueprintConfig.AllowTerrainmodConfig.Value))
+            if (!BlueprintConfig.AllowTerrainmodConfig.Value)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                 return false;

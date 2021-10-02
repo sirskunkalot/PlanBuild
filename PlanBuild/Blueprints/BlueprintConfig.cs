@@ -11,8 +11,8 @@ namespace PlanBuild.Blueprints
         internal static ButtonConfig GUIToggleButton;
 
         private const string RuneSection = "Blueprint Rune";
-        internal static ConfigEntry<AllowOption> AllowDirectBuildConfig;
-        internal static ConfigEntry<AllowOption> AllowTerrainmodConfig;
+        internal static ConfigEntry<bool> AllowDirectBuildConfig;
+        internal static ConfigEntry<bool> AllowTerrainmodConfig;
         internal static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
         internal static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
         internal static ConfigEntry<bool> InvertSelectionScrollConfig;
@@ -25,7 +25,7 @@ namespace PlanBuild.Blueprints
 
         private const string MarketSection = "Blueprint Market";
         internal static ConfigEntry<bool> AllowServerBlueprints;
-        internal static ConfigEntry<AllowOption> AllowMarketHotkey;
+        internal static ConfigEntry<bool> AllowMarketHotkey;
         internal static ConfigEntry<KeyCode> ServerGuiSwitchConfig;
 
         private const string DirectorySection = "Directories";
@@ -39,29 +39,18 @@ namespace PlanBuild.Blueprints
         internal static ButtonConfig MarkerSwitchButton;
         internal static ConfigEntry<KeyCode> DeleteModifierConfig;
         internal static ButtonConfig DeleteModifierButton;
-
-        internal enum AllowOption
-        {
-            No, Yes, AdminOnly
-        }
          
-        public static bool Allowed(AllowOption option)
-        {
-            return option == AllowOption.Yes
-                || option == AllowOption.AdminOnly && SynchronizationManager.Instance.PlayerIsAdmin;
-        }
-     
         internal static void Init()
         {
             // Rune Section
 
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
-                RuneSection, "Allow direct build", AllowOption.No,
+                RuneSection, "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
-                RuneSection, "Allow terrain tools", AllowOption.No,
+                RuneSection, "Allow terrain tools", false,
                 new ConfigDescription("Allow usage of the terrain modification tools", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
@@ -110,7 +99,7 @@ namespace PlanBuild.Blueprints
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
-                MarketSection, "Allow clients to use the GUI toggle key", AllowOption.Yes,
+                MarketSection, "Allow clients to use the GUI toggle key", true,
                 new ConfigDescription("Allow clients to use the Hotkey to access server blueprints", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
