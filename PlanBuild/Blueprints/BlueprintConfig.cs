@@ -207,6 +207,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -251,7 +252,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpdelete_radius" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpdelete_all" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" }
                 }
             });
 
@@ -267,6 +268,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
                     new ButtonConfig { Name = MarkerSwitchButton.Name, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });
@@ -282,7 +284,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpobjects_deleteall" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpobjectsradius" }
+                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
 
@@ -298,7 +301,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bppaintradius" }
+                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
 
