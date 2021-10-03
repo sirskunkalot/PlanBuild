@@ -124,22 +124,22 @@ namespace PlanBuild.Blueprints
             CameraModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "CameraModifier", KeyCode.LeftShift,
                 new ConfigDescription("Modifier key to modify camera behavior on various tools", null,
-                    new ConfigurationManagerAttributes { Order = 1 }));
+                    new ConfigurationManagerAttributes{Order = 1}));
 
             RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "RadiusModifier", KeyCode.LeftControl,
                 new ConfigDescription("Modifier key to use radius based selection on various tools", null,
-                    new ConfigurationManagerAttributes{Order = 1}));
+                    new ConfigurationManagerAttributes{Order = 2}));
 
             DeleteModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "DeleteModifier", KeyCode.LeftAlt,
                 new ConfigDescription("Modifier key for removal operations on various tools", null,
-                    new ConfigurationManagerAttributes{Order = 2}));
+                    new ConfigurationManagerAttributes{Order = 3}));
 
             MarkerSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "MarkerSwitch", KeyCode.Q,
                 new ConfigDescription("Key to switch between marker shapes on various tools", null,
-                    new ConfigurationManagerAttributes{Order = 3}));
+                    new ConfigurationManagerAttributes{Order = 4}));
 
             // Create Buttons and KeyHints if and when PixelFix is created
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
@@ -281,8 +281,8 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
                     new ButtonConfig { Name = MarkerSwitchButton.Name, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
                     new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }

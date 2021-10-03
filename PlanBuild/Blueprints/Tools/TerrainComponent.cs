@@ -18,13 +18,12 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name) && 
-                    ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+                if (Input.GetKey(KeyCode.LeftControl) && Input.GetKey(KeyCode.LeftAlt))
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                else if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -35,7 +34,7 @@ namespace PlanBuild.Blueprints.Tools
                     UndoRotation(self, scrollWheel);
                 }
             }
-            if (ZInput.GetButton(BlueprintConfig.MarkerSwitchButton.Name))
+            if (ZInput.GetButtonDown(BlueprintConfig.MarkerSwitchButton.Name))
             {
                 SelectionProjector.SwitchShape();
             }
