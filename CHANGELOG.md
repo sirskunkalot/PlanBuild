@@ -1,6 +1,7 @@
 # Version 0.6.9
 * Made modifier keys in blueprint mode configurable
 * Compress blueprints before transfer and always resize PNG files to max 160 width
+* Needs at least Jötunn v2.3.7
 
 # Version 0.6.8
 * Compatibility patch for Gizmo Reloaded (Gizmo is disabled in blueprint mode because of conflicting usage of modifier keys)
