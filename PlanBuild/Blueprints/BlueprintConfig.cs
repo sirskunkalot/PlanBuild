@@ -33,6 +33,8 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
         private const string KeybindSection = "Keybindings";
+        internal static ConfigEntry<KeyCode> CameraModifierConfig;
+        internal static ButtonConfig CameraModifierButton;
         internal static ConfigEntry<KeyCode> RadiusModifierConfig;
         internal static ButtonConfig RadiusModifierButton;
         internal static ConfigEntry<KeyCode> MarkerSwitchConfig;
@@ -118,6 +120,11 @@ namespace PlanBuild.Blueprints
                 new ConfigDescription("Directory to save blueprint files, relative paths are relative to the valheim.exe location"));
 
             // Keybind section
+            
+            CameraModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "CameraModifier", KeyCode.LeftShift,
+                new ConfigDescription("Modifier key to modify camera behavior on various tools", null,
+                    new ConfigurationManagerAttributes { Order = 1 }));
 
             RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "RadiusModifier", KeyCode.LeftControl,
@@ -160,8 +167,16 @@ namespace PlanBuild.Blueprints
                 ActiveInCustomGUI = true
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
-            
-            // Shared
+
+            // Shared 
+
+            CameraModifierButton = new ButtonConfig
+            {
+                Name = nameof(CameraModifierButton),
+                Config = CameraModifierConfig
+            };
+
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CameraModifierButton);
 
             RadiusModifierButton = new ButtonConfig
             {
