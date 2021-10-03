@@ -48,12 +48,12 @@ namespace PlanBuild.Blueprints
 
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials", null,
+                new ConfigDescription("Allow placement of blueprints without materials for non-admin players", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", false,
-                new ConfigDescription("Allow usage of the terrain modification tools", null,
+                new ConfigDescription("Allow usage of the terrain modification tools for non-admin players", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
