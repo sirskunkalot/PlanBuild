@@ -53,6 +53,19 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
   * Use the __Scroll Wheel__ to change the capture radius. 
   * Use __Shift + Scroll__ to adjust the camera distance.
 
+* __Add to selection__: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
+  * Press __Alt__ to add all connected pieces. This uses a flood fill to find connected pieces.
+  * Press __Ctrl__ to add pieces in a radius
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
+
+* __Remove from selection__: Remove pieces from the current selection. Currently selected pieces will be highlighted in green.  Per default only the hovered piece will be removed from the selection. You can use various modifiers to change that behaviour.
+  * Press __Alt__ to remove all connected pieces. This uses a flood fill to find connected pieces.
+  * Press __Ctrl__ to remove pieces in a radius
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
+  * Press __Alt__ and __Ctrl__ and click to clear selection
+
+* __Save selection__: Click to save the current selection to a blueprint
+
 * __Snap point marker:__ Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
 
 * __Center point marker:__ Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.

@@ -1,3 +1,6 @@
+# Version 0.6.10
+* Added selection tools for easier blueprint creation!
+
 # Version 0.6.9
 * Made modifier keys in blueprint mode configurable
 * Compress blueprints before transfer and always resize PNG files to max 160 width
