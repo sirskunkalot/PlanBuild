@@ -192,6 +192,7 @@ namespace PlanBuild.Blueprints
         internal HashSet<Piece> GetSupportingPieces(Piece piece)
         {
             HashSet<Piece> result = new HashSet<Piece>();
+            Vector3 shellDistance = Vector3.one * BlueprintConfig.SelectionConnectedMarginConfig.Value;
             if (piece.TryGetComponent(out WearNTear wearNTear))
             {
                 if (wearNTear.m_bounds == null)
@@ -200,7 +201,7 @@ namespace PlanBuild.Blueprints
                 }
                 foreach (BoundData bound in wearNTear.m_bounds)
                 {
-                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size, m_tempColliders, bound.m_rot, growMask);
+                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size + shellDistance, m_tempColliders, bound.m_rot, growMask);
                     for (int i = 0; i < num; i++)
                     {
                         Collider collider = m_tempColliders[i];

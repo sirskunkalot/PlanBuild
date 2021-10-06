@@ -11,6 +11,10 @@ namespace PlanBuild.Blueprints.Tools
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
+        }
+
+        public void Start()
+        {
             Selection.Instance.Highlight();
         }
 
