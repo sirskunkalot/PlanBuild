@@ -18,7 +18,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (Input.GetKey(BlueprintConfig.CameraModifierButton.Key))
+                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -52,11 +52,11 @@ namespace PlanBuild.Blueprints.Tools
             {
                 TerrainModifier.PaintType type = TerrainModifier.PaintType.Reset;
 
-                if (Input.GetKey(BlueprintConfig.RadiusModifierButton.Key))
+                if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
                 {
                     type = TerrainModifier.PaintType.Dirt;
                 }
-                else if (Input.GetKey(BlueprintConfig.DeleteModifierButton.Key))
+                else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
                 {
                     type = TerrainModifier.PaintType.Paved;
                 }

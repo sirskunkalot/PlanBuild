@@ -70,7 +70,7 @@ namespace PlanBuild.Blueprints.Tools
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = Input.GetKey(BlueprintConfig.RadiusModifierButton.Key);
+            bool placeDirect = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
             if (placeDirect && !BlueprintConfig.AllowDirectBuildConfig.Value)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");

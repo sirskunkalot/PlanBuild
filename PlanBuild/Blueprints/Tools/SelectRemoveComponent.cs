@@ -7,8 +7,8 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override bool PlacePiece(Player self, Piece piece)
         {
-            bool radiusModifier = Input.GetKey(BlueprintConfig.RadiusModifierButton.Key);
-            bool connectedModifier = Input.GetKey(BlueprintConfig.DeleteModifierButton.Key);
+            bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
             if(radiusModifier && connectedModifier)
             {
                 Selection.Instance.Clear();
