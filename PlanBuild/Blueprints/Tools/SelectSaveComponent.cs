@@ -1,17 +1,28 @@
-﻿using Jotunn.Managers;
-using PlanBuild.Plans;
-using System;
-using System.Linq;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectSaveComponent : SelectionToolComponentBase
     {
-        public override void Init()
+        public override void UpdatePlacement(Player self)
         {
-            base.Init();
-            DisableSelectionProjector(); 
+            if (!self.m_placementMarkerInstance)
+            {
+                return;
+            }
+            
+            DisableSelectionProjector();
+
+            float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+            if (scrollWheel != 0)
+            {
+                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                {
+                    UpdateCameraOffset(scrollWheel);
+                }
+                UndoRotation(self, scrollWheel);
+            }
         }
 
         public override bool PlacePiece(Player self, Piece piece)

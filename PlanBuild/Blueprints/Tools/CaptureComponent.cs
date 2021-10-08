@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using Jotunn.Managers;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -51,7 +50,7 @@ namespace PlanBuild.Blueprints.Tools
             selection.AddPiecesInRadius(capturePosition, SelectionRadius);
             if (bp.Capture(selection))
             {
-                TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp); 
+                TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
                 TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
             }
             else

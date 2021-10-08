@@ -53,24 +53,42 @@ namespace PlanBuild.Blueprints
             return GetEnumerator();
         }
         
-        public IEnumerator<YieldInstruction> HighlightSelection()
+        public void StartHighlightSelection()
         {
-            int n = 0;
-            foreach (ZDOID zdoid in new List<ZDOID>(this))
+            if (Highlighted)
             {
-                GameObject selected = GetGameObject(zdoid);
-                Highlight(selected);
-                if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                return;
+            }
+
+            IEnumerator Start()
+            {
+                int n = 0;
+                foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
-                    n = 0;
-                    yield return null;
+                    GameObject selected = GetGameObject(zdoid);
+                    Highlight(selected);
+                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
                 }
             }
+            
+            PlanBuildPlugin.Instance.StopAllCoroutines();
+            PlanBuildPlugin.Instance.StartCoroutine(Start());
+            
+            Highlighted = true;
         }
 
         public void StopHighlightSelection()
         {
-            IEnumerator<YieldInstruction> StopHighlight()
+            if (!Highlighted)
+            {
+                return;
+            }
+
+            IEnumerator Stop()
             {
                 int n = 0;
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
@@ -87,8 +105,11 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
+            
+            PlanBuildPlugin.Instance.StopAllCoroutines();
+            PlanBuildPlugin.Instance.StartCoroutine(Stop());
 
-            PlanBuildPlugin.Instance.StartCoroutine(StopHighlight());
+            Highlighted = false;
         }
         
         internal void OnPieceAwake(Piece piece)
