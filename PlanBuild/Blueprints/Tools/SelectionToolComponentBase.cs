@@ -8,6 +8,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
+            StartCoroutine(Selection.Instance.HighlightSelection());
         }
         
         private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
@@ -15,20 +16,15 @@ namespace PlanBuild.Blueprints.Tools
             orig(self, piece);
             UpdateDescription();
         }
-
-        private void Start()
+        
+        public override void Remove()
         {
-            Selection.Instance.Highlight();
+            On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
         }
 
         private void OnDisable()
         {
-            Selection.Instance.Unhighlight();
-        }
-
-        public override void Remove()
-        {
-            On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
+            PlanBuildPlugin.Instance.StartCoroutine(Selection.Instance.StopHighlightSelection());
         }
 
         public override void UpdatePlacement(Player self)

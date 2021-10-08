@@ -52,12 +52,6 @@ namespace PlanBuild.Blueprints
         {
             return GetEnumerator();
         }
-
-        internal void Highlight()
-        {
-            PlanBuildPlugin.Instance.StopAllCoroutines();
-            PlanBuildPlugin.Instance.StartCoroutine(HighlightSelection());
-        }
         
         public IEnumerator<YieldInstruction> HighlightSelection()
         {
@@ -72,16 +66,8 @@ namespace PlanBuild.Blueprints
                     yield return null;
                 }
             }
-
-            Highlighted = true;
         }
-
-        internal void Unhighlight()
-        {
-            PlanBuildPlugin.Instance.StopAllCoroutines();
-            PlanBuildPlugin.Instance.StartCoroutine(StopHighlightSelection());
-        }
-
+        
         public IEnumerator<YieldInstruction> StopHighlightSelection()
         {
             int n = 0;
@@ -98,8 +84,6 @@ namespace PlanBuild.Blueprints
                     yield return null;
                 }
             }
-
-            Highlighted = false;
         }
 
         internal void OnPieceAwake(Piece piece)
