@@ -1,49 +1,35 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using static WearNTear;
 using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
 {
-    class Selection : IEnumerable<ZDOID>
+    internal class Selection : IEnumerable<ZDOID>
     {
         public const int MAX_HIGHLIGHT_PER_FRAME = 30;
         public const int MAX_GROW_PER_FRAME = 30;
-        public static int growMask;
+        public static int GrowMask;
 
         private static Selection _instance;
 
-        public static Selection Instance
-        {
-            get
-            {
-                if (_instance == null) _instance = new Selection();
-                return _instance;
-            }
-        }
+        public static Selection Instance => _instance ??= new Selection();
 
         private readonly ZDOIDSet zDOIDs = new ZDOIDSet();
-        
-        private int snapPoints = 0;
-        private int centerMarkers = 0;
-        private bool highlighted = false;
-        private bool hidden = false;
 
-        private Coroutine highlightRoutine; 
-        private Coroutine unhighlightRoutine;
-         
+        private int SnapPoints;
+        private int CenterMarkers;
+        private bool Highlighted;
+        
         public IEnumerator<ZDOID> GetEnumerator()
         {
-           foreach(ZDOID zdoid in new List<ZDOID>(zDOIDs))
-           {
+            foreach (ZDOID zdoid in new List<ZDOID>(zDOIDs))
+            {
                 yield return zdoid;
-          
-           }
+
+            }
+
         }
 
         public GameObject GetGameObject(ZDOID zdoid, bool required = false)
@@ -53,7 +39,7 @@ namespace PlanBuild.Blueprints
             {
                 return go;
             }
-            if(!required)
+            if (!required)
             {
                 return null;
             }
@@ -70,41 +56,21 @@ namespace PlanBuild.Blueprints
 
         internal void Highlight()
         {
-#if DEBUG
-            Logger.LogInfo("Highlighting selection");
-#endif 
-            if (unhighlightRoutine != null)
-            {
-#if DEBUG
-                Logger.LogInfo("Stopping pending unhighlighting");
-#endif 
-                PlanBuildPlugin.Instance.StopCoroutine(unhighlightRoutine);
-            }
-            highlightRoutine = PlanBuildPlugin.Instance.StartCoroutine(HighlightSelection());
+            PlanBuildPlugin.Instance.StartCoroutine(HighlightSelection());
         }
 
         internal void Unhighlight()
         {
-            if(highlightRoutine != null)
-            {
-                return;
-            }
-            unhighlightRoutine = PlanBuildPlugin.Instance.StartCoroutine(StopHighlightSelection());
+            PlanBuildPlugin.Instance.StartCoroutine(StopHighlightSelection());
         }
 
         public IEnumerator<YieldInstruction> StopHighlightSelection()
         {
-#if DEBUG
-            Logger.LogInfo("Waiting for cancel");
-#endif 
-            yield return new WaitForSeconds(0.5f);
-
-            //Don't stop me now
-            unhighlightRoutine = null;
-            highlighted = false;
-#if DEBUG
-            Logger.LogInfo("Unhighlighting");
-#endif
+            while (!Highlighted)
+            {
+                yield return null;
+            }
+            
             int n = 0;
             foreach (ZDOID zdoid in new List<ZDOID>(this))
             {
@@ -119,25 +85,25 @@ namespace PlanBuild.Blueprints
                     yield return null;
                 }
             }
-            
-#if DEBUG
-            Logger.LogInfo("Done unhighlighting");
-#endif
+
+            Highlighted = false;
         }
 
         internal void OnPieceAwake(Piece piece)
         {
-            if (highlighted && Contains(piece)) { 
-                Highlight(piece.gameObject); 
+            if (Highlighted && Contains(piece))
+            {
+                Highlight(piece.gameObject);
             }
         }
 
         public IEnumerator<YieldInstruction> HighlightSelection()
         {
-#if DEBUG
-            Logger.LogInfo("Highlighting selection now");
-#endif
-            highlighted = true;
+            while (Highlighted)
+            {
+                yield return null;
+            }
+
             int n = 0;
             foreach (ZDOID zdoid in new List<ZDOID>(this))
             {
@@ -150,10 +116,7 @@ namespace PlanBuild.Blueprints
                 }
             }
 
-#if DEBUG
-            Logger.LogInfo("Done highlighting");
-#endif
-            highlightRoutine = null;
+            Highlighted = true;
         }
 
         public static void Highlight(GameObject selected)
@@ -179,12 +142,12 @@ namespace PlanBuild.Blueprints
         }
 
         internal void AddGrowFromPiece(Piece piece)
-        { 
+        {
             PlanBuildPlugin.Instance.StartCoroutine(AddGrowIterator(piece));
         }
 
         internal void RemoveGrowFromPiece(Piece piece)
-        { 
+        {
             PlanBuildPlugin.Instance.StartCoroutine(RemoveGrowIterator(piece));
         }
 
@@ -199,12 +162,12 @@ namespace PlanBuild.Blueprints
                 {
                     wearNTear.SetupColliders();
                 }
-                foreach (BoundData bound in wearNTear.m_bounds)
+                foreach (WearNTear.BoundData bound in wearNTear.m_bounds)
                 {
-                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size + shellDistance, m_tempColliders, bound.m_rot, growMask);
+                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size + shellDistance, WearNTear.m_tempColliders, bound.m_rot, GrowMask);
                     for (int i = 0; i < num; i++)
                     {
-                        Collider collider = m_tempColliders[i];
+                        Collider collider = WearNTear.m_tempColliders[i];
                         if (wearNTear.m_colliders.Contains(collider) || collider.attachedRigidbody != null || collider.isTrigger)
                         {
                             continue;
@@ -276,23 +239,23 @@ namespace PlanBuild.Blueprints
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             return zdoid.HasValue && zDOIDs.Contains(zdoid.Value);
         }
-         
+
         internal bool RemovePiece(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Remove(zdoid.Value))
-            { 
+            {
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.ResetHighlight();
                 }
                 if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
-                    snapPoints--;
+                    SnapPoints--;
                 }
                 else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
                 {
-                    centerMarkers--;
+                    CenterMarkers--;
                 }
                 return true;
             }
@@ -300,36 +263,36 @@ namespace PlanBuild.Blueprints
         }
 
         internal bool AddPiece(Piece piece)
-        { 
+        {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
             if (zdoid.HasValue && zDOIDs.Add(zdoid.Value))
-            { 
+            {
                 Highlight(piece.gameObject);
                 if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
-                    snapPoints++;
+                    SnapPoints++;
                 }
                 else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
                 {
-                    centerMarkers++;
+                    CenterMarkers++;
                 }
                 return true;
             }
-           
+
             return false;
         }
 
         public void Clear()
-        { 
+        {
             foreach (ZDOID zdoid in this)
             {
                 GameObject selected = GetGameObject(zdoid);
                 if (selected && selected.TryGetComponent(out WearNTear wearNTear))
                 {
                     wearNTear.ResetHighlight();
-                } 
+                }
             }
-            zDOIDs.Clear(); 
+            zDOIDs.Clear();
         }
 
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
@@ -345,15 +308,15 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-         
+
         public new string ToString()
-        { 
+        {
             string result = Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
-            if(snapPoints > 0)
+            if (SnapPoints > 0)
             {
-                result += Localization.instance.Localize(" ($piece_blueprint_select_snappoints_desc)", snapPoints.ToString());
+                result += Localization.instance.Localize(" ($piece_blueprint_select_snappoints_desc)", SnapPoints.ToString());
             }
-            if(centerMarkers > 0)
+            if (CenterMarkers > 0)
             {
                 result += Localization.instance.Localize(" ($piece_blueprint_select_center_desc)");
             }

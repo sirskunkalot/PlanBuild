@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace PlanBuild.Blueprints.Tools
+﻿namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectAddComponent : SelectionToolComponentBase
     {

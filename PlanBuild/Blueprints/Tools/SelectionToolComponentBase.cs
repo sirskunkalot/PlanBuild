@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
@@ -31,7 +28,7 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         public override void UpdatePlacement(Player self)
-        {  
+        {
             if (!self.m_placementMarkerInstance)
             {
                 return;

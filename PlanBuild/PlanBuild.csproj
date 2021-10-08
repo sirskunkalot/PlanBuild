@@ -114,7 +114,7 @@
     <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
     <Compile Include="Plans\PlanConfig.cs" />
     <Compile Include="Plans\PlanDB.cs" />
-    <Compile Include="Utils\Selection.cs" />
+    <Compile Include="Blueprints\Selection.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />

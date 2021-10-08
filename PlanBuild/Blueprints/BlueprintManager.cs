@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints
                 LocalBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
                 
-                Selection.growMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
+                Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
 
                 // Init config
                 BlueprintConfig.Init();
