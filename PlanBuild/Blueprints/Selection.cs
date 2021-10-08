@@ -148,11 +148,67 @@ namespace PlanBuild.Blueprints
 
         internal void AddGrowFromPiece(Piece piece)
         {
-            PlanBuildPlugin.Instance.StartCoroutine(AddGrowIterator(piece));
+            IEnumerator Start(Piece originalPiece)
+            {
+                yield return null;
+
+                Queue<Piece> workingSet = new Queue<Piece>();
+                workingSet.Enqueue(originalPiece);
+                int n = 0;
+                while (workingSet.Any())
+                {
+                    Piece piece = workingSet.Dequeue();
+                    AddPiece(piece);
+                    n++;
+                    foreach (Piece nextPiece in GetSupportingPieces(piece))
+                    {
+                        if (!Contains(nextPiece) && !workingSet.Contains(nextPiece))
+                        {
+                            workingSet.Enqueue(nextPiece);
+                        }
+                    }
+                    if (n >= MAX_GROW_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
+                }
+            }
+            
+            PlanBuildPlugin.Instance.StopAllCoroutines();
+            PlanBuildPlugin.Instance.StartCoroutine(Start(piece));
         }
 
         internal void RemoveGrowFromPiece(Piece piece)
         {
+            IEnumerator<YieldInstruction> RemoveGrowIterator(Piece originalPiece)
+            {
+                yield return null;
+
+                Queue<Piece> workingSet = new Queue<Piece>();
+                workingSet.Enqueue(originalPiece);
+                int n = 0;
+                while (workingSet.Any())
+                {
+                    Piece piece = workingSet.Dequeue();
+                    RemovePiece(piece);
+                    n++;
+                    foreach (Piece nextPiece in GetSupportingPieces(piece))
+                    {
+                        if (Contains(nextPiece) && !workingSet.Contains(nextPiece))
+                        {
+                            workingSet.Enqueue(nextPiece);
+                        }
+                    }
+                    if (n >= MAX_GROW_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
+                }
+            }
+            
+            PlanBuildPlugin.Instance.StopAllCoroutines();
             PlanBuildPlugin.Instance.StartCoroutine(RemoveGrowIterator(piece));
         }
 
@@ -188,57 +244,7 @@ namespace PlanBuild.Blueprints
             }
             return result;
         }
-
-        private IEnumerator<YieldInstruction> AddGrowIterator(Piece originalPiece)
-        {
-            Queue<Piece> workingSet = new Queue<Piece>();
-            workingSet.Enqueue(originalPiece);
-            int n = 0;
-            while (workingSet.Any())
-            {
-                Piece piece = workingSet.Dequeue();
-                AddPiece(piece);
-                n++;
-                foreach (Piece nextPiece in GetSupportingPieces(piece))
-                {
-                    if (!Contains(nextPiece) && !workingSet.Contains(nextPiece))
-                    {
-                        workingSet.Enqueue(nextPiece);
-                    }
-                }
-                if (n >= MAX_GROW_PER_FRAME)
-                {
-                    n = 0;
-                    yield return null;
-                }
-            }
-        }
-
-        private IEnumerator<YieldInstruction> RemoveGrowIterator(Piece originalPiece)
-        {
-            Queue<Piece> workingSet = new Queue<Piece>();
-            workingSet.Enqueue(originalPiece);
-            int n = 0;
-            while (workingSet.Any())
-            {
-                Piece piece = workingSet.Dequeue();
-                RemovePiece(piece);
-                n++;
-                foreach (Piece nextPiece in GetSupportingPieces(piece))
-                {
-                    if (Contains(nextPiece) && !workingSet.Contains(nextPiece))
-                    {
-                        workingSet.Enqueue(nextPiece);
-                    }
-                }
-                if (n >= MAX_GROW_PER_FRAME)
-                {
-                    n = 0;
-                    yield return null;
-                }
-            }
-        }
-
+        
         internal bool Contains(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
