@@ -33,23 +33,28 @@ namespace PlanBuild.Blueprints.Tools
             {
                 return;
             }
-
+            
             if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 EnableSelectionProjector(self);
-                float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-                if (scrollWheel != 0f)
-                {
-                    UpdateSelectionRadius(scrollWheel);
-                }
-                else
-                {
-                    UndoRotation(self, scrollWheel);
-                }
             }
             else
             {
                 DisableSelectionProjector();
+            }
+
+            float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
+            if (scrollWheel != 0)
+            {
+                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                {
+                    UpdateCameraOffset(scrollWheel);
+                }
+                else if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+                {
+                    UpdateSelectionRadius(scrollWheel);
+                }
+                UndoRotation(self, scrollWheel);
             }
         }
 
