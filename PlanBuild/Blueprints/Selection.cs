@@ -29,7 +29,6 @@ namespace PlanBuild.Blueprints
                 yield return zdoid;
 
             }
-
         }
 
         public GameObject GetGameObject(ZDOID zdoid, bool required = false)
@@ -56,21 +55,35 @@ namespace PlanBuild.Blueprints
 
         internal void Highlight()
         {
+            PlanBuildPlugin.Instance.StopAllCoroutines();
             PlanBuildPlugin.Instance.StartCoroutine(HighlightSelection());
+        }
+        
+        public IEnumerator<YieldInstruction> HighlightSelection()
+        {
+            int n = 0;
+            foreach (ZDOID zdoid in new List<ZDOID>(this))
+            {
+                GameObject selected = GetGameObject(zdoid);
+                Highlight(selected);
+                if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                {
+                    n = 0;
+                    yield return null;
+                }
+            }
+
+            Highlighted = true;
         }
 
         internal void Unhighlight()
         {
+            PlanBuildPlugin.Instance.StopAllCoroutines();
             PlanBuildPlugin.Instance.StartCoroutine(StopHighlightSelection());
         }
 
         public IEnumerator<YieldInstruction> StopHighlightSelection()
         {
-            while (!Highlighted)
-            {
-                yield return null;
-            }
-            
             int n = 0;
             foreach (ZDOID zdoid in new List<ZDOID>(this))
             {
@@ -95,28 +108,6 @@ namespace PlanBuild.Blueprints
             {
                 Highlight(piece.gameObject);
             }
-        }
-
-        public IEnumerator<YieldInstruction> HighlightSelection()
-        {
-            while (Highlighted)
-            {
-                yield return null;
-            }
-
-            int n = 0;
-            foreach (ZDOID zdoid in new List<ZDOID>(this))
-            {
-                GameObject selected = GetGameObject(zdoid);
-                Highlight(selected);
-                if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
-                {
-                    n = 0;
-                    yield return null;
-                }
-            }
-
-            Highlighted = true;
         }
 
         public static void Highlight(GameObject selected)

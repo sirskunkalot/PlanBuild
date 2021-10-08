@@ -9,21 +9,25 @@ namespace PlanBuild.Blueprints.Tools
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
         }
-
-        public void Start()
-        {
-            Selection.Instance.Highlight();
-        }
-
+        
         private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
             orig(self, piece);
             UpdateDescription();
         }
 
-        public override void Remove()
+        private void Start()
+        {
+            Selection.Instance.Highlight();
+        }
+
+        private void OnDisable()
         {
             Selection.Instance.Unhighlight();
+        }
+
+        public override void Remove()
+        {
             On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
         }
 
