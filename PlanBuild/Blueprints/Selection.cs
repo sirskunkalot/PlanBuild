@@ -62,6 +62,8 @@ namespace PlanBuild.Blueprints
 
             IEnumerator Start()
             {
+                yield return null;
+
                 int n = 0;
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
@@ -90,6 +92,8 @@ namespace PlanBuild.Blueprints
 
             IEnumerator Stop()
             {
+                yield return null;
+
                 int n = 0;
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
