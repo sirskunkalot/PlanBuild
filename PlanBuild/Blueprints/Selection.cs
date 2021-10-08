@@ -67,25 +67,30 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-        
-        public IEnumerator<YieldInstruction> StopHighlightSelection()
+
+        public void StopHighlightSelection()
         {
-            int n = 0;
-            foreach (ZDOID zdoid in new List<ZDOID>(this))
+            IEnumerator<YieldInstruction> StopHighlight()
             {
-                GameObject selected = GetGameObject(zdoid);
-                if (selected && selected.TryGetComponent(out WearNTear wearNTear))
+                int n = 0;
+                foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
-                    wearNTear.ResetHighlight();
-                }
-                if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
-                {
-                    n = 0;
-                    yield return null;
+                    GameObject selected = GetGameObject(zdoid);
+                    if (selected && selected.TryGetComponent(out WearNTear wearNTear))
+                    {
+                        wearNTear.ResetHighlight();
+                    }
+                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
                 }
             }
-        }
 
+            PlanBuildPlugin.Instance.StartCoroutine(StopHighlight());
+        }
+        
         internal void OnPieceAwake(Piece piece)
         {
             if (Highlighted && Contains(piece))

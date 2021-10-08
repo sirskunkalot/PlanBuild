@@ -24,7 +24,7 @@ namespace PlanBuild.Blueprints.Tools
 
         private void OnDisable()
         {
-            PlanBuildPlugin.Instance.StartCoroutine(Selection.Instance.StopHighlightSelection());
+            Selection.Instance.StopHighlightSelection();
         }
 
         public override void UpdatePlacement(Player self)
