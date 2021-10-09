@@ -1,5 +1,5 @@
 # Version 0.6.10
-* Added selection tools for easier blueprint creation!
+* Added new tools to modify your blueprint selection manually before saving it - add or remove single pieces or connected structures all at once
 
 # Version 0.6.9
 * Made modifier keys in blueprint mode configurable
