@@ -38,7 +38,6 @@ namespace PlanBuild.Blueprints.Tools
             var bp = new Blueprint();
             if (bp.Capture(Selection.Instance))
             {
-                Selection.Instance.Clear();
                 TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
                 TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
             }

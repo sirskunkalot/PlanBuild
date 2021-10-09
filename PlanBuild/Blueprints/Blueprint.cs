@@ -1012,6 +1012,9 @@ namespace PlanBuild.Blueprints
                 // Reactivate SelectionCircle
                 ShapedProjector.ShowProjectors = true;
 
+                // Clear selection
+                Selection.Instance.Clear();
+
                 // Reactivate Hud if it was active
                 Hud.instance.m_userHidden = oldHud;
                 Hud.instance.SetVisible(true);
