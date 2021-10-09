@@ -8,8 +8,8 @@ namespace PlanBuild.Blueprints
 {
     internal class Selection : IEnumerable<ZDOID>
     {
-        public const int MAX_HIGHLIGHT_PER_FRAME = 30;
-        public const int MAX_GROW_PER_FRAME = 30;
+        public const int MAX_HIGHLIGHT_PER_FRAME = 50;
+        public const int MAX_GROW_PER_FRAME = 50;
         public static int GrowMask;
 
         private static Selection _instance;
