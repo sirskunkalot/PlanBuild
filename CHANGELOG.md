@@ -1,3 +1,6 @@
+# Version 0.6.11
+* Fix GizmoReloaded patch when shifting blueprints (unwanted rotation)
+
 # Version 0.6.10
 * Fix ValheimRAFT support
 
