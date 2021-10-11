@@ -91,13 +91,18 @@ namespace PlanBuild.Plans
             }
         }
 
-        public bool hasSupport = false;
+        private bool hasSupport = false;
+
+        private bool CalculateSupported()
+        {
+            return m_nView.GetZDO().GetFloat("support") >= m_minSupport;
+        }
 
         public void Update()
         {
             if (m_nView.IsValid())
             {
-                bool haveSupport = m_nView.GetZDO().GetFloat("support") >= m_minSupport;
+                bool haveSupport = CalculateSupported();
                 if (haveSupport != hasSupport)
                 {
                     hasSupport = haveSupport;
@@ -220,7 +225,7 @@ namespace PlanBuild.Plans
             {
                 return ShaderHelper.ShaderState.Skuld;
             }
-            if (hasSupport)
+            if (HasSupport())
             {
                 return ShaderHelper.ShaderState.Supported;
             }
@@ -439,7 +444,7 @@ namespace PlanBuild.Plans
             return false;
         }
 
-        private bool HasSupport()
+        public bool HasSupport()
         {
             return hasSupport;
         }
