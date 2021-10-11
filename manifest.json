@@ -1,7 +1,7 @@
 {
   "name": "PlanBuild",
   "description": "PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. Includes terrain tools and immersion items.",
-  "version_number": "0.6.10",
+  "version_number": "0.6.11",
   "dependencies": [
     "ValheimModding-Jotunn-2.3.7"
   ],

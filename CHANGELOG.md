@@ -1,5 +1,8 @@
-# Version 0.6.11
+# Version 0.6.12
 * Added new tools to modify your blueprint selection manually before saving it - add or remove single pieces or connected structures all at once
+
+# Version 0.6.11
+* Fix GizmoReloaded patch when shifting blueprints (unwanted rotation)
 
 # Version 0.6.10
 * Fix ValheimRAFT support
