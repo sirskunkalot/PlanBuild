@@ -57,7 +57,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
             }
-
+            selection.Clear();
             // Don't place the piece and clutter the world with it
             return false;
         }
