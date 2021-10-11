@@ -103,12 +103,12 @@ namespace PlanBuild.Plans
 
             foreach (var planPiece in FindPlanPiecesInRange())
             {
-                if (planPiece.hasSupport)
+                if (planPiece.HasSupport())
                 {
                     m_supportedPieces++;
                 }
 
-                if (m_nview.IsOwner() && planPiece.hasSupport)
+                if (m_nview.IsOwner() && planPiece.HasSupport())
                 {
                     if (m_inventory.m_inventory.Count != 0)
                     {

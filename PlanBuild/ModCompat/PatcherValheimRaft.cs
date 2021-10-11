@@ -15,9 +15,9 @@ namespace PlanBuild.ModCompat
 
         }
           
-        [HarmonyPatch(typeof(PlanPiece), "HasSupport")]
+        [HarmonyPatch(typeof(PlanPiece), "CalculateSupported")]
         [HarmonyPrefix]
-        private static bool PlanPiece_HasSupport_Prefix(PlanPiece __instance, ref bool __result)
+        private static bool PlanPiece_CalculateSupported_Prefix(PlanPiece __instance, ref bool __result)
         {
             if(__instance.GetComponentInParent<MoveableBaseRootComponent>())
             {
