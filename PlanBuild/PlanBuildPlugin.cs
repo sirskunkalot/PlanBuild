@@ -82,7 +82,7 @@ namespace PlanBuild
 
             // BP Market GUI is OK in the main menu
             if (BlueprintGUI.IsAvailable() &&
-                !BlueprintConfig.AllowMarketHotkey.Value &&
+                BlueprintConfig.AllowMarketHotkey.Value &&
                 ZInput.GetButtonDown(BlueprintConfig.GUIToggleButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();
