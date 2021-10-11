@@ -11,7 +11,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 return;
             }
-            
+
             DisableSelectionProjector();
 
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -56,7 +56,6 @@ namespace PlanBuild.Blueprints.Tools
         /// <param name="newpiece"></param>
         internal virtual void OnPiecePlaced(GameObject placedPiece)
         {
-
         }
     }
 }

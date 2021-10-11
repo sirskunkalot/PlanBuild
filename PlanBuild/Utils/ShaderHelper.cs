@@ -1,7 +1,6 @@
-﻿using BepInEx.Configuration;
+﻿using PlanBuild.Plans;
 using System;
 using System.Collections.Generic;
-using PlanBuild.Plans;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -52,7 +51,6 @@ namespace PlanBuild.Utils
 
             foreach (Renderer renderer in GetRenderers(gameObject))
             {
-
                 if (renderer.sharedMaterial != null)
                 {
                     Material[] sharedMaterials = renderer.sharedMaterials;
@@ -89,6 +87,7 @@ namespace PlanBuild.Utils
             {
                 case ShaderState.Skuld:
                     return OriginalMaterialDict[originalMaterial.name];
+
                 case ShaderState.Supported:
                     if (!SupportedMaterialDict.TryGetValue(originalMaterial.name, out Material supportedMaterial))
                     {
@@ -106,6 +105,7 @@ namespace PlanBuild.Utils
                         SupportedMaterialDict[originalMaterial.name] = supportedMaterial;
                     }
                     return supportedMaterial;
+
                 case ShaderState.Floating:
                     if (!UnsupportedMaterialDict.TryGetValue(originalMaterial.name, out Material unsupportedMaterial))
                     {
@@ -123,6 +123,7 @@ namespace PlanBuild.Utils
                         UnsupportedMaterialDict[originalMaterial.name] = unsupportedMaterial;
                     }
                     return unsupportedMaterial;
+
                 default:
                     throw new ArgumentException("Unknown shaderState: " + shaderState);
             }

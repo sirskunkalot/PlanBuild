@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints.Marketplace
                 Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
                 Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
                 bundle.Unload(false);
-                
+
                 GUIManager.OnCustomGUIAvailable += Instance.Register;
                 LocalizationManager.OnLocalizationAdded += Instance.Localize;
             }
@@ -172,6 +172,7 @@ namespace PlanBuild.Blueprints.Marketplace
                     // Get the local blueprint list
                     BlueprintSync.GetLocalBlueprints();
                     break;
+
                 case BlueprintLocation.Server:
                     // Get the server blueprint list
                     Instance.ActionAppliedOverlay.Show();
@@ -180,6 +181,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         Instance.ActionAppliedOverlay.SetResult(success, message);
                     }, useCache: false);
                     break;
+
                 default:
                     break;
             }
@@ -198,9 +200,11 @@ namespace PlanBuild.Blueprints.Marketplace
                 case BlueprintLocation.Local:
                     tabToUse = Instance.LocalTab;
                     break;
+
                 case BlueprintLocation.Server:
                     tabToUse = Instance.ServerTab;
                     break;
+
                 default:
                     break;
             }
@@ -222,6 +226,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                     }
                     break;
+
                 case BlueprintLocation.Server:
                     // Upload the blueprint to the server again to save the changes
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
@@ -236,6 +241,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         });
                     }
                     break;
+
                 default:
                     break;
             }
@@ -256,6 +262,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         });
                     }
                     break;
+
                 case BlueprintLocation.Server:
                     // Save server blueprint locally
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
@@ -263,6 +270,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         BlueprintSync.SaveServerBlueprint(detail.ID);
                     }
                     break;
+
                 default:
                     break;
             }
@@ -279,6 +287,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         BlueprintSync.RemoveLocalBlueprint(detail.ID);
                     }
                     break;
+
                 case BlueprintLocation.Server:
                     // Remove server blueprint when admin
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
@@ -290,6 +299,7 @@ namespace PlanBuild.Blueprints.Marketplace
                         });
                     }
                     break;
+
                 default:
                     break;
             }
@@ -437,6 +447,7 @@ namespace PlanBuild.Blueprints.Marketplace
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
         public Text TabText { get; set; }
+
         // This is to indicate it is the activate tab.
         public Image TabButtonSelector { get; set; }
 
@@ -542,17 +553,19 @@ namespace PlanBuild.Blueprints.Marketplace
     internal class BlueprintDetailDisplay
     {
         public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
-        
+
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
         // Inputs Fields.
         public Text ID { get; set; }
+
         public Text Creator { get; set; }
         public InputField Name { get; set; }
         public InputField Description { get; set; }
 
         // Main Action Buttons
         public Button RefreshButton { get; set; }
+
         public Button SaveButton { get; set; }
         public Button TransferButton { get; set; }
         public Button DeleteButton { get; set; }
@@ -566,7 +579,7 @@ namespace PlanBuild.Blueprints.Marketplace
             {
                 return;
             }
-            
+
             SelectedBlueprintDetail = blueprint;
 
             Name.onEndEdit.RemoveAllListeners();

@@ -10,17 +10,17 @@ namespace PlanBuild.Blueprints
         public void Awake()
         {
             m_piece = GetComponent<Piece>();
-            
         }
 
         private Color GetEmissionColor()
         {
-            foreach(Renderer renderer in GetComponentsInChildren<Renderer>())
+            foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
             {
-                foreach (Material material in renderer.sharedMaterials) {
-                    if(material.HasProperty("_EmissionColor"))
+                foreach (Material material in renderer.sharedMaterials)
+                {
+                    if (material.HasProperty("_EmissionColor"))
                     {
-                    return material.GetColor("_EmissionColor");
+                        return material.GetColor("_EmissionColor");
                     }
                 }
             }
@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints
         {
             return Localization.instance.Localize(
                 $"{GetHoverName()}\n" +
-                $"[<color=yellow>$KEY_Use</color>] $piece_world_blueprint_rune_open"	
+                $"[<color=yellow>$KEY_Use</color>] $piece_world_blueprint_rune_open"
             );
         }
 

@@ -49,6 +49,5 @@ namespace PlanBuild.Blueprints
             }
             return float.Parse(s, NumberStyles.Float, NumberFormatInfo.InvariantInfo);
         }
-
     }
 }

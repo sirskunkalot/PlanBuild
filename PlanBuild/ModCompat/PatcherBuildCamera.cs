@@ -26,13 +26,11 @@ namespace PlanBuild.ModCompat
             UpdateCamera = false;
         }
 
-
         [HarmonyPatch(typeof(Valheim_Build_Camera.Valheim_Build_Camera), "DisableBuildMode")]
         [HarmonyPostfix]
         internal static void ValheimBuildCamera_DisableBuildMode_Postfix()
         {
             UpdateCamera = true;
         }
-
     }
 }

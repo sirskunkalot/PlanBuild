@@ -108,7 +108,7 @@ namespace PlanBuild.Plans
         /// </summary>
         private class PieceRequirements
         {
-            readonly Dictionary<string, int> requirements;
+            private readonly Dictionary<string, int> requirements;
 
             public PieceRequirements(Dictionary<string, int> requirements)
             {
@@ -130,7 +130,7 @@ namespace PlanBuild.Plans
             public override bool Equals(object obj)
             {
                 PieceRequirements other = obj as PieceRequirements;
-                if(other == null)
+                if (other == null)
                 {
                     return false;
                 }
@@ -169,9 +169,9 @@ namespace PlanBuild.Plans
                 {
                     builder.AppendLine($"Piece.m_name: {entry.Key}");
                     foreach (var groupEntry in entry.Value)
-                    { 
+                    {
                         builder.AppendLine($" Requirements: {groupEntry.Key}");
-                        builder.AppendLine($" Pieces: {string.Join(", ", groupEntry.Select(x => x.name))}\n"); 
+                        builder.AppendLine($" Pieces: {string.Join(", ", groupEntry.Select(x => x.name))}\n");
                     }
                 }
                 Logger.LogWarning(builder.ToString());

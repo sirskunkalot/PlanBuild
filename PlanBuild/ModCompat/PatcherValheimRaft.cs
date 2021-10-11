@@ -1,25 +1,22 @@
 ﻿using HarmonyLib;
-using PlanBuild.Blueprints;
 using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
-using System;
 using UnityEngine;
 using ValheimRAFT;
 
 namespace PlanBuild.ModCompat
 {
     internal class PatcherValheimRaft
-    {  
+    {
         private PatcherValheimRaft()
         {
-
         }
-          
+
         [HarmonyPatch(typeof(PlanPiece), "HasSupport")]
         [HarmonyPrefix]
         private static bool PlanPiece_HasSupport_Prefix(PlanPiece __instance, ref bool __result)
         {
-            if(__instance.GetComponentInParent<MoveableBaseRootComponent>())
+            if (__instance.GetComponentInParent<MoveableBaseRootComponent>())
             {
                 __result = true;
                 return false;
@@ -32,7 +29,8 @@ namespace PlanBuild.ModCompat
         private static void PlanPiece_OnPiecePlaced_Postfix(PlanPiece __instance, GameObject actualPiece)
         {
             MoveableBaseRootComponent moveableBaseRoot = __instance.GetComponentInParent<MoveableBaseRootComponent>();
-            if (moveableBaseRoot) {
+            if (moveableBaseRoot)
+            {
                 moveableBaseRoot.AddNewPiece(actualPiece.GetComponent<Piece>());
             }
         }

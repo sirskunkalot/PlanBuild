@@ -50,6 +50,5 @@ namespace PlanBuild.ModCompat
             }
             return true;
         }
-
     }
 }

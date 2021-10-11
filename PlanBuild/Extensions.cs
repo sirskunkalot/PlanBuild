@@ -1,5 +1,4 @@
-﻿using PlanBuild.Blueprints;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using static WearNTear;
 
@@ -46,7 +45,7 @@ namespace PlanBuild
                 }
             }
             self.CancelInvoke("ResetHighlight");
-            if(highlightTime > 0)
+            if (highlightTime > 0)
             {
                 self.Invoke("ResetHighlight", highlightTime);
             }

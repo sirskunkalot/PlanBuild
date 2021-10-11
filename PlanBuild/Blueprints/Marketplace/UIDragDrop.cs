@@ -7,7 +7,8 @@ namespace PlanBuild.Blueprints.Marketplace
     {
         private Canvas canvas;
         private RectTransform rectTransform;
-        void Awake()
+
+        private void Awake()
         {
             rectTransform = transform as RectTransform;
             Transform testCanvasTransform = transform.parent;

@@ -22,7 +22,7 @@ namespace PlanBuild.Blueprints
         private int SnapPoints;
         private int CenterMarkers;
         private bool Highlighted;
-         
+
         private Coroutine unhighlightCoroutine;
 
         public IEnumerator<ZDOID> GetEnumerator()
@@ -30,7 +30,6 @@ namespace PlanBuild.Blueprints
             foreach (ZDOID zdoid in new List<ZDOID>(selectedZDOIDs))
             {
                 yield return zdoid;
-
             }
         }
 
@@ -58,8 +57,6 @@ namespace PlanBuild.Blueprints
 
         public void StartHighlightSelection()
         {
-
-             
             IEnumerator Start()
             {
                 yield return null;
@@ -80,7 +77,8 @@ namespace PlanBuild.Blueprints
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
                     //Iterating over a copy of the list to avoid ConcurrentModificationEcveption
-                    if (!selectedZDOIDs.Contains(zdoid)) {
+                    if (!selectedZDOIDs.Contains(zdoid))
+                    {
                         //Piece was unselected while still highlighting
                         continue;
                     }
@@ -91,46 +89,44 @@ namespace PlanBuild.Blueprints
                         n = 0;
                         yield return null;
                     }
-                } 
+                }
 #if DEBUG
                 Logger.LogInfo($"{Time.frameCount} Finished highlight coroutine");
 #endif
-            } 
+            }
 #if DEBUG
             Logger.LogInfo($"{Time.frameCount} Enqueue highlight coroutine");
 #endif
 
             Highlighted = true;
             PlanBuildPlugin.Instance.StartCoroutine(Start());
-
         }
 
         public void StopHighlightSelection()
-        {  
+        {
             IEnumerator Stop()
             {
                 yield return null;
                 yield return null;
-                  
-#if DEBUG
-                    Logger.LogInfo($"{Time.frameCount} Starting unhighlight coroutine");
-#endif
-                    int n = 0;
-                    foreach (ZDOID zdoid in new List<ZDOID>(highlightedZDOIDs))
-                    { 
-                        GameObject selected = GetGameObject(zdoid);
-                        Unhighlight(zdoid, selected); 
-                        if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
-                        {
-                            n = 0;
-                            yield return null;
-                        }
-                    }
-#if DEBUG
-                    Logger.LogInfo($"{Time.frameCount} Finished unhighlight coroutine");
-#endif 
-                unhighlightCoroutine = null;
 
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Starting unhighlight coroutine");
+#endif
+                int n = 0;
+                foreach (ZDOID zdoid in new List<ZDOID>(highlightedZDOIDs))
+                {
+                    GameObject selected = GetGameObject(zdoid);
+                    Unhighlight(zdoid, selected);
+                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
+                }
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Finished unhighlight coroutine");
+#endif
+                unhighlightCoroutine = null;
             }
 
             if (unhighlightCoroutine != null)
@@ -225,6 +221,7 @@ namespace PlanBuild.Blueprints
                 highlightedZDOIDs.Remove(zdoid);
             }
         }
+
         internal void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
@@ -301,7 +298,6 @@ namespace PlanBuild.Blueprints
             PlanBuildPlugin.Instance.StartCoroutine(RemoveGrowIterator(piece));
         }
 
-
         internal HashSet<Piece> GetSupportingPieces(Piece piece)
         {
             HashSet<Piece> result = new HashSet<Piece>();
@@ -358,7 +354,6 @@ namespace PlanBuild.Blueprints
             }
             return false;
         }
-
 
         internal bool AddPiece(Piece piece)
         {
@@ -419,5 +414,4 @@ namespace PlanBuild.Blueprints
             return result;
         }
     }
-
 }

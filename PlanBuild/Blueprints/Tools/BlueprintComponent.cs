@@ -180,7 +180,6 @@ namespace PlanBuild.Blueprints.Tools
         /// <param name="newpiece"></param>
         internal virtual void OnPiecePlaced(GameObject placedPiece)
         {
-
         }
     }
 }

@@ -28,7 +28,7 @@ namespace PlanBuild.Blueprints
 
         public const string PieceSelectAddName = "piece_bpselectadd";
         public const string PieceSelectRemoveName = "piece_bpselectremove";
-        public const string PieceSelectSaveName = "piece_bpselectsave"; 
+        public const string PieceSelectSaveName = "piece_bpselectsave";
 
         public static string BlueprintRuneItemName;
 
@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints
             {
                 prefabs.Add(prefabArray[i].name, prefabArray[i]);
             }
-            
+
             // World Runes
             foreach (string pieceName in new string[]
             {
@@ -114,27 +114,35 @@ namespace PlanBuild.Blueprints
                     case PieceCaptureName:
                         prefabs[pieceName].AddComponent<CaptureComponent>();
                         break;
+
                     case PieceSelectAddName:
                         prefabs[pieceName].AddComponent<SelectAddComponent>();
                         break;
+
                     case PieceSelectRemoveName:
                         prefabs[pieceName].AddComponent<SelectRemoveComponent>();
                         break;
+
                     case PieceSelectSaveName:
                         prefabs[pieceName].AddComponent<SelectSaveComponent>();
                         break;
+
                     case PieceDeleteObjectsName:
                         prefabs[pieceName].AddComponent<DeleteObjectsComponent>();
                         break;
+
                     case PieceDeletePlansName:
                         prefabs[pieceName].AddComponent<DeletePlansComponent>();
                         break;
+
                     case PieceTerrainName:
                         prefabs[pieceName].AddComponent<TerrainComponent>();
                         break;
+
                     case PiecePaintName:
                         prefabs[pieceName].AddComponent<PaintComponent>();
                         break;
+
                     default:
                         break;
                 }

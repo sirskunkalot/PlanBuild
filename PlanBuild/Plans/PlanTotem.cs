@@ -208,7 +208,7 @@ namespace PlanBuild.Plans
                 }
             }
             sb.Append(Localization.instance.Localize("$piece_plan_totem_connected \n", m_connectedPieces.Count.ToString(), m_supportedPieces.ToString()));
-            
+
             if (m_remainingRequirements.Count > 0)
             {
                 sb.Append("$piece_plan_totem_required\n");
@@ -240,7 +240,6 @@ namespace PlanBuild.Plans
             GameObject m_connection = Object.Instantiate(m_connectionPrefab, center, Quaternion.identity);
 
             TimedDestruction timedDestruction = m_connection.AddComponent<TimedDestruction>();
-
 
             Vector3 vector = targetPos - center;
             timedDestruction.Trigger(vector.magnitude);

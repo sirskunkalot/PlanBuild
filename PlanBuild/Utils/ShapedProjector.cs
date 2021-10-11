@@ -8,6 +8,7 @@ namespace PlanBuild.Utils
         internal static bool ShowProjectors = true;
 
         private static GameObject _segment;
+
         private static GameObject SelectionSegment
         {
             get

@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints
         public static void Flatten(Transform transform, float radius, bool square = false)
         {
             Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
-                
+
             try
             {
                 TerrainOp.Settings settings = new TerrainOp.Settings();
@@ -147,7 +147,7 @@ namespace PlanBuild.Blueprints
         public static void RemoveVegetation(Transform transform, float radius)
         {
             Logger.LogDebug($"Entered RemoveVegetation {transform.position} / {radius}");
-            
+
             ZNetScene zNetScene = ZNetScene.instance;
             try
             {

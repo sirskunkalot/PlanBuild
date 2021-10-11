@@ -51,11 +51,11 @@ namespace PlanBuild.Plans
             }
 
             m_planPieces.Add(this);
-             
+
             m_wearNTear = GetComponent<WearNTear>();
             m_nView = GetComponent<ZNetView>();
             m_piece = GetComponent<Piece>();
-             
+
             DisablePiece(gameObject);
 
             m_wearNTear.m_onDestroyed += OnDestroyed;
@@ -211,7 +211,7 @@ namespace PlanBuild.Plans
             if (selected)
             {
                 Selection.Instance.Highlight(m_piece.GetZDOID().Value, gameObject);
-            } 
+            }
         }
 
         private ShaderHelper.ShaderState GetShaderState()
@@ -670,7 +670,6 @@ namespace PlanBuild.Plans
 
         internal virtual void OnPiecePlaced(GameObject actualPiece)
         {
-
         }
 
         [HarmonyPatch(typeof(WearNTear), "Damage")]

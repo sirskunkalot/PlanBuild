@@ -1,5 +1,4 @@
-﻿using Jotunn.Managers;
-using PlanBuild.Utils;
+﻿using PlanBuild.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Jotunn;
+using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Jotunn;
-using Jotunn.Managers;
 
 namespace PlanBuild.Blueprints.Marketplace
 {
@@ -27,7 +27,7 @@ namespace PlanBuild.Blueprints.Marketplace
         }
 
         /// <summary>
-        ///     Load all local blueprints from disk. Searches recursively for .blueprint and .vbuild files inside 
+        ///     Load all local blueprints from disk. Searches recursively for .blueprint and .vbuild files inside
         ///     the directory configured in the mods config file.
         /// </summary>
         internal static void GetLocalBlueprints()
@@ -218,7 +218,7 @@ namespace PlanBuild.Blueprints.Marketplace
         }
 
         /// <summary>
-        ///     When connected to a server, register a callback and invoke the RPC for uploading 
+        ///     When connected to a server, register a callback and invoke the RPC for uploading
         ///     a local blueprint to the server directory.
         /// </summary>
         /// <param name="id">ID of the blueprint</param>
@@ -246,7 +246,7 @@ namespace PlanBuild.Blueprints.Marketplace
         }
 
         /// <summary>
-        ///     When connected to a server, register a callback and invoke the RPC for uploading 
+        ///     When connected to a server, register a callback and invoke the RPC for uploading
         ///     a local blueprint to the server directory.
         /// </summary>
         /// <param name="id">ID of the blueprint</param>
@@ -385,7 +385,7 @@ namespace PlanBuild.Blueprints.Marketplace
         }
 
         /// <summary>
-        ///     When connected to a server, register a callback and invoke the RPC for removing 
+        ///     When connected to a server, register a callback and invoke the RPC for removing
         ///     a blueprint from the server directory. Only callable by admins on the server.
         /// </summary>
         /// <param name="id">ID of the blueprint</param>

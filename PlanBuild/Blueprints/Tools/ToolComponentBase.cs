@@ -38,7 +38,7 @@ namespace PlanBuild.Blueprints.Tools
 
         private void OnDestroy()
         {
-            if(!ZNetScene.instance)
+            if (!ZNetScene.instance)
             {
 #if DEBUG
                 Jotunn.Logger.LogDebug("Skipping destroy because the game is exiting");
@@ -242,6 +242,7 @@ namespace PlanBuild.Blueprints.Tools
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
             }
         }
+
         /// <summary>
         ///     Incept placing of the meta pieces.
         ///     Cancels the real placement of the placeholder pieces.

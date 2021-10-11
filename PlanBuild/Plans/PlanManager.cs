@@ -6,7 +6,6 @@ using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using UnityEngine.SceneManagement;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
@@ -16,6 +15,7 @@ namespace PlanBuild.Plans
     internal class PlanManager
     {
         private static PlanManager _instance;
+
         public static PlanManager Instance
         {
             get
@@ -70,7 +70,7 @@ namespace PlanBuild.Plans
             ItemDrop rune = ItemManager.Instance.GetItem(BlueprintAssets.BlueprintRuneName).ItemDrop;
             rune.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
 
-            // Needs to run only once 
+            // Needs to run only once
             PieceManager.OnPiecesRegistered -= CreatePlanTable;
         }
 
@@ -82,7 +82,6 @@ namespace PlanBuild.Plans
                 PlanDB.Instance.ScanPieceTables();
             }
         }
-
 
         private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
@@ -101,7 +100,7 @@ namespace PlanBuild.Plans
 
             Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in PlanDB.Instance.GetPlanPiecePrefabs())
-            { 
+            {
                 if (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))

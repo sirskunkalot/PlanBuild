@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 return UndoBlueprint();
             }
-            
+
             return UndoPiece();
         }
 

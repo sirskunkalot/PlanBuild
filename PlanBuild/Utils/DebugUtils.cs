@@ -5,7 +5,6 @@ namespace PlanBuild.Utils
 {
     internal class DebugUtils
     {
-
         public static void InitLaserGrid(GameObject gameObject, Bounds bounds)
         {
             Transform parent = gameObject.transform;
@@ -38,6 +37,5 @@ namespace PlanBuild.Utils
             Vector3 extents = bounds.extents;
             lineRenderer.SetPositions(new Vector3[] { bounds.center + Vector3.Scale(first, extents), bounds.center + Vector3.Scale(second, extents) });
         }
-
     }
 }

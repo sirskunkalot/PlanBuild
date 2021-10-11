@@ -29,7 +29,7 @@ namespace PlanBuild.Blueprints
         internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime = 0f;
 
-        internal Piece LastHoveredPiece; 
+        internal Piece LastHoveredPiece;
 
         internal void Init()
         {
@@ -40,7 +40,7 @@ namespace PlanBuild.Blueprints
                 // Init lists
                 LocalBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
-                
+
                 Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
 
                 // Init config
@@ -58,14 +58,14 @@ namespace PlanBuild.Blueprints
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-                
+
                 // Hooks
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
                 On.Humanoid.EquipItem += Humanoid_EquipItem;
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
-                On.Piece.OnDestroy += Piece_OnDestroy; 
+                On.Piece.OnDestroy += Piece_OnDestroy;
             }
             catch (Exception ex)
             {

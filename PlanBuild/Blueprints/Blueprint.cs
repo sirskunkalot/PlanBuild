@@ -24,7 +24,6 @@ namespace PlanBuild.Blueprints
         public const string PlaceColliderName = "place_collider";
 
         private const string HeaderName = "#Name:";
-         
 
         private const string HeaderCreator = "#Creator:";
         private const string HeaderDescription = "#Description:";
@@ -87,7 +86,7 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
-        
+
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
@@ -102,7 +101,7 @@ namespace PlanBuild.Blueprints
                 {
                     // Calculate proper height
                     int width = maxWidth;
-                    int height = (int) Math.Round((float)maxWidth * value.height / value.width);
+                    int height = (int)Math.Round((float)maxWidth * value.height / value.width);
 
                     // Create thumbnail image from screenshot
                     ResizedThumbnail = new Texture2D(width, height);
@@ -112,14 +111,14 @@ namespace PlanBuild.Blueprints
                         {
                             var xp = 1f * x / width;
                             var yp = 1f * y / height;
-                            var xo = (int) Mathf.Round(xp * value.width); // Other X pos
-                            var yo = (int) Mathf.Round(yp * value.height); // Other Y pos
+                            var xo = (int)Mathf.Round(xp * value.width); // Other X pos
+                            var yo = (int)Mathf.Round(yp * value.height); // Other Y pos
                             Color origPixel = value.GetPixel(xo, yo);
                             origPixel.a = 1f;
                             ResizedThumbnail.SetPixel(x, y, origPixel);
                         }
                     }
-                
+
                     ResizedThumbnail.Apply();
 
                     // Destroy properly
@@ -158,7 +157,7 @@ namespace PlanBuild.Blueprints
         private Bounds Bounds;
 
         /// <summary>
-        ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files. 
+        ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files.
         ///     Reads an optional thumbnail from a PNG file with the same name as the blueprint.
         /// </summary>
         /// <param name="fileLocation">Absolute path to the blueprint file</param>
@@ -174,9 +173,11 @@ namespace PlanBuild.Blueprints
                 case ".vbuild":
                     format = Format.VBuild;
                     break;
+
                 case ".blueprint":
                     format = Format.Blueprint;
                     break;
+
                 default:
                     throw new Exception($"Format {extension} not recognized");
             }
@@ -411,7 +412,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>. 
+        ///     Save this instance as a blueprint file to <see cref="FileLocation"/>.
         ///     Renames the .vbuild file to .blueprint if it was read as one.
         /// </summary>
         /// <returns>true if the blueprint could be saved</returns>
@@ -468,7 +469,6 @@ namespace PlanBuild.Blueprints
             return PieceEntries.Length;
         }
 
-
         /// <summary>
         ///     Get the bounds of this blueprint
         /// </summary>
@@ -499,7 +499,7 @@ namespace PlanBuild.Blueprints
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
-             
+
             foreach (var zdoid in selection)
             {
                 GameObject selected = selection.GetGameObject(zdoid, true);
@@ -529,7 +529,7 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Ignoring piece {piece}, not able to make Plan");
                     continue;
-                } 
+                }
                 collected.Add(piece);
                 numPieces++;
             }
@@ -622,7 +622,7 @@ namespace PlanBuild.Blueprints
             {
                 SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
             }
-             
+
             return true;
         }
 
@@ -932,7 +932,7 @@ namespace PlanBuild.Blueprints
                 File.Delete(IconLocation);
             }
         }
-        
+
         /// <summary>
         ///     Helper class for naming and saving a captured blueprint via GUI
         ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
@@ -1005,7 +1005,7 @@ namespace PlanBuild.Blueprints
 
                 // Set a screenshot
                 newbp.Thumbnail = ScreenCapture.CaptureScreenshotAsTexture();
-                
+
                 // Save to file
                 File.WriteAllBytes(newbp.IconLocation, newbp.Thumbnail.EncodeToPNG());
 
