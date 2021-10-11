@@ -623,6 +623,11 @@ namespace PlanBuild.Blueprints
                 SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
             }
 
+            if(selection != Selection.Instance)
+            {
+                selection.Clear();
+            }
+
             return true;
         }
 
