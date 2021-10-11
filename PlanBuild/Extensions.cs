@@ -39,7 +39,8 @@ namespace PlanBuild
                     Material[] materials = oldMaterial.m_renderer.materials;
                     foreach (Material obj in materials)
                     {
-                        obj.SetColor("_EmissionColor", color * 0.3f);
+                        //   obj.SetColor("_EmissionColor", color * 0.3f);
+                        obj.DisableKeyword("_Emission");
                         obj.color = color;
                     }
                 }
