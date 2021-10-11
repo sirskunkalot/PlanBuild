@@ -10,7 +10,7 @@ namespace PlanBuild.Blueprints.Tools
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
         }
 
-        private void Update()
+        public void Start()
         {
             Selection.Instance.StartHighlightSelection();
         }

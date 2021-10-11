@@ -58,18 +58,25 @@ namespace PlanBuild.Blueprints
                 // Create blueprint prefabs when all pieces were registered
                 // Some may still fail, these will be retried every time the blueprint rune is opened
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-
+                
                 // Hooks
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
                 On.Humanoid.EquipItem += Humanoid_EquipItem;
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
+                On.Piece.OnDestroy += Piece_OnDestroy; 
             }
             catch (Exception ex)
             {
                 Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
             }
+        }
+
+        private void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
+        {
+            orig(self);
+            Selection.Instance.OnPieceUnload(self);
         }
 
         private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)

@@ -51,5 +51,15 @@ namespace PlanBuild
                 self.Invoke("ResetHighlight", highlightTime);
             }
         }
+
+        public static ZDOID? GetZDOID(this Piece piece)
+        {
+            return piece?.m_nview?.GetZDO()?.m_uid;
+        }
+
+        public static ZDOID? GetZDOID(this WearNTear wearNTear)
+        {
+            return wearNTear?.m_nview?.GetZDO()?.m_uid;
+        }
     }
 }
