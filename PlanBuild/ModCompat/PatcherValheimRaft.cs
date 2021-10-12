@@ -12,7 +12,7 @@ namespace PlanBuild.ModCompat
         {
         }
           
-        [HarmonyPatch(typeof(PlanPiece), "CalculateSupported")]
+        [HarmonyPatch(typeof(PlanPiece), nameof(PlanPiece.CalculateSupported))]
         [HarmonyPrefix]
         private static bool PlanPiece_CalculateSupported_Prefix(PlanPiece __instance, ref bool __result)
         {
@@ -24,18 +24,18 @@ namespace PlanBuild.ModCompat
             return true;
         }
 
-        [HarmonyPatch(typeof(PlanPiece), "OnPiecePlaced")]
+        [HarmonyPatch(typeof(PlanPiece), nameof(PlanPiece.OnPieceReplaced))]
         [HarmonyPrefix]
-        private static void PlanPiece_OnPiecePlaced_Postfix(PlanPiece __instance, GameObject actualPiece)
+        private static void PlanPiece_OnPieceReplaced_Postfix(GameObject originatingPiece, GameObject placedPiece)
         {
-            MoveableBaseRootComponent moveableBaseRoot = __instance.GetComponentInParent<MoveableBaseRootComponent>();
+            MoveableBaseRootComponent moveableBaseRoot = originatingPiece.GetComponentInParent<MoveableBaseRootComponent>();
             if (moveableBaseRoot)
             {
-                moveableBaseRoot.AddNewPiece(actualPiece.GetComponent<Piece>());
+                moveableBaseRoot.AddNewPiece(placedPiece.GetComponent<Piece>());
             }
         }
 
-        [HarmonyPatch(typeof(BlueprintComponent), "OnPiecePlaced")]
+        [HarmonyPatch(typeof(BlueprintComponent), nameof(BlueprintComponent.OnPiecePlaced))]
         [HarmonyPrefix]
         private static void BlueprintManager_OnPiecePlaced_Postfix(GameObject placedPiece)
         {

@@ -37,6 +37,27 @@ namespace PlanBuild.Plans
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
+            On.WearNTear.Destroy += OnDestroy;
+        }
+
+        private void OnDestroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
+        {
+            //Check if actually destoyed, not removed by middle clicking with Hammer
+            if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
+                && wearNTear.GetHealthPercentage() <= 0f 
+                && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
+            {  
+                foreach(PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+                {
+                    UnityEngine.GameObject gameObject = wearNTear.gameObject;
+                    if (planTotem.InRange(gameObject))
+                    {
+                        planTotem.Replace(gameObject, planPrefab);
+                        break;
+                    }
+                }
+            }
+            orig(wearNTear);
         }
 
         private void CreatePlanTable()

@@ -227,13 +227,23 @@ namespace PlanBuild.Plans
         }
 
         internal bool FindOriginalByPrefabName(string name, out Piece originalPiece)
-        {
+        { 
             return PlanToOriginalMap.TryGetValue(name, out originalPiece);
         }
 
         internal bool FindByPieceName(string m_name, out List<Piece> originalPieces)
         {
             return NamePiecePrefabMapping.TryGetValue(m_name, out originalPieces);
+        }
+
+        internal bool FindPlanByPrefabName(string name, out PlanPiecePrefab planPiecePrefab)
+        {
+            int index = name.IndexOf("(Clone)");
+            if(index != -1)
+            {
+                name = name.Substring(0, index);
+            }
+            return PlanPiecePrefabs.TryGetValue(name, out planPiecePrefab);
         }
 
         public bool CanCreatePlan(Piece piece)

@@ -3,7 +3,6 @@ using PlanBuild.Blueprints;
 using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using static Piece;
@@ -23,8 +22,7 @@ namespace PlanBuild.Plans
         private Piece m_piece;
         private ZNetView m_nView;
         internal WearNTear m_wearNTear;
-
-        public string m_hoverText = "";
+         
         public Piece originalPiece;
 
         //GUI
@@ -66,8 +64,8 @@ namespace PlanBuild.Plans
             m_nView.Register<bool>("Refund", RPC_Refund);
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
             m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
-            UpdateHoverText();
         }
+         
 
         private void OnDestroyed()
         {
@@ -93,7 +91,7 @@ namespace PlanBuild.Plans
 
         private bool hasSupport = false;
 
-        private bool CalculateSupported()
+        internal bool CalculateSupported()
         {
             return m_nView.GetZDO().GetFloat("support") >= m_minSupport;
         }
@@ -241,14 +239,13 @@ namespace PlanBuild.Plans
         private float m_lastUseTime = -9999f;
         private readonly float m_holdRepeatInterval = 1f;
         private float m_minSupport = 0f;
-        public float m_maxSupport;
+        internal float m_maxSupport;
 
         public string GetHoverText()
         {
             if (Time.time - m_lastLookedTime > 0.2f)
             {
                 m_lastLookedTime = Time.time;
-                // Debug.Log("Setting up piece info");
                 SetupPieceInfo(originalPiece);
             }
             Hud.instance.m_buildHud.SetActive(true);
@@ -411,7 +408,6 @@ namespace PlanBuild.Plans
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
                     user.GetInventory().RemoveItem(resourceName, 1);
-                    UpdateHoverText();
                     return true;
                 }
             }
@@ -479,7 +475,6 @@ namespace PlanBuild.Plans
                     {
                         m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
                         inventory.RemoveItem(resourceName, amountToAdd);
-                        UpdateHoverText();
                         added = true;
                         reqFinished = remaining == amountToAdd;
                     }
@@ -536,7 +531,6 @@ namespace PlanBuild.Plans
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
                     PlayerRemoveResource(user, resourceName, 1);
-                    UpdateHoverText();
                     return true;
                 }
             }
@@ -614,24 +608,24 @@ namespace PlanBuild.Plans
             return m_nView.GetZDO().GetInt(zdoPlanResource + "_" + resource);
         }
 
-        public void UpdateHoverText()
-        {
-            StringBuilder builder = new StringBuilder();
-            foreach (Requirement requirement in originalPiece.m_resources)
-            {
-                builder.Append(requirement.m_resItem.m_itemData.m_shared.m_name + ": " + GetResourceCount(requirement.m_resItem.m_itemData.m_shared.m_name) + "/" + requirement.m_amount + "\n");
-            }
-            m_hoverText = builder.ToString();
-        }
-
         private void RPC_SpawnPieceAndDestroy(long sender, long creatorID)
         {
             if (!m_nView.IsOwner())
             {
                 return;
             }
-            GameObject actualPiece = Object.Instantiate(originalPiece.gameObject, gameObject.transform.position, gameObject.transform.rotation);
-            OnPiecePlaced(actualPiece);
+            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation, originalPiece.gameObject, m_nView.GetZDO().GetString(zdoAdditionalInfo)); 
+#if DEBUG
+            Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
+#endif
+            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
+            ZNetScene.instance.Destroy(this.gameObject);
+        }
+
+        internal static GameObject SpawnPiece(GameObject originatingObject, long creatorID, Vector3 position, Quaternion rotation, GameObject prefab, string textReceiverInput)
+        {
+            GameObject actualPiece = Object.Instantiate(prefab, position, rotation);
+            OnPieceReplaced(originatingObject, actualPiece);
             // Register special effects
             if (creatorID == Player.m_localPlayer?.GetPlayerID())
             {
@@ -653,28 +647,23 @@ namespace PlanBuild.Plans
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-            WearNTear wearntear = gameObject.GetComponent<WearNTear>();
+            WearNTear wearntear = actualPiece.GetComponent<WearNTear>();
             if (wearntear)
             {
                 wearntear.OnPlaced();
             }
-            TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
+            TextReceiver textReceiver = actualPiece.GetComponent<TextReceiver>();
             if (textReceiver != null)
             {
-                textReceiver.SetText(m_nView.GetZDO().GetString(zdoAdditionalInfo));
+                textReceiver.SetText(textReceiverInput);
             }
-
             actualPiece.GetComponent<Piece>().SetCreator(creatorID);
-
-#if DEBUG
-            Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
-#endif
-            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
-            ZNetScene.instance.Destroy(this.gameObject);
+            return actualPiece;
         }
 
-        internal virtual void OnPiecePlaced(GameObject actualPiece)
+        internal static void OnPieceReplaced(GameObject originatingPiece, GameObject placedPiece)
         {
+
         }
 
         [HarmonyPatch(typeof(WearNTear), "Damage")]

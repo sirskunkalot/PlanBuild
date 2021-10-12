@@ -43,8 +43,8 @@ namespace PlanBuild.Plans
 
         public new void Awake()
         {
-            base.Awake();
-            InvokeRepeating("UpdatePlanTotem", 3f, 3f);
+            base.Awake(); 
+            StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
@@ -54,20 +54,39 @@ namespace PlanBuild.Plans
             HideMarker();
         }
 
+        internal void Replace(GameObject gameObject, PlanPiecePrefab planPrefab)
+        {
+            Transform replaceTransform = gameObject.transform;
+            string textReceiver = gameObject.GetComponent<TextReceiver>()?.GetText();
+            GameObject created = PlanPiece.SpawnPiece(gameObject, m_piece.m_creator, replaceTransform.position, replaceTransform.rotation, planPrefab.PiecePrefab, textReceiver);
+            TriggerConnection(created.transform.position);
+        }
+         
         public void OnDestroy()
         {
             m_allPlanTotems.Remove(this);
         }
 
-        public List<PlanPiece> FindPlanPiecesInRange()
+        public bool InRange(GameObject go)
+        {
+            return GetDistanceTo(go) <= PlanConfig.RadiusConfig.Value;
+        }
+
+        private float GetDistanceTo(GameObject go)
+        {
+            Vector3 pieceCenter = GetCenter(go);
+            float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
+            return distance;
+        }
+
+        private List<PlanPiece> FindPlanPiecesInRange()
         {
             Dictionary<PlanPiece, float> result = new Dictionary<PlanPiece, float>();
             foreach (var piece in Piece.m_allPieces)
             {
                 try
                 {
-                    Vector3 pieceCenter = GetCenter(piece.gameObject);
-                    float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
+                    float distance = GetDistanceTo(piece.gameObject);
                     if (distance <= PlanConfig.RadiusConfig.Value)
                     {
                         PlanPiece planPiece = piece.GetComponent<PlanPiece>();
@@ -90,75 +109,88 @@ namespace PlanBuild.Plans
                 .ToList();
         }
 
-        public void UpdatePlanTotem()
+        public IEnumerator<YieldInstruction> UpdatePlanTotem()
         {
             if (!m_nview || !m_nview.IsValid())
             {
-                return;
+                yield break;
             }
-            m_supportedPieces = 0;
-            m_connectedPieces.Clear();
-            m_remainingRequirements.Clear();
-            m_missingCraftingStations.Clear();
 
-            foreach (var planPiece in FindPlanPiecesInRange())
+            while(true)
             {
-                if (planPiece.HasSupport())
-                {
-                    m_supportedPieces++;
-                }
+                yield return new WaitForSeconds(3f);
 
-                if (m_nview.IsOwner() && planPiece.HasSupport())
+                int newSupportedPieces = 0;
+                List<PlanPiece> connectedPieces = new List<PlanPiece>();
+                Dictionary<string, int> newRemainingRequirements = new Dictionary<string, int>();
+                HashSet<string> newMissingCraftingStations = new HashSet<string>();
+
+                m_supportedPieces = 0;
+                m_connectedPieces.Clear();
+                
+                m_missingCraftingStations.Clear();
+
+                List<PlanPiece> planPieces = FindPlanPiecesInRange();
+                foreach (var planPiece in planPieces)
                 {
-                    if (m_inventory.m_inventory.Count != 0)
+
+                    if (planPiece.HasSupport())
                     {
-                        planPiece.AddAllMaterials(m_inventory);
+                        m_supportedPieces++;
                     }
-                    if (planPiece.HasAllResources())
+
+                    if (m_nview.IsOwner() && planPiece.HasSupport())
                     {
-                        if (planPiece.HasRequiredCraftingStationInRange())
+                        if (m_inventory.m_inventory.Count != 0)
                         {
-                            if (PlanConfig.ShowParticleEffects.Value)
+                            planPiece.AddAllMaterials(m_inventory);
+                        }
+                        if (planPiece.HasAllResources())
+                        {
+                            if (planPiece.HasRequiredCraftingStationInRange())
                             {
-                                TriggerConnection(GetCenter(planPiece.gameObject));
+                                if (PlanConfig.ShowParticleEffects.Value)
+                                {
+                                    TriggerConnection(GetCenter(planPiece.gameObject));
+                                }
+                                planPiece.Build(m_piece.m_creator);
+                                continue;
                             }
-                            planPiece.Build(m_piece.m_creator);
-                            continue;
-                        }
-                        else
-                        {
-                            m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                            else
+                            {
+                                m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                            }
                         }
                     }
-                }
 
-                m_connectedPieces.Add(planPiece);
-                Dictionary<string, int> remaining = planPiece.GetRemaining();
-                foreach (string resourceName in remaining.Keys)
-                {
-                    int resourceCount = remaining[resourceName];
-                    if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
+                    m_connectedPieces.Add(planPiece);
+                    Dictionary<string, int> remaining = planPiece.GetRemaining();
+                    foreach (string resourceName in remaining.Keys)
                     {
-                        resourceCount += currentCount;
+                        int resourceCount = remaining[resourceName];
+                        if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
+                        {
+                            resourceCount += currentCount;
+                        }
+                        m_remainingRequirements[resourceName] = resourceCount;
                     }
-                    m_remainingRequirements[resourceName] = resourceCount;
                 }
-            }
-            m_sortedRequired = m_remainingRequirements
-                   .Select(pair =>
-                   {
-                       int missing = pair.Value;
-                       if (pair.Value > 0)
+                m_sortedRequired = m_remainingRequirements
+                       .Select(pair =>
                        {
-                           missing -= m_inventory.CountItems(pair.Key);
-                       }
-                       return new KeyValuePair<string, int>(pair.Key, missing);
-                   })
-                   .Where(pair => pair.Value > 0)
-                   .OrderByDescending(pair => pair.Value)
-                   .ToList();
-            bool active = m_connectedPieces.Count > 0;
-            SetActive(active);
+                           int missing = pair.Value;
+                           if (pair.Value > 0)
+                           {
+                               missing -= m_inventory.CountItems(pair.Key);
+                           }
+                           return new KeyValuePair<string, int>(pair.Key, missing);
+                       })
+                       .Where(pair => pair.Value > 0)
+                       .OrderByDescending(pair => pair.Value)
+                       .ToList();
+                bool active = m_connectedPieces.Count > 0;
+                SetActive(active);
+            }
         }
 
         private void SetActive(bool active)
