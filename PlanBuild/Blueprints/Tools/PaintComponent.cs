@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Jotunn.Managers;
+using System.Collections;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -32,7 +33,7 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool PlacePiece(Player self, Piece piece)
         {
-            if (!BlueprintConfig.AllowTerrainmodConfig.Value)
+            if (!BlueprintConfig.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                 return false;

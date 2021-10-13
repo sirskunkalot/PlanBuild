@@ -71,7 +71,9 @@ namespace PlanBuild.Blueprints.Tools
             var rotation = transform.rotation;
 
             bool placeDirect = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
-            if (placeDirect && !BlueprintConfig.AllowDirectBuildConfig.Value)
+            if (placeDirect 
+                && !BlueprintConfig.AllowDirectBuildConfig.Value 
+                && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
                 return;
@@ -110,7 +112,7 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
-                if (!BlueprintConfig.AllowTerrainmodConfig.Value
+                if (!(BlueprintConfig.AllowTerrainmodConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin)
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
