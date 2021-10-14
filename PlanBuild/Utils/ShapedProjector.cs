@@ -80,19 +80,19 @@ namespace PlanBuild.Utils
 
         internal void Disable()
         {
-            if (Shape == ProjectorShape.Circle && Circle != null)
+            if (Circle != null)
             {
                 foreach (GameObject segment in Circle.m_segments)
                 {
-                    Destroy(segment);
+                    DestroyImmediate(segment);
                 }
-                Destroy(Circle);
+                DestroyImmediate(Circle);
             }
 
-            if (Shape == ProjectorShape.Square && Square != null)
+            if (Square != null)
             {
                 Square.StopProjecting();
-                Destroy(Square);
+                DestroyImmediate(Square);
             }
         }
 

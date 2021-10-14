@@ -28,7 +28,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.6.12";
+        public const string PluginVersion = "0.6.14";
 
         public static PlanBuildPlugin Instance;
 
@@ -82,7 +82,7 @@ namespace PlanBuild
 
             // BP Market GUI is OK in the main menu
             if (BlueprintGUI.IsAvailable() &&
-                BlueprintConfig.AllowMarketHotkey.Value &&
+                (BlueprintConfig.AllowMarketHotkey.Value || SynchronizationManager.Instance.PlayerIsAdmin) &&
                 ZInput.GetButtonDown(BlueprintConfig.GUIToggleButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();

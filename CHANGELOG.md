@@ -1,3 +1,9 @@
+# Version 0.6.14
+* Fix stuck square tool outline
+
+# Version 0.6.13
+* Fixed admin overrides for tools: direct place, terrain and marketplace GUI hotkey
+
 # Version 0.6.12
 * Added new tools to modify your blueprint selection manually before saving it - add or remove single pieces or connected structures all at once
 
