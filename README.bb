@@ -18,11 +18,13 @@ Planned pieces that are [b]unsupported[/b] can not be finished. These pieces are
 
 Real pieces also snap to the planned pieces, so you could even use them as [b]spacers[/b] or [b]rulers[/b].
 
-[size=4][b]PlanTotem[/b][/size]
+[size=4][b]Plan Totem[/b][/size]
 
 [img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/PlanTotem.png[/img]
 
-Build a [b]PlanTotem[/b] near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
+Build a [b]Plan Totem[/b] near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
+
+It will also protect existing structures. Any piece that is destroyed [i](not removed by the Hammer)[/i] will be replaced with a plan for that same piece in the same place!
 
 This needs to be built with the vanilla Hammer tool and costs you [b]5 Fine Wood[/b], [b]5 Grey Dwarf Eye[/b] and [b]1 Surtling Core[/b].
 
@@ -54,7 +56,19 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
 [*]Press [b]Ctrl[/b] to see what pieces are currently selected. 
 [*]Use the [b]Scroll Wheel[/b] to change the capture radius. 
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint.
+[/list][*][b]Add to selection:[/b]  Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
+[list]
+[*]Press [b]Alt[/b] to add all connected pieces. This uses a flood fill to find connected pieces.
+[*]Press [b]Ctrl[/b] to add pieces in a radius
+[*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the selection radius
+[/list][*][b]Remove from selection:[/b] Remove pieces from the current selection. Currently selected pieces will be highlighted in green.  Per default only the hovered piece will be removed from the selection. You can use various modifiers to change that behaviour.
+[list]
+[*]Press [b]Alt[/b] to remove all connected pieces. This uses a flood fill to find connected pieces.
+[*]Press [b]Ctrl[/b] to remove pieces in a radius
+[*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the selection radius
+[*]Press [b]Alt[/b] and [b]Ctrl[/b] and click to clear selection
+[/list][*][b]Save selection:[/b] Click to save the current selection to a blueprint
+[*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/1504]Snap points made easy[/url]﻿﻿ so you can cycle through the snap points when placing the blueprint.
 [*][b]Center point marker:[/b] Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 [*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
 [list]
@@ -109,13 +123,13 @@ You can place one of two new rune themed pieces in the world which provide acces
 
 [size=5][b]Compatibility[/b][/size]
 
-Fully compatible with:
+Compatible with:
 
 [list]
-[*][url=https://www.nexusmods.com/valheim/mods/226]Build Camera[/url]﻿
-[*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]﻿
-[*][url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url]
-[/list]
+[*][url=https://www.nexusmods.com/valheim/mods/226]Build Camera[/url]﻿ 
+[*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]﻿   
+[*]﻿[url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url]
+Placing blueprints on rafts work, still working on capturing rafts[/list]
 The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with [b]P[/b] which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
 
 [size=5][b]Installing[/b][/size]
