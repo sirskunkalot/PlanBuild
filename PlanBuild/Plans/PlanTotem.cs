@@ -140,6 +140,7 @@ namespace PlanBuild.Plans
                     continue;
                 }
 
+                m_remainingRequirements.Clear();
                 m_supportedPieces = 0;
                 m_connectedPieces.Clear();
                 m_missingCraftingStations.Clear();

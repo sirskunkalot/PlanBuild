@@ -1,3 +1,6 @@
+# Version 0.7.1
+* Fix requirements count in Plan Totem
+
 # Version 0.7.0
 * Plan Totems will now replace broken pieces in range with plans
 * Added enable/disable to individual Plan Totems (both building & replacing with plans are controlled by this)
