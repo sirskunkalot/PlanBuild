@@ -187,7 +187,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (SelectionProjector != null)
             {
-                Destroy(SelectionProjector);
+                DestroyImmediate(SelectionProjector);
             }
         }
 

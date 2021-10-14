@@ -1,3 +1,6 @@
+# Version 0.6.14
+* Fix stuck square tool outline
+
 # Version 0.6.13
 * Fixed admin overrides for tools: direct place, terrain and marketplace GUI hotkey
 
