@@ -18,11 +18,13 @@ Planned pieces that are __unsupported__ can not be finished. These pieces are al
 
 Real pieces also snap to the planned pieces, so you could even use them as __spacers__ or __rulers__.
 
-### PlanTotem
+### Plan Totem
 
 ![Plan Totem](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/PlanTotem.png)
 
-Build a __PlanTotem__ near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
+Build a __Plan Totem__ near your planned structures to be able to add resources in a centralized location for all individual pieces on the plan.
+
+It will also protect existing structures. Any piece that is destroyed _(not removed by the Hammer)_ will be replaced with a plan for that same piece in the same place!
 
 This needs to be built with the vanilla Hammer tool and costs you __5 Fine Wood__, __5 Grey Dwarf Eye__ and __1 Surtling Core__.
 

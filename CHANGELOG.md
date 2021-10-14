@@ -1,3 +1,7 @@
+# Version 0.7.0
+* Plan Totems will now replace broken pieces in range with plans
+* Added enable/disable to individual Plan Totems (both building & replacing with plans are controlled by this)
+
 # Version 0.6.14
 * Fix stuck square tool outline
 

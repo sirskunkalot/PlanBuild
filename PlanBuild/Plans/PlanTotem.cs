@@ -27,6 +27,18 @@ namespace PlanBuild.Plans
         static PlanTotem()
         {
             On.Container.GetHoverText += OnContainerHoverText;
+            On.Container.Interact += OnContainerInteract;
+        }
+
+        private static bool OnContainerInteract(On.Container.orig_Interact orig, Container self, Humanoid character, bool hold, bool alt)
+        {
+            PlanTotem planTotem = self as PlanTotem;
+            if (planTotem && !hold && ZInput.GetButton("Crouch") && !self.IsInUse())
+            {
+                planTotem.m_nview.InvokeRPC("ToggleEnabled");
+                return true;
+            }
+            return orig(self, character, hold, alt);
         }
 
         private static string OnContainerHoverText(On.Container.orig_GetHoverText orig, Container self)
@@ -44,14 +56,26 @@ namespace PlanBuild.Plans
         public new void Awake()
         {
             base.Awake();
-            InvokeRepeating("UpdatePlanTotem", 3f, 3f);
+            StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
             m_areaMarker.m_radius = PlanConfig.RadiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
+            if (m_nview)
+            {
+                m_nview.Register("ToggleEnabled", RPC_ToggleEnabled);
+            }
             HideMarker();
+        }
+
+        internal void Replace(GameObject gameObject, PlanPiecePrefab planPrefab)
+        {
+            Transform replaceTransform = gameObject.transform;
+            string textReceiver = gameObject.GetComponent<TextReceiver>()?.GetText();
+            GameObject created = PlanPiece.SpawnPiece(gameObject, m_piece.m_creator, replaceTransform.position, replaceTransform.rotation, planPrefab.PiecePrefab, textReceiver);
+            TriggerConnection(created.transform.position);
         }
 
         public void OnDestroy()
@@ -59,15 +83,26 @@ namespace PlanBuild.Plans
             m_allPlanTotems.Remove(this);
         }
 
-        public List<PlanPiece> FindPlanPiecesInRange()
+        public bool InRange(GameObject go)
+        {
+            return GetDistanceTo(go) <= PlanConfig.RadiusConfig.Value;
+        }
+
+        private float GetDistanceTo(GameObject go)
+        {
+            Vector3 pieceCenter = GetCenter(go);
+            float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
+            return distance;
+        }
+
+        private List<PlanPiece> FindPlanPiecesInRange()
         {
             Dictionary<PlanPiece, float> result = new Dictionary<PlanPiece, float>();
             foreach (var piece in Piece.m_allPieces)
             {
                 try
                 {
-                    Vector3 pieceCenter = GetCenter(piece.gameObject);
-                    float distance = Vector2.Distance(new Vector2(transform.position.x, transform.position.z), new Vector2(pieceCenter.x, pieceCenter.z));
+                    float distance = GetDistanceTo(piece.gameObject);
                     if (distance <= PlanConfig.RadiusConfig.Value)
                     {
                         PlanPiece planPiece = piece.GetComponent<PlanPiece>();
@@ -90,75 +125,85 @@ namespace PlanBuild.Plans
                 .ToList();
         }
 
-        public void UpdatePlanTotem()
+        public IEnumerator<YieldInstruction> UpdatePlanTotem()
         {
             if (!m_nview || !m_nview.IsValid())
             {
-                return;
+                yield break;
             }
-            m_supportedPieces = 0;
-            m_connectedPieces.Clear();
-            m_remainingRequirements.Clear();
-            m_missingCraftingStations.Clear();
 
-            foreach (var planPiece in FindPlanPiecesInRange())
+            while (true)
             {
-                if (planPiece.HasSupport())
+                yield return new WaitForSeconds(3f);
+                if (!GetEnabled())
                 {
-                    m_supportedPieces++;
+                    continue;
                 }
 
-                if (m_nview.IsOwner() && planPiece.HasSupport())
+                m_supportedPieces = 0;
+                m_connectedPieces.Clear();
+                m_missingCraftingStations.Clear();
+
+                List<PlanPiece> planPieces = FindPlanPiecesInRange();
+                foreach (var planPiece in planPieces)
                 {
-                    if (m_inventory.m_inventory.Count != 0)
+                    if (planPiece.HasSupport())
                     {
-                        planPiece.AddAllMaterials(m_inventory);
+                        m_supportedPieces++;
                     }
-                    if (planPiece.HasAllResources())
+
+                    if (m_nview.IsOwner() && planPiece.HasSupport())
                     {
-                        if (planPiece.HasRequiredCraftingStationInRange())
+                        if (m_inventory.m_inventory.Count != 0)
                         {
-                            if (PlanConfig.ShowParticleEffects.Value)
+                            planPiece.AddAllMaterials(m_inventory);
+                        }
+                        if (planPiece.HasAllResources())
+                        {
+                            if (planPiece.HasRequiredCraftingStationInRange())
                             {
-                                TriggerConnection(GetCenter(planPiece.gameObject));
+                                if (PlanConfig.ShowParticleEffects.Value)
+                                {
+                                    TriggerConnection(GetCenter(planPiece.gameObject));
+                                }
+                                planPiece.Build(m_piece.m_creator);
+                                continue;
                             }
-                            planPiece.Build(m_piece.m_creator);
-                            continue;
-                        }
-                        else
-                        {
-                            m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                            else
+                            {
+                                m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                            }
                         }
                     }
-                }
 
-                m_connectedPieces.Add(planPiece);
-                Dictionary<string, int> remaining = planPiece.GetRemaining();
-                foreach (string resourceName in remaining.Keys)
-                {
-                    int resourceCount = remaining[resourceName];
-                    if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
+                    m_connectedPieces.Add(planPiece);
+                    Dictionary<string, int> remaining = planPiece.GetRemaining();
+                    foreach (string resourceName in remaining.Keys)
                     {
-                        resourceCount += currentCount;
+                        int resourceCount = remaining[resourceName];
+                        if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
+                        {
+                            resourceCount += currentCount;
+                        }
+                        m_remainingRequirements[resourceName] = resourceCount;
                     }
-                    m_remainingRequirements[resourceName] = resourceCount;
                 }
-            }
-            m_sortedRequired = m_remainingRequirements
-                   .Select(pair =>
-                   {
-                       int missing = pair.Value;
-                       if (pair.Value > 0)
+                m_sortedRequired = m_remainingRequirements
+                       .Select(pair =>
                        {
-                           missing -= m_inventory.CountItems(pair.Key);
-                       }
-                       return new KeyValuePair<string, int>(pair.Key, missing);
-                   })
-                   .Where(pair => pair.Value > 0)
-                   .OrderByDescending(pair => pair.Value)
-                   .ToList();
-            bool active = m_connectedPieces.Count > 0;
-            SetActive(active);
+                           int missing = pair.Value;
+                           if (pair.Value > 0)
+                           {
+                               missing -= m_inventory.CountItems(pair.Key);
+                           }
+                           return new KeyValuePair<string, int>(pair.Key, missing);
+                       })
+                       .Where(pair => pair.Value > 0)
+                       .OrderByDescending(pair => pair.Value)
+                       .ToList();
+                bool active = m_connectedPieces.Count > 0;
+                SetActive(active);
+            }
         }
 
         private void SetActive(bool active)
@@ -176,6 +221,32 @@ namespace PlanBuild.Plans
                     material.DisableKeyword("_EMISSION");
                 }
             }
+        }
+
+        internal void RPC_ToggleEnabled(long sender)
+        {
+            if (m_nview.IsOwner())
+            {
+                SetEnabled(!GetEnabled());
+            }
+        }
+
+        private void SetEnabled(bool enabled)
+        {
+            if (m_nview && m_nview.IsValid())
+            {
+                m_nview.GetZDO().Set("enabled", enabled);
+            }
+            SetActive(enabled);
+        }
+
+        internal bool GetEnabled()
+        {
+            if (m_nview && m_nview.IsValid())
+            {
+                return m_nview.GetZDO().GetBool("enabled", true);
+            }
+            return false;
         }
 
         public void ShowAreaMarker()
@@ -196,8 +267,10 @@ namespace PlanBuild.Plans
         public new string GetHoverText()
         {
             ShowAreaMarker();
-            StringBuilder sb = new StringBuilder($"$piece_plan_totem\n" +
+            bool enabled = GetEnabled();
+            StringBuilder sb = new StringBuilder($"$piece_plan_totem {(enabled ? "" : "(<color=red>$piece_plan_totem_disabled</color>)")}\n" +
                 $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
+                $"[<color=yellow>$KEY_Crouch + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {
