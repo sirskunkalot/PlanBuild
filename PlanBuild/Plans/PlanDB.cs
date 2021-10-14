@@ -227,7 +227,7 @@ namespace PlanBuild.Plans
         }
 
         internal bool FindOriginalByPrefabName(string name, out Piece originalPiece)
-        { 
+        {
             return PlanToOriginalMap.TryGetValue(name, out originalPiece);
         }
 
@@ -239,7 +239,7 @@ namespace PlanBuild.Plans
         internal bool FindPlanByPrefabName(string name, out PlanPiecePrefab planPiecePrefab)
         {
             int index = name.IndexOf("(Clone)");
-            if(index != -1)
+            if (index != -1)
             {
                 name = name.Substring(0, index);
             }

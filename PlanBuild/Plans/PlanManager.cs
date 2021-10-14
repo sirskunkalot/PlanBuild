@@ -44,12 +44,12 @@ namespace PlanBuild.Plans
         {
             //Check if actually destoyed, not removed by middle clicking with Hammer
             if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
-                && wearNTear.GetHealthPercentage() <= 0f 
+                && wearNTear.GetHealthPercentage() <= 0f
                 && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
-            {  
-                foreach(PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+            {
+                foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
                 {
-                    if(!planTotem.GetEnabled())
+                    if (!planTotem.GetEnabled())
                     {
                         continue;
                     }

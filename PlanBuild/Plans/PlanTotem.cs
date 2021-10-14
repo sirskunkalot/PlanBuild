@@ -55,7 +55,7 @@ namespace PlanBuild.Plans
 
         public new void Awake()
         {
-            base.Awake(); 
+            base.Awake();
             StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
@@ -63,7 +63,7 @@ namespace PlanBuild.Plans
             m_areaMarker.m_radius = PlanConfig.RadiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
-            if(m_nview)
+            if (m_nview)
             {
                 m_nview.Register("ToggleEnabled", RPC_ToggleEnabled);
             }
@@ -77,7 +77,7 @@ namespace PlanBuild.Plans
             GameObject created = PlanPiece.SpawnPiece(gameObject, m_piece.m_creator, replaceTransform.position, replaceTransform.rotation, planPrefab.PiecePrefab, textReceiver);
             TriggerConnection(created.transform.position);
         }
-         
+
         public void OnDestroy()
         {
             m_allPlanTotems.Remove(this);
@@ -132,28 +132,21 @@ namespace PlanBuild.Plans
                 yield break;
             }
 
-            while(true)
+            while (true)
             {
                 yield return new WaitForSeconds(3f);
-                if(!GetEnabled())
+                if (!GetEnabled())
                 {
                     continue;
                 }
 
-                int newSupportedPieces = 0;
-                List<PlanPiece> connectedPieces = new List<PlanPiece>();
-                Dictionary<string, int> newRemainingRequirements = new Dictionary<string, int>();
-                HashSet<string> newMissingCraftingStations = new HashSet<string>();
-
                 m_supportedPieces = 0;
                 m_connectedPieces.Clear();
-                
                 m_missingCraftingStations.Clear();
 
                 List<PlanPiece> planPieces = FindPlanPiecesInRange();
                 foreach (var planPiece in planPieces)
                 {
-
                     if (planPiece.HasSupport())
                     {
                         m_supportedPieces++;
@@ -232,7 +225,7 @@ namespace PlanBuild.Plans
 
         internal void RPC_ToggleEnabled(long sender)
         {
-            if(m_nview.IsOwner())
+            if (m_nview.IsOwner())
             {
                 SetEnabled(!GetEnabled());
             }
@@ -240,7 +233,7 @@ namespace PlanBuild.Plans
 
         private void SetEnabled(bool enabled)
         {
-            if(m_nview && m_nview.IsValid())
+            if (m_nview && m_nview.IsValid())
             {
                 m_nview.GetZDO().Set("enabled", enabled);
             }
@@ -277,7 +270,7 @@ namespace PlanBuild.Plans
             bool enabled = GetEnabled();
             StringBuilder sb = new StringBuilder($"$piece_plan_totem {(enabled ? "" : "(<color=red>$piece_plan_totem_disabled</color>)")}\n" +
                 $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
-                $"[<color=yellow>$KEY_Crouch + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n"+ 
+                $"[<color=yellow>$KEY_Crouch + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {
