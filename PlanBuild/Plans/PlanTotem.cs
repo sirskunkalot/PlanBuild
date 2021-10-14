@@ -27,6 +27,18 @@ namespace PlanBuild.Plans
         static PlanTotem()
         {
             On.Container.GetHoverText += OnContainerHoverText;
+            On.Container.Interact += OnContainerInteract;
+        }
+
+        private static bool OnContainerInteract(On.Container.orig_Interact orig, Container self, Humanoid character, bool hold, bool alt)
+        {
+            PlanTotem planTotem = self as PlanTotem;
+            if (planTotem && !hold && ZInput.GetButton("Crouch") && !self.IsInUse())
+            {
+                planTotem.m_nview.InvokeRPC("ToggleEnabled");
+                return true;
+            }
+            return orig(self, character, hold, alt);
         }
 
         private static string OnContainerHoverText(On.Container.orig_GetHoverText orig, Container self)
@@ -51,6 +63,10 @@ namespace PlanBuild.Plans
             m_areaMarker.m_radius = PlanConfig.RadiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
+            if(m_nview)
+            {
+                m_nview.Register("ToggleEnabled", RPC_ToggleEnabled);
+            }
             HideMarker();
         }
 
@@ -119,6 +135,10 @@ namespace PlanBuild.Plans
             while(true)
             {
                 yield return new WaitForSeconds(3f);
+                if(!GetEnabled())
+                {
+                    continue;
+                }
 
                 int newSupportedPieces = 0;
                 List<PlanPiece> connectedPieces = new List<PlanPiece>();
@@ -210,6 +230,32 @@ namespace PlanBuild.Plans
             }
         }
 
+        internal void RPC_ToggleEnabled(long sender)
+        {
+            if(m_nview.IsOwner())
+            {
+                SetEnabled(!GetEnabled());
+            }
+        }
+
+        private void SetEnabled(bool enabled)
+        {
+            if(m_nview && m_nview.IsValid())
+            {
+                m_nview.GetZDO().Set("enabled", enabled);
+            }
+            SetActive(enabled);
+        }
+
+        internal bool GetEnabled()
+        {
+            if (m_nview && m_nview.IsValid())
+            {
+                return m_nview.GetZDO().GetBool("enabled", true);
+            }
+            return false;
+        }
+
         public void ShowAreaMarker()
         {
             if (m_areaMarker)
@@ -228,8 +274,10 @@ namespace PlanBuild.Plans
         public new string GetHoverText()
         {
             ShowAreaMarker();
-            StringBuilder sb = new StringBuilder($"$piece_plan_totem\n" +
+            bool enabled = GetEnabled();
+            StringBuilder sb = new StringBuilder($"$piece_plan_totem {(enabled ? "" : "(<color=red>$piece_plan_totem_disabled</color>)")}\n" +
                 $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
+                $"[<color=yellow>$KEY_Crouch + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n"+ 
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {

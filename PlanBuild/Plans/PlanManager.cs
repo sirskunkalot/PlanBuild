@@ -49,6 +49,10 @@ namespace PlanBuild.Plans
             {  
                 foreach(PlanTotem planTotem in PlanTotem.m_allPlanTotems)
                 {
+                    if(!planTotem.GetEnabled())
+                    {
+                        continue;
+                    }
                     UnityEngine.GameObject gameObject = wearNTear.gameObject;
                     if (planTotem.InRange(gameObject))
                     {
