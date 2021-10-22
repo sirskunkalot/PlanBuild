@@ -1,5 +1,7 @@
 ﻿using Jotunn.Managers;
 using System.Collections.Generic;
+using System.Linq;
+using HarmonyLib;
 
 namespace PlanBuild.Plans
 {
@@ -41,6 +43,11 @@ namespace PlanBuild.Plans
             }
         }
 
+        public static string GetNames()
+        {
+            return Names.OrderBy(x => x).Join();
+        }
+
         public static void Add(string prefabName)
         {
             if (!SynchronizationManager.Instance.PlayerIsAdmin)
@@ -56,6 +63,8 @@ namespace PlanBuild.Plans
 
             Names.Add(prefabName);
             Hashes.Add(hash);
+
+            PlanConfig.PlanBlacklistConfig.Value = Names.Join();
         }
 
         public static bool Contains(PlanPiecePrefab planPiecePrefab)

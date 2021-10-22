@@ -7,11 +7,32 @@ namespace PlanBuild.Plans
     {
         public static void Init()
         {
+            CommandManager.Instance.AddConsoleCommand(new PrintBlacklistCommand());
             CommandManager.Instance.AddConsoleCommand(new AddBlacklistCommand());
         }
 
         /// <summary>
-        ///     Console command which outputs the local blueprint list
+        ///     Console command which outputs the current plan blacklist
+        /// </summary>
+        private class PrintBlacklistCommand : ConsoleCommand
+        {
+            public override string Name => "plan.blacklist.print";
+
+            public override string Help => "Print out the server's plan blacklist";
+
+            public override void Run(string[] args)
+            {
+                if (!SynchronizationManager.Instance.PlayerIsAdmin)
+                {
+                    return;
+                }
+
+                Console.instance.Print($"{PlanBlacklist.GetNames()}");
+            }
+        }
+
+        /// <summary>
+        ///     Console command to add a prefab to the blacklist
         /// </summary>
         private class AddBlacklistCommand : ConsoleCommand
         {
@@ -21,9 +42,14 @@ namespace PlanBuild.Plans
 
             public override void Run(string[] args)
             {
-                if (args.Length != 1)
+                if (!SynchronizationManager.Instance.PlayerIsAdmin)
                 {
-                    Console.instance.Print($"Usage: {Name} <prefab_name>\n");
+                    return;
+                }
+
+                if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
+                {
+                    Console.instance.Print($"Usage: {Name} <prefab_name>");
                     return;
                 }
 
