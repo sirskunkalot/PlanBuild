@@ -148,7 +148,7 @@ namespace PlanBuild.Plans
         /// <returns></returns>
         private bool PlayerKnowsPiece(Player player, Piece originalPiece)
         {
-            if (PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
+            if (!PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
             {
                 return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
             }
@@ -172,10 +172,11 @@ namespace PlanBuild.Plans
                     {
                         return false;
                     }
-                    if (!PlanConfig.ShowAllPieces.Value)
+                    if (PlanConfig.ShowAllPieces.Value)
                     {
-                        return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                        return true;
                     }
+                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
                 }
             }
             catch (Exception e)
