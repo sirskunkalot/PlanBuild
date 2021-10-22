@@ -6,7 +6,6 @@ using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.SceneManagement;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
 
@@ -31,8 +30,11 @@ namespace PlanBuild.Plans
 
             // Hooks
             PieceManager.OnPiecesRegistered += CreatePlanTable;
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
+            On.DungeonDB.Start += (orig, self) =>
+            {
+                orig(self);
+                PlanDB.Instance.ScanPieceTables();
+            };
             On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
@@ -42,7 +44,7 @@ namespace PlanBuild.Plans
 
         private void OnDestroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
         {
-            //Check if actually destoyed, not removed by middle clicking with Hammer
+            // Check if actually destoyed, not removed by middle clicking with Hammer
             if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
                 && wearNTear.GetHealthPercentage() <= 0f
                 && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
@@ -98,16 +100,7 @@ namespace PlanBuild.Plans
             // Needs to run only once
             PieceManager.OnPiecesRegistered -= CreatePlanTable;
         }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            // Scan piece tables after scene has loaded to catch non-Jötunn mods, too
-            if (scene.name == "main")
-            {
-                PlanDB.Instance.ScanPieceTables();
-            }
-        }
-
+        
         private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
             // Prefix the recipe loading for the plans to avoid spamming unlock messages
@@ -126,7 +119,8 @@ namespace PlanBuild.Plans
             Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in PlanDB.Instance.GetPlanPiecePrefabs())
             {
-                if (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece))
+                if (PlanDB.Instance.PlanBlacklist.Contains(planPiece) ||
+                    (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece)))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
@@ -154,7 +148,7 @@ namespace PlanBuild.Plans
         /// <returns></returns>
         private bool PlayerKnowsPiece(Player player, Piece originalPiece)
         {
-            if (PlanDB.Instance.FindByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
+            if (PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
             {
                 return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
             }
@@ -172,14 +166,21 @@ namespace PlanBuild.Plans
         {
             try
             {
-                if (piece && !PlanConfig.ShowAllPieces.Value && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
+                if (piece && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
                 {
-                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                    if (PlanDB.Instance.PlanBlacklist.Contains(originalPiece))
+                    {
+                        return false;
+                    }
+                    if (!PlanConfig.ShowAllPieces.Value)
+                    {
+                        return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                    }
                 }
             }
             catch (Exception e)
             {
-                Jotunn.Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
+                Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
             }
             return orig(self, piece, mode);
         }

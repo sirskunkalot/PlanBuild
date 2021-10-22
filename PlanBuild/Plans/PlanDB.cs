@@ -24,6 +24,7 @@ namespace PlanBuild.Plans
 
         public readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
+        public readonly PlanBlacklist PlanBlacklist = new PlanBlacklist();
 
         /// <summary>
         ///     Different pieces can have the same m_name (also across different mods), but m_knownRecipes is a HashSet, so can not handle duplicates well
@@ -226,16 +227,34 @@ namespace PlanBuild.Plans
             return PrefabManager.Instance.GetPrefab(piece.gameObject.name) != null;
         }
 
+        /// <summary>
+        ///     Tries to find the vanilla piece from a plan prefab name
+        /// </summary>
+        /// <param name="name">Name of the plan prefab</param>
+        /// <param name="originalPiece">Vanilla piece of the plan piece</param>
+        /// <returns>true if a vanilla piece was found</returns>
         internal bool FindOriginalByPrefabName(string name, out Piece originalPiece)
         {
             return PlanToOriginalMap.TryGetValue(name, out originalPiece);
         }
 
-        internal bool FindByPieceName(string m_name, out List<Piece> originalPieces)
+        /// <summary>
+        ///     Tries to find all vanilla pieces with a piece component name
+        /// </summary>
+        /// <param name="m_name">In-game name of the piece component</param>
+        /// <param name="originalPieces">List of vanilla pieces with that piece name</param>
+        /// <returns></returns>
+        internal bool FindOriginalByPieceName(string m_name, out List<Piece> originalPieces)
         {
             return NamePiecePrefabMapping.TryGetValue(m_name, out originalPieces);
         }
 
+        /// <summary>
+        ///     Tries to find the plan prefab from a prefab name
+        /// </summary>
+        /// <param name="name">Name of the prefab</param>
+        /// <param name="planPiecePrefab">Plan prefab</param>
+        /// <returns>true if a plan prefab was found for that prefabs name</returns>
         internal bool FindPlanByPrefabName(string name, out PlanPiecePrefab planPiecePrefab)
         {
             int index = name.IndexOf("(Clone)");
