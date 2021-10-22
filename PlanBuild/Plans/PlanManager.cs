@@ -25,8 +25,16 @@ namespace PlanBuild.Plans
 
         internal void Init()
         {
+            Logger.LogInfo("Initializing PlanManager");
+
             // Init config
             PlanConfig.Init();
+
+            // Init blacklist
+            PlanBlacklist.Init();
+
+            // Init commands
+            PlanCommands.Init();
 
             // Hooks
             PieceManager.OnPiecesRegistered += CreatePlanTable;
@@ -119,7 +127,7 @@ namespace PlanBuild.Plans
             Logger.LogDebug("Updating known Recipes");
             foreach (PlanPiecePrefab planPiece in PlanDB.Instance.GetPlanPiecePrefabs())
             {
-                if (PlanDB.Instance.PlanBlacklist.Contains(planPiece) ||
+                if (PlanBlacklist.Contains(planPiece) ||
                     (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece)))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
@@ -168,7 +176,7 @@ namespace PlanBuild.Plans
             {
                 if (piece && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
                 {
-                    if (PlanDB.Instance.PlanBlacklist.Contains(originalPiece))
+                    if (PlanBlacklist.Contains(originalPiece))
                     {
                         return false;
                     }

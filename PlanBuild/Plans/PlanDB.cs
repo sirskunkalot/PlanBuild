@@ -24,7 +24,6 @@ namespace PlanBuild.Plans
 
         public readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
-        public readonly PlanBlacklist PlanBlacklist = new PlanBlacklist();
 
         /// <summary>
         ///     Different pieces can have the same m_name (also across different mods), but m_knownRecipes is a HashSet, so can not handle duplicates well

@@ -38,12 +38,12 @@ namespace PlanBuild.Plans
                     new ConfigurationManagerAttributes { Order = 3, IsAdminOnly = true }));
             PlanBlacklistConfig = PlanBuildPlugin.Instance.Config.Bind(
                 GeneralSection, "Excluded plan prefabs", "AltarPrefab,FloatingIslandMO",
-                new ConfigDescription("Comma separated list of prefab names to exclude from the planned piece table. Piece prefabs from this list cannot be build as a plan.", null,
+                new ConfigDescription("Comma separated list of prefab names to exclude from the planned piece table for non-admin players", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Browsable = false }));
 
             ShowAllPieces.SettingChanged += (obj, attr) => PlanManager.Instance.UpdateKnownRecipes();
             //RadiusConfig.SettingChanged += (_, _) => PlanManager.Instance.UpdateAllPlanTotems();  // that doesnt change the radius...
-            PlanBlacklistConfig.SettingChanged += (sender, args) => PlanDB.Instance.PlanBlacklist.Reload();
+            //PlanBlacklistConfig.SettingChanged += (sender, args) => PlanBlacklist.Reload();
 
             // Visual Section
 
