@@ -95,6 +95,24 @@ namespace PlanBuild.Plans
             }
 
             int hash = piece.name.Split('(')[0].Trim().GetStableHashCode();
+
+            return Hashes.Contains(hash);
+        }
+
+        public static bool Contains(string pieceName)
+        {
+            if (SynchronizationManager.Instance.PlayerIsAdmin)
+            {
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(pieceName))
+            {
+                return false;
+            }
+            
+            int hash = pieceName.GetStableHashCode();
+            
             return Hashes.Contains(hash);
         }
     }
