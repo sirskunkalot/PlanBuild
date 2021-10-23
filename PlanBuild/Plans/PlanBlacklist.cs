@@ -37,10 +37,7 @@ namespace PlanBuild.Plans
                 Hashes.Add(hash);
             }
 
-            if (Player.m_localPlayer != null)
-            {
-                Player.m_localPlayer.UpdateKnownRecipesList();
-            }
+            Player.m_localPlayer?.UpdateKnownRecipesList();
         }
 
         public static string GetNames()
@@ -65,6 +62,7 @@ namespace PlanBuild.Plans
             Hashes.Add(hash);
 
             PlanConfig.PlanBlacklistConfig.Value = Names.Join();
+            PlanBuildPlugin.Instance.Config.Reload();
         }
 
         public static bool Contains(PlanPiecePrefab planPiecePrefab)
