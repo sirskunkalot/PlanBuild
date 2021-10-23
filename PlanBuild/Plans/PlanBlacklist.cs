@@ -24,7 +24,7 @@ namespace PlanBuild.Plans
         {
             Names.Clear();
             Hashes.Clear();
-            foreach (var prefabName in PlanConfig.PlanBlacklistConfig.Value.Split(','))
+            foreach (var prefabName in PlanConfig.PlanBlacklistConfig.Value.Split(',').Where(x => !string.IsNullOrEmpty(x.Trim())))
             {
                 int hash = prefabName.Trim().GetStableHashCode();
                 if (Hashes.Contains(hash))
