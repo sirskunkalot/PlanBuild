@@ -53,7 +53,15 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                PlanBlacklist.Add(args[0]);
+                string prefabName = args[0];
+
+                if (!PrefabManager.Instance.GetPrefab(prefabName))
+                {
+                    Console.instance.Print($"Prefab {prefabName} does not exist");
+                    return;
+                }
+
+                PlanBlacklist.Add(prefabName);
             }
         }
     }
