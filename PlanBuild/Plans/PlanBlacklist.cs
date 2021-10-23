@@ -24,9 +24,9 @@ namespace PlanBuild.Plans
         {
             Names.Clear();
             Hashes.Clear();
-            foreach (var prefabName in PlanConfig.PlanBlacklistConfig.Value.Split(',').Where(x => !string.IsNullOrEmpty(x.Trim())))
+            foreach (var prefabName in PlanConfig.PlanBlacklistConfig.Value.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)))
             {
-                int hash = prefabName.Trim().GetStableHashCode();
+                int hash = prefabName.GetStableHashCode();
                 if (Hashes.Contains(hash))
                 {
                     continue;
@@ -60,6 +60,26 @@ namespace PlanBuild.Plans
 
             Names.Add(prefabName);
             Hashes.Add(hash);
+
+            PlanConfig.PlanBlacklistConfig.Value = Names.Join();
+            PlanBuildPlugin.Instance.Config.Reload();
+        }
+        
+        public static void Remove(string prefabName)
+        {
+            if (!SynchronizationManager.Instance.PlayerIsAdmin)
+            {
+                return;
+            }
+
+            int hash = prefabName.Trim().GetStableHashCode();
+            if (!Hashes.Contains(hash))
+            {
+                return;
+            }
+
+            Names.Remove(prefabName);
+            Hashes.Remove(hash);
 
             PlanConfig.PlanBlacklistConfig.Value = Names.Join();
             PlanBuildPlugin.Instance.Config.Reload();

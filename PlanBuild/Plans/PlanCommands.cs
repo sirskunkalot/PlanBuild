@@ -10,6 +10,7 @@ namespace PlanBuild.Plans
         {
             CommandManager.Instance.AddConsoleCommand(new PrintBlacklistCommand());
             CommandManager.Instance.AddConsoleCommand(new AddBlacklistCommand());
+            CommandManager.Instance.AddConsoleCommand(new RemoveBlacklistCommand());
         }
 
         /// <summary>
@@ -54,7 +55,35 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                string prefabName = args[0];
+                string prefabName = args[0].Trim();
+                
+                PlanBlacklist.Add(prefabName);
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to remove a prefab from the blacklist
+        /// </summary>
+        private class RemoveBlacklistCommand : ConsoleCommand
+        {
+            public override string Name => "plan.blacklist.remove";
+
+            public override string Help => "Removes a prefab from the server's plan blacklist";
+
+            public override void Run(string[] args)
+            {
+                if (!SynchronizationManager.Instance.PlayerIsAdmin)
+                {
+                    return;
+                }
+
+                if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
+                {
+                    Console.instance.Print($"Usage: {Name} <prefab_name>");
+                    return;
+                }
+
+                string prefabName = args[0].Trim();
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
 
                 if (!prefab)
@@ -69,7 +98,7 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                PlanBlacklist.Add(prefabName);
+                PlanBlacklist.Remove(prefabName);
             }
         }
     }
