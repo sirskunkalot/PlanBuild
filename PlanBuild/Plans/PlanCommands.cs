@@ -1,5 +1,6 @@
 ﻿using Jotunn.Entities;
 using Jotunn.Managers;
+using UnityEngine;
 
 namespace PlanBuild.Plans
 {
@@ -54,10 +55,17 @@ namespace PlanBuild.Plans
                 }
 
                 string prefabName = args[0];
+                GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
 
-                if (!PrefabManager.Instance.GetPrefab(prefabName))
+                if (!prefab)
                 {
                     Console.instance.Print($"Prefab {prefabName} does not exist");
+                    return;
+                }
+
+                if (!prefab.GetComponent<Piece>())
+                {
+                    Console.instance.Print($"Prefab {prefabName} has no piece component");
                     return;
                 }
 
