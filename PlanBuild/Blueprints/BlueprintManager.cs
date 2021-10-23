@@ -97,6 +97,12 @@ namespace PlanBuild.Blueprints
             {
                 return true;
             }
+
+            if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(piece))
+            {
+                return false;
+            }
+
             return piece.GetComponent<PlanPiece>() != null || (!onlyPlanned && PlanDB.Instance.CanCreatePlan(piece));
         }
 
