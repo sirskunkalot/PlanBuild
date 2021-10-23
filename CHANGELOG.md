@@ -1,3 +1,7 @@
+# Version 0.8.0
+* Added prefab blacklist for server owners to prevent non-admin users from planning or blueprinting pieces from that list
+* Prefabs can be added directly in the config file or via console commands while being connected to the server
+
 # Version 0.7.1
 * Fix requirements count in Plan Totem
 
