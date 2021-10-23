@@ -41,7 +41,8 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
-            else if (BlueprintManager.Instance.LastHoveredPiece)
+            else if (BlueprintManager.Instance.LastHoveredPiece && 
+                     BlueprintManager.Instance.CanCapture(BlueprintManager.Instance.LastHoveredPiece))
             {
                 if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
                 {

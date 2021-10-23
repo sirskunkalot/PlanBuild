@@ -47,7 +47,8 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Selection.Instance.RemovePiecesInRadius(transform.position, SelectionRadius);
             }
-            else if (BlueprintManager.Instance.LastHoveredPiece)
+            else if (BlueprintManager.Instance.LastHoveredPiece &&
+                     BlueprintManager.Instance.CanCapture(BlueprintManager.Instance.LastHoveredPiece))
             {
                 if (connectedModifier)
                 {
