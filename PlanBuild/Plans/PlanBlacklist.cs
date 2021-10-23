@@ -61,7 +61,7 @@ namespace PlanBuild.Plans
             Names.Add(prefabName);
             Hashes.Add(hash);
 
-            PlanConfig.PlanBlacklistConfig.Value = Names.Join();
+            PlanConfig.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
             PlanBuildPlugin.Instance.Config.Reload();
         }
         
@@ -81,7 +81,7 @@ namespace PlanBuild.Plans
             Names.Remove(prefabName);
             Hashes.Remove(hash);
 
-            PlanConfig.PlanBlacklistConfig.Value = Names.Join();
+            PlanConfig.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
             PlanBuildPlugin.Instance.Config.Reload();
         }
 
