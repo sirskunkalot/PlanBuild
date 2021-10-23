@@ -78,9 +78,8 @@ namespace PlanBuild.Plans
             {
                 return false;
             }
-
-            int hash = planPiecePrefab.OriginalPiece.name.Split('(')[0].Trim().GetStableHashCode();
-            return Hashes.Contains(hash);
+            
+            return Hashes.Contains(planPiecePrefab.OriginalHash);
         }
 
         public static bool Contains(Piece piece)
