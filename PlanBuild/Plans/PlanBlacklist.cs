@@ -17,7 +17,7 @@ namespace PlanBuild.Plans
         {
             Reload();
             SynchronizationManager.OnConfigurationSynchronized += (sender, args) => Reload();
-            SynchronizationManager.OnAdminStatusChanged += () => Player.m_localPlayer.UpdateKnownRecipesList();
+            SynchronizationManager.OnAdminStatusChanged += () => Player.m_localPlayer?.UpdateKnownRecipesList();
         }
         
         public static void Reload()
