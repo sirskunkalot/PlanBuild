@@ -694,10 +694,10 @@ namespace PlanBuild.Blueprints
                 Piece = PrefabName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = BlueprintConfig.PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = BlueprintConfig.PlanSwitchButton.Name, Config = BlueprintConfig.PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
-                    new ButtonConfig { Name = BlueprintConfig.RadiusModifierButton.Name, HintToken = "$hud_bpdirect" },
-                    new ButtonConfig { Name = BlueprintConfig.CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = BlueprintConfig.RadiusModifierButton.Name, Config = BlueprintConfig.RadiusModifierConfig, HintToken = "$hud_bpdirect" },
+                    new ButtonConfig { Name = BlueprintConfig.CameraModifierButton.Name, Config = BlueprintConfig.CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1" },
                 }
             };

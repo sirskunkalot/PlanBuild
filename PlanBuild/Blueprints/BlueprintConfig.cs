@@ -211,7 +211,7 @@ namespace PlanBuild.Blueprints
                 Item = BlueprintAssets.BlueprintRuneName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_blueprint_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_blueprint_mode" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
@@ -224,11 +224,59 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceCaptureName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpcapture_highlight" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            // Add selection
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectAddName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_add_connected" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_add_radius" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            // Remove selection
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectRemoveName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_remove_connected" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_remove_radius" },
+                    new ButtonConfig { Name = $"{DeleteModifierButton.Key} + {RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_remove_clear" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            // Save selection
+
+            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintAssets.BlueprintRuneName,
+                Piece = BlueprintAssets.PieceSelectSaveName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_save" }
                 }
             });
 
@@ -237,50 +285,10 @@ namespace PlanBuild.Blueprints
             GUIManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceSelectAddName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_blueprint_select_add_connected" },
-                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_blueprint_select_add_radius" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
-                }
-            });
-
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceSelectRemoveName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_blueprint_select_remove_connected" },
-                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_blueprint_select_remove_radius" },
-                    new ButtonConfig { Name = $"{DeleteModifierButton.Key} + {RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_remove_clear" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
-                }
-            });
-
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceSelectSaveName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_save" }
-                }
-            });
-
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSnapPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -294,7 +302,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceCenterPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -308,11 +316,11 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceDeletePlansName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
-                    new ButtonConfig { Name = RadiusModifierButton.Name, HintToken = "$hud_bpdelete_radius" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpdelete_all" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" }
+                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" }
                 }
             });
 
@@ -324,11 +332,11 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceTerrainName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = MarkerSwitchButton.Name, HintToken = "$hud_bpterrain_marker" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpterrain_delete" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = MarkerSwitchButton.Name, Config = MarkerSwitchConfig, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpterrain_delete" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }
             });
@@ -341,10 +349,10 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceDeleteObjectsName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
-                    new ButtonConfig { Name = DeleteModifierButton.Name, HintToken = "$hud_bpobjects_deleteall" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpobjects_deleteall" },
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
@@ -357,7 +365,7 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PiecePaintName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, HintToken = "$hud_bp_switch_to_plan_mode" },
+                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },
