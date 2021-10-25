@@ -21,7 +21,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            Init();
+            OnAwake();
 
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints.Tools
             Jotunn.Logger.LogDebug($"{gameObject.name} awoken");
         }
 
-        public virtual void Init()
+        public virtual void OnAwake()
         {
         }
 
@@ -47,7 +47,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            Remove();
+            OnOnDestroy();
             DisableSelectionProjector();
 
             On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints.Tools
             Jotunn.Logger.LogDebug($"{gameObject.name} destroyed");
         }
 
-        public virtual void Remove()
+        public virtual void OnOnDestroy()
         {
         }
 
@@ -97,7 +97,7 @@ namespace PlanBuild.Blueprints.Tools
 
             if (self.m_placementGhost && takeInput)
             {
-                UpdatePlacement(self);
+                OnUpdatePlacement(self);
             }
         }
 
@@ -105,7 +105,7 @@ namespace PlanBuild.Blueprints.Tools
         ///     Default UpdatePlacement when subclass does not override.
         /// </summary>
         /// <param name="self"></param>
-        public virtual void UpdatePlacement(Player self)
+        public virtual void OnUpdatePlacement(Player self)
         {
             DisableSelectionProjector();
 
@@ -250,10 +250,10 @@ namespace PlanBuild.Blueprints.Tools
         /// </summary>
         private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
         {
-            return PlacePiece(self, piece);
+            return OnPlacePiece(self, piece);
         }
 
-        public virtual bool PlacePiece(Player self, Piece piece)
+        public virtual bool OnPlacePiece(Player self, Piece piece)
         {
             return false;
         }

@@ -6,7 +6,7 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class TerrainComponent : ToolComponentBase
     {
-        public override void UpdatePlacement(Player self)
+        public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
             {
@@ -42,7 +42,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool PlacePiece(Player self, Piece piece)
+        public override bool OnPlacePiece(Player self, Piece piece)
         {
             if (!BlueprintConfig.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {

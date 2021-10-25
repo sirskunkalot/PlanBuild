@@ -2,7 +2,7 @@
 {
     internal class SelectionToolComponentBase : ToolComponentBase
     {
-        public override void Init()
+        public override void OnAwake()
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
@@ -19,7 +19,7 @@
             UpdateDescription();
         }
 
-        public override void Remove()
+        public override void OnOnDestroy()
         {
             On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
             Selection.Instance.StopHighlightSelection();

@@ -4,7 +4,7 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectRemoveComponent : SelectionToolComponentBase
     {
-        public override void UpdatePlacement(Player self)
+        public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
             {
@@ -35,7 +35,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool PlacePiece(Player self, Piece piece)
+        public override bool OnPlacePiece(Player self, Piece piece)
         {
             bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
