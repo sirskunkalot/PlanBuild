@@ -657,6 +657,7 @@ namespace PlanBuild.Blueprints
             ZNetView.m_forceDisableInit = true;
             Prefab = Object.Instantiate(stub);
             ZNetView.m_forceDisableInit = false;
+            Prefab.SetActive(false);
             Prefab.AddComponent<BlueprintComponent>();
             Prefab.name = PrefabName;
 
