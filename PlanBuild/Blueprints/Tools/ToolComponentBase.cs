@@ -15,7 +15,8 @@ namespace PlanBuild.Blueprints.Tools
 
         private void Awake()
         {
-            if (!Player.m_localPlayer || !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
+            if (!Player.m_localPlayer || Player.m_localPlayer.GetSelectedPiece() == null ||
+                !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
             {
                 return;
             }
