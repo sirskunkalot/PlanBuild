@@ -14,10 +14,12 @@ namespace PlanBuild.Plans
         public const string PlannedSuffix = "_planned";
         public const string PieceTableName = "_planHammerPieceTable";
         public Piece OriginalPiece;
+        public int OriginalHash;
 
         public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
         {
             OriginalPiece = piece;
+            OriginalHash = piece.name.GetStableHashCode();
 
             Piece.m_name = Localization.instance.Localize("$item_plan_piece_name", OriginalPiece.m_name);
             Piece.m_description = Localization.instance.Localize("$item_plan_piece_description", OriginalPiece.m_name);

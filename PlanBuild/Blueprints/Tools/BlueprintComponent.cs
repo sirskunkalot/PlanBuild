@@ -98,6 +98,13 @@ namespace PlanBuild.Blueprints.Tools
                 // Final rotation
                 Quaternion entryQuat = transform.rotation * entry.GetRotation();
 
+                // Dont place blacklisted pieces
+                if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))
+                {
+                    Jotunn.Logger.LogWarning($"{entry.name} is blacklisted, not placing @{entryPosition}");
+                    continue;
+                }
+                
                 // Get the prefab of the piece or the plan piece
                 string prefabName = entry.name;
                 if (!placeDirect)
@@ -112,7 +119,7 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
-                if (!(BlueprintConfig.AllowTerrainmodConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin)
+                if (!(SynchronizationManager.Instance.PlayerIsAdmin || BlueprintConfig.AllowTerrainmodConfig.Value)
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");

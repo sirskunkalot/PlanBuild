@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>VNEI</name>
+    </assembly>
+    <members>
+        <member name="M:VNEI.UI.SelectUI.CreateSelection(UnityEngine.Transform,System.Action{System.String},UnityEngine.Vector2,VNEI.Logic.ItemType[],System.Int32,System.Int32)">
+            <summary>
+                Creates a Popup window to select an item. Only works after VNEI has indexed all items.
+            </summary>
+            <param name="parent"></param>
+            <param name="onSelect">
+                Callback of selection, returns a string with the internal name of the prefab.
+                If no items are indexed or section is aborted, it returns an empty string.
+            </param>
+            <param name="anchoredPosition"></param>
+            <param name="activeTypes">Default ItemTypes. If null all are shown</param>
+            <param name="itemsX">Visible columns</param>
+            <param name="itemsY">Visible rows</param>
+            <returns></returns>
+        </member>
+        <member name="T:VNEI.Log">
+            <summary>
+            Helper class for properly logging from static contexts.
+            </summary>
+        </member>
+    </members>
+</doc>
