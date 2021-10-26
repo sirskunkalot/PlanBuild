@@ -130,7 +130,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-
+        
         /// <summary>
         ///     Internal representation of the Thumbnail, always resized to max 160 width
         /// </summary>
@@ -155,6 +155,11 @@ namespace PlanBuild.Blueprints
         ///     Bounds of this blueprint
         /// </summary>
         private Bounds Bounds;
+        
+        /// <summary>
+        ///     TTL timer for the ghost prefab
+        /// </summary>
+        internal float GhostActiveTime;
 
         /// <summary>
         ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files.
@@ -633,7 +638,7 @@ namespace PlanBuild.Blueprints
         /// <returns>true if the prefab could be created</returns>
         public bool CreatePiece()
         {
-            if (Prefab != null)
+            if (Prefab)
             {
                 return false;
             }
@@ -876,6 +881,28 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public void DestroyGhost()
+        {
+            if (!Prefab)
+            {
+                return;
+            }
+            if (Prefab.transform.childCount <= 1)
+            {
+                return;
+            }
+
+            foreach (Transform transform in Prefab.transform)
+            {
+                if (transform.name != "_GhostOnly")
+                {
+                    Object.Destroy(transform.gameObject);
+                }
+            }
+
+            GhostActiveTime = 0f;
+        }
+        
         /// <summary>
         ///     Removes and destroys this blueprints prefab, KeyHint and files from the game and filesystem.
         /// </summary>

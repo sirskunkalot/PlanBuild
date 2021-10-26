@@ -11,18 +11,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             SuppressPieceHighlight = false;
         }
-
-        private void Update()
-        {
-            CancelInvoke("Destroy");
-            Invoke("Destroy", 10f);
-        }
-
-        private void Destroy()
-        {
-
-        }
-
+        
         public override void OnUpdatePlacement(Player self)
         {
             DisableSelectionProjector();

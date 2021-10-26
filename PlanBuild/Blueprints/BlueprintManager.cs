@@ -2,6 +2,7 @@
 using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,7 +28,9 @@ namespace PlanBuild.Blueprints
         private float OriginalPlaceDistance;
 
         internal const float HighlightTimeout = 0.5f;
-        private float LastHightlightTime = 0f;
+        private float LastHightlightTime;
+
+        private const float GhostTimeout = 10f;
 
         internal Piece LastHoveredPiece;
 
@@ -61,11 +64,31 @@ namespace PlanBuild.Blueprints
 
                 // Hooks
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
+                On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
                 On.Humanoid.EquipItem += Humanoid_EquipItem;
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
+
+                // Ghost watchdog
+                IEnumerator watchdog()
+                {
+                    while (true)
+                    {
+                        foreach (var bp in LocalBlueprints.Values.Where(x => x.GhostActiveTime > 0f))
+                        {
+                            if (Time.time - bp.GhostActiveTime > GhostTimeout)
+                            {
+                                bp.DestroyGhost();
+                            }
+                        }
+
+                        yield return new WaitForSeconds(GhostTimeout);
+                    }
+                }
+
+                PlanBuildPlugin.Instance.StartCoroutine(watchdog());
             }
             catch (Exception ex)
             {
@@ -306,6 +329,36 @@ namespace PlanBuild.Blueprints
             }
 
             orig(self);
+        }
+        
+        /// <summary>
+        ///     Timed ghost destruction
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        /// <param name="flashGuardStone"></param>
+        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            if (self.m_buildPieces == null)
+            {
+                orig(self, flashGuardStone);
+                return;
+            }
+
+            GameObject prefab = self.m_buildPieces.GetSelectedPrefab();
+            if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                orig(self, flashGuardStone);
+                return;
+            }
+
+            string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
+            if (LocalBlueprints.TryGetValue(bpname, out var bp))
+            {
+                bp.GhostActiveTime = Time.time;
+            }
+
+            orig(self, flashGuardStone);
         }
 
         /// <summary>
