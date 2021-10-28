@@ -96,18 +96,6 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
-        {
-            orig(self);
-            Selection.Instance.OnPieceUnload(self);
-        }
-
-        private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
-        {
-            orig(self);
-            Selection.Instance.OnPieceAwake(self);
-        }
-
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -407,6 +395,18 @@ namespace PlanBuild.Blueprints
         private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
         {
             return CanCapture(piece, true);
+        }
+
+        private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
+        {
+            orig(self);
+            Selection.Instance.OnPieceAwake(self);
+        }
+        
+        private void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
+        {
+            orig(self);
+            Selection.Instance.OnPieceUnload(self);
         }
     }
 }
