@@ -39,10 +39,11 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
+            int delcnt;
             if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
                 // Remove Pieces
-                TerrainTools.RemoveObjects(
+                delcnt = TerrainTools.RemoveObjects(
                     self.m_placementGhost.transform, SelectionRadius,
                     new Type[] { typeof(Piece) },
                     new Type[] { typeof(PlanPiece) });
@@ -50,17 +51,24 @@ namespace PlanBuild.Blueprints.Tools
             else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
             {
                 // Remove All
-                TerrainTools.RemoveObjects(
+                delcnt = TerrainTools.RemoveObjects(
                     self.m_placementGhost.transform, SelectionRadius, null, new Type[]
                     { typeof(Character), typeof(TerrainModifier), typeof(ZSFX) });
             }
             else
             {
                 // Remove Vegetation
-                TerrainTools.RemoveObjects(
+                delcnt = TerrainTools.RemoveObjects(
                     self.m_placementGhost.transform, SelectionRadius, null, new Type[]
                     { typeof(Character), typeof(TerrainModifier), typeof(ZSFX), typeof(Piece), typeof(ItemDrop)});
             }
+            
+            if (delcnt > 0)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
+                    Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
+            }
+
             return false;
         }
     }
