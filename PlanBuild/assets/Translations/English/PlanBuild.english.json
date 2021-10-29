@@ -76,6 +76,7 @@
   "hud_bpdelete_radius": "Hold to remove pieces in a radius",
   "msg_removed_plans": "Removed $1 plan(s)",
   "hud_bpobjects_deleteveg": "Delete vegetation",
+  "hud_bpobjects_deletepieces": "Delete pieces",
   "hud_bpobjects_deleteall": "Delete everything",
   "hud_bpterrain_flatten": "Flatten terrain",
   "hud_bpterrain_delete": "Delete terrain modifier",

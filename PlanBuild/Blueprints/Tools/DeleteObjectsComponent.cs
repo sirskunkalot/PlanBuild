@@ -1,5 +1,6 @@
 ﻿using System;
 using Jotunn.Managers;
+using PlanBuild.Plans;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -38,17 +39,27 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
+                // Remove Pieces
+                TerrainTools.RemoveObjects(
+                    self.m_placementGhost.transform, SelectionRadius,
+                    new Type[] { typeof(Piece) },
+                    new Type[] { typeof(PlanPiece) });
+            }
+            else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            {
+                // Remove All
                 TerrainTools.RemoveObjects(
                     self.m_placementGhost.transform, SelectionRadius, null, new Type[]
                     { typeof(Character), typeof(TerrainModifier), typeof(ZSFX) });
             }
             else
             {
+                // Remove Vegetation
                 TerrainTools.RemoveObjects(
                     self.m_placementGhost.transform, SelectionRadius, null, new Type[]
-                    { typeof(Character), typeof(TerrainModifier), typeof(Piece), typeof(ItemDrop), typeof(ZSFX) });
+                    { typeof(Character), typeof(TerrainModifier), typeof(ZSFX), typeof(Piece), typeof(ItemDrop)});
             }
             return false;
         }
