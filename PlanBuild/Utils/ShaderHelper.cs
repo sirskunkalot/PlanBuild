@@ -42,7 +42,7 @@ namespace PlanBuild.Utils
             ScaleTexture(copyTexture, width);
             return copyTexture;
         }
-        
+
         public static void ScaleTexture(Texture2D texture, int width)
         {
             Texture2D copyTexture = new Texture2D(texture.width, texture.height, texture.format, false);
@@ -53,7 +53,19 @@ namespace PlanBuild.Utils
             texture.Resize(width, height);
             texture.Apply();
 
-            for (var y = 0; y < height; y++)
+            Color[] rpixels = texture.GetPixels(0);
+            float incX = 1.0f / width;
+            float incY = 1.0f / height;
+            for (int px = 0; px < rpixels.Length; px++)
+            {
+                rpixels[px] = copyTexture.GetPixelBilinear(incX * ((float)px % width), incY * Mathf.Floor((float)px / width));
+            }
+            texture.SetPixels(rpixels, 0);
+            texture.Apply();
+
+            UnityEngine.Object.Destroy(copyTexture);
+
+            /*for (var y = 0; y < height; y++)
             {
                 for (var x = 0; x < width; x++)
                 {
@@ -67,7 +79,7 @@ namespace PlanBuild.Utils
                 }
             }
             texture.Apply();
-            UnityEngine.Object.Destroy(copyTexture);
+            UnityEngine.Object.Destroy(copyTexture);*/
         }
 
         public static List<Renderer> GetRenderers(GameObject gameObject)

@@ -116,7 +116,7 @@ namespace PlanBuild.Blueprints
         private Texture2D ResizedThumbnail;
         
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:&lt;ID&gt;"
         /// </summary>
         private string PrefabName;
 
