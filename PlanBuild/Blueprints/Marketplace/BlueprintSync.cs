@@ -65,9 +65,6 @@ namespace PlanBuild.Blueprints.Marketplace
 
             // Reload GUI if available
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-
-            // Register new blueprints
-            BlueprintManager.Instance.RegisterKnownBlueprints();
         }
 
         /// <summary>
@@ -216,6 +213,7 @@ namespace PlanBuild.Blueprints.Marketplace
             bp.CreatePiece();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            Player.m_localPlayer?.UpdateKnownRecipesList();
 
             return true;
         }
