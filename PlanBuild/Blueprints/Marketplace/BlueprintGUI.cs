@@ -502,9 +502,9 @@ namespace PlanBuild.Blueprints.Marketplace
                 newBp.Creator = bp.Creator;
                 newBp.Description = bp.Description;
                 newBp.Text.text = bp.ToGUIString();
-                if (bp.Thumbnail != null)
+                if (bp.Icon != null)
                 {
-                    newBp.Icon.sprite = Sprite.Create(bp.Thumbnail, new Rect(0f, 0f, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
+                    newBp.Icon.sprite = Sprite.Create(bp.Icon, new Rect(0, 0, bp.Icon.width, bp.Icon.height), Vector2.zero);
                 }
                 newBp.IconButton.onClick.AddListener(() =>
                 {

@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
+using ShaderHelper = PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild.Blueprints
 {
@@ -24,12 +25,12 @@ namespace PlanBuild.Blueprints
         public const string PlaceColliderName = "place_collider";
 
         private const string HeaderName = "#Name:";
-
         private const string HeaderCreator = "#Creator:";
         private const string HeaderDescription = "#Description:";
         private const string HeaderCategory = "#Category:";
         private const string HeaderSnapPoints = "#SnapPoints";
         private const string HeaderPieces = "#Pieces";
+        private const int ThumbnailSize = 256;
 
         public enum Format
         {
@@ -56,7 +57,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     File location of this blueprints icon.
         /// </summary>
-        public string IconLocation;
+        public string ThumbnailLocation;
 
         /// <summary>
         ///     ID of the blueprint instance.
@@ -101,16 +102,12 @@ namespace PlanBuild.Blueprints
             get => ResizedThumbnail;
             set
             {
-                const int maxWidth = 160;
-
-                if (value.width > maxWidth)
+                if (value.width > ThumbnailSize)
                 {
-                    int width = maxWidth;
-                    int height = (int)Math.Round((float)maxWidth * value.height / value.width);
-                    value.Resize(width, height);
+                    ShaderHelper.ScaleTexture(value, ThumbnailSize);
                 }
-                
                 ResizedThumbnail = value;
+                Icon = ShaderHelper.CreateScaledTexture(value, 128);
             }
         }
         
@@ -118,6 +115,8 @@ namespace PlanBuild.Blueprints
         ///     Internal representation of the Thumbnail, always resized to max 160 width
         /// </summary>
         private Texture2D ResizedThumbnail;
+
+        public Texture2D Icon { get; set; }
 
         /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
@@ -176,12 +175,12 @@ namespace PlanBuild.Blueprints
             Blueprint ret = FromArray(filename, lines, format);
             ret.FileFormat = format;
             ret.FileLocation = fileLocation;
-            ret.IconLocation = fileLocation.Replace(extension, ".png");
+            ret.ThumbnailLocation = fileLocation.Replace(extension, ".png");
 
-            if (File.Exists(ret.IconLocation))
+            if (File.Exists(ret.ThumbnailLocation))
             {
-                ret.Thumbnail = AssetUtils.LoadTexture(ret.IconLocation, relativePath: false);
-                Logger.LogDebug($"Read thumbnail data from {ret.IconLocation}");
+                ret.Thumbnail = AssetUtils.LoadTexture(ret.ThumbnailLocation, relativePath: false);
+                Logger.LogDebug($"Read thumbnail data from {ret.ThumbnailLocation}");
             }
 
             return ret;
@@ -246,7 +245,7 @@ namespace PlanBuild.Blueprints
             ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
             ret.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
-            ret.IconLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
+            ret.ThumbnailLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -441,8 +440,8 @@ namespace PlanBuild.Blueprints
 
             if (Thumbnail != null)
             {
-                File.WriteAllBytes(IconLocation, Thumbnail.EncodeToPNG());
-                Logger.LogDebug($"Wrote thumbnail data to {IconLocation}");
+                File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
+                Logger.LogDebug($"Wrote thumbnail data to {ThumbnailLocation}");
             }
 
             return true;
@@ -633,7 +632,9 @@ namespace PlanBuild.Blueprints
 
             var req = new RenderManager.RenderRequest(Prefab)
             {
-                Rotation = RenderManager.IsometricRotation
+                Rotation = RenderManager.IsometricRotation,
+                Width = ThumbnailSize,
+                Height = ThumbnailSize
             };
             RenderManager.Instance.EnqueueRender(req, sprite =>
             {
@@ -644,7 +645,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 Thumbnail = sprite.texture;
-                Prefab.GetComponent<Piece>().m_icon = sprite;
+                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Icon, new Rect(0, 0, Icon.width, Icon.height), Vector2.zero);
                 ToFile();
                 callback(true);
             });
@@ -696,10 +697,14 @@ namespace PlanBuild.Blueprints
             {
                 piece.m_description += $"{Environment.NewLine}Description: {Description}";
             }
-            if (Thumbnail != null)
+            if (Icon != null)
+            {
+                piece.m_icon = Sprite.Create(Icon, new Rect(0, 0, Icon.width, Icon.height), Vector2.zero);
+            }
+            /*if (Thumbnail != null)
             {
                 piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-            }
+            }*/
 
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(Prefab, BlueprintAssets.PieceTableName, Category);
@@ -974,9 +979,9 @@ namespace PlanBuild.Blueprints
             {
                 File.Delete(FileLocation);
             }
-            if (File.Exists(IconLocation))
+            if (File.Exists(ThumbnailLocation))
             {
-                File.Delete(IconLocation);
+                File.Delete(ThumbnailLocation);
             }
         }
 
@@ -1015,7 +1020,7 @@ namespace PlanBuild.Blueprints
                 newbp.Name = text;
                 newbp.Creator = playerName;
                 newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
-                newbp.IconLocation = newbp.FileLocation.Replace(".blueprint", ".png");
+                newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
                 if (newbp.ToFile())
                 {
                     if (BlueprintManager.LocalBlueprints.ContainsKey(newbp.ID))
@@ -1054,7 +1059,7 @@ namespace PlanBuild.Blueprints
                 newbp.Thumbnail = ScreenCapture.CaptureScreenshotAsTexture();
 
                 // Save to file
-                File.WriteAllBytes(newbp.IconLocation, newbp.Thumbnail.EncodeToPNG());
+                File.WriteAllBytes(newbp.ThumbnailLocation, newbp.Thumbnail.EncodeToPNG());
 
                 // Reactivate SelectionCircle
                 ShapedProjector.ShowProjectors = true;

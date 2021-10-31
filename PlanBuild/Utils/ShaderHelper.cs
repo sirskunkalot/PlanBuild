@@ -34,6 +34,42 @@ namespace PlanBuild.Utils
             return texture2D;
         }
 
+        public static Texture2D CreateScaledTexture(Texture2D texture, int width)
+        {
+            Texture2D copyTexture = new Texture2D(texture.width, texture.height, texture.format, false);
+            copyTexture.SetPixels(texture.GetPixels());
+            copyTexture.Apply();
+            ScaleTexture(copyTexture, width);
+            return copyTexture;
+        }
+        
+        public static void ScaleTexture(Texture2D texture, int width)
+        {
+            Texture2D copyTexture = new Texture2D(texture.width, texture.height, texture.format, false);
+            copyTexture.SetPixels(texture.GetPixels());
+            copyTexture.Apply();
+
+            int height = (int)Math.Round((float)width * texture.height / texture.width);
+            texture.Resize(width, height);
+            texture.Apply();
+
+            for (var y = 0; y < height; y++)
+            {
+                for (var x = 0; x < width; x++)
+                {
+                    var xp = 1f * x / width;
+                    var yp = 1f * y / height;
+                    var xo = (int)Mathf.Round(xp * copyTexture.width); // Other X pos
+                    var yo = (int)Mathf.Round(yp * copyTexture.height); // Other Y pos
+                    Color origPixel = copyTexture.GetPixel(xo, yo);
+                    //origPixel.a = 1f;
+                    texture.SetPixel(x, y, origPixel);
+                }
+            }
+            texture.Apply();
+            UnityEngine.Object.Destroy(copyTexture);
+        }
+
         public static List<Renderer> GetRenderers(GameObject gameObject)
         {
             List<Renderer> result = new List<Renderer>();
