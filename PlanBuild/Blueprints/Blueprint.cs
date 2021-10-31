@@ -39,7 +39,6 @@ namespace PlanBuild.Blueprints
 
         private enum ParserState
         {
-            None,
             SnapPoints,
             Pieces
         }
@@ -252,7 +251,7 @@ namespace PlanBuild.Blueprints
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
 
-            ParserState state = ParserState.None;
+            ParserState state = ParserState.Pieces;
 
             foreach (var line in lines)
             {
@@ -292,6 +291,10 @@ namespace PlanBuild.Blueprints
                 if (line == HeaderPieces)
                 {
                     state = ParserState.Pieces;
+                    continue;
+                }
+                if (line.StartsWith("#"))
+                {
                     continue;
                 }
                 switch (state)
