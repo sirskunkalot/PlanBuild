@@ -1,6 +1,7 @@
 # Version 0.8.0
 * Added prefab blacklist for server owners to prevent non-admin users from planning or blueprinting pieces from that list
 * Prefabs can be added directly in the config file or via console commands while being connected to the server
+* Added custom piece table categories to the .blueprint format
 * Added Piece-only mode to the deletion tool
 
 # Version 0.7.1
@@ -28,7 +29,7 @@
 # Version 0.6.9
 * Made modifier keys in blueprint mode configurable
 * Compress blueprints before transfer and always resize PNG files to max 160 width
-* Needs at least Jötunn v2.3.7
+* Needs at least JÃ¶tunn v2.3.7
 
 # Version 0.6.8
 * Compatibility patch for Gizmo Reloaded (Gizmo is disabled in blueprint mode because of conflicting usage of modifier keys)
@@ -47,7 +48,7 @@
 * Fixed terrain tool removal not saving
 
 # Version 0.6.4
-* Enable clients without PlanBuild to connect to servers with PlanBuild installed but prevent clients with PlanBuild to connect to servers without it (needs Jötunn v2.3.3)
+* Enable clients without PlanBuild to connect to servers with PlanBuild installed but prevent clients with PlanBuild to connect to servers without it (needs JÃ¶tunn v2.3.3)
 
 # Version 0.6.3
 * Reset selection radius & offset when switching tools

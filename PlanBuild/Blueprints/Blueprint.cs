@@ -27,6 +27,7 @@ namespace PlanBuild.Blueprints
 
         private const string HeaderCreator = "#Creator:";
         private const string HeaderDescription = "#Description:";
+        private const string HeaderCategory = "#Category:";
         private const string HeaderSnapPoints = "#SnapPoints";
         private const string HeaderPieces = "#Pieces";
 
@@ -77,6 +78,11 @@ namespace PlanBuild.Blueprints
         ///     Optional description for this blueprint
         /// </summary>
         public string Description = string.Empty;
+        
+        /// <summary>
+        ///     Optional category for this blueprint. Defaults to "Blueprints".
+        /// </summary>
+        public string Category = BlueprintAssets.CategoryBlueprints;
 
         /// <summary>
         ///     Array of the <see cref="PieceEntry"/>s this blueprint is made of
@@ -296,6 +302,11 @@ namespace PlanBuild.Blueprints
                     }
                     continue;
                 }
+                if (line.StartsWith(HeaderCategory))
+                {
+                    ret.Category = line.Substring(HeaderCategory.Length);
+                    continue;
+                }
                 if (line == HeaderSnapPoints)
                 {
                     state = ParserState.SnapPoints;
@@ -353,6 +364,7 @@ namespace PlanBuild.Blueprints
             ret.Add(HeaderName + Name);
             ret.Add(HeaderCreator + Creator);
             ret.Add(HeaderDescription + SimpleJson.SimpleJson.SerializeObject(Description));
+            ret.Add(HeaderCategory + Category);
             if (SnapPoints.Any())
             {
                 ret.Add(HeaderSnapPoints);
@@ -684,8 +696,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Add to known pieces
-            PieceManager.Instance.RegisterPieceInPieceTable(
-                Prefab, BlueprintAssets.PieceTableName, BlueprintAssets.CategoryBlueprints);
+            PieceManager.Instance.RegisterPieceInPieceTable(Prefab, BlueprintAssets.PieceTableName, Category);
 
             if (Player.m_localPlayer)
             {
