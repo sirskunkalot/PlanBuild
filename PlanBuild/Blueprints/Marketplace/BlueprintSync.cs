@@ -213,7 +213,6 @@ namespace PlanBuild.Blueprints.Marketplace
             bp.CreatePiece();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-            Player.m_localPlayer?.UpdateKnownRecipesList();
 
             return true;
         }
