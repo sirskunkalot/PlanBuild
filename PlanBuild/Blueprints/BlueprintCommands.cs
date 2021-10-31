@@ -27,7 +27,6 @@ namespace PlanBuild.Blueprints
             public override void Run(string[] args)
             {
                 BlueprintSync.GetLocalBlueprints();
-                BlueprintManager.Instance.RegisterKnownBlueprints();
                 Console.instance.Print(BlueprintManager.LocalBlueprints.ToString());
             }
         }
