@@ -107,7 +107,6 @@ namespace PlanBuild.Blueprints
                     ShaderHelper.ScaleTexture(value, ThumbnailSize);
                 }
                 ResizedThumbnail = value;
-                Icon = ShaderHelper.CreateScaledTexture(value, 128);
             }
         }
         
@@ -115,9 +114,7 @@ namespace PlanBuild.Blueprints
         ///     Internal representation of the Thumbnail, always resized to max 160 width
         /// </summary>
         private Texture2D ResizedThumbnail;
-
-        public Texture2D Icon { get; set; }
-
+        
         /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint (&lt;ID&gt;)"
         /// </summary>
@@ -645,7 +642,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 Thumbnail = sprite.texture;
-                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Icon, new Rect(0, 0, Icon.width, Icon.height), Vector2.zero);
+                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
                 ToFile();
                 callback(true);
             });
@@ -697,14 +694,10 @@ namespace PlanBuild.Blueprints
             {
                 piece.m_description += $"{Environment.NewLine}Description: {Description}";
             }
-            if (Icon != null)
-            {
-                piece.m_icon = Sprite.Create(Icon, new Rect(0, 0, Icon.width, Icon.height), Vector2.zero);
-            }
-            /*if (Thumbnail != null)
+            if (Thumbnail != null)
             {
                 piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-            }*/
+            }
 
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(Prefab, BlueprintAssets.PieceTableName, Category);
