@@ -289,6 +289,7 @@ namespace PlanBuild.Blueprints
                 {
                     bp.CreatePiece();
                 }
+                Player.m_localPlayer?.UpdateKnownRecipesList();
             }
         }
 

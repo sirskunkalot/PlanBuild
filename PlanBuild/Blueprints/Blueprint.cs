@@ -620,34 +620,6 @@ namespace PlanBuild.Blueprints
             return true;
         }
         
-        public void CreateThumbnail(Action<bool> callback)
-        {
-            if (!InstantiateGhost())
-            {
-                return;
-            }
-
-            var req = new RenderManager.RenderRequest(Prefab)
-            {
-                Rotation = RenderManager.IsometricRotation,
-                Width = ThumbnailSize,
-                Height = ThumbnailSize
-            };
-            RenderManager.Instance.EnqueueRender(req, sprite =>
-            {
-                if (sprite == null)
-                {
-                    callback(false);
-                    return;
-                }
-
-                Thumbnail = sprite.texture;
-                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-                ToFile();
-                callback(true);
-            });
-        }
-
         /// <summary>
         ///     Creates a prefab from this blueprint, instantiating the stub piece.
         ///     Adds it to the rune <see cref="PieceTable"/> and creates a <see cref="KeyHint"/>.
@@ -702,11 +674,6 @@ namespace PlanBuild.Blueprints
             // Add to known pieces
             PieceManager.Instance.RegisterPieceInPieceTable(Prefab, BlueprintAssets.PieceTableName, Category);
 
-            if (Player.m_localPlayer)
-            {
-                Player.m_localPlayer.UpdateKnownRecipesList();
-            }
-
             // Create KeyHint
             KeyHint = new KeyHintConfig
             {
@@ -727,6 +694,39 @@ namespace PlanBuild.Blueprints
             Prefab.AddComponent<BlueprintComponent>();
 
             return true;
+        }
+        
+        /// <summary>
+        ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
+        /// </summary>
+        /// <param name="callback"></param>
+        public void CreateThumbnail(Action<bool> callback)
+        {
+            if (!InstantiateGhost())
+            {
+                callback(false);
+                return;
+            }
+
+            var req = new RenderManager.RenderRequest(Prefab)
+            {
+                Rotation = RenderManager.IsometricRotation,
+                Width = ThumbnailSize,
+                Height = ThumbnailSize
+            };
+            RenderManager.Instance.EnqueueRender(req, sprite =>
+            {
+                if (sprite == null)
+                {
+                    callback(false);
+                    return;
+                }
+
+                Thumbnail = sprite.texture;
+                File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
+                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
+                callback(true);
+            });
         }
 
         /// <summary>
@@ -963,7 +963,7 @@ namespace PlanBuild.Blueprints
             // Remove KeyHint
             if (KeyHint != null)
             {
-                GUIManager.Instance.RemoveKeyHint(KeyHint);
+                KeyHintManager.Instance.RemoveKeyHint(KeyHint);
                 KeyHint = null;
             }
 
@@ -1014,20 +1014,32 @@ namespace PlanBuild.Blueprints
                 newbp.Creator = playerName;
                 newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
-                if (newbp.ToFile())
-                {
-                    if (BlueprintManager.LocalBlueprints.ContainsKey(newbp.ID))
-                    {
-                        Blueprint oldbp = BlueprintManager.LocalBlueprints[newbp.ID];
-                        oldbp.DestroyBlueprint();
-                        BlueprintManager.LocalBlueprints.Remove(newbp.ID);
-                    }
 
-                    PlanBuildPlugin.Instance.StartCoroutine(AddBlueprint());
+                if (!newbp.ToFile())
+                {
+                    return;
                 }
+
+                if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))
+                {
+                    oldbp.DestroyBlueprint();
+                    BlueprintManager.LocalBlueprints.Remove(newbp.ID);
+                }
+
+                if (!newbp.CreatePiece())
+                {
+                    return;
+                }
+
+                newbp.CreateThumbnail(success =>
+                {
+                    BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
+                    Player.m_localPlayer?.UpdateKnownRecipesList();
+                    BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+                });
             }
 
-            /// <summary>
+            /*/// <summary>
             ///     Take screenshot, create the prefab and add the blueprint to the manager as a <see cref="Coroutine"/>.
             /// </summary>
             /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
@@ -1075,7 +1087,7 @@ namespace PlanBuild.Blueprints
                 Logger.LogInfo("Blueprint created");
 
                 newbp = null;
-            }
+            }*/
         }
     }
 }

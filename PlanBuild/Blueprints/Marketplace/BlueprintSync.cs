@@ -63,7 +63,11 @@ namespace PlanBuild.Blueprints.Marketplace
                 }
             }
 
-            // Reload GUI if available
+            // Reload blueprints and GUI, if available
+            if (Player.m_localPlayer)
+            {
+                BlueprintManager.Instance.RegisterKnownBlueprints();
+            }
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
         }
 
@@ -210,8 +214,8 @@ namespace PlanBuild.Blueprints.Marketplace
             }
 
             bp.ToFile();
-            bp.CreatePiece();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+            BlueprintManager.Instance.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
