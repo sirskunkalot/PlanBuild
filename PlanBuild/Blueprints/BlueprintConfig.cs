@@ -351,6 +351,7 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
+                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpobjects_deletepieces" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpobjects_deleteall" },
                     new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }

@@ -1,4 +1,6 @@
-﻿using Jotunn.Managers;
+﻿using System;
+using Jotunn.Managers;
+using PlanBuild.Plans;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -37,14 +39,36 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            int delcnt;
+            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
             {
-                TerrainTools.RemoveObjects(self.m_placementGhost.transform, SelectionRadius);
+                // Remove Pieces
+                delcnt = TerrainTools.RemoveObjects(
+                    self.m_placementGhost.transform, SelectionRadius,
+                    new Type[] { typeof(Piece) },
+                    new Type[] { typeof(PlanPiece) });
+            }
+            else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            {
+                // Remove All
+                delcnt = TerrainTools.RemoveObjects(
+                    self.m_placementGhost.transform, SelectionRadius, null, new Type[]
+                    { typeof(Character), typeof(TerrainModifier), typeof(ZSFX) });
             }
             else
             {
-                TerrainTools.RemoveVegetation(self.m_placementGhost.transform, SelectionRadius);
+                // Remove Vegetation
+                delcnt = TerrainTools.RemoveObjects(
+                    self.m_placementGhost.transform, SelectionRadius, null, new Type[]
+                    { typeof(Character), typeof(TerrainModifier), typeof(ZSFX), typeof(Piece), typeof(ItemDrop)});
             }
+            
+            if (delcnt > 0)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
+                    Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
+            }
+
             return false;
         }
     }

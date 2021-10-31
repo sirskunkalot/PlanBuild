@@ -39,6 +39,7 @@ namespace PlanBuild.Blueprints
 
         private enum ParserState
         {
+            None,
             SnapPoints,
             Pieces
         }
@@ -274,7 +275,7 @@ namespace PlanBuild.Blueprints
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
 
-            ParserState state = ParserState.Pieces;
+            ParserState state = ParserState.None;
 
             foreach (var line in lines)
             {

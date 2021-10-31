@@ -144,10 +144,11 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void RemoveVegetation(Transform transform, float radius)
+        public static int RemoveObjects(Transform transform, float radius, Type[] includeTypes, Type[] excludeTypes)
         {
             Logger.LogDebug($"Entered RemoveVegetation {transform.position} / {radius}");
 
+            int delcnt = 0;
             ZNetScene zNetScene = ZNetScene.instance;
             try
             {
@@ -155,16 +156,16 @@ namespace PlanBuild.Blueprints
 
                 if (Location.IsInsideNoBuildLocation(startPosition))
                 {
-                    return;
+                    return delcnt;
                 }
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
-                                  !obj.GetComponent<TerrainModifier>() && !obj.GetComponent<Piece>() &&
-                                  !obj.GetComponent<ItemDrop>() && !obj.GetComponent<ZSFX>());
+                                  obj.GetComponent<ZNetView>() && 
+                                  //obj.GetComponents<Component>().Select(x => x.GetType()) is Type[] comp &&
+                                  (includeTypes == null || includeTypes.All(x => obj.GetComponent(x) != null)) &&
+                                  (excludeTypes == null || excludeTypes.All(x => obj.GetComponent(x) == null)));
 
-                int delcnt = 0;
                 foreach (GameObject prefab in prefabs)
                 {
                     if (!prefab.TryGetComponent(out ZNetView zNetView))
@@ -182,45 +183,8 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning($"Error while removing objects: {ex}");
             }
-        }
 
-        public static void RemoveObjects(Transform transform, float radius)
-        {
-            Logger.LogDebug($"Entered RemoveObjects {transform.position} / {radius}");
-
-            ZNetScene zNetScene = ZNetScene.instance;
-            try
-            {
-                Vector3 startPosition = transform.position;
-
-                if (Location.IsInsideNoBuildLocation(startPosition))
-                {
-                    return;
-                }
-
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
-                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && !obj.GetComponent<Character>() &&
-                                  !obj.GetComponent<TerrainModifier>() && !obj.GetComponent<ZSFX>());
-
-                int delcnt = 0;
-                foreach (GameObject prefab in prefabs)
-                {
-                    if (!prefab.TryGetComponent(out ZNetView zNetView))
-                    {
-                        continue;
-                    }
-
-                    zNetView.ClaimOwnership();
-                    zNetScene.Destroy(prefab);
-                    ++delcnt;
-                }
-                Logger.LogDebug($"Removed {delcnt} objects");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing objects: {ex}");
-            }
+            return delcnt;
         }
     }
 }
