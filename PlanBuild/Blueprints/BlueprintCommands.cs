@@ -176,8 +176,8 @@ namespace PlanBuild.Blueprints
                 bp.CreateThumbnail(success =>
                 {
                     Console.instance.Print(success
-                        ? $"Could not create thumbnail for {id}"
-                        : $"Created thumbnail for {id}");
+                        ? $"Created thumbnail for {id}"
+                        : $"Could not create thumbnail for {id}");
                 });
             }
 

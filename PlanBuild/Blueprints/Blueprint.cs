@@ -106,35 +106,12 @@ namespace PlanBuild.Blueprints
 
                 if (value.width > maxWidth)
                 {
-                    // Calculate proper height
                     int width = maxWidth;
                     int height = (int)Math.Round((float)maxWidth * value.height / value.width);
-
-                    // Create thumbnail image from screenshot
-                    ResizedThumbnail = new Texture2D(width, height);
-                    for (var y = 0; y < height; y++)
-                    {
-                        for (var x = 0; x < width; x++)
-                        {
-                            var xp = 1f * x / width;
-                            var yp = 1f * y / height;
-                            var xo = (int)Mathf.Round(xp * value.width); // Other X pos
-                            var yo = (int)Mathf.Round(yp * value.height); // Other Y pos
-                            Color origPixel = value.GetPixel(xo, yo);
-                            origPixel.a = 1f;
-                            ResizedThumbnail.SetPixel(x, y, origPixel);
-                        }
-                    }
-
-                    ResizedThumbnail.Apply();
-
-                    // Destroy properly
-                    Object.Destroy(value);
+                    value.Resize(width, height);
                 }
-                else
-                {
-                    ResizedThumbnail = value;
-                }
+                
+                ResizedThumbnail = value;
             }
         }
         
