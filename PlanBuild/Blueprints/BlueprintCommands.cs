@@ -173,19 +173,11 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                var req = new RenderManager.RenderRequest(bp.GetPrefab());
-                req.Rotation = RenderManager.IsometricRotation;
-                RenderManager.Instance.EnqueueRender(req, sprite =>
+                bp.CreateThumbnail(success =>
                 {
-                    if (sprite == null)
-                    {
-                        Console.instance.Print($"Could not create thumbnail for {id}");
-                        return;
-                    }
-
-                    bp.Thumbnail = sprite.texture;
-                    bp.ToFile();
-                    Console.instance.Print($"Created thumbnail for {id}");
+                    Console.instance.Print(success
+                        ? $"Could not create thumbnail for {id}"
+                        : $"Created thumbnail for {id}");
                 });
             }
 

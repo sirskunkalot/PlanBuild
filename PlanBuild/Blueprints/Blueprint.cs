@@ -504,26 +504,6 @@ namespace PlanBuild.Blueprints
             return Bounds;
         }
 
-        public GameObject GetPrefab()
-        {
-            if (!Prefab)
-            {
-                return null;
-            }
-
-            if (Prefab.transform.childCount > 1)
-            {
-                return Prefab;
-            }
-
-            if (!InstantiateGhost())
-            {
-                return null;
-            }
-
-            return Prefab;
-        }
-
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>
@@ -663,6 +643,32 @@ namespace PlanBuild.Blueprints
 
             return true;
         }
+        
+        public void CreateThumbnail(Action<bool> callback)
+        {
+            if (!InstantiateGhost())
+            {
+                return;
+            }
+
+            var req = new RenderManager.RenderRequest(Prefab)
+            {
+                Rotation = RenderManager.IsometricRotation
+            };
+            RenderManager.Instance.EnqueueRender(req, sprite =>
+            {
+                if (sprite == null)
+                {
+                    callback(false);
+                    return;
+                }
+
+                Thumbnail = sprite.texture;
+                Prefab.GetComponent<Piece>().m_icon = sprite;
+                ToFile();
+                callback(true);
+            });
+        }
 
         /// <summary>
         ///     Creates a prefab from this blueprint, instantiating the stub piece.
@@ -679,7 +685,7 @@ namespace PlanBuild.Blueprints
 
             if (PieceEntries == null)
             {
-                Logger.LogWarning("No pieces loaded");
+                Logger.LogWarning("Could not create blueprint prefab: No pieces loaded");
                 return false;
             }
 
@@ -737,7 +743,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1" },
                 }
             };
-            GUIManager.Instance.AddKeyHint(KeyHint);
+            KeyHintManager.Instance.AddKeyHint(KeyHint);
             
             // Add BlueprintComponent
             Prefab.AddComponent<BlueprintComponent>();
