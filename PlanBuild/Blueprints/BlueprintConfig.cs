@@ -206,7 +206,7 @@ namespace PlanBuild.Blueprints
 
             // Mode Switch
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 ButtonConfigs = new[]
@@ -218,7 +218,7 @@ namespace PlanBuild.Blueprints
 
             // Capture
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceCaptureName,
@@ -234,7 +234,7 @@ namespace PlanBuild.Blueprints
 
             // Add selection
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSelectAddName,
@@ -251,7 +251,7 @@ namespace PlanBuild.Blueprints
 
             // Remove selection
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSelectRemoveName,
@@ -269,7 +269,7 @@ namespace PlanBuild.Blueprints
 
             // Save selection
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSelectSaveName,
@@ -282,7 +282,7 @@ namespace PlanBuild.Blueprints
 
             // Snap Point
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceSnapPointName,
@@ -296,7 +296,7 @@ namespace PlanBuild.Blueprints
 
             // Center point
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceCenterPointName,
@@ -310,7 +310,7 @@ namespace PlanBuild.Blueprints
 
             // Remove
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceDeletePlansName,
@@ -326,7 +326,7 @@ namespace PlanBuild.Blueprints
 
             // Terrain
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceTerrainName,
@@ -343,7 +343,7 @@ namespace PlanBuild.Blueprints
 
             // Delete
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PieceDeleteObjectsName,
@@ -360,7 +360,7 @@ namespace PlanBuild.Blueprints
 
             // Paint
 
-            GUIManager.Instance.AddKeyHint(new KeyHintConfig
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = BlueprintAssets.PiecePaintName,
