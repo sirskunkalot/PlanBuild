@@ -504,6 +504,26 @@ namespace PlanBuild.Blueprints
             return Bounds;
         }
 
+        public GameObject GetPrefab()
+        {
+            if (!Prefab)
+            {
+                return null;
+            }
+
+            if (Prefab.transform.childCount > 1)
+            {
+                return Prefab;
+            }
+
+            if (!InstantiateGhost())
+            {
+                return null;
+            }
+
+            return Prefab;
+        }
+
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>
@@ -739,7 +759,7 @@ namespace PlanBuild.Blueprints
             {
                 return true;
             }
-
+            
             GameObject baseObject = Prefab;
             var ret = true;
             ZNetView.m_forceDisableInit = true;

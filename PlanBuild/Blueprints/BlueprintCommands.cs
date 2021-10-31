@@ -1,4 +1,6 @@
-﻿using Jotunn.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints.Marketplace;
 
@@ -13,6 +15,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new PushBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new GetServerListCommand());
             CommandManager.Instance.AddConsoleCommand(new PullBlueprintCommand());
+            CommandManager.Instance.AddConsoleCommand(new ThumbnailBlueprintCommand());
         }
 
         /// <summary>
@@ -143,6 +146,52 @@ namespace PlanBuild.Blueprints
                         Console.instance.Print($"Loaded blueprint {id} from server\n");
                     }
                 });
+            }
+        }
+
+        /// <summary>
+        ///     Console command to generate a new icon for a blueprint via Jötunn's RenderManager
+        /// </summary>
+        private class ThumbnailBlueprintCommand : ConsoleCommand
+        {
+            public override string Name => "bp.thumbnail";
+
+            public override string Help => "Create a new thumbnail for a blueprint from the actual blueprint data";
+
+            public override void Run(string[] args)
+            {
+                if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
+                {
+                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
+                    return;
+                }
+                
+                var id = args[0];
+                if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var bp))
+                {
+                    Console.instance.Print($"Blueprint {id} not found\n");
+                    return;
+                }
+
+                var req = new RenderManager.RenderRequest(bp.GetPrefab());
+                req.Rotation = RenderManager.IsometricRotation;
+                RenderManager.Instance.EnqueueRender(req, sprite =>
+                {
+                    if (sprite == null)
+                    {
+                        Console.instance.Print($"Could not create thumbnail for {id}");
+                        return;
+                    }
+
+                    bp.Thumbnail = sprite.texture;
+                    bp.ToFile();
+                    Console.instance.Print($"Created thumbnail for {id}");
+                });
+            }
+
+            public override List<string> CommandOptionList()
+            {
+                return BlueprintManager.LocalBlueprints.Keys.ToList();
             }
         }
     }
