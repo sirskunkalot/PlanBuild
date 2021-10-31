@@ -2,6 +2,8 @@
 * Added prefab blacklist for server owners to prevent non-admin users from planning or blueprinting pieces from that list
 * Prefabs can be added directly in the config file or via console commands while being connected to the server
 * Added custom piece table categories to the .blueprint format
+* Added new Thumbnail creation by rendering the blueprint and taking a screenshot of it
+* You can recreate your current blueprint thumbnails via console command "bp.thumbnail"
 * Added Piece-only mode to the deletion tool
 
 # Version 0.7.1
