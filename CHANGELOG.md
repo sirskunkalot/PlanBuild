@@ -4,6 +4,7 @@
 * Added custom piece table categories to the .blueprint format
 * Added new Thumbnail creation by rendering the blueprint and taking a screenshot of it
 * You can recreate your current blueprint thumbnails via console command "bp.thumbnail"
+* Added a new tooltip overlay for blueprints previewing the blueprint's thumbnail
 * Added Piece-only mode to the deletion tool
 
 # Version 0.7.1
