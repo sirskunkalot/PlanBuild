@@ -430,14 +430,8 @@ namespace PlanBuild.Blueprints
         /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
-            if (!(Hud.instance && BlueprintAssets.BlueprintTooltip && BlueprintConfig.TooltipEnabledConfig.Value))
-            {
-                self.m_tooltipPrefab = OriginalTooltip;
-                orig(self, go);
-                return;
-            }
-
-            if (Hud.instance.m_hoveredPiece && Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName))
+            if (BlueprintAssets.BlueprintTooltip && BlueprintConfig.TooltipEnabledConfig.Value &&
+                Hud.instance.m_hoveredPiece && Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName))
             {
                 string bpname = Hud.instance.m_hoveredPiece.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
                 if (LocalBlueprints.TryGetValue(bpname, out var bp) && bp.Thumbnail != null)
@@ -448,8 +442,12 @@ namespace PlanBuild.Blueprints
                         .GetComponent<Image>().color = BlueprintConfig.TooltipBackgroundConfig.Value;
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Image")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
+                    return;
                 }
             }
+
+            self.m_tooltipPrefab = OriginalTooltip;
+            orig(self, go);
         }
     }
 }
