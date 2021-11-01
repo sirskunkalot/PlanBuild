@@ -6,6 +6,7 @@
 * You can recreate your current blueprint thumbnails via console command "bp.thumbnail"
 * Added a new tooltip overlay for blueprints previewing the blueprint's thumbnail
 * Added Piece-only mode to the deletion tool
+* Fixed camera offset in blueprint mode
 
 # Version 0.7.1
 * Fix requirements count in Plan Totem
