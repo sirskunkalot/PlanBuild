@@ -3,7 +3,7 @@
 * Prefabs can be added directly in the config file or via console commands while being connected to the server
 * Added custom piece table categories to the .blueprint format
 * Added new Thumbnail creation by rendering the blueprint and taking a screenshot of it
-* You can recreate your current blueprint thumbnails via console command "bp.thumbnail"
+* You can recreate your current blueprint thumbnails via console command "bp.thumbnail" for single blueprints and "bp.regenthumbnails" for all current blueprints
 * Added a new tooltip overlay for blueprints previewing the blueprint's thumbnail
 * Added Piece-only mode to the deletion tool
 * Fixed camera offset in blueprint mode

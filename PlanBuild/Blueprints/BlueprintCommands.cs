@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -16,6 +17,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new GetServerListCommand());
             CommandManager.Instance.AddConsoleCommand(new PullBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailBlueprintCommand());
+            CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
         }
 
         /// <summary>
@@ -150,7 +152,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Console command to generate a new icon for a blueprint via Jötunn's RenderManager
+        ///     Console command to generate a new thumbnail for a blueprint via Jötunn's RenderManager
         /// </summary>
         private class ThumbnailBlueprintCommand : ConsoleCommand
         {
@@ -184,6 +186,43 @@ namespace PlanBuild.Blueprints
             public override List<string> CommandOptionList()
             {
                 return BlueprintManager.LocalBlueprints.Keys.ToList();
+            }
+        }
+
+        /// <summary>
+        ///     Console command to generate a new thumbnail for all current local blueprints
+        /// </summary>
+        private class ThumbnailAllCommand : ConsoleCommand
+        {
+            public override string Name => "bp.regenthumbnails";
+
+            public override string Help => "Create a new thumbnail for all local blueprints";
+
+            public override void Run(string[] args)
+            {
+                IEnumerator RegenAll()
+                {
+                    int cnt = 0;
+
+                    foreach (var bp in BlueprintManager.LocalBlueprints.Values)
+                    {
+                        yield return null;
+
+                        bp.CreateThumbnail(success =>
+                        {
+                            ++cnt;
+                        });
+                    }
+
+                    while (cnt < BlueprintManager.LocalBlueprints.Count)
+                    {
+                        yield return null;
+                    }
+
+                    Console.instance.Print("Thumbnails regenerated");
+                }
+
+                PlanBuildPlugin.Instance.StartCoroutine(RegenAll());
             }
         }
     }
