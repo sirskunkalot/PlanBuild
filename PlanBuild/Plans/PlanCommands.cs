@@ -1,4 +1,6 @@
-﻿using Jotunn.Entities;
+﻿using System.Collections.Generic;
+using HarmonyLib;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using UnityEngine;
 
@@ -29,7 +31,7 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                Console.instance.Print($"{PlanBlacklist.GetNames()}");
+                Console.instance.Print($"{PlanBlacklist.GetNames().Join()}");
             }
         }
 
@@ -49,7 +51,7 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
+                if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
                     Console.instance.Print($"Usage: {Name} <prefab_name>");
                     return;
@@ -72,6 +74,11 @@ namespace PlanBuild.Plans
                 
                 PlanBlacklist.Add(prefabName);
             }
+
+            public override List<string> CommandOptionList()
+            {
+                return ZNetScene.instance.GetPrefabNames();
+            }
         }
         
         /// <summary>
@@ -90,7 +97,7 @@ namespace PlanBuild.Plans
                     return;
                 }
 
-                if (args.Length != 1 || string.IsNullOrEmpty(args[0]))
+                if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
                     Console.instance.Print($"Usage: {Name} <prefab_name>");
                     return;
@@ -98,6 +105,11 @@ namespace PlanBuild.Plans
 
                 string prefabName = args[0].Trim();
                 PlanBlacklist.Remove(prefabName);
+            }
+
+            public override List<string> CommandOptionList()
+            {
+                return PlanBlacklist.GetNames();
             }
         }
     }

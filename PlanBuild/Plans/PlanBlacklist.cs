@@ -40,9 +40,9 @@ namespace PlanBuild.Plans
             Player.m_localPlayer?.UpdateKnownRecipesList();
         }
 
-        public static string GetNames()
+        public static List<string> GetNames()
         {
-            return Names.OrderBy(x => x).Join();
+            return Names.OrderBy(x => x).ToList();
         }
 
         public static void Add(string prefabName)
