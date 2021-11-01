@@ -6,7 +6,6 @@ using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -78,7 +77,7 @@ namespace PlanBuild.Blueprints
         ///     Optional description for this blueprint
         /// </summary>
         public string Description = string.Empty;
-        
+
         /// <summary>
         ///     Optional category for this blueprint. Defaults to "Blueprints".
         /// </summary>
@@ -109,12 +108,12 @@ namespace PlanBuild.Blueprints
                 ResizedThumbnail = value;
             }
         }
-        
+
         /// <summary>
         ///     Internal representation of the Thumbnail, always resized to max 160 width
         /// </summary>
         private Texture2D ResizedThumbnail;
-        
+
         /// <summary>
         ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:&lt;ID&gt;"
         /// </summary>
@@ -134,7 +133,7 @@ namespace PlanBuild.Blueprints
         ///     Bounds of this blueprint
         /// </summary>
         private Bounds Bounds;
-        
+
         /// <summary>
         ///     TTL timer for the ghost prefab
         /// </summary>
@@ -619,7 +618,7 @@ namespace PlanBuild.Blueprints
 
             return true;
         }
-        
+
         /// <summary>
         ///     Creates a prefab from this blueprint, instantiating the stub piece.
         ///     Adds it to the rune <see cref="PieceTable"/> and creates a <see cref="KeyHint"/>.
@@ -689,13 +688,13 @@ namespace PlanBuild.Blueprints
                 }
             };
             KeyHintManager.Instance.AddKeyHint(KeyHint);
-            
+
             // Add BlueprintComponent
             Prefab.AddComponent<BlueprintComponent>();
 
             return true;
         }
-        
+
         /// <summary>
         ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
         /// </summary>
@@ -743,7 +742,7 @@ namespace PlanBuild.Blueprints
             {
                 return true;
             }
-            
+
             GameObject baseObject = Prefab;
             var ret = true;
             ZNetView.m_forceDisableInit = true;
@@ -918,7 +917,7 @@ namespace PlanBuild.Blueprints
 
             GhostActiveTime = 0f;
         }
-        
+
         /// <summary>
         ///     Removes and destroys this blueprints prefab, KeyHint and files from the game and filesystem.
         /// </summary>

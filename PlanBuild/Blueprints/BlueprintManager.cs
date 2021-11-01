@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PlanBuild.Blueprints
 {
@@ -33,6 +34,8 @@ namespace PlanBuild.Blueprints
         private const float GhostTimeout = 10f;
 
         internal Piece LastHoveredPiece;
+
+        private GameObject BlueprintTooltipPanel;
 
         internal void Init()
         {
@@ -70,6 +73,10 @@ namespace PlanBuild.Blueprints
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
+
+                GUIManager.OnCustomGUIAvailable += () =>
+                    BlueprintTooltipPanel = PrefabManager.Instance.GetPrefab(BlueprintAssets.BlueprintTooltipName);
+                On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
 
                 // Ghost watchdog
                 IEnumerator watchdog()
@@ -408,6 +415,33 @@ namespace PlanBuild.Blueprints
         {
             orig(self);
             Selection.Instance.OnPieceUnload(self);
+        }
+        
+        /// <summary>
+        ///     Display the blueprint tooltip panel when a blueprint building item is hovered
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="self"></param>
+        /// <param name="go"></param>
+        private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
+        {
+            if (!(Hud.instance && BlueprintTooltipPanel))
+            {
+                orig(self, go);
+                return;
+            }
+
+            if (Hud.instance.m_hoveredPiece && Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                string bpname = Hud.instance.m_hoveredPiece.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
+                if (LocalBlueprints.TryGetValue(bpname, out var bp) && bp.Thumbnail != null)
+                {
+                    self.m_tooltipPrefab = BlueprintTooltipPanel;
+                    orig(self, go);
+                    global::Utils.FindChild(UITooltip.m_tooltip.transform, "Image")
+                        .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
+                }
+            }
         }
     }
 }

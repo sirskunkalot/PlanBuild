@@ -4,16 +4,18 @@ using Jotunn.Managers;
 using PlanBuild.Blueprints.Tools;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PlanBuild.Blueprints
 {
     internal class BlueprintAssets
     {
+        public const string BlueprintTooltipName = "BlueprintTooltip";
+
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
         public const string BlueprintRuneName = "BlueprintRune";
-
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
         public const string CategoryBlueprints = "Blueprints";
@@ -41,6 +43,19 @@ namespace PlanBuild.Blueprints
             {
                 prefabs.Add(prefabArray[i].name, prefabArray[i]);
             }
+
+            // Blueprint Tooltip
+            PrefabManager.Instance.AddPrefab(new CustomPrefab(prefabs[BlueprintTooltipName], false));
+            void GUIManagerOnOnCustomGUIAvailable()
+            {
+                var go = PrefabManager.Instance.GetPrefab(BlueprintTooltipName);
+                /*global::Utils.FindChild(go.transform, "Background").GetComponent<Image>().sprite =
+                    GUIManager.Instance.GetSprite("item_background");*/
+                global::Utils.FindChild(go.transform, "Text").GetComponent<Text>().font =
+                    GUIManager.Instance.AveriaSerif;
+                GUIManager.OnCustomGUIAvailable -= GUIManagerOnOnCustomGUIAvailable;
+            }
+            GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
 
             // World Runes
             foreach (string pieceName in new string[]
