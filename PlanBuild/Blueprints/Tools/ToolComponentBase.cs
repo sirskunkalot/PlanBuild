@@ -195,7 +195,7 @@ namespace PlanBuild.Blueprints.Tools
         public void UpdateCameraOffset(float scrollWheel)
         {
             // TODO: base min/max off of selected piece dimensions
-            float minOffset = 2f;
+            float minOffset = 0f;
             float maxOffset = 20f;
             bool scrollingDown = scrollWheel < 0f;
             if (BlueprintConfig.InvertCameraOffsetScrollConfig.Value)
