@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Jotunn.Entities;
@@ -49,14 +50,16 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
+                    Console.instance.Print(
+@$"Usage: {Name} <blueprint_id>
+blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
 
                 var id = args[0];
                 if (BlueprintSync.RemoveLocalBlueprint(id))
                 {
-                    Console.instance.Print($"Removed blueprint {id}\n");
+                    Console.instance.Print($"Removed blueprint {id}");
                 }
             }
         }
@@ -74,7 +77,9 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
+                    Console.instance.Print(
+@$"Usage: {Name} <blueprint_id>
+blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
 
@@ -83,11 +88,11 @@ namespace PlanBuild.Blueprints
                 {
                     if (!success)
                     {
-                        Console.instance.Print($"Could not upload blueprint: {message}\n");
+                        Console.instance.Print($"Could not upload blueprint: {message}");
                     }
                     else
                     {
-                        Console.instance.Print($"Blueprint {id} uploaded\n");
+                        Console.instance.Print($"Blueprint {id} uploaded");
                     }
                 });
             }
@@ -108,7 +113,7 @@ namespace PlanBuild.Blueprints
                 {
                     if (!success)
                     {
-                        Console.instance.Print($"Could not get server list: {message}\n");
+                        Console.instance.Print($"Could not get server list: {message}");
                     }
                     else
                     {
@@ -132,7 +137,9 @@ namespace PlanBuild.Blueprints
             {
                 if (args.Length != 1)
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
+                    Console.instance.Print(
+@$"Usage: {Name} <blueprint_id>
+blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
 
@@ -141,11 +148,11 @@ namespace PlanBuild.Blueprints
                 {
                     if (!success)
                     {
-                        Console.instance.Print($"Could not load blueprint: {message}\n");
+                        Console.instance.Print($"Could not load blueprint: {message}");
                     }
                     else if (BlueprintSync.SaveServerBlueprint(id))
                     {
-                        Console.instance.Print($"Loaded blueprint {id} from server\n");
+                        Console.instance.Print($"Loaded blueprint {id} from server");
                     }
                 });
             }
@@ -162,25 +169,33 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
+                if (args.Length < 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
-                    Console.instance.Print($"Usage: {Name} <blueprint_name>\n");
+                    Console.instance.Print(
+@$"Usage: {Name} <blueprint_id> [<rotation>]
+blueprint_name: ID of the blueprint according to bp.local
+rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;
                 }
                 
                 var id = args[0];
                 if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var bp))
                 {
-                    Console.instance.Print($"Blueprint {id} not found\n");
+                    Console.instance.Print($"Blueprint {id} not found");
                     return;
                 }
 
+                int additionalRot = 0;
+                if (args.Length > 1 && int.TryParse(args[1], out int rot))
+                {
+                    additionalRot = rot;
+                }
                 bp.CreateThumbnail(success =>
                 {
                     Console.instance.Print(success
                         ? $"Created thumbnail for {id}"
                         : $"Could not create thumbnail for {id}");
-                });
+                }, additionalRot);
             }
 
             public override List<string> CommandOptionList()

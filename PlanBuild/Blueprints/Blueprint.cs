@@ -699,7 +699,7 @@ namespace PlanBuild.Blueprints
         ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
         /// </summary>
         /// <param name="callback"></param>
-        public void CreateThumbnail(Action<bool> callback)
+        public void CreateThumbnail(Action<bool> callback, int additionalRotation = 0)
         {
             if (!InstantiateGhost())
             {
@@ -709,7 +709,7 @@ namespace PlanBuild.Blueprints
 
             var req = new RenderManager.RenderRequest(Prefab)
             {
-                Rotation = RenderManager.IsometricRotation,
+                Rotation = RenderManager.IsometricRotation * Quaternion.Euler(0f, additionalRotation, 0f),
                 Width = ThumbnailSize,
                 Height = ThumbnailSize
             };
