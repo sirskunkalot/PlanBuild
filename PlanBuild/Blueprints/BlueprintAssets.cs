@@ -11,6 +11,7 @@ namespace PlanBuild.Blueprints
     internal class BlueprintAssets
     {
         public const string BlueprintTooltipName = "BlueprintTooltip";
+        public static GameObject BlueprintTooltip;
 
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
@@ -45,13 +46,10 @@ namespace PlanBuild.Blueprints
             }
 
             // Blueprint Tooltip
-            PrefabManager.Instance.AddPrefab(new CustomPrefab(prefabs[BlueprintTooltipName], false));
+            BlueprintTooltip = prefabs[BlueprintTooltipName];
             void GUIManagerOnOnCustomGUIAvailable()
             {
-                var go = PrefabManager.Instance.GetPrefab(BlueprintTooltipName);
-                /*global::Utils.FindChild(go.transform, "Background").GetComponent<Image>().sprite =
-                    GUIManager.Instance.GetSprite("item_background");*/
-                global::Utils.FindChild(go.transform, "Text").GetComponent<Text>().font =
+                global::Utils.FindChild(BlueprintTooltip.transform, "Text").GetComponent<Text>().font =
                     GUIManager.Instance.AveriaSerif;
                 GUIManager.OnCustomGUIAvailable -= GUIManagerOnOnCustomGUIAvailable;
             }

@@ -34,8 +34,8 @@ namespace PlanBuild.Blueprints
         private const float GhostTimeout = 10f;
 
         internal Piece LastHoveredPiece;
-
-        private GameObject BlueprintTooltipPanel;
+        
+        private GameObject OriginalTooltip;
 
         internal void Init()
         {
@@ -74,8 +74,7 @@ namespace PlanBuild.Blueprints
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
 
-                GUIManager.OnCustomGUIAvailable += () =>
-                    BlueprintTooltipPanel = PrefabManager.Instance.GetPrefab(BlueprintAssets.BlueprintTooltipName);
+                GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
                 On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
 
                 // Ghost watchdog
@@ -417,6 +416,12 @@ namespace PlanBuild.Blueprints
             Selection.Instance.OnPieceUnload(self);
         }
         
+        // Get all prefabs for this GUI session
+        private void GUIManager_OnCustomGUIAvailable()
+        {
+            OriginalTooltip = PrefabManager.Instance.GetPrefab("Tooltip");
+        }
+
         /// <summary>
         ///     Display the blueprint tooltip panel when a blueprint building item is hovered
         /// </summary>
@@ -425,8 +430,9 @@ namespace PlanBuild.Blueprints
         /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
-            if (!(Hud.instance && BlueprintTooltipPanel))
+            if (!(Hud.instance && BlueprintAssets.BlueprintTooltip && BlueprintConfig.TooltipEnabledConfig.Value))
             {
+                self.m_tooltipPrefab = OriginalTooltip;
                 orig(self, go);
                 return;
             }
@@ -436,8 +442,10 @@ namespace PlanBuild.Blueprints
                 string bpname = Hud.instance.m_hoveredPiece.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
                 if (LocalBlueprints.TryGetValue(bpname, out var bp) && bp.Thumbnail != null)
                 {
-                    self.m_tooltipPrefab = BlueprintTooltipPanel;
+                    self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
                     orig(self, go);
+                    global::Utils.FindChild(UITooltip.m_tooltip.transform, "Background")
+                        .GetComponent<Image>().color = BlueprintConfig.TooltipBackgroundConfig.Value;
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Image")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                 }

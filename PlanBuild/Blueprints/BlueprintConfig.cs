@@ -1,6 +1,7 @@
 ﻿using BepInEx.Configuration;
 using Jotunn.Configs;
 using Jotunn.Managers;
+using On.Steamworks;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -23,6 +24,8 @@ namespace PlanBuild.Blueprints
         internal static ConfigEntry<float> SelectionConnectedMarginConfig;
         internal static ConfigEntry<KeyCode> PlanSwitchConfig;
         internal static ConfigEntry<bool> ShowGridConfig;
+        internal static ConfigEntry<bool> TooltipEnabledConfig;
+        internal static ConfigEntry<Color> TooltipBackgroundConfig;
 
         private const string MarketSection = "Blueprint Market";
         internal static ConfigEntry<bool> AllowServerBlueprints;
@@ -97,6 +100,14 @@ namespace PlanBuild.Blueprints
             ShowGridConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Show the transform bound grid", false,
                 new ConfigDescription("Show a grid around the blueprints' bounds"));
+            
+            TooltipEnabledConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Tooltip enabled", true,
+                new ConfigDescription("Show a tooltip with a bigger thumbnail for blueprint pieces"));
+
+            TooltipBackgroundConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Tooltip Color", new Color(0.13f, 0.13f, 0.13f, 0.65f),
+                new ConfigDescription("Set the background color for the tooltip on blueprint pieces"));
 
             // Market Scetion
 
