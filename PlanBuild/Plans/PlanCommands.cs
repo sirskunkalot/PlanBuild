@@ -26,8 +26,14 @@ namespace PlanBuild.Plans
 
             public override void Run(string[] args)
             {
+                if (!ZNet.instance)
+                {
+                    return;
+                }
+
                 if (!SynchronizationManager.Instance.PlayerIsAdmin)
                 {
+                    Console.instance.Print($"You need to be admin for this");
                     return;
                 }
 
@@ -46,8 +52,14 @@ namespace PlanBuild.Plans
 
             public override void Run(string[] args)
             {
+                if (!ZNet.instance)
+                {
+                    return;
+                }
+
                 if (!SynchronizationManager.Instance.PlayerIsAdmin)
                 {
+                    Console.instance.Print($"You need to be admin for this");
                     return;
                 }
 
@@ -92,8 +104,14 @@ namespace PlanBuild.Plans
 
             public override void Run(string[] args)
             {
+                if (!ZNet.instance)
+                {
+                    return;
+                }
+
                 if (!SynchronizationManager.Instance.PlayerIsAdmin)
                 {
+                    Console.instance.Print($"You need to be admin for this");
                     return;
                 }
 
