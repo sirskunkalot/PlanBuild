@@ -996,7 +996,7 @@ namespace PlanBuild.Blueprints
             {
                 return newbp.Name;
             }
-
+            
             public void SetText(string text)
             {
                 if (string.IsNullOrEmpty(text))
@@ -1035,6 +1035,7 @@ namespace PlanBuild.Blueprints
                     BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
                     Player.m_localPlayer?.UpdateKnownRecipesList();
                     BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+                    Selection.Instance.Clear();
                 });
             }
 
