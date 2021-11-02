@@ -79,7 +79,7 @@ The Blueprint Rune comes with a handful of tools to aid handling blueprint creat
 [/list][*][b]Terrain Tools:[/b] Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
 [list]
 [*]Press [b]Q[/b] to switch between a circle and a square shaped marker.
-[*]Press [b]Ctrl[/b] to remove terrain modifications.
+[*]Press [b]Alt[/b] to remove terrain modifications.
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
 [*]Use [b]Ctrl + Alt + Scroll[/b] to move the marker on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
@@ -139,12 +139,13 @@ Use Vortex to install, or if you want to install it manually, drop the "PlanBuil
 This mod adds interactable objects, so [b]all[/b] clients & server will need this mod!
 
 Most values are configurable:
-
 [list]
 [*]General[list]
 [*]Show all plans, even for pieces you don't know yet (default [b]false[/b])
 [*]Build radius of the Plan Totem (default [b]30[/b])
-[/list]
+[*]Show particle effects when building pieces with the plan totem (default [b]true[/b])
+[*]Comma separated list of prefab names to exclude from the planned piece table for non-admin players (not browsable via Mod Settings, edit 
+directly or via console commands)[/list]
 [*]Blueprint Market[list]
 [*]Allow clients to use the Hotkey to access the marketplace (default [b]true[/b])
 [*]Hotkey for the Blueprint Marketplace GUI (default [b]End[/b])
@@ -155,29 +156,54 @@ Most values are configurable:
 [*]Allow building of blueprints as actual pieces without needing the resources (default [b]false[/b])
 [*]Allow usage of the terrain modification tools (default [b]false[/b])
 [*]Place distance of the Blueprint Rune (default [b]50[/b])
+[*]Show a tooltip with a bigger thumbnail for blueprint pieces (default [b]true[/b])
+[*]Set the background color for the tooltip on blueprint pieces
 [*]Invert and sensitivity options for each input with the scroll wheel
 [/list]
 [*]Directories[list]
 [*]Blueprint search directory (default [b].[/b] (current working directory, usually Valheim game install directory))
 [*]Blueprint save directory (default [b]BepInEx/config/PlanBuild/blueprints[/b])
 [/list]
+[*]Keybinds[list]
+[*]Define your modifier keys for blueprint and terrain tools
+[/list]
 [*]Visual[list]
 [*]Apply plan shader to ghost placement (currently placing piece) (default [b]false[/b])
 [*]Color of unsupported plan pieces (default [b]10% white[/b])
 [*]Color of supported plan pieces (default [b]50% white[/b])
 [*]Additional transparency for finer control (default [b]30%[/b])
+[*]Color of the glowing lines on the Plan totem (default [b]cyan[/b])
 [/list]
-[/list]Source available on GitHub: [url=https://github.com/sirskunkalot/PlanBuild]https://github.com/sirskunkalot/PlanBuild[/url]﻿. 
+[/list]
 
-All contributions welcome!
+[size=5][b]Console commands[/b][/size]
 
-You can also find us at the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url].
+PlanBuild adds some new console commands to the game:
+[list]
+[*][b]bp.local[/b] - Get the list of your local blueprints
+[*][b]bp.remove[/b] - [blueprint_id] Remove a local blueprint
+[*][b]bp.push[/b] - [blueprint_id] Upload a local blueprint to the current connected server
+[*][b]bp.server[/b] - [blueprint_id] Get the list of the current connected servers blueprints
+[*][b]bp.pull[/b] - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
+[*][b]bp.thumbnail[/b] - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, 
+optionally provide additional rotation of the blueprint on the thumbnail[*][b]bp.regenthumbnails[/b] - Create a new thumbnail for all local blueprints
+[*][b]plan.blacklist.print[/b] - Print out the server's plan blacklist
+[*][b]plan.blacklist.add[/b] - [prefab_name] Add a prefab to the server's plan blacklist
+[*][b]plan.blacklist.remove[/b] - [prefab_name] Removes a prefab from the server's plan blacklist
+[/list]
 
 [size=5][b]Building community[/b][/size]
 
 Head over to the [url=https://www.valheimians.com]Valheimians[/url] page to find a community of builders and share your own creations. PlanBuild blueprints are supported.
 
 [size=5][b]Credits[/b][/size]
+
+Source available on GitHub: [url=https://github.com/sirskunkalot/PlanBuild]https://github.com/sirskunkalot/PlanBuild[/url]﻿. 
+
+All contributions welcome!
+
+You can also find us at the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url].
+
 The original PlanBuild mod was created by [b][url=https://github.com/MathiasDecrock]MarcoPogo[/url][/b]
 
 Blueprint functionality originally created by [b][url=https://github.com/Algorithman]Algorithman[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
