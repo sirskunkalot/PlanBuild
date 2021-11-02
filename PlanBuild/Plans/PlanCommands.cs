@@ -42,7 +42,7 @@ namespace PlanBuild.Plans
         {
             public override string Name => "plan.blacklist.add";
 
-            public override string Help => "Add a prefab to the server's plan blacklist";
+            public override string Help => "[prefab_name] Add a prefab to the server's plan blacklist";
 
             public override void Run(string[] args)
             {
@@ -53,7 +53,7 @@ namespace PlanBuild.Plans
 
                 if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
-                    Console.instance.Print($"Usage: {Name} <prefab_name>");
+                    Console.instance.Print($"Usage: {Name} [prefab_name]");
                     return;
                 }
 
@@ -88,7 +88,7 @@ namespace PlanBuild.Plans
         {
             public override string Name => "plan.blacklist.remove";
 
-            public override string Help => "Removes a prefab from the server's plan blacklist";
+            public override string Help => "[prefab_name] Removes a prefab from the server's plan blacklist";
 
             public override void Run(string[] args)
             {
@@ -99,7 +99,7 @@ namespace PlanBuild.Plans
 
                 if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
-                    Console.instance.Print($"Usage: {Name} <prefab_name>");
+                    Console.instance.Print($"Usage: {Name} [prefab_name]");
                     return;
                 }
 

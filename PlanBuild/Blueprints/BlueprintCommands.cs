@@ -44,14 +44,14 @@ namespace PlanBuild.Blueprints
         {
             public override string Name => "bp.remove";
 
-            public override string Help => "Remove a local blueprint";
+            public override string Help => "[blueprint_id] Remove a local blueprint";
 
             public override void Run(string[] args)
             {
                 if (args.Length != 1)
                 {
                     Console.instance.Print(
-@$"Usage: {Name} <blueprint_id>
+@$"Usage: {Name} [blueprint_id]
 blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
@@ -71,14 +71,14 @@ blueprint_name: ID of the blueprint according to bp.local");
         {
             public override string Name => "bp.push";
 
-            public override string Help => "Upload a local blueprint to the current connected server";
+            public override string Help => "[blueprint_id] Upload a local blueprint to the current connected server";
 
             public override void Run(string[] args)
             {
                 if (args.Length != 1)
                 {
                     Console.instance.Print(
-@$"Usage: {Name} <blueprint_id>
+@$"Usage: {Name} [blueprint_id]
 blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
@@ -105,7 +105,7 @@ blueprint_name: ID of the blueprint according to bp.local");
         {
             public override string Name => "bp.server";
 
-            public override string Help => "Get the list of the current connected servers blueprints";
+            public override string Help => "[blueprint_id] Get the list of the current connected servers blueprints";
 
             public override void Run(string[] args)
             {
@@ -131,14 +131,14 @@ blueprint_name: ID of the blueprint according to bp.local");
         {
             public override string Name => "bp.pull";
 
-            public override string Help => "Load a blueprint from the current connected server and add it to your local blueprints";
+            public override string Help => "[blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints";
 
             public override void Run(string[] args)
             {
                 if (args.Length != 1)
                 {
                     Console.instance.Print(
-@$"Usage: {Name} <blueprint_id>
+@$"Usage: {Name} [blueprint_id]
 blueprint_name: ID of the blueprint according to bp.local");
                     return;
                 }
@@ -165,14 +165,14 @@ blueprint_name: ID of the blueprint according to bp.local");
         {
             public override string Name => "bp.thumbnail";
 
-            public override string Help => "Create a new thumbnail for a blueprint from the actual blueprint data";
+            public override string Help => "[blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data";
 
             public override void Run(string[] args)
             {
                 if (args.Length < 1 || string.IsNullOrWhiteSpace(args[0]))
                 {
                     Console.instance.Print(
-@$"Usage: {Name} <blueprint_id> [<rotation>]
+@$"Usage: {Name} [blueprint_id] ([rotation])
 blueprint_name: ID of the blueprint according to bp.local
 rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;

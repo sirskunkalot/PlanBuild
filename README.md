@@ -132,14 +132,18 @@ The Hammer's PieceTable is scanned automatically, mods that add Pieces should be
 
 ## Installing
 
-Use Vortex to install, or if you want to install it manually, drop the "PlanBuild" folder into BepInEx\plugins (so you end up with BepInEx\plugins\PlanBuild). Make sure to include all files, not just the DLL!
+Use a mod manager to install, or if you want to install it manually, drop the "PlanBuild" folder into BepInEx\plugins (so you end up with BepInEx\plugins\PlanBuild). Make sure to include all files, not just the DLL!
 
 This mod adds interactable objects, so __all__ clients & server will need this mod!
 
-Most values are configurable:
+## Configuration
+
+A lot aspects of this mod are configurable:
 * General
     * Show all plans, even for pieces you don't know yet (default __false__)
     * Build radius of the Plan Totem (default __30__)
+    * Show particle effects when building pieces with the plan totem (default __true__)
+    * Comma separated list of prefab names to exclude from the planned piece table for non-admin players (not browsable via Mod Settings, edit directly or via console commands)
 * Blueprint Market
     * Allow clients to use the Hotkey to access the marketplace (default __true__)
     * Hotkey for the Blueprint Marketplace GUI (default __End__)
@@ -149,15 +153,34 @@ Most values are configurable:
     * Allow building of blueprints as actual pieces without needing the resources (default __false__)
     * Allow usage of the terrain modification tools (default __false__)
     * Place distance of the Blueprint Rune (default __50__)
+    * Show a tooltip with a bigger thumbnail for blueprint pieces (default __true__)
+    * Set the background color for the tooltip on blueprint pieces
     * Invert and sensitivity options for each input with the scroll wheel
 * Directories
     * Blueprint search directory (default __.__ (current working directory, usually Valheim game install directory))
     * Blueprint save directory (default __BepInEx/config/PlanBuild/blueprints__)
+* Keybinds
+    * Define your modifier keys for blueprint and terrain tools
 * Visual
     * Apply plan shader to ghost placement (currently placing piece) (default __false__)
     * Color of unsupported plan pieces (default __10% white__)
     * Color of supported plan pieces (default __50% white__)
     * Additional transparency for finer control (default __30%__)
+    * Color of the glowing lines on the Plan totem (default __cyan__)
+    
+## Console commands
+
+PlanBuild adds some new console commands to the game:
+* __bp.local__ - Get the list of your local blueprints
+* __bp.remove__ - [blueprint_id] Remove a local blueprint
+* __bp.push__ - [blueprint_id] Upload a local blueprint to the current connected server
+* __bp.server__ - [blueprint_id] Get the list of the current connected servers blueprints
+* __bp.pull__ - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
+* __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
+* __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints
+* __plan.blacklist.print__ - Print out the server's plan blacklist
+* __plan.blacklist.add__ - [prefab_name] Add a prefab to the server's plan blacklist
+* __plan.blacklist.remove__ - [prefab_name] Removes a prefab from the server's plan blacklist
 
 Source available on GitHub: [https://github.com/sirskunkalot/PlanBuild](https://github.com/sirskunkalot/PlanBuild)﻿. All contributions welcome!
 
