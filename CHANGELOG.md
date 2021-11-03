@@ -1,5 +1,6 @@
 # Version 0.8.2
-* Fixed selection not resetting on capture
+* Fixed selection not resetting after capture
+* Fixed Gizmo Reloaded rotation patch
 
 # Version 0.8.1
 * Fixed tooltip display on inventory items
