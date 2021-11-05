@@ -1,3 +1,6 @@
+# Version 0.8.3
+* Fixed redundant blueprint manager GameObject when placing directly
+
 # Version 0.8.2
 * Fixed selection not resetting after capture
 * Fixed Gizmo Reloaded rotation patch
