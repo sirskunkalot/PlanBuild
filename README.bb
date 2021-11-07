@@ -108,8 +108,9 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 [*]Use [b]Ctrl + Alt + Scroll[/b] to move the blueprint on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint.
-[/list][size=5][b]
-Blueprint Marketplace[/b][/size]
+[/list]
+
+[size=5][b]Blueprint Marketplace[/b][/size]
 
 [img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMarket.png[/img]
 
@@ -130,6 +131,7 @@ Compatible with:
 [*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]﻿   
 [*]﻿[url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url]
 Placing blueprints on rafts work, still working on capturing rafts[/list]
+
 The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, try toggling the Blueprint Rune with [b]P[/b] which will trigger a rescan. If it still doesn't work, please post a bug report with a link to the mod.
 
 [size=5][b]Installing[/b][/size]
@@ -183,7 +185,7 @@ PlanBuild adds some new console commands to the game:
 [*][b]bp.local[/b] - Get the list of your local blueprints
 [*][b]bp.remove[/b] - [blueprint_id] Remove a local blueprint
 [*][b]bp.push[/b] - [blueprint_id] Upload a local blueprint to the current connected server
-[*][b]bp.server[/b] - [blueprint_id] Get the list of the current connected servers blueprints
+[*][b]bp.server[/b] - Get the list of the current connected servers blueprints
 [*][b]bp.pull[/b] - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
 [*][b]bp.thumbnail[/b] - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, 
 optionally provide additional rotation of the blueprint on the thumbnail[*][b]bp.regenthumbnails[/b] - Create a new thumbnail for all local blueprints

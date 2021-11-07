@@ -174,7 +174,7 @@ PlanBuild adds some new console commands to the game:
 * __bp.local__ - Get the list of your local blueprints
 * __bp.remove__ - [blueprint_id] Remove a local blueprint
 * __bp.push__ - [blueprint_id] Upload a local blueprint to the current connected server
-* __bp.server__ - [blueprint_id] Get the list of the current connected servers blueprints
+* __bp.server__ - Get the list of the current connected servers blueprints
 * __bp.pull__ - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
 * __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
 * __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints

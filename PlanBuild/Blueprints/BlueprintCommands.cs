@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Jotunn.Entities;
+using Jotunn.Managers;
+using PlanBuild.Blueprints.Marketplace;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using PlanBuild.Blueprints.Marketplace;
 
 namespace PlanBuild.Blueprints
 {
@@ -105,7 +104,7 @@ blueprint_name: ID of the blueprint according to bp.local");
         {
             public override string Name => "bp.server";
 
-            public override string Help => "[blueprint_id] Get the list of the current connected servers blueprints";
+            public override string Help => "Get the list of the current connected servers blueprints";
 
             public override void Run(string[] args)
             {
@@ -139,7 +138,7 @@ blueprint_name: ID of the blueprint according to bp.local");
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id]
-blueprint_name: ID of the blueprint according to bp.local");
+blueprint_name: ID of the blueprint according to bp.server");
                     return;
                 }
 
@@ -177,7 +176,7 @@ blueprint_name: ID of the blueprint according to bp.local
 rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;
                 }
-                
+
                 var id = args[0];
                 if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var bp))
                 {
