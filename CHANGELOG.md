@@ -1,3 +1,6 @@
+# Version 0.8.4
+* Fixed capturing and placing of meta pieces
+
 # Version 0.8.3
 * Fixed redundant blueprint manager GameObject when placing directly
 

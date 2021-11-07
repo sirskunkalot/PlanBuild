@@ -101,6 +101,12 @@ namespace PlanBuild.Blueprints.Tools
 
                 // Final rotation
                 Quaternion entryQuat = transform.rotation * entry.GetRotation();
+                
+                // Dont place an erroneously captured piece_blueprint
+                if (entry.name == Blueprint.PieceBlueprintName)
+                {
+                    continue;
+                }
 
                 // Dont place blacklisted pieces
                 if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))

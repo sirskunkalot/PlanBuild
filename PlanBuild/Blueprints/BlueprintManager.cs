@@ -115,6 +115,11 @@ namespace PlanBuild.Blueprints
                 return true;
             }
 
+            if (piece.name.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                return false;
+            }
+
             if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(piece))
             {
                 return false;
