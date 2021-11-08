@@ -1,5 +1,6 @@
 # Version 0.8.4
 * Fixed capturing and placing of meta pieces
+* Fixed breaking terrain mesh when making large changes at zone borders
 
 # Version 0.8.3
 * Fixed redundant blueprint manager GameObject when placing directly

@@ -36,15 +36,17 @@ namespace PlanBuild.Blueprints
 
             try
             {
-                TerrainOp.Settings settings = new TerrainOp.Settings();
-                settings.m_raise = true;
-                settings.m_raiseRadius = radius;
-                settings.m_raisePower = 3f;
-                settings.m_square = square;
-                settings.m_paintRadius = radius * 1.1f;
-                settings.m_paintType = TerrainModifier.PaintType.Dirt;
+                TerrainOp.Settings settings = new TerrainOp.Settings
+                {
+                    m_raise = true,
+                    m_raiseRadius = radius,
+                    m_raisePower = 3f,
+                    m_square = square,
+                    m_paintRadius = radius,
+                    m_paintType = TerrainModifier.PaintType.Dirt
+                };
 
-                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
+                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius + 1f))
                 {
                     comp.DoOperation(transform.position, settings);
                 }
@@ -86,7 +88,7 @@ namespace PlanBuild.Blueprints
                 Vector3 startPosition = transform.position;
 
                 List<TerrainModifier> modifiers = new List<TerrainModifier>();
-                TerrainModifier.GetModifiers(startPosition, radius + 0.1f, modifiers);
+                TerrainModifier.GetModifiers(startPosition, radius + 1f, modifiers);
                 int tmodcnt = 0;
                 foreach (TerrainModifier modifier in modifiers)
                 {
@@ -100,7 +102,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 int tcompcnt = 0;
-                foreach (TerrainComp comp in GetTerrainComp(startPosition, radius + 0.1f))
+                foreach (TerrainComp comp in GetTerrainComp(startPosition, radius + 1f))
                 {
                     Heightmap hmap = comp.m_hmap;
                     hmap.WorldToVertex(startPosition, out int x, out int y);
