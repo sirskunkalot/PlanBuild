@@ -28,7 +28,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.8.3";
+        public const string PluginVersion = "0.8.4";
 
         public static PlanBuildPlugin Instance;
 
