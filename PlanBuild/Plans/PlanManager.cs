@@ -43,7 +43,7 @@ namespace PlanBuild.Plans
                 orig(self);
                 PlanDB.Instance.ScanPieceTables();
             };
-            On.Player.UpdateAvailablePiecesList += OnPlayerUpdateAvailablePiecesList; 
+            On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
@@ -108,10 +108,10 @@ namespace PlanBuild.Plans
             // Needs to run only once
             PieceManager.OnPiecesRegistered -= CreatePlanTable;
         }
-
-        private void OnPlayerUpdateAvailablePiecesList(On.Player.orig_UpdateAvailablePiecesList orig, Player self)
+        
+        private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
         {
-            // Prefix the recipe loading for the plans to avoid spamming unlock messages 
+            // Prefix the recipe loading for the plans to avoid spamming unlock messages
             UpdateKnownRecipes();
             orig(self);
         }
