@@ -42,6 +42,7 @@ namespace PlanBuild.Plans
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Browsable = false }));
 
             ShowAllPieces.SettingChanged += (obj, attr) => PlanManager.Instance.UpdateKnownRecipes();
+            PlanBlacklistConfig.SettingChanged += (obj, attr) => PlanManager.Instance.UpdateKnownRecipes();
             //RadiusConfig.SettingChanged += (_, _) => PlanManager.Instance.UpdateAllPlanTotems();  // that doesnt change the radius...
             //PlanBlacklistConfig.SettingChanged += (sender, args) => PlanBlacklist.Reload();
 
