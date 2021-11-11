@@ -1,3 +1,6 @@
+# Version 0.8.5
+* Lowered the scanning runs for new plan prefabs
+
 # Version 0.8.4
 * Fixed capturing and placing of meta pieces
 * Fixed breaking terrain mesh when making large changes at zone borders

@@ -17,7 +17,7 @@ namespace PlanBuild.Plans
         {
             Reload();
             SynchronizationManager.OnConfigurationSynchronized += (sender, args) => Reload();
-            SynchronizationManager.OnAdminStatusChanged += () => Player.m_localPlayer?.UpdateKnownRecipesList();
+            SynchronizationManager.OnAdminStatusChanged += PlanManager.Instance.UpdateKnownRecipes;
         }
         
         public static void Reload()
@@ -37,7 +37,7 @@ namespace PlanBuild.Plans
                 Hashes.Add(hash);
             }
 
-            Player.m_localPlayer?.UpdateKnownRecipesList();
+            PlanManager.Instance.UpdateKnownRecipes();
         }
 
         public static List<string> GetNames()
