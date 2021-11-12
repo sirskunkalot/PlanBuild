@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Jotunn.Entities;
+using System.Collections;
 
 namespace PlanBuild.Blueprints.Marketplace
 {
@@ -108,12 +109,12 @@ namespace PlanBuild.Blueprints.Marketplace
             }
         }
         
-        private static void GetListRPC_OnServerReceive(long sender, ZPackage pkg)
+        private static IEnumerator GetListRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                return;
+                yield break;
             }
 
             Logger.LogDebug($"Sending blueprint data to peer #{sender}");
@@ -123,14 +124,14 @@ namespace PlanBuild.Blueprints.Marketplace
             GetListRPC.SendPackage(sender, BlueprintManager.LocalBlueprints.ToZPackage());
         }
 
-        private static void GetListRPC_OnClientReceive(long sender, ZPackage pkg)
+        private static IEnumerator GetListRPC_OnClientReceive(long sender, ZPackage pkg)
         {
             if (sender == ZNet.instance.GetServerPeer().m_uid)
             {
                 // Globally disabled
                 if (!BlueprintConfig.AllowServerBlueprints.Value)
                 {
-                    return;
+                    yield break;
                 }
 
                 Logger.LogDebug("Received blueprints from server");
@@ -331,19 +332,19 @@ namespace PlanBuild.Blueprints.Marketplace
             }
         }
         
-        private static void PushBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
+        private static IEnumerator PushBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                return;
+                yield break;
             }
 
             // Peer unknown
             var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
             if (peer == null)
             {
-                return;
+                yield break;
             }
 
             Logger.LogDebug($"Received blueprint from peer #{sender}");
@@ -382,18 +383,18 @@ namespace PlanBuild.Blueprints.Marketplace
             PushBlueprintRPC.SendPackage(sender, package);
         }
 
-        private static void PushBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
+        private static IEnumerator PushBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                return;
+                yield break;
             }
 
             // Message not from server
             if (sender != ZRoutedRpc.instance.GetServerPeerID())
             {
-                return;
+                yield break;
             }
 
             Logger.LogDebug($"Received push answer from server");
@@ -561,19 +562,19 @@ namespace PlanBuild.Blueprints.Marketplace
             }
         }
         
-        private static void RemoveServerBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
+        private static IEnumerator RemoveServerBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                return;
+                yield break;
             }
 
             // Peer unknown
             var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
             if (peer == null)
             {
-                return;
+                yield break;
             }
 
             Logger.LogDebug($"Received blueprint removal request from peer #{sender}");
@@ -609,17 +610,17 @@ namespace PlanBuild.Blueprints.Marketplace
             RemoveServerBlueprintRPC.SendPackage(sender, package);
         }
 
-        private static void RemoveServerBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
+        private static IEnumerator RemoveServerBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
             {
-                return;
+                yield break;
             }
 
             if (sender != ZRoutedRpc.instance.GetServerPeerID())
             {
-                return;
+                yield break;
             }
 
             Logger.LogDebug($"Received remove answer from server");
