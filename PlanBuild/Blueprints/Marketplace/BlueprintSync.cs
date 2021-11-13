@@ -20,15 +20,12 @@ namespace PlanBuild.Blueprints.Marketplace
         public static void Init()
         {
             GetLocalBlueprints();
-            GetListRPC = NetworkManager.Instance.GetRPC(nameof(GetListRPC));
-            GetListRPC.OnServerReceive += GetListRPC_OnServerReceive;
-            GetListRPC.OnClientReceive += GetListRPC_OnClientReceive;
-            PushBlueprintRPC = NetworkManager.Instance.GetRPC(nameof(PushBlueprintRPC));
-            PushBlueprintRPC.OnServerReceive += PushBlueprintRPC_OnServerReceive;
-            PushBlueprintRPC.OnClientReceive += PushBlueprintRPC_OnClientReceive;
-            RemoveServerBlueprintRPC = NetworkManager.Instance.GetRPC(nameof(RemoveServerBlueprintRPC));
-            RemoveServerBlueprintRPC.OnServerReceive += RemoveServerBlueprintRPC_OnServerReceive;
-            RemoveServerBlueprintRPC.OnClientReceive += RemoveServerBlueprintRPC_OnClientReceive;
+            GetListRPC = NetworkManager.Instance.GetRPC(
+                nameof(GetListRPC), GetListRPC_OnServerReceive, GetListRPC_OnClientReceive);
+            PushBlueprintRPC = NetworkManager.Instance.GetRPC(
+                nameof(PushBlueprintRPC), PushBlueprintRPC_OnServerReceive, PushBlueprintRPC_OnClientReceive);
+            RemoveServerBlueprintRPC = NetworkManager.Instance.GetRPC(
+                nameof(RemoveServerBlueprintRPC), RemoveServerBlueprintRPC_OnServerReceive, RemoveServerBlueprintRPC_OnClientReceive);
             On.ZNet.OnDestroy += ResetServerBlueprints;
         }
 
