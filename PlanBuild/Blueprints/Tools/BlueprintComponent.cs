@@ -54,7 +54,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 catch (Exception ex)
                 {
-                    Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}");
+                    Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
                 }
             }
 
@@ -138,6 +138,11 @@ namespace PlanBuild.Blueprints.Tools
 
                 // Instantiate a new object with the new prefab
                 GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
+                if(!gameObject)
+                {
+                    Jotunn.Logger.LogWarning($"Invalid PieceEntry: {entry.name}");
+                    continue;
+                }
                 OnPiecePlaced(gameObject);
 
                 ZNetView zNetView = gameObject.GetComponent<ZNetView>();
