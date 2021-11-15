@@ -1,5 +1,6 @@
 # Version 0.8.5
 * Lowered the scanning runs for new plan prefabs
+* Fixed a NRE when a game object can be found but not instantiated
 
 # Version 0.8.4
 * Fixed capturing and placing of meta pieces
