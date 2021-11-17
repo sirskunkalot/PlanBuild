@@ -698,13 +698,12 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
         /// </summary>
-        /// <param name="callback"></param>
-        public void CreateThumbnail(Action<bool> callback, int additionalRotation = 0)
+        /// <param name="additionalRotation">Rotation added to the base rotation of the rendered prefab on the Y-axis</param>
+        public bool CreateThumbnail(int additionalRotation = 0)
         {
             if (!InstantiateGhost())
             {
-                callback(false);
-                return;
+                return false;
             }
 
             var req = new RenderManager.RenderRequest(Prefab)
@@ -713,19 +712,19 @@ namespace PlanBuild.Blueprints
                 Width = ThumbnailSize,
                 Height = ThumbnailSize
             };
-            RenderManager.Instance.EnqueueRender(req, sprite =>
-            {
-                if (sprite == null)
-                {
-                    callback(false);
-                    return;
-                }
+            
+            var sprite = RenderManager.Instance.Render(req);
 
-                Thumbnail = sprite.texture;
-                File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
-                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-                callback(true);
-            });
+            if (sprite == null)
+            {
+                return false;
+            }
+
+            Thumbnail = sprite.texture;
+            File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
+            Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
+            
+            return true;
         }
 
         /// <summary>
@@ -1029,14 +1028,12 @@ namespace PlanBuild.Blueprints
                 {
                     return;
                 }
-
-                newbp.CreateThumbnail(success =>
-                {
-                    BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                    Player.m_localPlayer?.UpdateKnownRecipesList();
-                    BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-                    Selection.Instance.Clear();
-                });
+                
+                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
+                Selection.Instance.Clear();
+                newbp.CreateThumbnail();
+                Player.m_localPlayer?.UpdateKnownRecipesList();
+                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
             }
 
             /*/// <summary>
