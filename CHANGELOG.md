@@ -1,3 +1,8 @@
+# Version 0.8.5
+* Fixed syncing of blueprints from the server
+* Fixed replacing of blueprints on capture not writing files
+* Needs Jötunn v2.4.0 which needs to be installed on the server, too
+
 # Version 0.8.4
 * Fixed capturing and placing of meta pieces
 * Fixed breaking terrain mesh when making large changes at zone borders
