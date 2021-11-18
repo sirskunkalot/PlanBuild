@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Jotunn.Entities;
+using System.Collections;
 
 namespace PlanBuild.Blueprints.Marketplace
 {
@@ -11,19 +13,20 @@ namespace PlanBuild.Blueprints.Marketplace
     {
         private static Action<bool, string> OnAnswerReceived;
 
+        private static CustomRPC GetListRPC;
+        private static CustomRPC PushBlueprintRPC;
+        private static CustomRPC RemoveServerBlueprintRPC;
+
         public static void Init()
         {
             GetLocalBlueprints();
-            On.Game.Start += RegisterRPC;
+            GetListRPC = NetworkManager.Instance.AddRPC(
+                nameof(GetListRPC), GetListRPC_OnServerReceive, GetListRPC_OnClientReceive);
+            PushBlueprintRPC = NetworkManager.Instance.AddRPC(
+                nameof(PushBlueprintRPC), PushBlueprintRPC_OnServerReceive, PushBlueprintRPC_OnClientReceive);
+            RemoveServerBlueprintRPC = NetworkManager.Instance.AddRPC(
+                nameof(RemoveServerBlueprintRPC), RemoveServerBlueprintRPC_OnServerReceive, RemoveServerBlueprintRPC_OnClientReceive);
             On.ZNet.OnDestroy += ResetServerBlueprints;
-        }
-
-        private static void RegisterRPC(On.Game.orig_Start orig, Game self)
-        {
-            orig(self);
-            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_GetServerBlueprints), new Action<long, ZPackage>(RPC_PlanBuild_GetServerBlueprints));
-            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_PushBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_PushBlueprint));
-            ZRoutedRpc.instance.Register(nameof(RPC_PlanBuild_RemoveServerBlueprint), new Action<long, ZPackage>(RPC_PlanBuild_RemoveServerBlueprint));
         }
 
         /// <summary>
@@ -94,12 +97,61 @@ namespace PlanBuild.Blueprints.Marketplace
                 {
                     Logger.LogMessage("Requesting server blueprint list");
                     OnAnswerReceived += callback;
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_GetServerBlueprints), new ZPackage());
+                    GetListRPC.Initiate();
                 }
             }
             else
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+            }
+        }
+        
+        private static IEnumerator GetListRPC_OnServerReceive(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
+            {
+                yield break;
+            }
+
+            Logger.LogDebug($"Sending blueprint data to peer #{sender}");
+
+            // Reload and send current blueprint list in BlueprintManager back to the original sender
+            GetLocalBlueprints();
+            GetListRPC.SendPackage(sender, BlueprintManager.LocalBlueprints.ToZPackage());
+        }
+
+        private static IEnumerator GetListRPC_OnClientReceive(long sender, ZPackage pkg)
+        {
+            if (sender == ZNet.instance.GetServerPeer().m_uid)
+            {
+                // Globally disabled
+                if (!BlueprintConfig.AllowServerBlueprints.Value)
+                {
+                    yield break;
+                }
+
+                Logger.LogDebug("Received blueprints from server");
+
+                // Deserialize list, call delegates and finally clear delegates
+                bool success = true;
+                string message = string.Empty;
+                try
+                {
+                    BlueprintManager.ServerBlueprints.Clear();
+                    BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg);
+                    BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                }
+                catch (Exception ex)
+                {
+                    success = false;
+                    message = ex.Message;
+                }
+                finally
+                {
+                    OnAnswerReceived?.Invoke(success, message);
+                    OnAnswerReceived = null;
+                }
             }
         }
 
@@ -108,7 +160,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="pkg"></param>
-        private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
+        /*private static void RPC_PlanBuild_GetServerBlueprints(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
@@ -159,7 +211,7 @@ namespace PlanBuild.Blueprints.Marketplace
                     }
                 }
             }
-        }
+        }*/
 
         /// <summary>
         ///     Write the local blueprint to disk again
@@ -240,7 +292,7 @@ namespace PlanBuild.Blueprints.Marketplace
                 {
                     Logger.LogMessage($"Sending blueprint {id} to server");
                     OnAnswerReceived += callback;
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
+                    PushBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), blueprint.ToZPackage());
                 }
             }
             else
@@ -268,12 +320,102 @@ namespace PlanBuild.Blueprints.Marketplace
                 {
                     Logger.LogMessage($"Sending blueprint {id} to server");
                     OnAnswerReceived += callback;
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_PushBlueprint), blueprint.ToZPackage());
+                    PushBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), blueprint.ToZPackage());
                 }
             }
             else
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+            }
+        }
+        
+        private static IEnumerator PushBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
+            {
+                yield break;
+            }
+
+            // Peer unknown
+            var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
+            if (peer == null)
+            {
+                yield break;
+            }
+
+            Logger.LogDebug($"Received blueprint from peer #{sender}");
+
+            // Deserialize blueprint
+            bool success = true;
+            string message = string.Empty;
+            try
+            {
+                Blueprint bp = Blueprint.FromZPackage(pkg);
+                if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID) && !ZNet.instance.IsAdmin(sender))
+                {
+                    throw new Exception(Localization.instance.Localize("$msg_bpmarket_admin_restricted"));
+                }
+                if (!bp.ToFile())
+                {
+                    throw new Exception(Localization.instance.Localize("$msg_bpmarket_save_failed"));
+                }
+                if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
+                {
+                    BlueprintManager.LocalBlueprints.Remove(bp.ID);
+                }
+                BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+                message = bp.ID;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message;
+            }
+
+            // Invoke answer response
+            ZPackage package = new ZPackage();
+            package.Write(success);
+            package.Write(message);
+            PushBlueprintRPC.SendPackage(sender, package);
+        }
+
+        private static IEnumerator PushBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
+            {
+                yield break;
+            }
+
+            // Message not from server
+            if (sender != ZRoutedRpc.instance.GetServerPeerID())
+            {
+                yield break;
+            }
+
+            Logger.LogDebug($"Received push answer from server");
+
+            // Check answer
+            bool success = pkg.ReadBool();
+            string message = pkg.ReadString();
+            try
+            {
+                if (success)
+                {
+                    // TODO: this needs a flag if it was a local or server push
+                    if (!BlueprintManager.ServerBlueprints.ContainsKey(message))
+                    {
+                        BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp);
+                        BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
+                        BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                    }
+                }
+            }
+            finally
+            {
+                OnAnswerReceived?.Invoke(success, message);
+                OnAnswerReceived = null;
             }
         }
 
@@ -282,7 +424,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="pkg"></param>
-        private static void RPC_PlanBuild_PushBlueprint(long sender, ZPackage pkg)
+        /*private static void RPC_PlanBuild_PushBlueprint(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
@@ -361,7 +503,7 @@ namespace PlanBuild.Blueprints.Marketplace
                     }
                 }
             }
-        }
+        }*/
 
         /// <summary>
         ///     Delete a local blueprint from the game and filesystem
@@ -408,12 +550,96 @@ namespace PlanBuild.Blueprints.Marketplace
                     OnAnswerReceived += callback;
                     ZPackage package = new ZPackage();
                     package.Write(id);
-                    ZRoutedRpc.instance.InvokeRoutedRPC(nameof(RPC_PlanBuild_RemoveServerBlueprint), package);
+                    RemoveServerBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), package);
                 }
             }
             else
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+            }
+        }
+        
+        private static IEnumerator RemoveServerBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
+            {
+                yield break;
+            }
+
+            // Peer unknown
+            var peer = ZNet.instance.m_peers.FirstOrDefault(x => x.m_uid == sender);
+            if (peer == null)
+            {
+                yield break;
+            }
+
+            Logger.LogDebug($"Received blueprint removal request from peer #{sender}");
+
+            // Remove blueprint
+            bool success = true;
+            string message = string.Empty;
+            try
+            {
+                string id = pkg.ReadString();
+                if (BlueprintManager.LocalBlueprints.ContainsKey(id) && !ZNet.instance.IsAdmin(sender))
+                {
+                    throw new Exception(Localization.instance.Localize("$msg_bpmarket_admin_restricted"));
+                }
+                if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
+                {
+                    Logger.LogMessage($"Removing blueprint {id} from server");
+                    blueprint.DestroyBlueprint();
+                    BlueprintManager.LocalBlueprints.Remove(id);
+                }
+                message = id;
+            }
+            catch (Exception ex)
+            {
+                success = false;
+                message = ex.Message;
+            }
+
+            // Invoke answer response
+            ZPackage package = new ZPackage();
+            package.Write(success);
+            package.Write(message);
+            RemoveServerBlueprintRPC.SendPackage(sender, package);
+        }
+
+        private static IEnumerator RemoveServerBlueprintRPC_OnClientReceive(long sender, ZPackage pkg)
+        {
+            // Globally disabled
+            if (!BlueprintConfig.AllowServerBlueprints.Value)
+            {
+                yield break;
+            }
+
+            if (sender != ZRoutedRpc.instance.GetServerPeerID())
+            {
+                yield break;
+            }
+
+            Logger.LogDebug($"Received remove answer from server");
+
+            // Check answer
+            bool success = pkg.ReadBool();
+            string message = pkg.ReadString();
+            try
+            {
+                if (success)
+                {
+                    if (BlueprintManager.ServerBlueprints.ContainsKey(message))
+                    {
+                        BlueprintManager.ServerBlueprints.Remove(message);
+                        BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                    }
+                }
+            }
+            finally
+            {
+                OnAnswerReceived?.Invoke(success, message);
+                OnAnswerReceived = null;
             }
         }
 
@@ -422,7 +648,7 @@ namespace PlanBuild.Blueprints.Marketplace
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="pkg"></param>
-        private static void RPC_PlanBuild_RemoveServerBlueprint(long sender, ZPackage pkg)
+        /*private static void RPC_PlanBuild_RemoveServerBlueprint(long sender, ZPackage pkg)
         {
             // Globally disabled
             if (!BlueprintConfig.AllowServerBlueprints.Value)
@@ -496,7 +722,7 @@ namespace PlanBuild.Blueprints.Marketplace
                     }
                 }
             }
-        }
+        }*/
 
         private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
         {

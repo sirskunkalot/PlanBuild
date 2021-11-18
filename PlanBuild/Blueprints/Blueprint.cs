@@ -698,13 +698,12 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
         /// </summary>
-        /// <param name="callback"></param>
-        public void CreateThumbnail(Action<bool> callback, int additionalRotation = 0)
+        /// <param name="additionalRotation">Rotation added to the base rotation of the rendered prefab on the Y-axis</param>
+        public bool CreateThumbnail(int additionalRotation = 0)
         {
             if (!InstantiateGhost())
             {
-                callback(false);
-                return;
+                return false;
             }
 
             var req = new RenderManager.RenderRequest(Prefab)
@@ -713,19 +712,19 @@ namespace PlanBuild.Blueprints
                 Width = ThumbnailSize,
                 Height = ThumbnailSize
             };
-            RenderManager.Instance.EnqueueRender(req, sprite =>
-            {
-                if (sprite == null)
-                {
-                    callback(false);
-                    return;
-                }
+            
+            var sprite = RenderManager.Instance.Render(req);
 
-                Thumbnail = sprite.texture;
-                File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
-                Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-                callback(true);
-            });
+            if (sprite == null)
+            {
+                return false;
+            }
+
+            Thumbnail = sprite.texture;
+            File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
+            Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
+            
+            return true;
         }
 
         /// <summary>
@@ -1014,80 +1013,28 @@ namespace PlanBuild.Blueprints
                 newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
 
-                if (!newbp.ToFile())
-                {
-                    return;
-                }
-
                 if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))
                 {
                     oldbp.DestroyBlueprint();
                     BlueprintManager.LocalBlueprints.Remove(newbp.ID);
+                }
+                
+                if (!newbp.ToFile())
+                {
+                    return;
                 }
 
                 if (!newbp.CreatePiece())
                 {
                     return;
                 }
-
-                newbp.CreateThumbnail(success =>
-                {
-                    BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                    Player.m_localPlayer?.UpdateKnownRecipesList();
-                    BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-                    Selection.Instance.Clear();
-                });
-            }
-
-            /*/// <summary>
-            ///     Take screenshot, create the prefab and add the blueprint to the manager as a <see cref="Coroutine"/>.
-            /// </summary>
-            /// <returns><see cref="IEnumerator"/> yields for the <see cref="Coroutine"/></returns>
-            public IEnumerator AddBlueprint()
-            {
-                // Hide console
-                Console.instance.m_chatWindow.gameObject.SetActive(false);
-                Console.instance.Update();
-
-                // Hide Hud if active
-                bool oldHud = Hud.instance.m_userHidden;
-                Hud.instance.m_userHidden = true;
-                Hud.instance.SetVisible(false);
-                Hud.instance.Update();
-
-                // Remove SelectionCircle
-                ShapedProjector.ShowProjectors = false;
-
-                yield return new WaitForEndOfFrame();
-
-                // Set a screenshot
-                newbp.Thumbnail = ScreenCapture.CaptureScreenshotAsTexture();
-
-                // Save to file
-                File.WriteAllBytes(newbp.ThumbnailLocation, newbp.Thumbnail.EncodeToPNG());
-
-                // Reactivate SelectionCircle
-                ShapedProjector.ShowProjectors = true;
-
-                // Clear selection
-                Selection.Instance.Clear();
-
-                // Reactivate Hud if it was active
-                Hud.instance.m_userHidden = oldHud;
-                Hud.instance.SetVisible(true);
-                Hud.instance.Update();
-
-                yield return new WaitForEndOfFrame();
-
-                // Create and load blueprint prefab
-                newbp.CreatePiece();
+                
                 BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
+                Selection.Instance.Clear();
+                newbp.CreateThumbnail();
+                Player.m_localPlayer?.UpdateKnownRecipesList();
                 BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-
-                Logger.LogInfo("Blueprint created");
-
-                newbp = null;
-            }*/
+            }
         }
     }
 }

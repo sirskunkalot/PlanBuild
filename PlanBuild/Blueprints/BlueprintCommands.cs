@@ -189,12 +189,11 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                 {
                     additionalRot = rot;
                 }
-                bp.CreateThumbnail(success =>
-                {
-                    Console.instance.Print(success
-                        ? $"Created thumbnail for {id}"
-                        : $"Could not create thumbnail for {id}");
-                }, additionalRot);
+
+                var success = bp.CreateThumbnail(additionalRot);
+                Console.instance.Print(success
+                    ? $"Created thumbnail for {id}"
+                    : $"Could not create thumbnail for {id}");
             }
 
             public override List<string> CommandOptionList()
@@ -216,23 +215,12 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
             {
                 IEnumerator RegenAll()
                 {
-                    int cnt = 0;
-
                     foreach (var bp in BlueprintManager.LocalBlueprints.Values)
                     {
                         yield return null;
-
-                        bp.CreateThumbnail(success =>
-                        {
-                            ++cnt;
-                        });
+                        bp.CreateThumbnail();
                     }
-
-                    while (cnt < BlueprintManager.LocalBlueprints.Count)
-                    {
-                        yield return null;
-                    }
-
+                    
                     Console.instance.Print("Thumbnails regenerated");
                 }
 
