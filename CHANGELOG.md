@@ -1,7 +1,7 @@
 # Version 0.9.0
 * Fixed syncing of blueprints from the server
 * Fixed replacing of blueprints on capture not writing files
-* Needs Jötunn v2.4.0 which needs to be installed on the server, too
+* Needs at least Jötunn v2.4.0, Server needs PlanBuild v0.9.0 as well
 
 # Version 0.8.5
 * Lowered the scanning runs for new plan prefabs
