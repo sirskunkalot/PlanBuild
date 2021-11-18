@@ -43,11 +43,25 @@ namespace PlanBuild.Plans
                 orig(self);
                 PlanDB.Instance.ScanPieceTables();
             };
-            On.Player.UpdateKnownRecipesList += OnPlayerUpdateKnownRecipesList;
+            On.Player.AddKnownPiece += OnAddKnownPiece;
             On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
             On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
             On.WearNTear.Highlight += OnHighlight;
             On.WearNTear.Destroy += OnDestroy;
+        }
+
+        private void OnAddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
+        {
+            if(piece.name.EndsWith(PlanPiecePrefab.PlannedSuffix))
+            {
+#if DEBUG
+                Jotunn.Logger.LogDebug($"Prevent notification for {piece.name}");
+#endif
+                Player.m_localPlayer.m_knownRecipes.Add(piece.m_name);
+                return;
+            }
+
+            orig(self, piece);
         }
 
         private void OnDestroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
@@ -108,14 +122,7 @@ namespace PlanBuild.Plans
             // Needs to run only once
             PieceManager.OnPiecesRegistered -= CreatePlanTable;
         }
-        
-        private void OnPlayerUpdateKnownRecipesList(On.Player.orig_UpdateKnownRecipesList orig, Player self)
-        {
-            // Prefix the recipe loading for the plans to avoid spamming unlock messages
-            UpdateKnownRecipes();
-            orig(self);
-        }
-
+         
         public void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
