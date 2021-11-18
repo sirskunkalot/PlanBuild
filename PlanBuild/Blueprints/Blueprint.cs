@@ -656,7 +656,7 @@ namespace PlanBuild.Blueprints
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;
             piece.m_enabled = true;
-            piece.m_description += $"{Environment.NewLine}File name: {Path.GetFileName(FileLocation)}";
+            piece.m_description = $"File name: {Path.GetFileName(FileLocation)}";
             if (!string.IsNullOrEmpty(Creator))
             {
                 piece.m_description += $"{Environment.NewLine}Creator: {Creator}";

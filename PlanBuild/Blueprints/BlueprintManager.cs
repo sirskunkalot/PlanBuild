@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Jotunn;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,7 +35,7 @@ namespace PlanBuild.Blueprints
         private const float GhostTimeout = 10f;
 
         internal Piece LastHoveredPiece;
-        
+
         private GameObject OriginalTooltip;
 
         internal void Init()
@@ -101,7 +102,7 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-
+        
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -330,7 +331,7 @@ namespace PlanBuild.Blueprints
 
             orig(self);
         }
-        
+
         /// <summary>
         ///     Timed ghost destruction
         /// </summary>
@@ -372,7 +373,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Register blueprints and apply the config place distance
+        ///     BlueprintRune equip
         /// </summary>
         private bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
@@ -381,16 +382,25 @@ namespace PlanBuild.Blueprints
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 RegisterKnownBlueprints();
+
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
 
                 On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
+
+                var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
+                if (desc is RectTransform rect)
+                {
+                    rect.pivot = new Vector2(0.5f, 1f);
+                    rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, -30f);
+                    rect.sizeDelta = new Vector2(rect.sizeDelta.x, 110f);
+                }
             }
             return result;
         }
 
         /// <summary>
-        ///     Restore the original place distance
+        ///     BlueprintRune uneqip
         /// </summary>
         private void Humanoid_UnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
@@ -401,6 +411,12 @@ namespace PlanBuild.Blueprints
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
 
                 On.Player.CheckCanRemovePiece -= Player_CheckCanRemovePiece;
+
+                var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
+                if (desc is RectTransform rect)
+                {
+                    rect.sizeDelta = new Vector2(rect.sizeDelta.x, 36.5f);
+                }
             }
         }
 
@@ -414,13 +430,13 @@ namespace PlanBuild.Blueprints
             orig(self);
             Selection.Instance.OnPieceAwake(self);
         }
-        
+
         private void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
         {
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
-        
+
         // Get all prefabs for this GUI session
         private void GUIManager_OnCustomGUIAvailable()
         {
@@ -439,7 +455,7 @@ namespace PlanBuild.Blueprints
             {
                 if (BlueprintConfig.TooltipEnabledConfig.Value &&
                     Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName) &&
-                    LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) && 
+                    LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
                     bp.Thumbnail != null)
                 {
                     self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
@@ -457,7 +473,7 @@ namespace PlanBuild.Blueprints
 
                 return;
             }
-            
+
             orig(self, go);
         }
     }
