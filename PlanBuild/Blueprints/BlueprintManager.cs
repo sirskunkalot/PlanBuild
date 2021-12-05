@@ -451,7 +451,7 @@ namespace PlanBuild.Blueprints
         /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
-            if (BlueprintAssets.BlueprintTooltip && Hud.instance.m_hoveredPiece is Piece piece)
+            if (BlueprintAssets.BlueprintTooltip && Hud.instance?.m_hoveredPiece is Piece piece)
             {
                 if (BlueprintConfig.TooltipEnabledConfig.Value &&
                     Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName) &&
