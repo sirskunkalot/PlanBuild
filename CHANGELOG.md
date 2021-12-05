@@ -1,4 +1,7 @@
 # Version 0.9.0
+* Fixed NRE in main menu when using auga
+
+# Version 0.9.0
 * Fixed syncing of blueprints from the server
 * Fixed replacing of blueprints on capture not writing files
 * Fixed piece description size for blueprints
