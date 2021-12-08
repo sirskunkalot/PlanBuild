@@ -1,4 +1,5 @@
-# Version 0.9.0
+# Version 0.9.1
+* Added config for default blueprint build mode
 * Fixed NRE in main menu when using auga
 
 # Version 0.9.0

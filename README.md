@@ -107,7 +107,7 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
 * Use __Shift + Scroll__ to adjust the camera distance.
-* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint.
+* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admin's are always allowed to "direct build".
 
 ## Blueprint Marketplace
 
@@ -146,10 +146,8 @@ A lot aspects of this mod are configurable:
     * Comma separated list of prefab names to exclude from the planned piece table for non-admin players (not browsable via Mod Settings, edit directly or via console commands)
 * Blueprint Market
     * Allow clients to use the Hotkey to access the marketplace (default __true__)
-    * Hotkey for the Blueprint Marketplace GUI (default __End__)
     * Allow sharing of blueprints on this server (default __false__)
 * Blueprint Rune
-    * Hotkey to switch between Blueprint Rune modes (default __P__)
     * Allow building of blueprints as actual pieces without needing the resources (default __false__)
     * Allow usage of the terrain modification tools (default __false__)
     * Place distance of the Blueprint Rune (default __50__)
@@ -160,7 +158,9 @@ A lot aspects of this mod are configurable:
     * Blueprint search directory (default __.__ (current working directory, usually Valheim game install directory))
     * Blueprint save directory (default __BepInEx/config/PlanBuild/blueprints__)
 * Keybinds
-    * Define your modifier keys for blueprint and terrain tools
+    * Hotkey to switch between Blueprint Rune modes (default __P__)
+    * Hotkey for the Blueprint Marketplace GUI (default __End__)
+    * Define the modifier keys for blueprint and terrain tools
 * Visual
     * Apply plan shader to ghost placement (currently placing piece) (default __false__)
     * Color of unsupported plan pieces (default __10% white__)

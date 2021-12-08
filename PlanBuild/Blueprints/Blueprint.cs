@@ -674,25 +674,52 @@ namespace PlanBuild.Blueprints
             PieceManager.Instance.RegisterPieceInPieceTable(Prefab, BlueprintAssets.PieceTableName, Category);
 
             // Create KeyHint
+            CreateKeyHint();
+
+            // Add PlacementComponent
+            Prefab.AddComponent<PlacementComponent>();
+
+            return true;
+        }
+
+        public void CreateKeyHint()
+        {
+            if (KeyHint != null)
+            {
+                KeyHintManager.Instance.RemoveKeyHint(KeyHint);
+            }
             KeyHint = new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
                 Piece = PrefabName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = BlueprintConfig.PlanSwitchButton.Name, Config = BlueprintConfig.PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpplace" },
-                    new ButtonConfig { Name = BlueprintConfig.RadiusModifierButton.Name, Config = BlueprintConfig.RadiusModifierConfig, HintToken = "$hud_bpdirect" },
-                    new ButtonConfig { Name = BlueprintConfig.CameraModifierButton.Name, Config = BlueprintConfig.CameraModifierConfig, HintToken = "$hud_bpcamera" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1" },
+                    new ButtonConfig
+                    {
+                        Name = BlueprintConfig.PlanSwitchButton.Name, Config = BlueprintConfig.PlanSwitchConfig,
+                        HintToken = "$hud_bp_switch_to_plan_mode"
+                    },
+                    new ButtonConfig
+                    {
+                        Name = "Attack", HintToken = "$hud_bpplace"
+                    },
+                    new ButtonConfig
+                    {
+                        Name = BlueprintConfig.RadiusModifierButton.Name, Config = BlueprintConfig.RadiusModifierConfig,
+                        HintToken = BlueprintConfig.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
+                    },
+                    new ButtonConfig
+                    {
+                        Name = BlueprintConfig.CameraModifierButton.Name, Config = BlueprintConfig.CameraModifierConfig,
+                        HintToken = "$hud_bpcamera"
+                    },
+                    new ButtonConfig
+                    {
+                        Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1"
+                    },
                 }
             };
             KeyHintManager.Instance.AddKeyHint(KeyHint);
-
-            // Add PlacementComponent
-            Prefab.AddComponent<PlacementComponent>();
-
-            return true;
         }
 
         /// <summary>
@@ -712,7 +739,7 @@ namespace PlanBuild.Blueprints
                 Width = ThumbnailSize,
                 Height = ThumbnailSize
             };
-            
+
             var sprite = RenderManager.Instance.Render(req);
 
             if (sprite == null)
@@ -723,7 +750,7 @@ namespace PlanBuild.Blueprints
             Thumbnail = sprite.texture;
             File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
             Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-            
+
             return true;
         }
 
@@ -995,7 +1022,7 @@ namespace PlanBuild.Blueprints
             {
                 return newbp.Name;
             }
-            
+
             public void SetText(string text)
             {
                 if (string.IsNullOrEmpty(text))
@@ -1018,7 +1045,7 @@ namespace PlanBuild.Blueprints
                     oldbp.DestroyBlueprint();
                     BlueprintManager.LocalBlueprints.Remove(newbp.ID);
                 }
-                
+
                 if (!newbp.ToFile())
                 {
                     return;
@@ -1028,7 +1055,7 @@ namespace PlanBuild.Blueprints
                 {
                     return;
                 }
-                
+
                 BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
                 Selection.Instance.Clear();
                 newbp.CreateThumbnail();

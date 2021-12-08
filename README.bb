@@ -107,7 +107,7 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 [*]Use [b]Alt + Scroll[/b] to move the blueprint on the X-axis.
 [*]Use [b]Ctrl + Alt + Scroll[/b] to move the blueprint on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint.
+[*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint. Admin's are always allowed to "direct build".
 [/list]
 
 [size=5][b]Blueprint Marketplace[/b][/size]
@@ -150,12 +150,11 @@ Most values are configurable:
 directly or via console commands)[/list]
 [*]Blueprint Market[list]
 [*]Allow clients to use the Hotkey to access the marketplace (default [b]true[/b])
-[*]Hotkey for the Blueprint Marketplace GUI (default [b]End[/b])
 [*]Allow sharing of blueprints on this server (default [b]false[/b])
 [/list]
 [*]Blueprint Rune[list]
-[*]Hotkey to switch between Blueprint Rune modes (default [b]P[/b])
 [*]Allow building of blueprints as actual pieces without needing the resources (default [b]false[/b])
+[*]Set the default build mode for blueprints (Planned/Direct) (default [b]Planned[/b])
 [*]Allow usage of the terrain modification tools (default [b]false[/b])
 [*]Place distance of the Blueprint Rune (default [b]50[/b])
 [*]Show a tooltip with a bigger thumbnail for blueprint pieces (default [b]true[/b])
@@ -167,7 +166,9 @@ directly or via console commands)[/list]
 [*]Blueprint save directory (default [b]BepInEx/config/PlanBuild/blueprints[/b])
 [/list]
 [*]Keybinds[list]
-[*]Define your modifier keys for blueprint and terrain tools
+[*]Hotkey to switch between Blueprint Rune modes (default [b]P[/b])
+[*]Hotkey for the Blueprint Marketplace GUI (default [b]End[/b])
+[*]Define the modifier keys for blueprint and terrain tools
 [/list]
 [*]Visual[list]
 [*]Apply plan shader to ghost placement (currently placing piece) (default [b]false[/b])

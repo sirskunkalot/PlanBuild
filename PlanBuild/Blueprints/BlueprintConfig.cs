@@ -7,45 +7,53 @@ namespace PlanBuild.Blueprints
 {
     internal class BlueprintConfig
     {
+        public enum DefaultBuildMode
+        {
+            Planned, Direct
+        }
 
+        public static bool DirectBuildAllowed => AllowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin;
+        public static bool DirectBuildDefault => DefaultBuildModeConfig.Value == DefaultBuildMode.Direct;
+        
         private const string RuneSection = "Blueprint Rune";
-        internal static ConfigEntry<KeyCode> PlanSwitchConfig;
-        internal static ButtonConfig PlanSwitchButton;
-        internal static ConfigEntry<bool> AllowDirectBuildConfig;
-        internal static ConfigEntry<bool> AllowTerrainmodConfig;
-        internal static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
-        internal static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
-        internal static ConfigEntry<bool> InvertSelectionScrollConfig;
-        internal static ConfigEntry<float> RayDistanceConfig;
-        internal static ConfigEntry<float> CameraOffsetIncrementConfig;
-        internal static ConfigEntry<float> PlacementOffsetIncrementConfig;
-        internal static ConfigEntry<float> SelectionIncrementConfig;
-        internal static ConfigEntry<float> SelectionConnectedMarginConfig;
-        internal static ConfigEntry<bool> ShowGridConfig;
-        internal static ConfigEntry<bool> TooltipEnabledConfig;
-        internal static ConfigEntry<Color> TooltipBackgroundConfig;
+        public static ConfigEntry<bool> AllowDirectBuildConfig;
+        public static ConfigEntry<DefaultBuildMode> DefaultBuildModeConfig;
+        public static ConfigEntry<bool> AllowTerrainmodConfig;
+        public static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
+        public static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
+        public static ConfigEntry<bool> InvertSelectionScrollConfig;
+        public static ConfigEntry<float> RayDistanceConfig;
+        public static ConfigEntry<float> CameraOffsetIncrementConfig;
+        public static ConfigEntry<float> PlacementOffsetIncrementConfig;
+        public static ConfigEntry<float> SelectionIncrementConfig;
+        public static ConfigEntry<float> SelectionConnectedMarginConfig;
+        public static ConfigEntry<bool> ShowGridConfig;
+        public static ConfigEntry<bool> TooltipEnabledConfig;
+        public static ConfigEntry<Color> TooltipBackgroundConfig;
 
         private const string MarketSection = "Blueprint Market";
-        internal static ConfigEntry<bool> AllowServerBlueprints;
-        internal static ConfigEntry<bool> AllowMarketHotkey;
-        internal static ConfigEntry<KeyCode> ServerGuiSwitchConfig;
-        internal static ButtonConfig GUIToggleButton;
+        public static ConfigEntry<bool> AllowServerBlueprints;
+        public static ConfigEntry<bool> AllowMarketHotkey;
 
         private const string DirectorySection = "Directories";
-        internal static ConfigEntry<string> BlueprintSearchDirectoryConfig;
-        internal static ConfigEntry<string> BlueprintSaveDirectoryConfig;
+        public static ConfigEntry<string> BlueprintSearchDirectoryConfig;
+        public static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
         private const string KeybindSection = "Keybindings";
-        internal static ConfigEntry<KeyCode> CameraModifierConfig;
-        internal static ButtonConfig CameraModifierButton;
-        internal static ConfigEntry<KeyCode> RadiusModifierConfig;
-        internal static ButtonConfig RadiusModifierButton;
-        internal static ConfigEntry<KeyCode> MarkerSwitchConfig;
-        internal static ButtonConfig MarkerSwitchButton;
-        internal static ConfigEntry<KeyCode> DeleteModifierConfig;
-        internal static ButtonConfig DeleteModifierButton;
+        public static ConfigEntry<KeyCode> PlanSwitchConfig;
+        public static ButtonConfig PlanSwitchButton;
+        public static ConfigEntry<KeyCode> MarketHotkeyConfig;
+        public static ButtonConfig MarketHotkeyButton;
+        public static ConfigEntry<KeyCode> CameraModifierConfig;
+        public static ButtonConfig CameraModifierButton;
+        public static ConfigEntry<KeyCode> RadiusModifierConfig;
+        public static ButtonConfig RadiusModifierButton;
+        public static ConfigEntry<KeyCode> MarkerSwitchConfig;
+        public static ButtonConfig MarkerSwitchButton;
+        public static ConfigEntry<KeyCode> DeleteModifierConfig;
+        public static ButtonConfig DeleteModifierButton;
 
-        internal static void Init()
+        public static void Init()
         {
             int order = 0;
 
@@ -55,6 +63,19 @@ namespace PlanBuild.Blueprints
                 RuneSection, "Allow direct build", false,
                 new ConfigDescription("Allow placement of blueprints without materials for non-admin players. Admins are always allowed to use it.", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Order = ++order }));
+            
+            DefaultBuildModeConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Default build mode", DefaultBuildMode.Planned,
+                new ConfigDescription("Default build mode when placing blueprints. If direct build is disabled, build mode is always \"Planned\".", null,
+                    new ConfigurationManagerAttributes { Order = ++order }));
+            
+            DefaultBuildModeConfig.SettingChanged += (sender, args) =>
+            {
+                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
+                {
+                    bp.CreateKeyHint();
+                }
+            };
 
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", false,
@@ -63,58 +84,58 @@ namespace PlanBuild.Blueprints
             
             RayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Place distance", 50f,
-                new ConfigDescription("Place distance while using the Blueprint Rune",
+                new ConfigDescription("Place distance while using the Blueprint Rune.",
                     new AcceptableValueRange<float>(8f, 80f),
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             CameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Camera offset increment", 2f,
-                new ConfigDescription("Camera height change when holding Shift and scrolling while in Blueprint mode", null,
+                new ConfigDescription("Camera height change when holding the camera modifier key and scrolling while in Blueprint mode.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert camera offset scroll", false,
-                new ConfigDescription("Invert the direction of camera offset scrolling", null,
+                new ConfigDescription("Invert the direction of camera offset scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
             
             PlacementOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Placement offset increment", 0.1f,
-                new ConfigDescription("Placement height change when holding Ctrl+Alt and scrolling while in Blueprint mode", null,
+                new ConfigDescription("Placement height change when holding the modifier key and scrolling while in Blueprint mode.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertPlacementOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert placement height change scroll", false,
-                new ConfigDescription("Invert the direction of placement offset scrolling", null,
+                new ConfigDescription("Invert the direction of placement offset scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
             
             SelectionIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Selection increment", 1f,
-                new ConfigDescription("Selection radius increment when scrolling while in Blueprint mode", null,
+                new ConfigDescription("Selection radius increment when scrolling while in Blueprint mode.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert selection scroll", false,
-                new ConfigDescription("Invert the direction of selection scrolling", null,
+                new ConfigDescription("Invert the direction of selection scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             SelectionConnectedMarginConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Selection connected check margin", 0.01f,
-                new ConfigDescription("Distance of the shell used to check for connectedness", null,
+                new ConfigDescription("Distance of the shell used to check for connectedness.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             ShowGridConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Show the transform bound grid", false,
-                new ConfigDescription("Show a grid around the blueprints' bounds", null,
+                new ConfigDescription("Shows a grid around the blueprints' bounds to visualize the blueprints' edges.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             TooltipEnabledConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Tooltip enabled", true,
-                new ConfigDescription("Show a tooltip with a bigger thumbnail for blueprint pieces", null,
+                new ConfigDescription("Show a tooltip with a bigger thumbnail for blueprint pieces.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             TooltipBackgroundConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Tooltip Color", new Color(0.13f, 0.13f, 0.13f, 0.65f),
-                new ConfigDescription("Set the background color for the tooltip on blueprint pieces", null,
+                new ConfigDescription("Set the background color for the tooltip on blueprint pieces.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             // Market Section
@@ -148,7 +169,7 @@ namespace PlanBuild.Blueprints
                 new ConfigDescription("Hotkey to switch between rune modes", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
             
-            ServerGuiSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
+            MarketHotkeyConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
                 new ConfigDescription("Hotkey to show blueprint marketplace GUI", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
@@ -192,13 +213,13 @@ namespace PlanBuild.Blueprints
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
 
-            GUIToggleButton = new ButtonConfig
+            MarketHotkeyButton = new ButtonConfig
             {
                 Name = "GUIToggle",
-                Config = ServerGuiSwitchConfig,
+                Config = MarketHotkeyConfig,
                 ActiveInCustomGUI = true
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, GUIToggleButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MarketHotkeyButton);
 
             // Shared
 

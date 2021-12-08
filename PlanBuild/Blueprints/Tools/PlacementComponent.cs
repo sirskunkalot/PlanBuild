@@ -70,7 +70,8 @@ namespace PlanBuild.Blueprints.Tools
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
+            bool placeDirect = BlueprintConfig.DirectBuildDefault;
+            placeDirect ^= ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
             if (placeDirect
                 && !BlueprintConfig.AllowDirectBuildConfig.Value
                 && !SynchronizationManager.Instance.PlayerIsAdmin)
