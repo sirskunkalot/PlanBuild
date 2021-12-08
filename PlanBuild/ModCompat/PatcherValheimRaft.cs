@@ -35,7 +35,7 @@ namespace PlanBuild.ModCompat
             }
         }
 
-        [HarmonyPatch(typeof(BlueprintComponent), nameof(BlueprintComponent.OnPiecePlaced))]
+        [HarmonyPatch(typeof(PlacementComponent), nameof(PlacementComponent.OnPiecePlaced))]
         [HarmonyPrefix]
         private static void BlueprintManager_OnPiecePlaced_Postfix(GameObject placedPiece)
         {

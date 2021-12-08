@@ -5,9 +5,9 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class BlueprintComponent : ToolComponentBase
+    internal class PlacementComponent : ToolComponentBase
     {
-        public override void OnAwake()
+        public override void OnStart()
         {
             SuppressPieceHighlight = false;
         }

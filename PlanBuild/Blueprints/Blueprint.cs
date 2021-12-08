@@ -689,8 +689,8 @@ namespace PlanBuild.Blueprints
             };
             KeyHintManager.Instance.AddKeyHint(KeyHint);
 
-            // Add BlueprintComponent
-            Prefab.AddComponent<BlueprintComponent>();
+            // Add PlacementComponent
+            Prefab.AddComponent<PlacementComponent>();
 
             return true;
         }

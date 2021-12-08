@@ -105,7 +105,7 @@
     <Compile Include="Blueprints\BlueprintAssets.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
     <Compile Include="Blueprints\Tools\SelectSaveComponent.cs" />
-    <Compile Include="Blueprints\Tools\BlueprintComponent.cs" />
+    <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectAddComponent.cs" />
     <Compile Include="Blueprints\Tools\CaptureComponent.cs" />

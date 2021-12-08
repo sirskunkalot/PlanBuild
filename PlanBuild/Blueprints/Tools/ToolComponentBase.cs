@@ -13,15 +13,15 @@ namespace PlanBuild.Blueprints.Tools
 
         internal bool SuppressPieceHighlight = true;
 
-        private void Awake()
+        private void Start()
         {
-            if (!Player.m_localPlayer || Player.m_localPlayer.GetSelectedPiece() == null ||
-                !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
-            {
-                return;
-            }
+            // if (!Player.m_localPlayer || Player.m_localPlayer.GetSelectedPiece() == null ||
+            //     !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
+            // {
+            //     return;
+            // }
 
-            OnAwake();
+            OnStart();
 
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
@@ -30,10 +30,10 @@ namespace PlanBuild.Blueprints.Tools
             On.Player.PlacePiece += Player_PlacePiece;
             On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
 
-            Jotunn.Logger.LogDebug($"{gameObject.name} awoken");
+            Jotunn.Logger.LogDebug($"{gameObject.name} started");
         }
 
-        public virtual void OnAwake()
+        public virtual void OnStart()
         {
         }
 

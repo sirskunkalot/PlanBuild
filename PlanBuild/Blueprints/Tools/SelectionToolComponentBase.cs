@@ -2,7 +2,7 @@
 {
     internal class SelectionToolComponentBase : ToolComponentBase
     {
-        public override void OnAwake()
+        public override void OnStart()
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
