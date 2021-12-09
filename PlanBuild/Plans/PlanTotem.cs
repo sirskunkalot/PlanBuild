@@ -55,6 +55,8 @@ namespace PlanBuild.Plans
 
         public new void Awake()
         {
+            m_width = 7;
+            m_height = 4;
             base.Awake();
             StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
