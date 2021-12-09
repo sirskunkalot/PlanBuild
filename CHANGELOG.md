@@ -2,6 +2,7 @@
 * Added config for default blueprint build mode
 * Expanded plan totem inventory slots to 28
 * Fixed NRE in main menu when using auga
+* Fixed blueprint tooltip while using a gamepad
 
 # Version 0.9.0
 * Fixed syncing of blueprints from the server
