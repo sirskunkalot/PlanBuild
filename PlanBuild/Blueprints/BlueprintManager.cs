@@ -458,7 +458,7 @@ namespace PlanBuild.Blueprints
                 {
                     piece = Player.m_localPlayer.GetSelectedPiece();
                 }
-                if (BlueprintConfig.TooltipEnabledConfig.Value &&
+                if (BlueprintConfig.TooltipEnabledConfig.Value && piece &&
                     piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
                     LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
                     bp.Thumbnail != null)
