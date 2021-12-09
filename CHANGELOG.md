@@ -1,4 +1,4 @@
-# Version 0.9.1
+# Version 0.9.2
 * Added config for default blueprint build mode
 * Expanded plan totem inventory slots to 28
 * Fixed NRE in main menu when using auga
