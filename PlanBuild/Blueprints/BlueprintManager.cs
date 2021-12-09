@@ -451,10 +451,15 @@ namespace PlanBuild.Blueprints
         /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
-            if (BlueprintAssets.BlueprintTooltip && Hud.instance?.m_hoveredPiece is Piece piece)
+            if (BlueprintAssets.BlueprintTooltip && Hud.IsPieceSelectionVisible())
             {
+                var piece = Hud.instance.m_hoveredPiece;
+                if (ZInput.IsGamepadActive() && !ZInput.IsMouseActive())
+                {
+                    piece = Player.m_localPlayer.GetSelectedPiece();
+                }
                 if (BlueprintConfig.TooltipEnabledConfig.Value &&
-                    Hud.instance.m_hoveredPiece.name.StartsWith(Blueprint.PieceBlueprintName) &&
+                    piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
                     LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
                     bp.Thumbnail != null)
                 {
