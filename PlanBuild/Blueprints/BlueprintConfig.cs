@@ -15,7 +15,7 @@ namespace PlanBuild.Blueprints
         public static bool DirectBuildAllowed => AllowDirectBuildConfig.Value || SynchronizationManager.Instance.PlayerIsAdmin;
         public static bool DirectBuildDefault => DefaultBuildModeConfig.Value == DefaultBuildMode.Direct;
         
-        private const string RuneSection = "Blueprint Rune";
+        private const string RuneSection = "Blueprints";
         public static ConfigEntry<bool> AllowDirectBuildConfig;
         public static ConfigEntry<DefaultBuildMode> DefaultBuildModeConfig;
         public static ConfigEntry<bool> AllowTerrainmodConfig;
@@ -40,8 +40,6 @@ namespace PlanBuild.Blueprints
         public static ConfigEntry<string> BlueprintSaveDirectoryConfig;
 
         private const string KeybindSection = "Keybindings";
-        public static ConfigEntry<KeyCode> PlanSwitchConfig;
-        public static ButtonConfig PlanSwitchButton;
         public static ConfigEntry<KeyCode> MarketHotkeyConfig;
         public static ButtonConfig MarketHotkeyButton;
         public static ConfigEntry<KeyCode> CameraModifierConfig;
@@ -59,14 +57,9 @@ namespace PlanBuild.Blueprints
 
             // Rune Section
             
-            AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
-                RuneSection, "Allow direct build", false,
-                new ConfigDescription("Allow placement of blueprints without materials for non-admin players. Admins are always allowed to use it.", null,
-                    new ConfigurationManagerAttributes { IsAdminOnly = true, Order = ++order }));
-            
             DefaultBuildModeConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Default build mode", DefaultBuildMode.Planned,
-                new ConfigDescription("Default build mode when placing blueprints. If direct build is disabled, build mode is always \"Planned\".", null,
+                new ConfigDescription("Default build mode when placing blueprints.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
             
             DefaultBuildModeConfig.SettingChanged += (sender, args) =>
@@ -77,6 +70,11 @@ namespace PlanBuild.Blueprints
                 }
             };
 
+            AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Allow direct build", false,
+                new ConfigDescription("Allow placement of blueprints without materials for non-admin players. Admins are always allowed to use it.", null,
+                    new ConfigurationManagerAttributes { IsAdminOnly = true, Order = ++order }));
+            
             AllowTerrainmodConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Allow terrain tools", false,
                 new ConfigDescription("Allow usage of the terrain modification tools for non-admin players. Admins are always allowed to use them.", null,
@@ -164,11 +162,6 @@ namespace PlanBuild.Blueprints
 
             // Keybind Section
             
-            PlanSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "Rune mode toggle key", KeyCode.P,
-                new ConfigDescription("Hotkey to switch between rune modes", null,
-                    new ConfigurationManagerAttributes { Order = ++order }));
-            
             MarketHotkeyConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
                 new ConfigDescription("Hotkey to show blueprint marketplace GUI", null,
@@ -204,15 +197,7 @@ namespace PlanBuild.Blueprints
         private static void CreateCustomKeyHints()
         {
             // Global
-
-            PlanSwitchButton = new ButtonConfig
-            {
-                Name = "RuneModeToggle",
-                Config = PlanSwitchConfig,
-                HintToken = "$hud_bp_toggle_plan_mode"
-            };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, PlanSwitchButton);
-
+            
             MarketHotkeyButton = new ButtonConfig
             {
                 Name = "GUIToggle",
@@ -259,7 +244,6 @@ namespace PlanBuild.Blueprints
                 Item = BlueprintAssets.BlueprintRuneName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_blueprint_mode" },
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
@@ -272,7 +256,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceCaptureName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpcapture_highlight" },
                     new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
@@ -288,7 +271,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceSelectAddName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_add_connected" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_add_radius" },
@@ -305,7 +287,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceSelectRemoveName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_remove_connected" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_remove_radius" },
@@ -323,7 +304,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceSelectSaveName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_save" }
                 }
             });
@@ -336,7 +316,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceSnapPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -350,7 +329,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceCenterPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
                 }
@@ -364,7 +342,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceDeletePlansName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpdelete_radius" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpdelete_all" },
@@ -380,7 +357,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceTerrainName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
                     new ButtonConfig { Name = MarkerSwitchButton.Name, Config = MarkerSwitchConfig, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpterrain_delete" },
@@ -397,7 +373,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PieceDeleteObjectsName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpobjects_deletepieces" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpobjects_deleteall" },
@@ -414,7 +389,6 @@ namespace PlanBuild.Blueprints
                 Piece = BlueprintAssets.PiecePaintName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = PlanSwitchButton.Name, Config = PlanSwitchConfig, HintToken = "$hud_bp_switch_to_plan_mode" },
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
                     new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
                     new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },

@@ -12,11 +12,10 @@ namespace PlanBuild.Plans
     internal class PlanPiecePrefab : CustomPiece
     {
         public const string PlannedSuffix = "_planned";
-        public const string PieceTableName = "_planHammerPieceTable";
         public Piece OriginalPiece;
         public int OriginalHash;
 
-        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PieceTableName)
+        public PlanPiecePrefab(Piece piece) : base(piece.gameObject.name + PlannedSuffix, piece.gameObject.name, PlanHammerPrefab.PieceTableName)
         {
             OriginalPiece = piece;
             OriginalHash = piece.name.GetStableHashCode();
@@ -42,7 +41,7 @@ namespace PlanBuild.Plans
             Piece.m_allowAltGroundPlacement = OriginalPiece.m_allowAltGroundPlacement;
             Piece.m_allowedInDungeons = OriginalPiece.m_allowedInDungeons;
 
-            PieceTable = PieceTableName;
+            PieceTable = PlanHammerPrefab.PieceTableName;
 
             WearNTear wearNTear = PiecePrefab.GetOrAddComponent<WearNTear>();
             wearNTear.m_noSupportWear = true;

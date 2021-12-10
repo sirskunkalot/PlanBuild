@@ -7,7 +7,7 @@ namespace PlanBuild.Plans
 {
     internal class PlanConfig
     {
-        private const string GeneralSection = "General";
+        private const string PlansSection = "Plans";
         internal static ConfigEntry<bool> ShowAllPieces;
         internal static ConfigEntry<float> RadiusConfig;
         internal static ConfigEntry<bool> ShowParticleEffects;
@@ -24,22 +24,22 @@ namespace PlanBuild.Plans
         {
             int order = 0;
 
-            // General Section
+            // Plans Section
 
             ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind(
-                GeneralSection, "Plan unknown pieces", false,
+                PlansSection, "Plan unknown pieces", false,
                 new ConfigDescription("Show all plans, even for pieces you don't know yet", null,
                     new ConfigurationManagerAttributes { Order = ++order, IsAdminOnly = true }));
             RadiusConfig = PlanBuildPlugin.Instance.Config.Bind(
-                GeneralSection, "Plan totem build radius", 30f,
+                PlansSection, "Plan totem build radius", 30f,
                 new ConfigDescription("Build radius of the plan totem", null,
                     new ConfigurationManagerAttributes { Order = ++order, IsAdminOnly = true }));
             ShowParticleEffects = PlanBuildPlugin.Instance.Config.Bind(
-                GeneralSection, "Plan totem particle effects", true,
+                PlansSection, "Plan totem particle effects", true,
                 new ConfigDescription("Show particle effects when building pieces with the plan totem", null,
                     new ConfigurationManagerAttributes { Order = ++order, IsAdminOnly = true }));
             PlanBlacklistConfig = PlanBuildPlugin.Instance.Config.Bind(
-                GeneralSection, "Excluded plan prefabs", "AltarPrefab,FloatingIslandMO",
+                PlansSection, "Excluded plan prefabs", "AltarPrefab,FloatingIslandMO",
                 new ConfigDescription("Comma separated list of prefab names to exclude from the planned piece table for non-admin players", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Browsable = false }));
 
@@ -50,7 +50,7 @@ namespace PlanBuild.Plans
             // Visual Section
 
             ConfigTransparentGhostPlacement = PlanBuildPlugin.Instance.Config.Bind(
-                VisualSection, "Transparent Ghost Placement", false,
+                VisualSection, "Transparent Ghost Placement", true,
                 new ConfigDescription("Apply plan shader to ghost placement (currently placing piece)", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
             UnsupportedColorConfig = PlanBuildPlugin.Instance.Config.Bind(

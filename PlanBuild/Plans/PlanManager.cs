@@ -1,11 +1,9 @@
-﻿using Jotunn.Configs;
-using Jotunn.Entities;
-using Jotunn.Managers;
+﻿using Jotunn.Managers;
 using PlanBuild.Blueprints;
 using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using UnityEngine;
 using Logger = Jotunn.Logger;
 using Object = UnityEngine.Object;
 
@@ -15,13 +13,7 @@ namespace PlanBuild.Plans
     {
         private static PlanManager _instance;
 
-        public static PlanManager Instance
-        {
-            get
-            {
-                return _instance ??= new PlanManager();
-            }
-        }
+        public static PlanManager Instance => _instance ??= new PlanManager();
 
         internal void Init()
         {
@@ -37,92 +29,19 @@ namespace PlanBuild.Plans
             PlanCommands.Init();
 
             // Hooks
-            PieceManager.OnPiecesRegistered += CreatePlanTable;
             On.DungeonDB.Start += (orig, self) =>
             {
                 orig(self);
                 PlanDB.Instance.ScanPieceTables();
             };
-            On.Player.AddKnownPiece += OnAddKnownPiece;
-            On.Player.HaveRequirements_Piece_RequirementMode += OnHaveRequirements;
-            On.Player.SetupPlacementGhost += OnSetupPlacementGhost;
-            On.WearNTear.Highlight += OnHighlight;
-            On.WearNTear.Destroy += OnDestroy;
+            On.Player.AddKnownPiece += Player_AddKnownPiece;
+            On.Player.HaveRequirements_Piece_RequirementMode += Player_HaveRequirements;
+            On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
+            On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
+            On.WearNTear.Highlight += WearNTear_Highlight;
+            On.WearNTear.Destroy += WearNTear_Destroy;
         }
-
-        private void OnAddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
-        {
-            if(piece.name.EndsWith(PlanPiecePrefab.PlannedSuffix))
-            {
-#if DEBUG
-                Jotunn.Logger.LogDebug($"Prevent notification for {piece.name}");
-#endif
-                Player.m_localPlayer.m_knownRecipes.Add(piece.m_name);
-                return;
-            }
-
-            orig(self, piece);
-        }
-
-        private void OnDestroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
-        {
-            // Check if actually destoyed, not removed by middle clicking with Hammer
-            if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
-                && wearNTear.GetHealthPercentage() <= 0f
-                && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
-            {
-                foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
-                {
-                    if (!planTotem.GetEnabled())
-                    {
-                        continue;
-                    }
-                    UnityEngine.GameObject gameObject = wearNTear.gameObject;
-                    if (planTotem.InRange(gameObject))
-                    {
-                        planTotem.Replace(gameObject, planPrefab);
-                        break;
-                    }
-                }
-            }
-            orig(wearNTear);
-        }
-
-        private void CreatePlanTable()
-        {
-            // Create plan piece table for the plan mode
-            var categories = PieceManager.Instance.GetPieceCategories()
-                .Where(x => x != BlueprintAssets.CategoryBlueprints && x != BlueprintAssets.CategoryTools);
-
-            CustomPieceTable planPieceTable = new CustomPieceTable(
-                PlanPiecePrefab.PieceTableName,
-                new PieceTableConfig()
-                {
-                    CanRemovePieces = true,
-                    UseCategories = true,
-                    UseCustomCategories = true,
-                    CustomCategories = categories.ToArray()
-                }
-            );
-            PieceManager.Instance.AddPieceTable(planPieceTable);
-
-            // Add empty lists up to the max categories count
-            for (int i = planPieceTable.PieceTable.m_availablePieces.Count; i < (int)Piece.PieceCategory.All; i++)
-            {
-                planPieceTable.PieceTable.m_availablePieces.Add(new List<Piece>());
-            }
-
-            // Resize selectedPiece array
-            Array.Resize(ref planPieceTable.PieceTable.m_selectedPiece, planPieceTable.PieceTable.m_availablePieces.Count);
-
-            // Set table on the rune
-            ItemDrop rune = ItemManager.Instance.GetItem(BlueprintAssets.BlueprintRuneName).ItemDrop;
-            rune.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
-
-            // Needs to run only once
-            PieceManager.OnPiecesRegistered -= CreatePlanTable;
-        }
-         
+        
         public void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
@@ -150,96 +69,8 @@ namespace PlanBuild.Plans
                 }
             }
 
-            PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName)
+            PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName)
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
-        }
-
-        /// <summary>
-        ///     Check if the player knows this piece
-        ///     Has some additional handling for pieces with duplicate m_name
-        /// </summary>
-        /// <param name="player"></param>
-        /// <param name="originalPiece"></param>
-        /// <returns></returns>
-        private bool PlayerKnowsPiece(Player player, Piece originalPiece)
-        {
-            if (!PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
-            {
-                return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
-            }
-            foreach (Piece piece in originalPieces)
-            {
-                if (player.HaveRequirements(piece, Player.RequirementMode.IsKnown))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private bool OnHaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
-        {
-            try
-            {
-                if (piece && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
-                {
-                    if (PlanBlacklist.Contains(originalPiece))
-                    {
-                        return false;
-                    }
-                    if (PlanConfig.ShowAllPieces.Value)
-                    {
-                        return true;
-                    }
-                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
-                }
-            }
-            catch (Exception e)
-            {
-                Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
-            }
-            return orig(self, piece, mode);
-        }
-
-        private void OnSetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
-        {
-            try
-            {
-                PlanPiece.m_forceDisableInit = true;
-                orig(self);
-                if (self.m_placementGhost)
-                {
-                    if (PlanCrystalPrefab.ShowRealTextures)
-                    {
-                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
-                    }
-                    else if (PlanConfig.ConfigTransparentGhostPlacement.Value
-                             && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
-                                 || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
-                    )
-                    {
-                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                Jotunn.Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {ex}");
-            }
-            finally
-            {
-                PlanPiece.m_forceDisableInit = false;
-            }
-        }
-
-        private void OnHighlight(On.WearNTear.orig_Highlight orig, WearNTear self)
-        {
-            if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
-            {
-                planPiece.Highlight();
-                return;
-            }
-            orig(self);
         }
 
         public void UpdateAllPlanPieceTextures()
@@ -271,6 +102,150 @@ namespace PlanBuild.Plans
             {
                 PlanTotemPrefab.UpdateGlowColor(planTotem.gameObject);
             }
+        }
+
+        private void Player_AddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
+        {
+            if (piece.name.EndsWith(PlanPiecePrefab.PlannedSuffix))
+            {
+#if DEBUG
+                Jotunn.Logger.LogDebug($"Prevent notification for {piece.name}");
+#endif
+                Player.m_localPlayer.m_knownRecipes.Add(piece.m_name);
+                return;
+            }
+
+            orig(self, piece);
+        }
+
+        /// <summary>
+        ///     Check if the player knows this piece
+        ///     Has some additional handling for pieces with duplicate m_name
+        /// </summary>
+        /// <param name="player"></param>
+        /// <param name="originalPiece"></param>
+        /// <returns></returns>
+        private bool PlayerKnowsPiece(Player player, Piece originalPiece)
+        {
+            if (!PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
+            {
+                return player.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+            }
+            foreach (Piece piece in originalPieces)
+            {
+                if (player.HaveRequirements(piece, Player.RequirementMode.IsKnown))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private bool Player_HaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
+        {
+            try
+            {
+                if (piece && PlanDB.Instance.FindOriginalByPrefabName(piece.gameObject.name, out Piece originalPiece))
+                {
+                    if (PlanBlacklist.Contains(originalPiece))
+                    {
+                        return false;
+                    }
+                    if (PlanConfig.ShowAllPieces.Value)
+                    {
+                        return true;
+                    }
+                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
+            }
+            return orig(self, piece, mode);
+        }
+
+        private void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        {
+            try
+            {
+                PlanPiece.m_forceDisableInit = true;
+                orig(self);
+                if (self.m_placementGhost)
+                {
+                    if (PlanCrystalPrefab.ShowRealTextures)
+                    {
+                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
+                    }
+                    else if (PlanConfig.ConfigTransparentGhostPlacement.Value
+                             && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
+                                 || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+                    )
+                    {
+                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {ex}");
+            }
+            finally
+            {
+                PlanPiece.m_forceDisableInit = false;
+            }
+        }
+        
+        private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
+        {
+            var planHammer = self.m_visEquipment.m_rightItem.Equals(PlanHammerPrefab.PlanHammerName);
+            var planPiece = piece.TryGetComponent<PlanPiece>(out _);
+
+            if (planHammer)
+            {
+                return planPiece;
+            }
+
+            if (planPiece)
+            {
+                return false;
+            }
+
+            return orig(self, piece);
+        }
+
+        private void WearNTear_Highlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        {
+            if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
+                return;
+            }
+            orig(self);
+        }
+        
+        private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
+        {
+            // Check if actually destoyed, not removed by middle clicking with Hammer
+            if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
+                                  && wearNTear.GetHealthPercentage() <= 0f
+                                  && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
+            {
+                foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+                {
+                    if (!planTotem.GetEnabled())
+                    {
+                        continue;
+                    }
+                    GameObject gameObject = wearNTear.gameObject;
+                    if (planTotem.InRange(gameObject))
+                    {
+                        planTotem.Replace(gameObject, planPrefab);
+                        break;
+                    }
+                }
+            }
+            orig(wearNTear);
         }
     }
 }

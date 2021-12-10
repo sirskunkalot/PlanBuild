@@ -416,7 +416,7 @@ namespace PlanBuild.Plans
                 user.Message(MessageHud.MessageType.Center, "$msg_missingrequirement");
                 return false;
             }
-            if (user.GetInventory().GetItem("$item_hammer") == null)
+            if (user.GetInventory().GetItem(PlanHammerPrefab.PlanHammerItemName) == null)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_need_hammer");
                 return false;
@@ -708,18 +708,6 @@ namespace PlanBuild.Plans
                 return ZDOID.None;
             }
             return m_nView.GetZDO().GetZDOID(zdoBlueprintID);
-        }
-
-        [HarmonyPatch(typeof(Player), "CheckCanRemovePiece")]
-        private static bool Player_CheckCanRemovePiece_Prefix(Piece piece, ref bool __result)
-        {
-            PlanPiece PlanPiece = piece.GetComponent<PlanPiece>();
-            if (PlanPiece)
-            {
-                __result = true;
-                return false;
-            }
-            return true;
         }
     }
 }

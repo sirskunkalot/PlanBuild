@@ -34,12 +34,12 @@ namespace PlanBuild.Plans
         public void ScanPieceTables()
         {
             Logger.LogDebug("Scanning PieceTables for Pieces");
-            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
+            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
             foreach (GameObject item in ObjectDB.instance.m_items)
             {
                 PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_buildPieces;
                 if (pieceTable == null ||
-                    pieceTable.name.Equals(PlanPiecePrefab.PieceTableName) ||
+                    pieceTable.name.Equals(PlanHammerPrefab.PieceTableName) ||
                     pieceTable.name.Equals(BlueprintAssets.PieceTableName))
                 {
                     continue;

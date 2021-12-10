@@ -696,11 +696,6 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.PlanSwitchButton.Name, Config = BlueprintConfig.PlanSwitchConfig,
-                        HintToken = "$hud_bp_switch_to_plan_mode"
-                    },
-                    new ButtonConfig
-                    {
                         Name = "Attack", HintToken = "$hud_bpplace"
                     },
                     new ButtonConfig

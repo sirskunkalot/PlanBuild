@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,14 +14,7 @@ namespace PlanBuild.Blueprints
     {
         private static BlueprintManager _instance;
 
-        public static BlueprintManager Instance
-        {
-            get
-            {
-                if (_instance == null) _instance = new BlueprintManager();
-                return _instance;
-            }
-        }
+        public static BlueprintManager Instance => _instance ??= new BlueprintManager();
 
         internal static BlueprintDictionary LocalBlueprints;
         internal static BlueprintDictionary ServerBlueprints;
@@ -102,7 +94,7 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-        
+
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -385,9 +377,7 @@ namespace PlanBuild.Blueprints
 
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
-
-                On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
-
+                
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -409,9 +399,7 @@ namespace PlanBuild.Blueprints
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
-
-                On.Player.CheckCanRemovePiece -= Player_CheckCanRemovePiece;
-
+                
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -419,12 +407,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-
-        private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
-        {
-            return CanCapture(piece, true);
-        }
-
+        
         private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
         {
             orig(self);

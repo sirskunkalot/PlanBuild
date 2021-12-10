@@ -17,6 +17,7 @@ namespace PlanBuild.Blueprints
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
         public const string BlueprintRuneName = "BlueprintRune";
+        public const string BlueprintRuneItemName = "$item_blueprintrune";
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
         public const string CategoryBlueprints = "Blueprints";
@@ -32,10 +33,8 @@ namespace PlanBuild.Blueprints
         public const string PieceSelectAddName = "piece_bpselectadd";
         public const string PieceSelectRemoveName = "piece_bpselectremove";
         public const string PieceSelectSaveName = "piece_bpselectsave";
-
-        public static string BlueprintRuneItemName;
-
-        public BlueprintAssets(AssetBundle assetBundle)
+        
+        public static void Load(AssetBundle assetBundle)
         {
             // Asset Bundle GameObjects
             GameObject[] prefabArray = assetBundle.LoadAllAssets<GameObject>();
@@ -69,7 +68,7 @@ namespace PlanBuild.Blueprints
                         {
                             Item = "Stone",
                             Amount = 5,
-                            Recover= true
+                            Recover = true
                         }
                     }
                 });
@@ -77,6 +76,19 @@ namespace PlanBuild.Blueprints
                 piece.FixReference = true;
                 PieceManager.Instance.AddPiece(piece);
             }
+            
+            // Rune PieceTable
+            CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
+            {
+                CanRemovePieces = false,
+                UseCategories = false,
+                UseCustomCategories = true,
+                CustomCategories = new string[]
+                {
+                    CategoryTools, CategoryBlueprints
+                }
+            });
+            PieceManager.Instance.AddPieceTable(table);
 
             // Blueprint Rune
             CustomItem item = new CustomItem(prefabs[BlueprintRuneName], false, new ItemConfig
@@ -87,20 +99,8 @@ namespace PlanBuild.Blueprints
                     new RequirementConfig {Item = "Stone", Amount = 1}
                 }
             });
+            item.ItemDrop.m_itemData.m_shared.m_buildPieces = table.PieceTable;
             ItemManager.Instance.AddItem(item);
-            BlueprintRuneItemName = item.ItemDrop.m_itemData.m_shared.m_name;
-
-            // Rune PieceTable
-            CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
-            {
-                UseCategories = false,
-                UseCustomCategories = true,
-                CustomCategories = new string[]
-                {
-                    CategoryTools, CategoryBlueprints
-                }
-            });
-            PieceManager.Instance.AddPieceTable(table);
 
             // Stub Piece
             PrefabManager.Instance.AddPrefab(prefabs[Blueprint.PieceBlueprintName]);

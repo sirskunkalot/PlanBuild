@@ -1,7 +1,5 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
-using PlanBuild.Blueprints.Tools;
-using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -11,7 +9,7 @@ namespace PlanBuild.ModCompat
     {
         [HarmonyPatch(typeof(GizmoReloaded.Plugin), "UpdatePlacement")]
         [HarmonyPrefix]
-        private static bool GizmoPlugin_UpdatePlacement_Prefix(Transform ___gizmoRoot,  float ___snapAngle)
+        private static bool GizmoPlugin_UpdatePlacement_Prefix(Transform ___gizmoRoot, float ___snapAngle)
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces && Player.m_localPlayer.m_placementGhost &&
                 Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&

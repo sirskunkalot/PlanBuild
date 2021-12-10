@@ -26,7 +26,7 @@ namespace PlanBuild.Plans
                 .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);
         }
 
-        public PlanTotemPrefab(AssetBundle planbuildBundle)
+        public static void Create(AssetBundle planbuildBundle)
         {
             PlanTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>(PlanTotemPieceName), new KitbashConfig
             {

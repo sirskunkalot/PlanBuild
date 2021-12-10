@@ -31,11 +31,7 @@ namespace PlanBuild
         public const string PluginVersion = "0.9.2";
 
         public static PlanBuildPlugin Instance;
-
-        internal PlanCrystalPrefab PlanCrystalPrefab;
-        internal PlanTotemPrefab PlanTotemPrefab;
-        internal BlueprintAssets BlueprintRuneAssets;
-
+        
         public void Awake()
         {
             Instance = this;
@@ -43,14 +39,15 @@ namespace PlanBuild
 
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
-            PlanTotemPrefab = new PlanTotemPrefab(planbuildBundle);
-            PlanCrystalPrefab = new PlanCrystalPrefab(planbuildBundle);
+            PlanTotemPrefab.Create(planbuildBundle);
+            PlanCrystalPrefab.Create(planbuildBundle);
+            PlanHammerPrefab.Create(planbuildBundle);
             planbuildBundle.Unload(false);
             PlanManager.Instance.Init();
 
             // Init Blueprints
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-            BlueprintRuneAssets = new BlueprintAssets(blueprintsBundle);
+            BlueprintAssets.Load(blueprintsBundle);
             blueprintsBundle.Unload(false);
             BlueprintManager.Instance.Init();
 
@@ -93,62 +90,7 @@ namespace PlanBuild
             {
                 BlueprintGUI.Instance.Toggle(shutWindow: true);
                 ZInput.ResetButtonStatus("Use");
-                return;
             }
-
-            // Not in game menus
-            if (!CheckInput())
-            {
-                return;
-            }
-
-            // Rune mode toogle
-            if (ZInput.GetButtonDown(BlueprintConfig.PlanSwitchButton.Name))
-            {
-                TogglePlanBuildMode();
-            }
-        }
-
-        public void TogglePlanBuildMode()
-        {
-            if (Player.m_localPlayer.m_visEquipment.m_rightItem != BlueprintAssets.BlueprintRuneName)
-            {
-                return;
-            }
-            ItemDrop.ItemData blueprintRune = Player.m_localPlayer.GetInventory().GetItem(BlueprintAssets.BlueprintRuneItemName);
-            if (blueprintRune == null)
-            {
-                return;
-            }
-            PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanPiecePrefab.PieceTableName);
-            PieceTable blueprintPieceTable = PieceManager.Instance.GetPieceTable(BlueprintAssets.PieceTableName);
-            if (blueprintRune.m_shared.m_buildPieces == planPieceTable)
-            {
-                blueprintRune.m_shared.m_buildPieces = blueprintPieceTable;
-            }
-            else
-            {
-                blueprintRune.m_shared.m_buildPieces = planPieceTable;
-            }
-            Player.m_localPlayer.UnequipItem(blueprintRune);
-            Player.m_localPlayer.EquipItem(blueprintRune);
-
-            Color color = blueprintRune.m_shared.m_buildPieces == planPieceTable ? Color.red : Color.cyan;
-            ShaderHelper.SetEmissionColor(Player.m_localPlayer.m_visEquipment.m_rightItemInstance, color);
-
-            Player.m_localPlayer.UpdateKnownRecipesList();
-        }
-
-        private bool CheckInput()
-        {
-            return Player.m_localPlayer != null
-                && (!Chat.instance || !Chat.instance.HasFocus())
-                && !Console.IsVisible()
-                && !InventoryGui.IsVisible()
-                && !StoreGui.IsVisible()
-                && !Menu.IsVisible()
-                && !Minimap.IsOpen()
-                && !Player.m_localPlayer.InCutscene();
         }
     }
 }
