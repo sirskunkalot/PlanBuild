@@ -13,21 +13,24 @@ namespace PlanBuild.Blueprints
         public static int GrowMask;
 
         private static Selection _instance;
-
         public static Selection Instance => _instance ??= new Selection();
 
-        private readonly ZDOIDSet selectedZDOIDs = new ZDOIDSet();
-        private readonly ZDOIDSet highlightedZDOIDs = new ZDOIDSet();
+        private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
+        private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
 
         private int SnapPoints;
         private int CenterMarkers;
         private bool Highlighted;
-
-        private Coroutine unhighlightCoroutine;
+        private Coroutine UnhighlightCoroutine;
+        
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
 
         public IEnumerator<ZDOID> GetEnumerator()
         {
-            foreach (ZDOID zdoid in new List<ZDOID>(selectedZDOIDs))
+            foreach (ZDOID zdoid in new List<ZDOID>(SelectedZDOIDs))
             {
                 yield return zdoid;
             }
@@ -50,23 +53,18 @@ namespace PlanBuild.Blueprints
             return ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid));
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
         public void StartHighlightSelection()
         {
             IEnumerator Start()
             {
                 yield return null;
-                if (unhighlightCoroutine != null)
+                if (UnhighlightCoroutine != null)
                 {
 #if DEBUG
                     Logger.LogInfo($"{Time.frameCount} Canceling pending unhighlight");
 #endif
-                    PlanBuildPlugin.Instance.StopCoroutine(unhighlightCoroutine);
-                    unhighlightCoroutine = null;
+                    PlanBuildPlugin.Instance.StopCoroutine(UnhighlightCoroutine);
+                    UnhighlightCoroutine = null;
                     //Selection is still highlighted
                     yield break;
                 }
@@ -77,7 +75,7 @@ namespace PlanBuild.Blueprints
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
                     //Iterating over a copy of the list to avoid ConcurrentModificationEcveption
-                    if (!selectedZDOIDs.Contains(zdoid))
+                    if (!SelectedZDOIDs.Contains(zdoid))
                     {
                         //Piece was unselected while still highlighting
                         continue;
@@ -113,7 +111,7 @@ namespace PlanBuild.Blueprints
                 Logger.LogInfo($"{Time.frameCount} Starting unhighlight coroutine");
 #endif
                 int n = 0;
-                foreach (ZDOID zdoid in new List<ZDOID>(highlightedZDOIDs))
+                foreach (ZDOID zdoid in new List<ZDOID>(HighlightedZDOIDs))
                 {
                     GameObject selected = GetGameObject(zdoid);
                     Unhighlight(zdoid, selected);
@@ -126,10 +124,10 @@ namespace PlanBuild.Blueprints
 #if DEBUG
                 Logger.LogInfo($"{Time.frameCount} Finished unhighlight coroutine");
 #endif
-                unhighlightCoroutine = null;
+                UnhighlightCoroutine = null;
             }
 
-            if (unhighlightCoroutine != null)
+            if (UnhighlightCoroutine != null)
             {
 #if DEBUG
                 Logger.LogInfo($"{Time.frameCount} Not queueing unhighlight as there is already a unhighlight coroutine");
@@ -140,89 +138,71 @@ namespace PlanBuild.Blueprints
 #if DEBUG
             Logger.LogInfo($"{Time.frameCount} Enqueue unhighlight coroutine");
 #endif
-            unhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
+            UnhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
             Highlighted = false;
         }
 
-        internal void OnPieceAwake(Piece piece)
+        public bool AddPiece(Piece piece)
         {
-            ZDOID? zdoid = piece.GetZDOID();
-            if (!zdoid.HasValue)
-            {
-                return;
-            }
-            bool containsPiece = selectedZDOIDs.Contains(zdoid.Value); ;
-            if (Highlighted && containsPiece && !IsHighlighted(piece))
-            {
-                Highlight(zdoid.Value, piece.gameObject);
-            }
-            if (containsPiece)
+            ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
+            if (zdoid.HasValue && SelectedZDOIDs.Add(zdoid.Value))
             {
                 AttachListener(piece);
+                Highlight(zdoid.Value, piece.gameObject);
+                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
+                {
+                    SnapPoints++;
+                }
+                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
+                {
+                    CenterMarkers++;
+                }
+                return true;
             }
+
+            return false;
         }
 
-        private void AttachListener(Piece piece)
+        public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
-            if (piece.TryGetComponent(out WearNTear wearNTear))
+            Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
+            foreach (var piece in Piece.m_allPieces)
             {
-                wearNTear.m_onDestroyed += () => OnWearNTearDestroyed(wearNTear);
+                Vector3 piecePos = piece.transform.position;
+                if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
+                    && BlueprintManager.Instance.CanCapture(piece, onlyPlanned))
+                {
+                    AddPiece(piece);
+                }
             }
         }
-
-        private bool IsHighlighted(Piece piece)
+        
+        public bool Contains(Piece piece)
         {
-            ZDOID zdoid = piece.m_nview.GetZDO().m_uid;
-            return highlightedZDOIDs.Contains(zdoid);
+            ZDOID? zdoid = piece.GetZDOID();
+            return zdoid.HasValue && SelectedZDOIDs.Contains(zdoid.Value);
         }
 
-        internal void OnPieceUnload(Piece piece)
+        public bool RemovePiece(Piece piece)
         {
-            if (Contains(piece))
+            ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
+            if (zdoid.HasValue && SelectedZDOIDs.Remove(zdoid.Value))
             {
-                ZDOID zdoid = piece.m_nview.GetZDO().m_uid;
-                highlightedZDOIDs.Remove(zdoid);
+                Unhighlight(zdoid.Value, piece.gameObject);
+                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
+                {
+                    SnapPoints--;
+                }
+                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
+                {
+                    CenterMarkers--;
+                }
+                return true;
             }
+            return false;
         }
-
-        internal void OnWearNTearDestroyed(WearNTear wearNTear)
-        {
-            ZDOID? zdoid = wearNTear.GetZDOID();
-            if (!zdoid.HasValue)
-            {
-                return;
-            }
-            selectedZDOIDs.Remove(zdoid.Value);
-            highlightedZDOIDs.Remove(zdoid.Value);
-        }
-
-        public void Highlight(ZDOID zdoid, GameObject selected)
-        {
-            if (highlightedZDOIDs.Contains(zdoid))
-            {
-                return;
-            }
-            if (selected && selected.TryGetComponent(out WearNTear wearNTear))
-            {
-                wearNTear.Highlight(Color.green);
-                highlightedZDOIDs.Add(zdoid);
-            }
-        }
-
-        public void Unhighlight(ZDOID zdoid, GameObject gameObject)
-        {
-            if (!highlightedZDOIDs.Contains(zdoid))
-            {
-                return;
-            }
-            if (gameObject.TryGetComponent(out WearNTear wearNTear))
-            {
-                wearNTear.ResetHighlight();
-                highlightedZDOIDs.Remove(zdoid);
-            }
-        }
-
-        internal void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
+        
+        public void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
             foreach (var piece in Piece.m_allPieces)
@@ -236,7 +216,17 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        internal void AddGrowFromPiece(Piece piece)
+        public void Clear()
+        {
+            foreach (ZDOID zdoid in this)
+            {
+                GameObject selected = GetGameObject(zdoid);
+                Unhighlight(zdoid, selected);
+            }
+            SelectedZDOIDs.Clear();
+        }
+        
+        public void AddGrowFromPiece(Piece piece)
         {
             IEnumerator Start(Piece originalPiece)
             {
@@ -267,7 +257,7 @@ namespace PlanBuild.Blueprints
             PlanBuildPlugin.Instance.StartCoroutine(Start(piece));
         }
 
-        internal void RemoveGrowFromPiece(Piece piece)
+        public void RemoveGrowFromPiece(Piece piece)
         {
             IEnumerator<YieldInstruction> RemoveGrowIterator(Piece originalPiece)
             {
@@ -298,7 +288,7 @@ namespace PlanBuild.Blueprints
             PlanBuildPlugin.Instance.StartCoroutine(RemoveGrowIterator(piece));
         }
 
-        internal HashSet<Piece> GetSupportingPieces(Piece piece)
+        private HashSet<Piece> GetSupportingPieces(Piece piece)
         {
             HashSet<Piece> result = new HashSet<Piece>();
             Vector3 shellDistance = Vector3.one * Config.SelectionConnectedMarginConfig.Value;
@@ -329,75 +319,83 @@ namespace PlanBuild.Blueprints
             }
             return result;
         }
+        
+        public void Highlight(ZDOID zdoid, GameObject selected)
+        {
+            if (HighlightedZDOIDs.Contains(zdoid))
+            {
+                return;
+            }
+            if (selected && selected.TryGetComponent(out WearNTear wearNTear))
+            {
+                wearNTear.Highlight(Color.green);
+                HighlightedZDOIDs.Add(zdoid);
+            }
+        }
 
-        internal bool Contains(Piece piece)
+        public void Unhighlight(ZDOID zdoid, GameObject gameObject)
+        {
+            if (!HighlightedZDOIDs.Contains(zdoid))
+            {
+                return;
+            }
+            if (gameObject.TryGetComponent(out WearNTear wearNTear))
+            {
+                wearNTear.ResetHighlight();
+                HighlightedZDOIDs.Remove(zdoid);
+            }
+        }
+        
+        private bool IsHighlighted(Piece piece)
+        {
+            ZDOID zdoid = piece.m_nview.GetZDO().m_uid;
+            return HighlightedZDOIDs.Contains(zdoid);
+        }
+        
+        internal void OnPieceAwake(Piece piece)
         {
             ZDOID? zdoid = piece.GetZDOID();
-            return zdoid.HasValue && selectedZDOIDs.Contains(zdoid.Value);
-        }
-
-        internal bool RemovePiece(Piece piece)
-        {
-            ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
-            if (zdoid.HasValue && selectedZDOIDs.Remove(zdoid.Value))
+            if (!zdoid.HasValue)
             {
-                Unhighlight(zdoid.Value, piece.gameObject);
-                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
-                {
-                    SnapPoints--;
-                }
-                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
-                {
-                    CenterMarkers--;
-                }
-                return true;
+                return;
             }
-            return false;
-        }
-
-        internal bool AddPiece(Piece piece)
-        {
-            ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
-            if (zdoid.HasValue && selectedZDOIDs.Add(zdoid.Value))
+            bool containsPiece = SelectedZDOIDs.Contains(zdoid.Value); ;
+            if (Highlighted && containsPiece && !IsHighlighted(piece))
+            {
+                Highlight(zdoid.Value, piece.gameObject);
+            }
+            if (containsPiece)
             {
                 AttachListener(piece);
-                Highlight(zdoid.Value, piece.gameObject);
-                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
-                {
-                    SnapPoints++;
-                }
-                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
-                {
-                    CenterMarkers++;
-                }
-                return true;
             }
-
-            return false;
         }
 
-        public void Clear()
+        private void AttachListener(Piece piece)
         {
-            foreach (ZDOID zdoid in this)
+            if (piece.TryGetComponent(out WearNTear wearNTear))
             {
-                GameObject selected = GetGameObject(zdoid);
-                Unhighlight(zdoid, selected);
+                wearNTear.m_onDestroyed += () => OnWearNTearDestroyed(wearNTear);
             }
-            selectedZDOIDs.Clear();
         }
 
-        public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
+        internal void OnPieceUnload(Piece piece)
         {
-            Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
-            foreach (var piece in Piece.m_allPieces)
+            if (Contains(piece))
             {
-                Vector3 piecePos = piece.transform.position;
-                if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
-                    && BlueprintManager.Instance.CanCapture(piece, onlyPlanned))
-                {
-                    AddPiece(piece);
-                }
+                ZDOID zdoid = piece.m_nview.GetZDO().m_uid;
+                HighlightedZDOIDs.Remove(zdoid);
             }
+        }
+
+        private void OnWearNTearDestroyed(WearNTear wearNTear)
+        {
+            ZDOID? zdoid = wearNTear.GetZDOID();
+            if (!zdoid.HasValue)
+            {
+                return;
+            }
+            SelectedZDOIDs.Remove(zdoid.Value);
+            HighlightedZDOIDs.Remove(zdoid.Value);
         }
 
         public new string ToString()
