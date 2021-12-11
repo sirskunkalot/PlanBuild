@@ -18,10 +18,7 @@ namespace PlanBuild.Plans
         internal void Init()
         {
             Logger.LogInfo("Initializing PlanManager");
-
-            // Init config
-            PlanConfig.Init();
-
+            
             // Init blacklist
             PlanBlacklist.Init();
 
@@ -54,7 +51,7 @@ namespace PlanBuild.Plans
             foreach (PlanPiecePrefab planPiece in PlanDB.Instance.GetPlanPiecePrefabs())
             {
                 if (PlanBlacklist.Contains(planPiece) ||
-                    (!PlanConfig.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece)))
+                    (!Config.ShowAllPieces.Value && !PlayerKnowsPiece(player, planPiece.OriginalPiece)))
                 {
                     if (player.m_knownRecipes.Contains(planPiece.Piece.m_name))
                     {
@@ -80,7 +77,7 @@ namespace PlanBuild.Plans
                 (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName) ||
                  self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix)))
             {
-                if (PlanCrystalPrefab.ShowRealTextures || !PlanConfig.ConfigTransparentGhostPlacement.Value)
+                if (PlanCrystalPrefab.ShowRealTextures || !Config.ConfigTransparentGhostPlacement.Value)
                 {
                     ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
                 }
@@ -151,7 +148,7 @@ namespace PlanBuild.Plans
                     {
                         return false;
                     }
-                    if (PlanConfig.ShowAllPieces.Value)
+                    if (Config.ShowAllPieces.Value)
                     {
                         return true;
                     }
@@ -177,7 +174,7 @@ namespace PlanBuild.Plans
                     {
                         ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
                     }
-                    else if (PlanConfig.ConfigTransparentGhostPlacement.Value
+                    else if (Config.ConfigTransparentGhostPlacement.Value
                              && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
                                  || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
                     )

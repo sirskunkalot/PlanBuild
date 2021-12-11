@@ -42,9 +42,6 @@ namespace PlanBuild.Blueprints
 
                 Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
 
-                // Init config
-                BlueprintConfig.Init();
-
                 // Init sync
                 BlueprintSync.Init();
 
@@ -376,7 +373,7 @@ namespace PlanBuild.Blueprints
                 RegisterKnownBlueprints();
 
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
-                Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
+                Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
                 
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
@@ -441,7 +438,7 @@ namespace PlanBuild.Blueprints
                 {
                     piece = Player.m_localPlayer.GetSelectedPiece();
                 }
-                if (BlueprintConfig.TooltipEnabledConfig.Value && piece &&
+                if (Config.TooltipEnabledConfig.Value && piece &&
                     piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
                     LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
                     bp.Thumbnail != null)
@@ -449,7 +446,7 @@ namespace PlanBuild.Blueprints
                     self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
                     orig(self, go);
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Background")
-                        .GetComponent<Image>().color = BlueprintConfig.TooltipBackgroundConfig.Value;
+                        .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Image")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                 }

@@ -240,8 +240,8 @@ namespace PlanBuild.Blueprints
             ret.ID = id;
             ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
-            ret.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
-            ret.ThumbnailLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
+            ret.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
+            ret.ThumbnailLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -700,12 +700,12 @@ namespace PlanBuild.Blueprints
                     },
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.RadiusModifierButton.Name, Config = BlueprintConfig.RadiusModifierConfig,
-                        HintToken = BlueprintConfig.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
+                        Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig,
+                        HintToken = Config.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
                     },
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.CameraModifierButton.Name, Config = BlueprintConfig.CameraModifierConfig,
+                        Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig,
                         HintToken = "$hud_bpcamera"
                     },
                     new ButtonConfig
@@ -861,7 +861,7 @@ namespace PlanBuild.Blueprints
                     }
                 }
 
-                if (BlueprintConfig.ShowGridConfig.Value)
+                if (Config.ShowGridConfig.Value)
                 {
                     DebugUtils.InitLaserGrid(baseObject, GetBounds());
                 }
@@ -1032,7 +1032,7 @@ namespace PlanBuild.Blueprints
                 newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
                 newbp.Name = text;
                 newbp.Creator = playerName;
-                newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
+                newbp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
                 newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
 
                 if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))

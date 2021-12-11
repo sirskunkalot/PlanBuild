@@ -17,7 +17,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
@@ -28,7 +28,7 @@ namespace PlanBuild.Blueprints.Tools
                 UndoRotation(self, scrollWheel);
             }
 
-            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }

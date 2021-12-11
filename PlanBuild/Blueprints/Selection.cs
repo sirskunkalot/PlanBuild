@@ -301,7 +301,7 @@ namespace PlanBuild.Blueprints
         internal HashSet<Piece> GetSupportingPieces(Piece piece)
         {
             HashSet<Piece> result = new HashSet<Piece>();
-            Vector3 shellDistance = Vector3.one * BlueprintConfig.SelectionConnectedMarginConfig.Value;
+            Vector3 shellDistance = Vector3.one * Config.SelectionConnectedMarginConfig.Value;
             if (piece.TryGetComponent(out WearNTear wearNTear))
             {
                 if (wearNTear.m_bounds == null)

@@ -17,7 +17,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }

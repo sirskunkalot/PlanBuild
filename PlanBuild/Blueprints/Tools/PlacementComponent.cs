@@ -19,8 +19,8 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
+                bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+                bool deleteModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
                 if (radiusModifier && deleteModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints.Tools
                     PlacementOffset.z += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                else if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -70,10 +70,10 @@ namespace PlanBuild.Blueprints.Tools
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = BlueprintConfig.DirectBuildDefault;
-            placeDirect ^= ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
+            bool placeDirect = Config.DirectBuildDefault;
+            placeDirect ^= ZInput.GetButton(Config.RadiusModifierButton.Name);
             if (placeDirect
-                && !BlueprintConfig.AllowDirectBuildConfig.Value
+                && !Config.AllowDirectBuildConfig.Value
                 && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
@@ -130,7 +130,7 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
-                if (!(SynchronizationManager.Instance.PlayerIsAdmin || BlueprintConfig.AllowTerrainmodConfig.Value)
+                if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");

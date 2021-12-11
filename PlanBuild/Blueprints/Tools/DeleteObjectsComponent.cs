@@ -19,7 +19,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
@@ -33,14 +33,14 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool OnPlacePiece(Player self, Piece piece)
         {
-            if (!BlueprintConfig.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
+            if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                 return false;
             }
 
             int delcnt;
-            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
                 // Remove Pieces
                 delcnt = TerrainTools.RemoveObjects(
@@ -48,7 +48,7 @@ namespace PlanBuild.Blueprints.Tools
                     new Type[] { typeof(Piece) },
                     new Type[] { typeof(PlanPiece) });
             }
-            else if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
                 // Remove All
                 delcnt = TerrainTools.RemoveObjects(

@@ -99,7 +99,6 @@
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
-    <Compile Include="Blueprints\BlueprintConfig.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
@@ -115,9 +114,9 @@
     <Compile Include="Blueprints\Tools\SelectionToolComponentBase.cs" />
     <Compile Include="Blueprints\Tools\TerrainComponent.cs" />
     <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Plans\PlanCommands.cs" />
     <Compile Include="Plans\PlanBlacklist.cs" />
-    <Compile Include="Plans\PlanConfig.cs" />
     <Compile Include="Plans\PlanDB.cs" />
     <Compile Include="Blueprints\Selection.cs" />
     <Compile Include="Plans\PlanHammerPrefab.cs" />

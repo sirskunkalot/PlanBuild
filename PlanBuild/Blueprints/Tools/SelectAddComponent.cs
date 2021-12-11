@@ -11,7 +11,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
                 EnableSelectionProjector(self);
             }
@@ -23,11 +23,11 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+                else if (ZInput.GetButton(Config.RadiusModifierButton.Name))
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
@@ -37,14 +37,14 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool OnPlacePiece(Player self, Piece piece)
         {
-            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.Instance.LastHoveredPiece && 
                      BlueprintManager.Instance.CanCapture(BlueprintManager.Instance.LastHoveredPiece))
             {
-                if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+                if (ZInput.GetButton(Config.DeleteModifierButton.Name))
                 {
                     Selection.Instance.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
                 }

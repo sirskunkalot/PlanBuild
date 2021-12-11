@@ -36,6 +36,15 @@ namespace PlanBuild
         {
             Instance = this;
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
+            
+            // Init config
+            PlanBuild.Config.Init();
+
+            // Init Blueprints
+            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
+            BlueprintAssets.Load(blueprintsBundle);
+            blueprintsBundle.Unload(false);
+            BlueprintManager.Instance.Init();
 
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);
@@ -44,12 +53,6 @@ namespace PlanBuild
             PlanHammerPrefab.Create(planbuildBundle);
             planbuildBundle.Unload(false);
             PlanManager.Instance.Init();
-
-            // Init Blueprints
-            AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
-            BlueprintAssets.Load(blueprintsBundle);
-            blueprintsBundle.Unload(false);
-            BlueprintManager.Instance.Init();
 
             // Init Shader
             ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");
@@ -79,8 +82,8 @@ namespace PlanBuild
 
             // BP Market GUI is OK in the main menu
             if (BlueprintGUI.IsAvailable() &&
-                (BlueprintConfig.AllowMarketHotkey.Value || SynchronizationManager.Instance.PlayerIsAdmin) &&
-                ZInput.GetButtonDown(BlueprintConfig.MarketHotkeyButton.Name))
+                (PlanBuild.Config.AllowMarketHotkey.Value || SynchronizationManager.Instance.PlayerIsAdmin) &&
+                ZInput.GetButtonDown(PlanBuild.Config.MarketHotkeyButton.Name))
             {
                 BlueprintGUI.Instance.Toggle();
             }

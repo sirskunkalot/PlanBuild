@@ -18,14 +18,14 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
+                bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+                bool deleteModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
                 if (deleteModifier && radiusModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                else if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints.Tools
                     UndoRotation(self, scrollWheel);
                 }
             }
-            if (ZInput.GetButtonDown(BlueprintConfig.MarkerSwitchButton.Name))
+            if (ZInput.GetButtonDown(Config.MarkerSwitchButton.Name))
             {
                 SelectionProjector.SwitchShape();
             }
@@ -44,13 +44,13 @@ namespace PlanBuild.Blueprints.Tools
 
         public override bool OnPlacePiece(Player self, Piece piece)
         {
-            if (!BlueprintConfig.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
+            if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
                 return false;
             }
 
-            if (ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name))
+            if (ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
                 TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
                     SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);

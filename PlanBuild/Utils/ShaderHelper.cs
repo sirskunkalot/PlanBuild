@@ -129,7 +129,7 @@ namespace PlanBuild.Utils
 
         private static Material GetMaterial(ShaderState shaderState, Material originalMaterial)
         {
-            float transparency = PlanConfig.TransparencyConfig.Value;
+            float transparency = Config.TransparencyConfig.Value;
             transparency *= transparency; //x² mapping for finer control
             switch (shaderState)
             {
@@ -145,7 +145,7 @@ namespace PlanBuild.Utils
                         };
                         supportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         supportedMaterial.shader = PlanShader;
-                        Color supportedMaterialColor = PlanConfig.SupportedPlanColorConfig.Value;
+                        Color supportedMaterialColor = Config.SupportedPlanColorConfig.Value;
                         supportedMaterialColor.a *= transparency;
                         supportedMaterial.color = supportedMaterialColor;
                         supportedMaterial.EnableKeyword("_EMISSION");
@@ -163,7 +163,7 @@ namespace PlanBuild.Utils
                         };
                         unsupportedMaterial.SetOverrideTag("RenderType", "Transparent");
                         unsupportedMaterial.shader = PlanShader;
-                        Color unsupportedMaterialColor = PlanConfig.UnsupportedColorConfig.Value;
+                        Color unsupportedMaterialColor = Config.UnsupportedColorConfig.Value;
                         unsupportedMaterialColor.a *= transparency;
                         unsupportedMaterial.color = unsupportedMaterialColor;
                         unsupportedMaterial.EnableKeyword("_EMISSION");
