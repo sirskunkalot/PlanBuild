@@ -6,23 +6,19 @@
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
-        }
-
-        public void Start()
-        {
             Selection.Instance.StartHighlightSelection();
+        }
+        
+        public override void OnOnDestroy()
+        {
+            On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
+            Selection.Instance.StopHighlightSelection();
         }
 
         private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
             orig(self, piece);
             UpdateDescription();
-        }
-
-        public override void OnOnDestroy()
-        {
-            On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
-            Selection.Instance.StopHighlightSelection();
         }
 
         internal void UpdateDescription()
