@@ -1,3 +1,11 @@
+# Version 1.0.0
+* Splitted plan and blueprint functionality into two separate items
+* Added item "Plan Hammer" for planned piece building
+* Removed toggle key for the blueprint rune
+* __If you want to use plans, you must craft the new item from your player crafting screen__
+* Reorganized configuration entries for more clarity
+* __Please revise your configuration once after installing this version__
+
 # Version 0.9.2
 * Added config for default blueprint build mode
 * Expanded plan totem inventory slots to 28
