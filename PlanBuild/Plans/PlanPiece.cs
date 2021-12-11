@@ -22,7 +22,7 @@ namespace PlanBuild.Plans
         private Piece m_piece;
         private ZNetView m_nView;
         internal WearNTear m_wearNTear;
-         
+
         public Piece originalPiece;
 
         //GUI
@@ -65,7 +65,7 @@ namespace PlanBuild.Plans
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
             m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
         }
-         
+
 
         private void OnDestroyed()
         {
@@ -555,7 +555,7 @@ namespace PlanBuild.Plans
                     itemData.m_stack = dropCount;
                     currentCount -= dropCount;
 
-                    Object.Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
+                    Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
                         .GetComponent<ItemDrop>().SetStack(dropCount);
                 }
             }
@@ -614,17 +614,17 @@ namespace PlanBuild.Plans
             {
                 return;
             }
-            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation, originalPiece.gameObject, m_nView.GetZDO().GetString(zdoAdditionalInfo)); 
+            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation, originalPiece.gameObject, m_nView.GetZDO().GetString(zdoAdditionalInfo));
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
             BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
-            ZNetScene.instance.Destroy(this.gameObject);
+            ZNetScene.instance.Destroy(gameObject);
         }
 
         internal static GameObject SpawnPiece(GameObject originatingObject, long creatorID, Vector3 position, Quaternion rotation, GameObject prefab, string textReceiverInput)
         {
-            GameObject actualPiece = Object.Instantiate(prefab, position, rotation);
+            GameObject actualPiece = Instantiate(prefab, position, rotation);
             OnPieceReplaced(originatingObject, actualPiece);
             // Register special effects
             if (creatorID == Player.m_localPlayer?.GetPlayerID())

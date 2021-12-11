@@ -206,7 +206,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Get all pieces belonging to a given Blueprint identified by its <see cref="ZDOID"/>
+        ///     Get all pieces belonging to a given Blueprint instance identified by its <see cref="ZDOID"/>
         /// </summary>
         /// <param name="blueprintID"></param>
         /// <returns></returns>
@@ -231,7 +231,7 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Get a specific <see cref="Piece"/> from a Blueprint identified by its <see cref="ZDO"/>
+        ///     Get the <see cref="ZDOID">ZDOIDs</see> of all pieces from a Blueprint instance identified by its <see cref="ZDO"/>
         /// </summary>
         /// <param name="blueprintZDO"></param>
         /// <returns></returns>

@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints.Tools
 
         private bool MakeBlueprint(Player self)
         {
-            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count() + 1:000}";
+            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
             Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
 
             var bp = new Blueprint();
