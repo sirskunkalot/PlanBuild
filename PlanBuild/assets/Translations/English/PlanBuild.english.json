@@ -43,6 +43,8 @@
   "piece_blueprint_snappoint_desc": "These markers are consumed when creating a blueprint, and are saved in the blueprint as Snap Points instead of normal pieces.",
   "piece_blueprint_centerpoint": "Center point marker",
   "piece_blueprint_centerpoint_desc": "This marker is consumed when creating a blueprint, and will be used to determine the center of your blueprint.",
+  "piece_blueprint_edit": "Edit blueprint",
+  "piece_blueprint_edit_desc": "Edit or delete placed blueprints",
   "piece_blueprint_delete": "Remove planned pieces",
   "piece_blueprint_delete_desc": "Remove one or all planned pieces from a blueprint or remove all planned pieces in a radius",
   "piece_blueprint_objects": "Deletion tools",

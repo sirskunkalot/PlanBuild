@@ -76,7 +76,7 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         /// <summary>
-        ///     Apply the PlacementOffset to the placementMarker
+        ///     Apply the PlacementOffset to the placementMarker and react on piece hover
         /// </summary>
         private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
@@ -85,7 +85,15 @@ namespace PlanBuild.Blueprints.Tools
             {
                 point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
             }
+            if (result && piece)
+            {
+                OnPieceHovered(piece);
+            }
             return result;
+        }
+        
+        public virtual void OnPieceHovered(Piece hoveredPiece)
+        {
         }
 
         /// <summary>

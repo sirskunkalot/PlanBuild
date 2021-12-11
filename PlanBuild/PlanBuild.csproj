@@ -112,6 +112,7 @@
     <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
     <Compile Include="Blueprints\Tools\PaintComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectionToolComponentBase.cs" />
+    <Compile Include="Blueprints\Tools\EditComponent.cs" />
     <Compile Include="Blueprints\Tools\TerrainComponent.cs" />
     <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
     <Compile Include="Config.cs" />

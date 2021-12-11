@@ -37,6 +37,8 @@
   "piece_blueprint_snappoint_desc": "Diese Markierungen werden beim Erstellen einer Blaupause gelöscht und in der Blaupause als Fangpunkte gespeichert",
   "piece_blueprint_centerpoint": "Mittelpunkt-Markierung",
   "piece_blueprint_centerpoint_desc": "Diese Markierung wird bei der Erstellung einer Blaupause gelöscht und dient dazu, den Mittelpunkt der Blaupause zu bestimmen",
+  "piece_blueprint_edit": "Blaupausen editieren",
+  "piece_blueprint_edit_desc": "Ändere oder lösche bereits gebaute Blaupausen",
   "piece_blueprint_delete": "Pläne löschen",
   "piece_blueprint_delete_desc": "Entfert ein oder alle Pläne aus einer Blaupause oder entfernt alle Pläne in einem Radius",
   "piece_blueprint_objects": "Lösch-Werkzeuge",
