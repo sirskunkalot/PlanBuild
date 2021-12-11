@@ -21,11 +21,6 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else
-                {
-                    UpdateSelectionRadius(scrollWheel);
-                }
-                UndoRotation(self, scrollWheel);
             }
         }
 
@@ -47,6 +42,25 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Player.m_localPlayer.Message(MessageHud.MessageType.Center, blueprintObject.name);
             }
+        }
+        
+        public override bool OnPlacePiece(Player self, Piece piece)
+        {
+            // Add all blueprint pieces when hovered
+            if (BlueprintManager.Instance.LastHoveredPiece)
+            {
+                if (BlueprintManager.Instance.LastHoveredPiece.TryGetComponent<PlanPiece>(out var planPiece) && planPiece.GetBlueprintID() != ZDOID.None)
+                {
+                    Selection.Instance.AddBlueprint(planPiece.GetBlueprintID());
+                }
+            }
+            // Remove selection when not hovered
+            else
+            {
+                Selection.Instance.Clear();
+            }
+            
+            return false;
         }
     }
 }

@@ -163,6 +163,14 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
+        public void AddBlueprint(ZDOID blueprintID)
+        {
+            foreach (var piece in BlueprintManager.Instance.GetPlanPiecesInBlueprint(blueprintID))
+            {
+                AddPiece(piece.GetComponent<Piece>());
+            }
+        }
+
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
