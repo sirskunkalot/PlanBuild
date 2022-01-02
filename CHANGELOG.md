@@ -1,3 +1,6 @@
+# Version 0.9.3
+* Fixed manual selection tools
+
 # Version 0.9.2
 * Added config for default blueprint build mode
 * Expanded plan totem inventory slots to 28
