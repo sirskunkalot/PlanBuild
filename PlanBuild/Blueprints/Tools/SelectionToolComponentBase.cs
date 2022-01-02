@@ -14,7 +14,7 @@
             On.Hud.SetupPieceInfo -= OnSetupPieceInfo;
             Selection.Instance.StopHighlightSelection();
         }
-
+        
         private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
             orig(self, piece);
