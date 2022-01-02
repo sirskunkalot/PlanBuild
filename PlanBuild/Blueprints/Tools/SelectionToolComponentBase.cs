@@ -6,13 +6,9 @@
         {
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
-        }
-
-        public void Start()
-        {
             Selection.Instance.StartHighlightSelection();
         }
-
+        
         private void OnSetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
             orig(self, piece);
