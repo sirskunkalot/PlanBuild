@@ -38,9 +38,9 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-            if (blueprintObject)
+            if (blueprintObject && blueprintObject.TryGetComponent<ZNetView>(out var znet))
             {
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, blueprintObject.name);
+                Player.m_localPlayer.Message(MessageHud.MessageType.Center, znet.GetZDO().GetString(Blueprint.ZDOBlueprintName));
             }
         }
         
