@@ -83,15 +83,11 @@ namespace PlanBuild.Blueprints.Tools
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
-            ZDOIDSet createdPlans = new ZDOIDSet();
-            ZDO blueprintZDO = null;
-            if (!placeDirect)
-            {
-                GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
-                GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
-                blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-                blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
-            }
+            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
+            GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
+            ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
+            blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
+            ZDOIDSet blueprintPieces = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -151,10 +147,10 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
                 }
-                else if (!placeDirect && gameObject.TryGetComponent(out PlanPiece planPiece))
+                else if (gameObject.TryGetComponent<Piece>(out var blueprintPiece))
                 {
-                    planPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
-                    createdPlans.Add(planPiece.GetPlanPieceID());
+                    blueprintPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
+                    blueprintPieces.Add(blueprintPiece.GetBlueprintPieceID());
                 }
 
                 // Register special effects
@@ -195,11 +191,8 @@ namespace PlanBuild.Blueprints.Tools
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-
-            if(!placeDirect)
-            {
-                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
-            }
+            
+            blueprintZDO.Set(BlueprintPiece.zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
         }
 
         /// <summary>

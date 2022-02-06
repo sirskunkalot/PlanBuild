@@ -41,11 +41,11 @@ namespace PlanBuild.Blueprints.Tools
             }
             else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
-                BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red);
+                BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red, true);
             }
             else
             {
-                BlueprintManager.Instance.HighlightHoveredPiece(Color.red);
+                BlueprintManager.Instance.HighlightHoveredPiece(Color.red, true);
             }
         }
 
@@ -79,30 +79,39 @@ namespace PlanBuild.Blueprints.Tools
 
         private bool UndoBlueprint()
         {
-            if (BlueprintManager.Instance.LastHoveredPiece)
+            if (!BlueprintManager.Instance.LastHoveredPiece)
             {
-                if (BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                return false;
+            }
+
+            if (!BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+            {
+                return false;
+            }
+
+            ZDOID blueprintID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintID();
+            if (blueprintID == ZDOID.None)
+            {
+                return false;
+            }
+
+            int removedPieces = 0;
+            foreach (Piece pieceToRemove in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
+            {
+                if (pieceToRemove.TryGetComponent<PlanPiece>(out var planPieceToRemove))
                 {
-                    ZDOID blueprintID = planPiece.GetBlueprintID();
-                    if (blueprintID != ZDOID.None)
-                    {
-                        int removedPieces = 0;
-                        foreach (PlanPiece pieceToRemove in BlueprintManager.Instance.GetPlanPiecesInBlueprint(blueprintID))
-                        {
-                            pieceToRemove.Remove();
-                            removedPieces++;
-                        }
-
-                        GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                        if (blueprintObject)
-                        {
-                            ZNetScene.instance.Destroy(blueprintObject);
-                        }
-
-                        Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-                    }
+                    planPieceToRemove.Remove();
+                    removedPieces++;
                 }
             }
+
+            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+            if (blueprintObject)
+            {
+                ZNetScene.instance.Destroy(blueprintObject);
+            }
+
+            Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 
             return false;
         }
@@ -111,13 +120,10 @@ namespace PlanBuild.Blueprints.Tools
         {
             Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
-            foreach (Piece pieceToRemove in BlueprintManager.Instance.GetPiecesInRadius(deletePosition, SelectionRadius))
+            foreach (Piece pieceToRemove in BlueprintManager.Instance.GetPiecesInRadius(deletePosition, SelectionRadius, true))
             {
-                if (pieceToRemove.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Remove();
-                    removedPieces++;
-                }
+                pieceToRemove.GetComponent<PlanPiece>().m_wearNTear.Remove();
+                removedPieces++;
             }
             self.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 

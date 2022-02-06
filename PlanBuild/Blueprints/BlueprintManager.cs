@@ -153,53 +153,74 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
+
             foreach (var piece in GetPiecesInRadius(startPosition, radius, onlyPlanned))
             {
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
-                    wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
+                    wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                 }
             }
             LastHightlightTime = Time.time;
         }
 
         /// <summary>
-        ///     "Highlights" the last hovered planned piece with a given color.
+        ///     "Highlights" the last hovered piece with a given color.
         /// </summary>
         /// <param name="color"></param>
-        public void HighlightHoveredPiece(Color color)
+        /// <param name="onlyPlanned"></param>
+        public void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
         {
-            if (Time.time > LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHightlightTime + HighlightTimeout)
             {
-                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
-                {
-                    hoveredPlanPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
-                }
-                LastHightlightTime = Time.time;
+                return;
             }
+
+            if (LastHoveredPiece)
+            {
+                if (onlyPlanned && !LastHoveredPiece.GetComponent<PlanPiece>())
+                {
+                    return;
+                }
+                if (LastHoveredPiece.TryGetComponent(out WearNTear wearNTear))
+                {
+                    wearNTear.Highlight(color, HighlightTimeout + 0.1f);
+                }
+            }
+            LastHightlightTime = Time.time;
         }
 
         /// <summary>
-        ///     "Highlights" all pieces belonging to the last hovered Blueprint with a given color.
+        ///     "Highlights" all pieces belonging to the current hovered Blueprint with a given color.
         /// </summary>
         /// <param name="color"></param>
-        public void HighlightHoveredBlueprint(Color color)
+        /// <param name="onlyPlanned"></param>
+        public void HighlightHoveredBlueprint(Color color, bool onlyPlanned = false)
         {
-            if (Time.time > LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHightlightTime + HighlightTimeout)
             {
-                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
+                return;
+            }
+            
+            if (LastHoveredPiece)
+            {
+                ZDOID blueprintID = LastHoveredPiece.GetBlueprintID();
+                if (blueprintID != ZDOID.None)
                 {
-                    ZDOID blueprintID = hoveredPlanPiece.GetBlueprintID();
-                    if (blueprintID != ZDOID.None)
+                    foreach (Piece blueprintPiece in GetPiecesInBlueprint(blueprintID))
                     {
-                        foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
+                        if (onlyPlanned && !LastHoveredPiece.GetComponent<PlanPiece>())
                         {
-                            planPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
+                            return;
+                        }
+                        if (LastHoveredPiece.TryGetComponent(out WearNTear wearNTear))
+                        {
+                            wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                         }
                     }
                 }
-                LastHightlightTime = Time.time;
             }
+            LastHightlightTime = Time.time;
         }
 
         /// <summary>
@@ -207,21 +228,21 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="blueprintID"></param>
         /// <returns></returns>
-        public List<PlanPiece> GetPlanPiecesInBlueprint(ZDOID blueprintID)
+        public List<Piece> GetPiecesInBlueprint(ZDOID blueprintID)
         {
-            List<PlanPiece> result = new List<PlanPiece>();
+            List<Piece> result = new List<Piece>();
             ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
             if (blueprintZDO == null)
             {
                 return result;
             }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
-            foreach (ZDOID pieceZDOID in planPieces)
+            ZDOIDSet blueprintPieces = GetBlueprintPieces(blueprintZDO);
+            foreach (ZDOID pieceZDOID in blueprintPieces)
             {
                 GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
-                if (pieceObject && pieceObject.TryGetComponent(out PlanPiece planPiece))
+                if (pieceObject && pieceObject.TryGetComponent(out Piece blueprintPiece))
                 {
-                    result.Add(planPiece);
+                    result.Add(blueprintPiece);
                 }
             }
             return result;
@@ -232,9 +253,9 @@ namespace PlanBuild.Blueprints
         /// </summary>
         /// <param name="blueprintZDO"></param>
         /// <returns></returns>
-        public ZDOIDSet GetPlanPieces(ZDO blueprintZDO)
+        public ZDOIDSet GetBlueprintPieces(ZDO blueprintZDO)
         {
-            byte[] data = blueprintZDO.GetByteArray(PlanPiece.zdoBlueprintPiece);
+            byte[] data = blueprintZDO.GetByteArray(BlueprintPiece.zdoBlueprintPiece);
             if (data == null)
             {
                 return null;
@@ -259,7 +280,7 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
+            ZDOIDSet planPieces = GetBlueprintPieces(blueprintZDO);
             planPieces?.Remove(planPiece.GetPlanPieceID());
             if (planPieces == null || !planPieces.Any())
             {

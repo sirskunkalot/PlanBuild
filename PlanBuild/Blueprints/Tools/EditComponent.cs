@@ -26,12 +26,7 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPieceHovered(Piece hoveredPiece)
         {
-            if (!hoveredPiece.TryGetComponent<PlanPiece>(out var planPiece))
-            {
-                return;
-            }
-
-            ZDOID blueprintID = planPiece.GetBlueprintID();
+            ZDOID blueprintID = hoveredPiece.GetBlueprintID();
             if (blueprintID == ZDOID.None)
             {
                 return;
@@ -49,9 +44,11 @@ namespace PlanBuild.Blueprints.Tools
             // Add all blueprint pieces when hovered
             if (BlueprintManager.Instance.LastHoveredPiece)
             {
-                if (BlueprintManager.Instance.LastHoveredPiece.TryGetComponent<PlanPiece>(out var planPiece) && planPiece.GetBlueprintID() != ZDOID.None)
+                ZDOID blueprintID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintID();
+                if (blueprintID != ZDOID.None)
                 {
-                    Selection.Instance.AddBlueprint(planPiece.GetBlueprintID());
+                    Selection.Instance.Clear();
+                    Selection.Instance.AddBlueprint(blueprintID);
                 }
             }
             // Remove selection when not hovered

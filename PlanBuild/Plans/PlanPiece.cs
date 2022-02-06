@@ -32,7 +32,7 @@ namespace PlanBuild.Plans
         {
             if (m_forceDisableInit)
             {
-                Object.Destroy(this);
+                Destroy(this);
                 return;
             }
 
@@ -141,7 +141,7 @@ namespace PlanBuild.Plans
                     {
                         continue;
                     }
-                    Object.Destroy(subComponent);
+                    Destroy(subComponent);
                 }
             }
 
@@ -362,14 +362,7 @@ namespace PlanBuild.Plans
         {
             return player.GetInventory().CountItems(resourceName);
         }
-
-        internal void PartOfBlueprint(ZDOID blueprintID, PieceEntry entry)
-        {
-            ZDO pieceZDO = m_nView.GetZDO();
-            pieceZDO.Set(zdoBlueprintID, blueprintID);
-            pieceZDO.Set(zdoAdditionalInfo, entry.additionalInfo);
-        }
-
+        
         [Obsolete]
         public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
         {

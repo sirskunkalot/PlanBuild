@@ -165,7 +165,7 @@ namespace PlanBuild.Blueprints
 
         public void AddBlueprint(ZDOID blueprintID)
         {
-            foreach (var piece in BlueprintManager.Instance.GetPlanPiecesInBlueprint(blueprintID))
+            foreach (var piece in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
             {
                 AddPiece(piece.GetComponent<Piece>());
             }
