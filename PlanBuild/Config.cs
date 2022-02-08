@@ -322,12 +322,10 @@ namespace PlanBuild
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceCaptureName,
+                Piece = BlueprintAssets.PieceEditName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
-                    new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_bpcapture_highlight" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpedit" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });

@@ -115,9 +115,9 @@ namespace PlanBuild.Blueprints
         private Texture2D ResizedThumbnail;
 
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:&lt;ID&gt;"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:{ID}"
         /// </summary>
-        private string PrefabName;
+        private string PrefabName => $"{PieceBlueprintName}:{ID}";
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -238,7 +238,6 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret = new Blueprint();
             ret.ID = id;
-            ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
             ret.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
             ret.ThumbnailLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
@@ -630,6 +629,7 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
+            
             Logger.LogDebug($"Creating dynamic prefab {PrefabName}");
 
             if (PieceEntries == null)
@@ -995,67 +995,6 @@ namespace PlanBuild.Blueprints
             if (File.Exists(ThumbnailLocation))
             {
                 File.Delete(ThumbnailLocation);
-            }
-        }
-
-        /// <summary>
-        ///     Helper class for naming and saving a captured blueprint via GUI
-        ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
-        ///     an name for the blueprint.<br />
-        ///     Save the actual blueprint and add it to the list of known blueprints.
-        /// </summary>
-        internal class BlueprintSaveGUI : TextReceiver
-        {
-            private Blueprint newbp;
-
-            public BlueprintSaveGUI(Blueprint bp)
-            {
-                newbp = bp;
-            }
-
-            public string GetText()
-            {
-                return newbp.Name;
-            }
-
-            public void SetText(string text)
-            {
-                if (string.IsNullOrEmpty(text))
-                {
-                    return;
-                }
-
-                string playerName = Player.m_localPlayer.GetPlayerName();
-                string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
-
-                newbp.ID = $"{playerName}_{fileName}".Trim();
-                newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
-                newbp.Name = text;
-                newbp.Creator = playerName;
-                newbp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
-                newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
-
-                if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))
-                {
-                    oldbp.DestroyBlueprint();
-                    BlueprintManager.LocalBlueprints.Remove(newbp.ID);
-                }
-
-                if (!newbp.ToFile())
-                {
-                    return;
-                }
-
-                if (!newbp.CreatePiece())
-                {
-                    return;
-                }
-
-                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                Selection.Instance.Clear();
-                newbp.CreateThumbnail();
-                Player.m_localPlayer?.UpdateKnownRecipesList();
-                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
             }
         }
     }

@@ -108,7 +108,6 @@
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectAddComponent.cs" />
-    <Compile Include="Blueprints\Tools\CaptureComponent.cs" />
     <Compile Include="Blueprints\Tools\DeleteObjectsComponent.cs" />
     <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
     <Compile Include="Blueprints\Tools\PaintComponent.cs" />

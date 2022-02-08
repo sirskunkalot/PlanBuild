@@ -24,16 +24,14 @@ namespace PlanBuild.Blueprints
 
         public const string PieceSnapPointName = "piece_bpsnappoint";
         public const string PieceCenterPointName = "piece_bpcenterpoint";
-        public const string PieceCaptureName = "piece_bpcapture";
         public const string PieceEditName = "piece_bpedit";
+        public const string PieceSelectAddName = "piece_bpselectadd";
+        public const string PieceSelectRemoveName = "piece_bpselectremove";
+        public const string PieceSelectSaveName = "piece_bpselectsave";
         public const string PieceDeletePlansName = "piece_bpdelete";
         public const string PieceDeleteObjectsName = "piece_bpobjects";
         public const string PieceTerrainName = "piece_bpterrain";
         public const string PiecePaintName = "piece_bppaint";
-
-        public const string PieceSelectAddName = "piece_bpselectadd";
-        public const string PieceSelectRemoveName = "piece_bpselectremove";
-        public const string PieceSelectSaveName = "piece_bpselectsave";
         
         public static void Load(AssetBundle assetBundle)
         {
@@ -64,7 +62,7 @@ namespace PlanBuild.Blueprints
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
                 {
                     PieceTable = "Hammer",
-                    Requirements = new RequirementConfig[] {
+                    Requirements = new [] {
                         new RequirementConfig
                         {
                             Item = "Stone",
@@ -84,7 +82,7 @@ namespace PlanBuild.Blueprints
                 CanRemovePieces = false,
                 UseCategories = false,
                 UseCustomCategories = true,
-                CustomCategories = new string[]
+                CustomCategories = new []
                 {
                     CategoryTools, CategoryBlueprints
                 }
@@ -95,7 +93,7 @@ namespace PlanBuild.Blueprints
             CustomItem item = new CustomItem(prefabs[BlueprintRuneName], false, new ItemConfig
             {
                 Amount = 1,
-                Requirements = new RequirementConfig[]
+                Requirements = new []
                 {
                     new RequirementConfig {Item = "Stone", Amount = 1}
                 }
@@ -107,10 +105,10 @@ namespace PlanBuild.Blueprints
             PrefabManager.Instance.AddPrefab(prefabs[Blueprint.PieceBlueprintName]);
 
             // Tool pieces
-            foreach (string pieceName in new string[]
+            foreach (string pieceName in new []
             {
-                PieceCaptureName, PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
-                PieceSnapPointName, PieceCenterPointName, PieceEditName,
+                PieceEditName, PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
+                PieceSnapPointName, PieceCenterPointName,
                 PieceDeletePlansName, PieceTerrainName, PieceDeleteObjectsName,
                 PiecePaintName
             })
@@ -125,8 +123,8 @@ namespace PlanBuild.Blueprints
                 // Add tool component per Tool
                 switch (pieceName)
                 {
-                    case PieceCaptureName:
-                        prefabs[pieceName].AddComponent<CaptureComponent>();
+                    case PieceEditName:
+                        prefabs[pieceName].AddComponent<EditComponent>();
                         break;
 
                     case PieceSelectAddName:
@@ -141,10 +139,6 @@ namespace PlanBuild.Blueprints
                         prefabs[pieceName].AddComponent<SelectSaveComponent>();
                         break;
                         
-                    case PieceEditName:
-                        prefabs[pieceName].AddComponent<EditComponent>();
-                        break;
-
                     case PieceDeletePlansName:
                         prefabs[pieceName].AddComponent<DeletePlansComponent>();
                         break;
