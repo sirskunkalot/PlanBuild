@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -11,13 +12,15 @@ namespace PlanBuild.Blueprints
         public const int MAX_HIGHLIGHT_PER_FRAME = 50;
         public const int MAX_GROW_PER_FRAME = 50;
         public static int GrowMask;
-
+        
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
+        
+        public ZDOID BlueprintZDOID;
+        public string BlueprintName;
 
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
-
         private int SnapPoints;
         private int CenterMarkers;
         private bool Highlighted;
@@ -165,6 +168,16 @@ namespace PlanBuild.Blueprints
 
         public void AddBlueprint(ZDOID blueprintID)
         {
+            var blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            if (blueprintZDO == null)
+            {
+                Logger.LogWarning($"ZDO for blueprint ID {blueprintID} not found");
+                return;
+            }
+
+            BlueprintZDOID = blueprintID;
+            BlueprintName = blueprintZDO.GetString(Blueprint.ZDOBlueprintName);
+
             foreach (var piece in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
             {
                 AddPiece(piece.GetComponent<Piece>());
@@ -231,6 +244,8 @@ namespace PlanBuild.Blueprints
                 GameObject selected = GetGameObject(zdoid);
                 Unhighlight(zdoid, selected);
             }
+            BlueprintZDOID = ZDOID.None;
+            BlueprintName = null;
             SelectedZDOIDs.Clear();
         }
         
@@ -406,9 +421,14 @@ namespace PlanBuild.Blueprints
             HighlightedZDOIDs.Remove(zdoid.Value);
         }
 
-        public new string ToString()
+        public override string ToString()
         {
-            string result = Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
+            string result = string.Empty;
+            if (!string.IsNullOrEmpty(BlueprintName))
+            {
+                result += $"{BlueprintName}{Environment.NewLine}";
+            }
+            result += Localization.instance.Localize("$piece_blueprint_select_desc", Selection.Instance.Count().ToString());
             if (SnapPoints > 0)
             {
                 result += Localization.instance.Localize(" ($piece_blueprint_select_snappoints_desc)", SnapPoints.ToString());

@@ -3,8 +3,10 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class EditComponent : ToolComponentBase
+    internal class EditComponent : SelectionToolComponentBase
     {
+        private ZDOID LastHoveredBlueprintID = ZDOID.None;
+
         public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
@@ -27,7 +29,7 @@ namespace PlanBuild.Blueprints.Tools
         public override void OnPieceHovered(Piece hoveredPiece)
         {
             ZDOID blueprintID = hoveredPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
+            if (blueprintID == ZDOID.None || blueprintID == LastHoveredBlueprintID)
             {
                 return;
             }
@@ -37,11 +39,13 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Player.m_localPlayer.Message(MessageHud.MessageType.Center, znet.GetZDO().GetString(Blueprint.ZDOBlueprintName));
             }
+            
+            LastHoveredBlueprintID = blueprintID;
         }
         
         public override bool OnPlacePiece(Player self, Piece piece)
         {
-            // Add all blueprint pieces when hovered
+            // Set current blueprint and add all pieces to selection
             if (BlueprintManager.Instance.LastHoveredPiece)
             {
                 ZDOID blueprintID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintID();
@@ -49,14 +53,11 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     Selection.Instance.Clear();
                     Selection.Instance.AddBlueprint(blueprintID);
+                    return false;
                 }
             }
-            // Remove selection when not hovered
-            else
-            {
-                Selection.Instance.Clear();
-            }
-            
+
+            Selection.Instance.Clear();
             return false;
         }
     }

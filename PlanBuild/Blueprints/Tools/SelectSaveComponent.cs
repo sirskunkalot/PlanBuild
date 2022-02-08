@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
@@ -32,10 +31,10 @@ namespace PlanBuild.Blueprints.Tools
 
         private bool MakeBlueprint()
         {
-            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count() + 1:000}";
-            Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
-
             var bp = new Blueprint();
+            var bpname = Selection.Instance.BlueprintName;
+            bpname ??= $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
+
             if (bp.Capture(Selection.Instance))
             {
                 TextInput.instance.m_queuedSign = new Blueprint.BlueprintSaveGUI(bp);
