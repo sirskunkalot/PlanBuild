@@ -8,19 +8,13 @@ namespace PlanBuild.Blueprints.Tools
     {
         public static ShapedProjector SelectionProjector;
         public static float SelectionRadius = 10.0f;
-        public static float CameraOffset = 5.0f;
+        public static float CameraOffset = 0.0f;
         public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
 
         private void Start()
         {
-            // if (!Player.m_localPlayer || Player.m_localPlayer.GetSelectedPiece() == null ||
-            //     !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
-            // {
-            //     return;
-            // }
-
             OnStart();
 
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
@@ -117,7 +111,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             DisableSelectionProjector();
 
-            CameraOffset = 5f;
+            CameraOffset = 0f;
             PlacementOffset = Vector3.zero;
         }
 

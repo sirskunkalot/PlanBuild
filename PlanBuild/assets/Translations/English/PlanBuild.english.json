@@ -51,6 +51,7 @@
   "piece_blueprint_terrain_desc": "Flatten the ground or reset the terrain",
   "piece_blueprint_paint": "Paint tools",
   "piece_blueprint_paint_desc": "Reset terrain paint or apply new paint",
+  "hud_bpedit": "Edit blueprint",
   "hud_bpcamera": "and scroll for camera distance",
   "msg_bpcapture_save": "Save Blueprint ($1 pieces captured)",
   "hud_bpradius": "Change radius",

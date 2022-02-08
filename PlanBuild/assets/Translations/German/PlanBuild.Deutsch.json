@@ -45,6 +45,7 @@
   "piece_blueprint_terrain_desc": "Die Landschaft begradigen oder zurücksetzen",
   "piece_blueprint_paint": "Textur-Werkzeuge",
   "piece_blueprint_paint_desc": "Landschafts-Textur ändern order zurücksetzen",
+  "hud_bpedit": "Blaupause editieren",
   "msg_bpcapture_save": "Blaupause speichern ($1 Teile erfasst)",
   "hud_bpradius": "Radius ändern\nShift: Kameraabstand",
   "hud_bpplace": "Bauen",
