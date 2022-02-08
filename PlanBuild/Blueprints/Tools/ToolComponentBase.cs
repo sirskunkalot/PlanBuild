@@ -79,10 +79,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
             }
-            if (result && piece)
-            {
-                OnPieceHovered(piece);
-            }
+            OnPieceHovered(piece);
             return result;
         }
         

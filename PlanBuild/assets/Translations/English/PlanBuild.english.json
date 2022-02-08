@@ -31,6 +31,7 @@
   "item_blueprintrune_desc": "Save structures and rebuild exact copies of them somewhere else.",
   "piece_blueprint": "Blueprint",
   "piece_blueprint_desc": "Creates the structure attached to this blueprint.",
+  "piece_blueprint_select_bp": "Blueprint: $1",
   "piece_blueprint_select_desc": "$1 pieces selected",
   "piece_blueprint_select_snappoints_desc": "$1 snap points",
   "piece_blueprint_select_center_desc": "Center marker",

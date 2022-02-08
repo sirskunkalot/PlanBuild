@@ -426,7 +426,8 @@ namespace PlanBuild.Blueprints
             string result = string.Empty;
             if (!string.IsNullOrEmpty(BlueprintName))
             {
-                result += $"{BlueprintName}{Environment.NewLine}";
+                result += Localization.instance.Localize("$piece_blueprint_select_bp", BlueprintName);
+                result += Environment.NewLine;
             }
             result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());
             if (SnapPoints > 0)

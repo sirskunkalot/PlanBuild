@@ -1,11 +1,11 @@
-﻿using PlanBuild.Plans;
+﻿using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
     internal class EditComponent : SelectionToolComponentBase
     {
-        private ZDOID LastHoveredBlueprintID = ZDOID.None;
+        private ZDOID CurrentHoveredBlueprintID = ZDOID.None;
 
         public override void OnUpdatePlacement(Player self)
         {
@@ -28,21 +28,23 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPieceHovered(Piece hoveredPiece)
         {
+            if (!hoveredPiece)
+            {
+                CurrentHoveredBlueprintID = ZDOID.None;
+                UpdateDescription();
+                return;
+            }
+
             ZDOID blueprintID = hoveredPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None || blueprintID == LastHoveredBlueprintID)
+            if (blueprintID == ZDOID.None || blueprintID == CurrentHoveredBlueprintID)
             {
                 return;
             }
 
-            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-            if (blueprintObject && blueprintObject.TryGetComponent<ZNetView>(out var znet))
-            {
-                Player.m_localPlayer.Message(MessageHud.MessageType.Center, znet.GetZDO().GetString(Blueprint.ZDOBlueprintName));
-            }
-            
-            LastHoveredBlueprintID = blueprintID;
+            CurrentHoveredBlueprintID = blueprintID;
+            UpdateDescription();
         }
-        
+
         public override bool OnPlacePiece(Player self, Piece piece)
         {
             // Set current blueprint and add all pieces to selection
@@ -59,6 +61,36 @@ namespace PlanBuild.Blueprints.Tools
 
             Selection.Instance.Clear();
             return false;
+        }
+
+        public override void UpdateDescription()
+        {
+            if (Selection.Instance.Any())
+            {
+                base.UpdateDescription();
+                return;
+            }
+
+            if (CurrentHoveredBlueprintID == ZDOID.None)
+            {
+                return;
+            }
+
+            var blueprintZDO = ZDOMan.instance.GetZDO(CurrentHoveredBlueprintID);
+            if (blueprintZDO == null)
+            {
+                return;
+            }
+
+            var text = string.Empty;
+
+            var bpname = blueprintZDO.GetString(Blueprint.ZDOBlueprintName);
+            if (!string.IsNullOrEmpty(bpname))
+            {
+                text = Localization.instance.Localize("$piece_blueprint_select_bp", bpname);
+            }
+
+            Hud.instance.m_pieceDescription.text = text;
         }
     }
 }

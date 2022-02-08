@@ -21,7 +21,7 @@
             UpdateDescription();
         }
 
-        public void UpdateDescription()
+        public virtual void UpdateDescription()
         {
             Hud.instance.m_pieceDescription.text = Selection.Instance.ToString();
         }
