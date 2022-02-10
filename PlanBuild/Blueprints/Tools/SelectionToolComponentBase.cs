@@ -1,9 +1,12 @@
-﻿namespace PlanBuild.Blueprints.Tools
+﻿using UnityEngine;
+
+namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectionToolComponentBase : ToolComponentBase
     {
         public override void OnStart()
         {
+            PlacementOffset = Vector3.zero;
             UpdateDescription();
             On.Hud.SetupPieceInfo += OnSetupPieceInfo;
             Selection.Instance.StartHighlightSelection();

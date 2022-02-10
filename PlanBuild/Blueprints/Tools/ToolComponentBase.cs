@@ -107,9 +107,6 @@ namespace PlanBuild.Blueprints.Tools
         public virtual void OnUpdatePlacement(Player self)
         {
             DisableSelectionProjector();
-
-            CameraOffset = 0f;
-            PlacementOffset = Vector3.zero;
         }
 
         public float GetPlacementOffset(float scrollWheel)
