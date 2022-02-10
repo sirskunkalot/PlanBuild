@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
 {
@@ -16,23 +17,21 @@ namespace PlanBuild.Blueprints
 
         public static BlueprintManager Instance => _instance ??= new BlueprintManager();
 
-        internal static BlueprintDictionary LocalBlueprints;
-        internal static BlueprintDictionary ServerBlueprints;
+        public static BlueprintDictionary LocalBlueprints;
+        public static BlueprintDictionary ServerBlueprints;
+        
+        public const float HighlightTimeout = 0.5f;
+        public const float GhostTimeout = 10f;
+        
+        public Piece LastHoveredPiece;
 
-        private float OriginalPlaceDistance;
-
-        internal const float HighlightTimeout = 0.5f;
         private float LastHightlightTime;
-
-        private const float GhostTimeout = 10f;
-
-        internal Piece LastHoveredPiece;
-
+        private float OriginalPlaceDistance;
         private GameObject OriginalTooltip;
 
         internal void Init()
         {
-            Jotunn.Logger.LogInfo("Initializing BlueprintManager");
+            Logger.LogInfo("Initializing BlueprintManager");
 
             try
             {
@@ -88,7 +87,7 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
+                Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
 
@@ -209,11 +208,11 @@ namespace PlanBuild.Blueprints
                 {
                     foreach (Piece blueprintPiece in GetPiecesInBlueprint(blueprintID))
                     {
-                        if (onlyPlanned && !LastHoveredPiece.GetComponent<PlanPiece>())
+                        if (onlyPlanned && !blueprintPiece.GetComponent<PlanPiece>())
                         {
-                            return;
+                            continue;
                         }
-                        if (LastHoveredPiece.TryGetComponent(out WearNTear wearNTear))
+                        if (blueprintPiece.TryGetComponent(out WearNTear wearNTear))
                         {
                             wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                         }
@@ -261,6 +260,22 @@ namespace PlanBuild.Blueprints
                 return null;
             }
             return ZDOIDSet.From(new ZPackage(data));
+        }
+        
+        /// <summary>
+        ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
+        /// </summary>
+        /// <param name="zdoid"></param>
+        /// <param name="required"></param>
+        /// <returns></returns>
+        public GameObject GetGameObject(ZDOID zdoid, bool required = false)
+        {
+            GameObject go = ZNetScene.instance.FindInstance(zdoid);
+            if (go)
+            {
+                return go;
+            }
+            return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
         }
 
         /// <summary>

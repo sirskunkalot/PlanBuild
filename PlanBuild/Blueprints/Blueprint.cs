@@ -1,7 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
@@ -494,7 +493,7 @@ namespace PlanBuild.Blueprints
 
             foreach (var zdoid in selection)
             {
-                GameObject selected = selection.GetGameObject(zdoid, true);
+                GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid, true);
                 if (selected.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints.Add(selected.transform.position);
@@ -629,7 +628,7 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
-            
+
             Logger.LogDebug($"Creating dynamic prefab {PrefabName}");
 
             if (PieceEntries == null)

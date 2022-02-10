@@ -38,113 +38,7 @@ namespace PlanBuild.Blueprints
                 yield return zdoid;
             }
         }
-
-        public GameObject GetGameObject(ZDOID zdoid, bool required = false)
-        {
-            GameObject go = ZNetScene.instance.FindInstance(zdoid);
-            if (go)
-            {
-                return go;
-            }
-            if (!required)
-            {
-                return null;
-            }
-#if DEBUG
-            Logger.LogWarning($"Creating object for {zdoid}");
-#endif
-            return ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid));
-        }
-
-        public void StartHighlightSelection()
-        {
-            IEnumerator Start()
-            {
-                yield return null;
-                if (UnhighlightCoroutine != null)
-                {
-#if DEBUG
-                    Logger.LogInfo($"{Time.frameCount} Canceling pending unhighlight");
-#endif
-                    PlanBuildPlugin.Instance.StopCoroutine(UnhighlightCoroutine);
-                    UnhighlightCoroutine = null;
-                    //Selection is still highlighted
-                    yield break;
-                }
-#if DEBUG
-                Logger.LogInfo($"{Time.frameCount} Starting highlight coroutine");
-#endif
-                int n = 0;
-                foreach (ZDOID zdoid in new List<ZDOID>(this))
-                {
-                    //Iterating over a copy of the list to avoid ConcurrentModificationEcveption
-                    if (!SelectedZDOIDs.Contains(zdoid))
-                    {
-                        //Piece was unselected while still highlighting
-                        continue;
-                    }
-                    GameObject selected = GetGameObject(zdoid);
-                    Highlight(zdoid, selected);
-                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
-                    {
-                        n = 0;
-                        yield return null;
-                    }
-                }
-#if DEBUG
-                Logger.LogInfo($"{Time.frameCount} Finished highlight coroutine");
-#endif
-            }
-#if DEBUG
-            Logger.LogInfo($"{Time.frameCount} Enqueue highlight coroutine");
-#endif
-
-            Highlighted = true;
-            PlanBuildPlugin.Instance.StartCoroutine(Start());
-        }
-
-        public void StopHighlightSelection()
-        {
-            IEnumerator Stop()
-            {
-                yield return null;
-                yield return null;
-
-#if DEBUG
-                Logger.LogInfo($"{Time.frameCount} Starting unhighlight coroutine");
-#endif
-                int n = 0;
-                foreach (ZDOID zdoid in new List<ZDOID>(HighlightedZDOIDs))
-                {
-                    GameObject selected = GetGameObject(zdoid);
-                    Unhighlight(zdoid, selected);
-                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
-                    {
-                        n = 0;
-                        yield return null;
-                    }
-                }
-#if DEBUG
-                Logger.LogInfo($"{Time.frameCount} Finished unhighlight coroutine");
-#endif
-                UnhighlightCoroutine = null;
-            }
-
-            if (UnhighlightCoroutine != null)
-            {
-#if DEBUG
-                Logger.LogInfo($"{Time.frameCount} Not queueing unhighlight as there is already a unhighlight coroutine");
-#endif
-                return;
-            }
-
-#if DEBUG
-            Logger.LogInfo($"{Time.frameCount} Enqueue unhighlight coroutine");
-#endif
-            UnhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
-            Highlighted = false;
-        }
-
+        
         public bool AddPiece(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
@@ -241,7 +135,7 @@ namespace PlanBuild.Blueprints
         {
             foreach (ZDOID zdoid in this)
             {
-                GameObject selected = GetGameObject(zdoid);
+                GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
                 Unhighlight(zdoid, selected);
             }
             BlueprintZDOID = ZDOID.None;
@@ -343,6 +237,95 @@ namespace PlanBuild.Blueprints
             return result;
         }
         
+        public void StartHighlightSelection()
+        {
+            IEnumerator Start()
+            {
+                yield return null;
+                if (UnhighlightCoroutine != null)
+                {
+#if DEBUG
+                    Logger.LogInfo($"{Time.frameCount} Canceling pending unhighlight");
+#endif
+                    PlanBuildPlugin.Instance.StopCoroutine(UnhighlightCoroutine);
+                    UnhighlightCoroutine = null;
+                    //Selection is still highlighted
+                    yield break;
+                }
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Starting highlight coroutine");
+#endif
+                int n = 0;
+                foreach (ZDOID zdoid in new List<ZDOID>(this))
+                {
+                    //Iterating over a copy of the list to avoid ConcurrentModificationEcveption
+                    if (!SelectedZDOIDs.Contains(zdoid))
+                    {
+                        //Piece was unselected while still highlighting
+                        continue;
+                    }
+                    GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
+                    Highlight(zdoid, selected);
+                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
+                }
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Finished highlight coroutine");
+#endif
+            }
+#if DEBUG
+            Logger.LogInfo($"{Time.frameCount} Enqueue highlight coroutine");
+#endif
+
+            Highlighted = true;
+            PlanBuildPlugin.Instance.StartCoroutine(Start());
+        }
+
+        public void StopHighlightSelection()
+        {
+            IEnumerator Stop()
+            {
+                yield return null;
+                yield return null;
+
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Starting unhighlight coroutine");
+#endif
+                int n = 0;
+                foreach (ZDOID zdoid in new List<ZDOID>(HighlightedZDOIDs))
+                {
+                    GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
+                    Unhighlight(zdoid, selected);
+                    if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
+                    {
+                        n = 0;
+                        yield return null;
+                    }
+                }
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Finished unhighlight coroutine");
+#endif
+                UnhighlightCoroutine = null;
+            }
+
+            if (UnhighlightCoroutine != null)
+            {
+#if DEBUG
+                Logger.LogInfo($"{Time.frameCount} Not queueing unhighlight as there is already a unhighlight coroutine");
+#endif
+                return;
+            }
+
+#if DEBUG
+            Logger.LogInfo($"{Time.frameCount} Enqueue unhighlight coroutine");
+#endif
+            UnhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
+            Highlighted = false;
+        }
+
         public void Highlight(ZDOID zdoid, GameObject selected)
         {
             if (HighlightedZDOIDs.Contains(zdoid))
