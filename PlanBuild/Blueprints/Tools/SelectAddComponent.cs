@@ -33,6 +33,12 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 UndoRotation(self, scrollWheel);
             }
+
+            if (ZInput.GetButtonDown(Config.ToggleButton.Name))
+            {
+                Player.m_localPlayer.m_buildPieces.RightPiece();
+                Player.m_localPlayer.SetupPlacementGhost();
+            }
         }
 
         public override bool OnPlacePiece(Player self, Piece piece)

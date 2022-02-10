@@ -50,8 +50,8 @@ namespace PlanBuild
         public static ButtonConfig CameraModifierButton;
         public static ConfigEntry<KeyCode> RadiusModifierConfig;
         public static ButtonConfig RadiusModifierButton;
-        public static ConfigEntry<KeyCode> MarkerSwitchConfig;
-        public static ButtonConfig MarkerSwitchButton;
+        public static ConfigEntry<KeyCode> ToggleConfig;
+        public static ButtonConfig ToggleButton;
         public static ConfigEntry<KeyCode> DeleteModifierConfig;
         public static ButtonConfig DeleteModifierButton;
         
@@ -203,9 +203,9 @@ namespace PlanBuild
                 new ConfigDescription("Modifier key for removal operations on various tools", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
-            MarkerSwitchConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "MarkerSwitch", KeyCode.Q,
-                new ConfigDescription("Key to switch between marker shapes on various tools", null,
+            ToggleConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "Toggle", KeyCode.Q,
+                new ConfigDescription("Key to switch between modes on various tools", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             // Create Buttons and KeyHints if and when PixelFix is created
@@ -299,12 +299,12 @@ namespace PlanBuild
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, DeleteModifierButton);
 
-            MarkerSwitchButton = new ButtonConfig
+            ToggleButton = new ButtonConfig
             {
-                Name = nameof(MarkerSwitchButton),
-                Config = MarkerSwitchConfig
+                Name = nameof(ToggleButton),
+                Config = ToggleConfig
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MarkerSwitchButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, ToggleButton);
 
             // Mode Switch
 
@@ -339,10 +339,10 @@ namespace PlanBuild
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
+                    new ButtonConfig { Name = ToggleButton.Name, Config = ToggleConfig, HintToken = "$hud_blueprint_select_add_switch" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_add_connected" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_add_radius" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" }
                 }
             });
 
@@ -355,11 +355,11 @@ namespace PlanBuild
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
+                    new ButtonConfig { Name = ToggleButton.Name, Config = ToggleConfig, HintToken = "$hud_blueprint_select_remove_switch" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_blueprint_select_remove_connected" },
                     new ButtonConfig { Name = RadiusModifierButton.Name, Config = RadiusModifierConfig, HintToken = "$hud_blueprint_select_remove_radius" },
                     new ButtonConfig { Name = $"{DeleteModifierButton.Key} + {RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_remove_clear" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" }
                 }
             });
 
@@ -425,7 +425,7 @@ namespace PlanBuild
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = MarkerSwitchButton.Name, Config = MarkerSwitchConfig, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = ToggleButton.Name, Config = ToggleConfig, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = DeleteModifierButton.Name, Config = DeleteModifierConfig, HintToken = "$hud_bpterrain_delete" },
                     new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }

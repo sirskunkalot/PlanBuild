@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints.Tools
                     UndoRotation(self, scrollWheel);
                 }
             }
-            if (ZInput.GetButtonDown(Config.MarkerSwitchButton.Name))
+            if (ZInput.GetButtonDown(Config.ToggleButton.Name))
             {
                 SelectionProjector.SwitchShape();
             }

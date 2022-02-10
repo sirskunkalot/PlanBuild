@@ -11,7 +11,8 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name) &&
+                !ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
                 EnableSelectionProjector(self);
             }
@@ -32,6 +33,12 @@ namespace PlanBuild.Blueprints.Tools
                     UpdateSelectionRadius(scrollWheel);
                 }
                 UndoRotation(self, scrollWheel);
+            }
+            
+            if (ZInput.GetButtonDown(Config.ToggleButton.Name))
+            {
+                Player.m_localPlayer.m_buildPieces.LeftPiece();
+                Player.m_localPlayer.SetupPlacementGhost();
             }
         }
 

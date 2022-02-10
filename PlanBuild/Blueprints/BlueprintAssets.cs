@@ -54,7 +54,7 @@ namespace PlanBuild.Blueprints
             GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
 
             // World Runes
-            foreach (string pieceName in new string[]
+            foreach (string pieceName in new []
             {
                 StandingBlueprintRuneName, BlueprintRuneStackName
             })
