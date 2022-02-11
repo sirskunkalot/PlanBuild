@@ -11,32 +11,28 @@ namespace PlanBuild.Blueprints
 
         internal static ZDOID GetPieceID(this Piece piece)
         {
-            if (!piece.TryGetComponent<ZNetView>(out var znet) && znet.IsValid())
-            {
-                return ZDOID.None;
-            }
-            return znet.m_zdo.m_uid;
+            return piece?.m_nview?.GetZDO()?.m_uid ?? ZDOID.None;
         }
 
         internal static ZDOID GetBlueprintID(this Piece piece)
         {
-            if (!piece.TryGetComponent<ZNetView>(out var znet) && znet.IsValid())
+            var zdo = piece?.m_nview?.GetZDO();
+            if (zdo == null || !zdo.IsValid())
             {
                 return ZDOID.None;
             }
-            return znet.m_zdo.GetZDOID(zdoBlueprintID);
+            return zdo.GetZDOID(zdoBlueprintID);
         }
 
         internal static void PartOfBlueprint(this Piece piece, ZDOID blueprintID, PieceEntry entry)
         {
-            if (!piece.TryGetComponent<ZNetView>(out var znet) && znet.IsValid())
+            var zdo = piece?.m_nview?.GetZDO();
+            if (zdo == null || !zdo.IsValid())
             {
                 return;
             }
-
-            ZDO pieceZDO = znet.m_zdo;
-            pieceZDO.Set(zdoBlueprintID, blueprintID);
-            pieceZDO.Set(zdoAdditionalInfo, entry.additionalInfo);
+            zdo.Set(zdoBlueprintID, blueprintID);
+            zdo.Set(zdoAdditionalInfo, entry.additionalInfo);
         }
         
         /// <summary>
