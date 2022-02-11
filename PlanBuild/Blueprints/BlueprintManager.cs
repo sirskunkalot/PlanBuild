@@ -279,39 +279,6 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Remove a <see cref="Piece"/> instances ZDO from its Blueprint <see cref="ZDOIDSet"/>
-        /// </summary>
-        /// <param name="planPiece"></param>
-        public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
-        {
-            ZDOID blueprintID = planPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
-            {
-                return;
-            }
-
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return;
-            }
-            ZDOIDSet planPieces = GetBlueprintPieces(blueprintZDO);
-            planPieces?.Remove(planPiece.GetPlanPieceID());
-            if (planPieces == null || !planPieces.Any())
-            {
-                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                if (blueprintObject)
-                {
-                    ZNetScene.instance.Destroy(blueprintObject);
-                }
-            }
-            else
-            {
-                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, planPieces.ToZPackage().GetArray());
-            }
-        }
-
-        /// <summary>
         ///     Create pieces for all known local Blueprints
         /// </summary>
         public void RegisterKnownBlueprints()

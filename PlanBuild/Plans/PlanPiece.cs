@@ -6,16 +6,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static Piece;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.Plans
 {
     public class PlanPiece : MonoBehaviour, Interactable, Hoverable
     {
-        public const string zdoBlueprintID = "BlueprintID";
         public const string zdoPlanResource = "PlanResource";
-        public const string zdoAdditionalInfo = "AdditionalText";
-        public const string zdoBlueprintPiece = "BlueprintPiece";
 
         internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
 
@@ -69,7 +65,7 @@ namespace PlanBuild.Plans
 
         private void OnDestroyed()
         {
-            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
+            m_piece.RemoveFromBlueprint();
             if (m_nView.IsOwner())
             {
                 Refund(true);
@@ -362,7 +358,7 @@ namespace PlanBuild.Plans
         {
             return player.GetInventory().CountItems(resourceName);
         }
-        
+
         [Obsolete]
         public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
         {
@@ -437,12 +433,7 @@ namespace PlanBuild.Plans
         {
             return hasSupport;
         }
-
-        internal ZDOID GetPlanPieceID()
-        {
-            return m_nView.m_zdo.m_uid;
-        }
-
+        
         public void Build(long playerID)
         {
             m_nView.InvokeRPC("Refund", false);
@@ -607,11 +598,13 @@ namespace PlanBuild.Plans
             {
                 return;
             }
-            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation, originalPiece.gameObject, m_nView.GetZDO().GetString(zdoAdditionalInfo));
+
+            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation,
+                originalPiece.gameObject, m_nView.GetZDO().GetString(BlueprintPiece.zdoAdditionalInfo));
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
-            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
+            m_piece.RemoveFromBlueprint();
             ZNetScene.instance.Destroy(gameObject);
         }
 
@@ -692,15 +685,6 @@ namespace PlanBuild.Plans
                 return false;
             }
             return true;
-        }
-
-        internal ZDOID GetBlueprintID()
-        {
-            if (!m_nView.IsValid())
-            {
-                return ZDOID.None;
-            }
-            return m_nView.GetZDO().GetZDOID(zdoBlueprintID);
         }
     }
 }

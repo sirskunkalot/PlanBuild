@@ -150,7 +150,7 @@ namespace PlanBuild.Blueprints.Tools
                 else if (gameObject.TryGetComponent<Piece>(out var blueprintPiece))
                 {
                     blueprintPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
-                    blueprintPieces.Add(blueprintPiece.GetBlueprintPieceID());
+                    blueprintPieces.Add(blueprintPiece.GetPieceID());
                 }
 
                 // Register special effects
