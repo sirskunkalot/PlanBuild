@@ -86,7 +86,7 @@ namespace PlanBuild.Blueprints.Tools
             GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
             GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
+            blueprintZDO.Set(BlueprintPiece.zdoBlueprintName, bp.Name);
             ZDOIDSet blueprintPieces = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)

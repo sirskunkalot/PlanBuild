@@ -84,7 +84,7 @@ namespace PlanBuild.Blueprints.Tools
 
             var text = string.Empty;
 
-            var bpname = blueprintZDO.GetString(Blueprint.ZDOBlueprintName);
+            var bpname = blueprintZDO.GetString(BlueprintPiece.zdoBlueprintName);
             if (!string.IsNullOrEmpty(bpname))
             {
                 text = Localization.instance.Localize("$piece_blueprint_select_bp", bpname);

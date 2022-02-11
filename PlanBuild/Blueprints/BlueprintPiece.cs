@@ -5,6 +5,7 @@ namespace PlanBuild.Blueprints
 {
     internal static class BlueprintPiece
     {
+        public const string zdoBlueprintName = "BlueprintName";
         public const string zdoBlueprintID = "BlueprintID";
         public const string zdoBlueprintPiece = "BlueprintPiece";
         public const string zdoAdditionalInfo = "AdditionalText";
@@ -67,6 +68,5 @@ namespace PlanBuild.Blueprints
                 blueprintZDO.Set(zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
             }
         }
-
     }
 }

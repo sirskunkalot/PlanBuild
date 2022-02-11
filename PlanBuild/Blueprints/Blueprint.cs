@@ -18,7 +18,6 @@ namespace PlanBuild.Blueprints
 {
     internal class Blueprint
     {
-        public const string ZDOBlueprintName = "BlueprintName";
         public const string PieceBlueprintName = "piece_blueprint";
         public const string PlaceColliderName = "place_collider";
 

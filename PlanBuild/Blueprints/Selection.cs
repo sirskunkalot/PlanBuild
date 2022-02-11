@@ -70,7 +70,7 @@ namespace PlanBuild.Blueprints
             }
 
             BlueprintZDOID = blueprintID;
-            BlueprintName = blueprintZDO.GetString(Blueprint.ZDOBlueprintName);
+            BlueprintName = blueprintZDO.GetString(BlueprintPiece.zdoBlueprintName);
 
             foreach (var piece in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
             {
