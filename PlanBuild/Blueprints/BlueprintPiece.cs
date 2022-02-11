@@ -9,12 +9,12 @@ namespace PlanBuild.Blueprints
         public const string zdoBlueprintPiece = "BlueprintPiece";
         public const string zdoAdditionalInfo = "AdditionalText";
 
-        internal static ZDOID GetPieceID(this Piece piece)
+        public static ZDOID GetPieceID(this Piece piece)
         {
             return piece?.m_nview?.GetZDO()?.m_uid ?? ZDOID.None;
         }
 
-        internal static ZDOID GetBlueprintID(this Piece piece)
+        public static ZDOID GetBlueprintID(this Piece piece)
         {
             var zdo = piece?.m_nview?.GetZDO();
             if (zdo == null || !zdo.IsValid())
@@ -24,7 +24,7 @@ namespace PlanBuild.Blueprints
             return zdo.GetZDOID(zdoBlueprintID);
         }
 
-        internal static void PartOfBlueprint(this Piece piece, ZDOID blueprintID, PieceEntry entry)
+        public static void AddToBlueprint(this Piece piece, ZDOID blueprintID, PieceEntry entry)
         {
             var zdo = piece?.m_nview?.GetZDO();
             if (zdo == null || !zdo.IsValid())

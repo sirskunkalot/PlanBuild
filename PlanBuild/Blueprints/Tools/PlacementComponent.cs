@@ -149,7 +149,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 else if (gameObject.TryGetComponent<Piece>(out var blueprintPiece))
                 {
-                    blueprintPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
+                    blueprintPiece.AddToBlueprint(blueprintZDO.m_uid, entry);
                     blueprintPieces.Add(blueprintPiece.GetPieceID());
                 }
 
