@@ -22,7 +22,12 @@ namespace PlanBuild.Blueprints
         
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
-        
+
+        public const string zdoBlueprintName = "BlueprintName";
+        public const string zdoBlueprintID = "BlueprintID";
+        public const string zdoBlueprintPiece = "BlueprintPiece";
+        public const string zdoAdditionalInfo = "AdditionalText";
+
         public Piece LastHoveredPiece;
 
         private float LastHightlightTime;
@@ -62,6 +67,7 @@ namespace PlanBuild.Blueprints
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
+                On.WearNTear.Destroy += WearNTear_Destroy;
 
                 GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
                 On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
@@ -223,6 +229,60 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
+        ///     Add blueprint information to a <see cref="Piece"/> ZDO
+        /// </summary>
+        /// <param name="piece"></param>
+        /// <param name="blueprintID"></param>
+        /// <param name="entry"></param>
+        public void AddToBlueprint(Piece piece, ZDOID blueprintID, PieceEntry entry)
+        {
+            var zdo = piece?.m_nview?.GetZDO();
+            if (zdo == null || !zdo.IsValid())
+            {
+                return;
+            }
+            zdo.Set(zdoBlueprintID, blueprintID);
+            zdo.Set(zdoAdditionalInfo, entry.additionalInfo);
+        }
+        
+        /// <summary>
+        ///     Remove a <see cref="Piece"/> instance ZDO from its Blueprint <see cref="ZDOIDSet"/>
+        /// </summary>
+        /// <param name="piece"></param>
+        public void RemoveFromBlueprint(Piece piece)
+        {
+            ZDOID? pieceID = piece.GetZDOID();
+            if (pieceID == null)
+            {
+                return;
+            }
+            ZDOID blueprintID = piece.GetBlueprintID();
+            if (blueprintID == ZDOID.None)
+            {
+                return;
+            }
+            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            if (blueprintZDO == null)
+            {
+                return;
+            }
+            ZDOIDSet blueprintPieces = GetBlueprintPieces(blueprintZDO);
+            blueprintPieces?.Remove(pieceID.Value);
+            if (blueprintPieces == null || !blueprintPieces.Any())
+            {
+                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
+                if (blueprintObject)
+                {
+                    ZNetScene.instance.Destroy(blueprintObject);
+                }
+            }
+            else
+            {
+                blueprintZDO.Set(zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
+            }
+        }
+
+        /// <summary>
         ///     Get all pieces belonging to a given Blueprint instance identified by its <see cref="ZDOID"/>
         /// </summary>
         /// <param name="blueprintID"></param>
@@ -254,7 +314,7 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public ZDOIDSet GetBlueprintPieces(ZDO blueprintZDO)
         {
-            byte[] data = blueprintZDO.GetByteArray(BlueprintPiece.zdoBlueprintPiece);
+            byte[] data = blueprintZDO.GetByteArray(zdoBlueprintPiece);
             if (data == null)
             {
                 return null;
@@ -286,7 +346,7 @@ namespace PlanBuild.Blueprints
             // Client only
             if (ZNet.instance != null && !ZNet.instance.IsDedicated())
             {
-                Jotunn.Logger.LogInfo("Registering known blueprints");
+                Logger.LogInfo("Registering known blueprints");
 
                 // Create prefabs for all known blueprints
                 foreach (var bp in LocalBlueprints.Values)
@@ -418,6 +478,15 @@ namespace PlanBuild.Blueprints
         {
             orig(self);
             Selection.Instance.OnPieceUnload(self);
+        }
+        
+        private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear self)
+        {
+            if (self.m_piece)
+            {
+                RemoveFromBlueprint(self.m_piece);
+            }
+            orig(self);
         }
 
         // Get all prefabs for this GUI session

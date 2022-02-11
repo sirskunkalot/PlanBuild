@@ -99,7 +99,6 @@
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
-    <Compile Include="Blueprints\BlueprintPiece.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />

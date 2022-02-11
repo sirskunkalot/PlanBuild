@@ -65,7 +65,7 @@ namespace PlanBuild.Plans
 
         private void OnDestroyed()
         {
-            m_piece.RemoveFromBlueprint();
+            BlueprintManager.Instance.RemoveFromBlueprint(m_piece);
             if (m_nView.IsOwner())
             {
                 Refund(true);
@@ -600,11 +600,11 @@ namespace PlanBuild.Plans
             }
 
             GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation,
-                originalPiece.gameObject, m_nView.GetZDO().GetString(BlueprintPiece.zdoAdditionalInfo));
+                originalPiece.gameObject, m_nView.GetZDO().GetString(BlueprintManager.zdoAdditionalInfo));
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
-            m_piece.RemoveFromBlueprint();
+            //m_piece.RemoveFromBlueprint();
             ZNetScene.instance.Destroy(gameObject);
         }
 

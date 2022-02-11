@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using PlanBuild.Blueprints;
 using UnityEngine;
 using static WearNTear;
 
@@ -49,6 +50,16 @@ namespace PlanBuild
             {
                 self.Invoke("ResetHighlight", highlightTime);
             }
+        }
+        
+        public static ZDOID GetBlueprintID(this Piece piece)
+        {
+            var zdo = piece?.m_nview?.GetZDO();
+            if (zdo == null || !zdo.IsValid())
+            {
+                return ZDOID.None;
+            }
+            return zdo.GetZDOID(BlueprintManager.zdoBlueprintID);
         }
 
         public static ZDOID? GetZDOID(this Piece piece)
