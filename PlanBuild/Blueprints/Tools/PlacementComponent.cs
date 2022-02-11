@@ -10,6 +10,7 @@ namespace PlanBuild.Blueprints.Tools
         public override void OnStart()
         {
             SuppressPieceHighlight = false;
+            ResetPlacementOffset = false;
         }
         
         public override void OnUpdatePlacement(Player self)

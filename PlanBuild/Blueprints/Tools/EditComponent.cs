@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -6,7 +6,8 @@ namespace PlanBuild.Blueprints.Tools
     internal class EditComponent : ToolComponentBase
     {
         private ZDOID CurrentHoveredBlueprintID = ZDOID.None;
-
+        private ZDO CurrentHoveredBlueprint;
+        
         public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
@@ -15,15 +16,18 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             DisableSelectionProjector();
-
+            
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
-            if (scrollWheel != 0f)
+            if (scrollWheel != 0)
             {
                 if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
+                UndoRotation(self, scrollWheel);
             }
+
+            BlueprintManager.Instance.HighlightHoveredBlueprint(Color.grey);
         }
 
         public override void OnPieceHovered(Piece hoveredPiece)
@@ -31,6 +35,7 @@ namespace PlanBuild.Blueprints.Tools
             if (!hoveredPiece)
             {
                 CurrentHoveredBlueprintID = ZDOID.None;
+                CurrentHoveredBlueprint = null;
                 UpdateDescription();
                 return;
             }
@@ -42,6 +47,7 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             CurrentHoveredBlueprintID = blueprintID;
+            CurrentHoveredBlueprint = ZDOMan.instance.GetZDO(blueprintID);
             UpdateDescription();
         }
 
@@ -65,28 +71,18 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void UpdateDescription()
         {
-            if (Selection.Instance.Any())
-            {
-                return;
-            }
-
             if (CurrentHoveredBlueprintID == ZDOID.None)
-            {
-                return;
-            }
-
-            var blueprintZDO = ZDOMan.instance.GetZDO(CurrentHoveredBlueprintID);
-            if (blueprintZDO == null)
             {
                 return;
             }
 
             var text = string.Empty;
 
-            var bpname = blueprintZDO.GetString(BlueprintManager.zdoBlueprintName);
+            var bpname = CurrentHoveredBlueprint.GetString(BlueprintManager.zdoBlueprintName);
             if (!string.IsNullOrEmpty(bpname))
             {
-                text = Localization.instance.Localize("$piece_blueprint_select_bp", bpname);
+                text += Localization.instance.Localize("$piece_blueprint_select_bp", bpname);
+                text += Environment.NewLine;
             }
 
             Hud.instance.m_pieceDescription.text = text;

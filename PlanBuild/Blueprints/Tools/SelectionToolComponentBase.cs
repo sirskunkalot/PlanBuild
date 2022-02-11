@@ -6,7 +6,6 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override void OnStart()
         {
-            PlacementOffset = Vector3.zero;
             UpdateDescription();
             Selection.Instance.StartHighlightSelection();
         }

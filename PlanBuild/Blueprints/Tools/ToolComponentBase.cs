@@ -12,10 +12,16 @@ namespace PlanBuild.Blueprints.Tools
         public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
+        internal bool ResetPlacementOffset = true;
 
         private void Start()
         {
             OnStart();
+
+            if (ResetPlacementOffset)
+            {
+                PlacementOffset = Vector3.zero;
+            }
 
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
@@ -105,9 +111,10 @@ namespace PlanBuild.Blueprints.Tools
         /// <summary>
         ///     Default UpdatePlacement when subclass does not override.
         /// </summary>
-        /// <param name="self"></param>
         public virtual void OnUpdatePlacement(Player self)
         {
+            PlacementOffset = Vector3.zero;
+            CameraOffset = 0f;
             DisableSelectionProjector();
         }
 
@@ -229,9 +236,6 @@ namespace PlanBuild.Blueprints.Tools
         /// <summary>
         ///     Flatten placement marker
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
         private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
         {
             orig(self, flashGuardStone);
