@@ -23,6 +23,7 @@ namespace PlanBuild.Blueprints.Tools
             On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
             On.Player.PlacePiece += Player_PlacePiece;
             On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
+            On.Hud.SetupPieceInfo += Hud_SetupPieceInfo;
 
             Jotunn.Logger.LogDebug($"{gameObject.name} started");
         }
@@ -50,6 +51,7 @@ namespace PlanBuild.Blueprints.Tools
             On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
             On.Player.PlacePiece -= Player_PlacePiece;
             On.GameCamera.UpdateCamera -= GameCamera_UpdateCamera;
+            On.Hud.SetupPieceInfo -= Hud_SetupPieceInfo;
 
             Jotunn.Logger.LogDebug($"{gameObject.name} destroyed");
         }
@@ -252,6 +254,20 @@ namespace PlanBuild.Blueprints.Tools
         public virtual bool OnPlacePiece(Player self, Piece piece)
         {
             return false;
+        }
+
+        /// <summary>
+        ///     Hook SetupPieceInfo to alter the piece description per tool.
+        /// </summary>
+        private void Hud_SetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
+        {
+            orig(self, piece);
+            UpdateDescription();
+        }
+
+        public virtual void UpdateDescription()
+        {
+            
         }
     }
 }

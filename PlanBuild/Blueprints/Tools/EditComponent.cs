@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class EditComponent : SelectionToolComponentBase
+    internal class EditComponent : ToolComponentBase
     {
         private ZDOID CurrentHoveredBlueprintID = ZDOID.None;
 
@@ -67,7 +67,6 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (Selection.Instance.Any())
             {
-                base.UpdateDescription();
                 return;
             }
 
@@ -84,7 +83,7 @@ namespace PlanBuild.Blueprints.Tools
 
             var text = string.Empty;
 
-            var bpname = blueprintZDO.GetString(BlueprintPiece.zdoBlueprintName);
+            var bpname = blueprintZDO.GetString(BlueprintManager.zdoBlueprintName);
             if (!string.IsNullOrEmpty(bpname))
             {
                 text = Localization.instance.Localize("$piece_blueprint_select_bp", bpname);

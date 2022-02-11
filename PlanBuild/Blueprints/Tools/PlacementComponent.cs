@@ -86,7 +86,7 @@ namespace PlanBuild.Blueprints.Tools
             GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
             GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
             ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(BlueprintPiece.zdoBlueprintName, bp.Name);
+            blueprintZDO.Set(BlueprintManager.zdoBlueprintName, bp.Name);
             ZDOIDSet blueprintPieces = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
@@ -149,8 +149,8 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 else if (gameObject.TryGetComponent<Piece>(out var blueprintPiece))
                 {
-                    blueprintPiece.AddToBlueprint(blueprintZDO.m_uid, entry);
-                    blueprintPieces.Add(blueprintPiece.GetPieceID());
+                    BlueprintManager.Instance.AddToBlueprint(blueprintPiece, blueprintZDO.m_uid, entry);
+                    blueprintPieces.Add(zNetView.m_zdo.m_uid);
                 }
 
                 // Register special effects
@@ -192,7 +192,7 @@ namespace PlanBuild.Blueprints.Tools
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
             
-            blueprintZDO.Set(BlueprintPiece.zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
+            blueprintZDO.Set(BlueprintManager.zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
         }
 
         /// <summary>
