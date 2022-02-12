@@ -27,7 +27,7 @@ namespace PlanBuild.Blueprints.Tools
                 UndoRotation(self, scrollWheel);
             }
 
-            BlueprintManager.Instance.HighlightHoveredBlueprint(Color.grey);
+            BlueprintManager.Instance.HighlightHoveredBlueprint(Color.white);
         }
 
         public override void OnPieceHovered(Piece hoveredPiece)

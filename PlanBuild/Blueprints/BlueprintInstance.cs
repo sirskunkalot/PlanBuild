@@ -21,15 +21,14 @@ namespace PlanBuild.Blueprints
 
         public static bool TryGetInstance(ZDOID blueprintID, out BlueprintInstance instance)
         {
+            instance = null;
             if (blueprintID == ZDOID.None)
             {
-                instance = null;
                 return false;
             }
             var zdo = ZDOMan.instance.GetZDO(blueprintID);
             if (zdo == null)
             {
-                instance = null;
                 return false;
             }
             var go = ZNetScene.instance.FindInstance(zdo);
