@@ -811,11 +811,11 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         var piecePosition = tf.position + piece.GetPosition();
+                        var pieceRotation = piece.GetRotation();
 
                         GameObject pieceObject = new GameObject($"piece_entry ({i})");
                         pieceObject.transform.SetParent(tf);
-                        pieceObject.transform.rotation = piece.GetRotation();
-                        pieceObject.transform.position = piecePosition;
+                        pieceObject.transform.SetPositionAndRotation(piecePosition, pieceRotation);
 
                         if (prefabs.TryGetValue(piece.name, out var prefab))
                         {
