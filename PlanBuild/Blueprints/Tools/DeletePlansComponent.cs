@@ -84,19 +84,19 @@ namespace PlanBuild.Blueprints.Tools
                 return false;
             }
 
-            if (!BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+            if (!BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece _))
             {
                 return false;
             }
 
-            ZDOID blueprintID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
+            if (!BlueprintInstance.TryGetInstance(BlueprintManager.Instance.LastHoveredPiece,
+                    out var instance))
             {
                 return false;
             }
-
+            
             int removedPieces = 0;
-            foreach (Piece pieceToRemove in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
+            foreach (Piece pieceToRemove in instance.GetPieceInstances())
             {
                 if (pieceToRemove.TryGetComponent<PlanPiece>(out var planPieceToRemove))
                 {
@@ -104,12 +104,8 @@ namespace PlanBuild.Blueprints.Tools
                     removedPieces++;
                 }
             }
-
-            GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-            if (blueprintObject)
-            {
-                ZNetScene.instance.Destroy(blueprintObject);
-            }
+            
+            ZNetScene.instance.Destroy(instance.gameObject);
 
             Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
 

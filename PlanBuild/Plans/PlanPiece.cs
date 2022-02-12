@@ -604,7 +604,11 @@ namespace PlanBuild.Plans
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
-            //m_piece.RemoveFromBlueprint();
+            if (BlueprintInstance.TryGetInstance(m_piece, out var instance))
+            {
+                instance.RemovePieceID(m_nView.m_zdo.m_uid);
+                instance.AddPiece(actualPiece.GetComponent<Piece>());
+            }
             ZNetScene.instance.Destroy(gameObject);
         }
 

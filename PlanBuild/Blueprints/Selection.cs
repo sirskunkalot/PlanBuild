@@ -62,7 +62,21 @@ namespace PlanBuild.Blueprints
 
         public void AddBlueprint(ZDOID blueprintID)
         {
-            var blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
+            if (!BlueprintInstance.TryGetInstance(blueprintID, out var instance))
+            {
+                Logger.LogWarning($"ZDO for blueprint ID {blueprintID} not found");
+                return;
+            }
+
+            BlueprintZDOID = blueprintID;
+            BlueprintName = instance.Name;
+
+            foreach (var piece in instance.GetPieceInstances())
+            {
+                AddPiece(piece);
+            }
+
+            /*var blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
             if (blueprintZDO == null)
             {
                 Logger.LogWarning($"ZDO for blueprint ID {blueprintID} not found");
@@ -75,7 +89,7 @@ namespace PlanBuild.Blueprints
             foreach (var piece in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
             {
                 AddPiece(piece.GetComponent<Piece>());
-            }
+            }*/
         }
 
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)

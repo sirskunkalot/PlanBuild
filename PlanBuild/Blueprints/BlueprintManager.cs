@@ -148,10 +148,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" pieces in a given radius with a given color.
         /// </summary>
-        /// <param name="startPosition"></param>
-        /// <param name="radius"></param>
-        /// <param name="color"></param>
-        /// <param name="onlyPlanned"></param>
         public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
@@ -172,8 +168,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" the last hovered piece with a given color.
         /// </summary>
-        /// <param name="color"></param>
-        /// <param name="onlyPlanned"></param>
         public void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
@@ -198,8 +192,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" all pieces belonging to the current hovered Blueprint with a given color.
         /// </summary>
-        /// <param name="color"></param>
-        /// <param name="onlyPlanned"></param>
         public void HighlightHoveredBlueprint(Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
@@ -207,127 +199,38 @@ namespace PlanBuild.Blueprints
                 return;
             }
             
-            if (LastHoveredPiece)
+            if (BlueprintInstance.TryGetInstance(LastHoveredPiece, out var blueprintInstance))
             {
-                ZDOID blueprintID = LastHoveredPiece.GetBlueprintID();
-                if (blueprintID != ZDOID.None)
+                foreach (Piece blueprintPiece in blueprintInstance.GetPieceInstances())
                 {
-                    foreach (Piece blueprintPiece in GetPiecesInBlueprint(blueprintID))
+                    if (onlyPlanned && !blueprintPiece.GetComponent<PlanPiece>())
                     {
-                        if (onlyPlanned && !blueprintPiece.GetComponent<PlanPiece>())
-                        {
-                            continue;
-                        }
-                        if (blueprintPiece.TryGetComponent(out WearNTear wearNTear))
-                        {
-                            wearNTear.Highlight(color, HighlightTimeout + 0.1f);
-                        }
+                        continue;
+                    }
+
+                    if (blueprintPiece.TryGetComponent(out WearNTear wearNTear))
+                    {
+                        wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                     }
                 }
             }
             LastHightlightTime = Time.time;
         }
-
-        /// <summary>
-        ///     Add blueprint information to a <see cref="Piece"/> ZDO
-        /// </summary>
-        /// <param name="piece"></param>
-        /// <param name="blueprintID"></param>
-        /// <param name="entry"></param>
-        public void AddToBlueprint(Piece piece, ZDOID blueprintID, PieceEntry entry)
-        {
-            var zdo = piece?.m_nview?.GetZDO();
-            if (zdo == null || !zdo.IsValid())
-            {
-                return;
-            }
-            zdo.Set(zdoBlueprintID, blueprintID);
-            zdo.Set(zdoAdditionalInfo, entry.additionalInfo);
-        }
         
         /// <summary>
         ///     Remove a <see cref="Piece"/> instance ZDO from its Blueprint <see cref="ZDOIDSet"/>
         /// </summary>
-        /// <param name="piece"></param>
         public void RemoveFromBlueprint(Piece piece)
         {
-            ZDOID? pieceID = piece.GetZDOID();
-            if (pieceID == null)
+            if (BlueprintInstance.TryGetInstance(piece, out var blueprintInstance))
             {
-                return;
-            }
-            ZDOID blueprintID = piece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
-            {
-                return;
-            }
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return;
-            }
-            ZDOIDSet blueprintPieces = GetBlueprintPieces(blueprintZDO);
-            blueprintPieces?.Remove(pieceID.Value);
-            if (blueprintPieces == null || !blueprintPieces.Any())
-            {
-                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                if (blueprintObject)
-                {
-                    ZNetScene.instance.Destroy(blueprintObject);
-                }
-            }
-            else
-            {
-                blueprintZDO.Set(zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
+                blueprintInstance.RemovePiece(piece);
             }
         }
 
-        /// <summary>
-        ///     Get all pieces belonging to a given Blueprint instance identified by its <see cref="ZDOID"/>
-        /// </summary>
-        /// <param name="blueprintID"></param>
-        /// <returns></returns>
-        public List<Piece> GetPiecesInBlueprint(ZDOID blueprintID)
-        {
-            List<Piece> result = new List<Piece>();
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return result;
-            }
-            ZDOIDSet blueprintPieces = GetBlueprintPieces(blueprintZDO);
-            foreach (ZDOID pieceZDOID in blueprintPieces)
-            {
-                GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
-                if (pieceObject && pieceObject.TryGetComponent(out Piece blueprintPiece))
-                {
-                    result.Add(blueprintPiece);
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        ///     Get the <see cref="ZDOID">ZDOIDs</see> of all pieces from a Blueprint instance identified by its <see cref="ZDO"/>
-        /// </summary>
-        /// <param name="blueprintZDO"></param>
-        /// <returns></returns>
-        public ZDOIDSet GetBlueprintPieces(ZDO blueprintZDO)
-        {
-            byte[] data = blueprintZDO.GetByteArray(zdoBlueprintPiece);
-            if (data == null)
-            {
-                return null;
-            }
-            return ZDOIDSet.From(new ZPackage(data));
-        }
-        
         /// <summary>
         ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
         /// </summary>
-        /// <param name="zdoid"></param>
-        /// <param name="required"></param>
-        /// <returns></returns>
         public GameObject GetGameObject(ZDOID zdoid, bool required = false)
         {
             GameObject go = ZNetScene.instance.FindInstance(zdoid);
@@ -387,9 +290,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Timed ghost destruction
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
         private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
         {
             if (self.m_buildPieces == null)
@@ -498,9 +398,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Display the blueprint tooltip panel when a blueprint building item is hovered
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
             if (BlueprintAssets.BlueprintTooltip && Hud.IsPieceSelectionVisible())

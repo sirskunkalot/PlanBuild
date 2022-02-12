@@ -86,8 +86,8 @@ namespace PlanBuild.Blueprints.Tools
 
             GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
             GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
-            ZDO blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-            blueprintZDO.Set(BlueprintManager.zdoBlueprintName, bp.Name);
+            BlueprintInstance blueprintInstance = blueprintObject.GetComponent<BlueprintInstance>();
+            blueprintInstance.SetName(bp.Name);
             ZDOIDSet blueprintPieces = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
@@ -148,9 +148,13 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
                 }
-                else if (gameObject.TryGetComponent<Piece>(out var blueprintPiece))
+                else
                 {
-                    BlueprintManager.Instance.AddToBlueprint(blueprintPiece, blueprintZDO.m_uid, entry);
+                    zNetView.m_zdo.Set(BlueprintManager.zdoBlueprintID, blueprintInstance.GetID());
+                    if (!placeDirect)
+                    {
+                        zNetView.m_zdo.Set(BlueprintManager.zdoAdditionalInfo, entry.additionalInfo);
+                    }
                     blueprintPieces.Add(zNetView.m_zdo.m_uid);
                 }
 
@@ -193,7 +197,7 @@ namespace PlanBuild.Blueprints.Tools
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
             
-            blueprintZDO.Set(BlueprintManager.zdoBlueprintPiece, blueprintPieces.ToZPackage().GetArray());
+            blueprintInstance.SetPieceIDs(blueprintPieces);
         }
 
         /// <summary>
