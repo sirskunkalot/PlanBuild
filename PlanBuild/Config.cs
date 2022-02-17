@@ -208,9 +208,6 @@ namespace PlanBuild
                 new ConfigDescription("Key to switch between modes on various tools", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
-            // Create Buttons and KeyHints if and when PixelFix is created
-            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
-            
             // Plans Section
 
             ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind(
@@ -258,12 +255,15 @@ namespace PlanBuild
             SupportedPlanColorConfig.SettingChanged += UpdateAllPlanPieceTextures;
             TransparencyConfig.SettingChanged += UpdateAllPlanPieceTextures;
             GlowColorConfig.SettingChanged += UpdateAllPlanTotems;
+            
+            // Create Buttons
+            CreateCustomButtons();
+            
+            // Create KeyHints if and when PixelFix is created
+            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
-
-        /// <summary>
-        ///     Create custom KeyHints for the static Blueprint Rune pieces
-        /// </summary>
-        private static void CreateCustomKeyHints()
+        
+        private static void CreateCustomButtons()
         {
             // Global
 
@@ -282,7 +282,6 @@ namespace PlanBuild
                 Name = nameof(CameraModifierButton),
                 Config = CameraModifierConfig
             };
-
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CameraModifierButton);
 
             RadiusModifierButton = new ButtonConfig
@@ -305,7 +304,13 @@ namespace PlanBuild
                 Config = ToggleConfig
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, ToggleButton);
+        }
 
+        /// <summary>
+        ///     Create custom KeyHints for the static Blueprint Rune pieces
+        /// </summary>
+        private static void CreateCustomKeyHints()
+        {
             // Mode Switch
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
