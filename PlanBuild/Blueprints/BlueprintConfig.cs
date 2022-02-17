@@ -193,15 +193,15 @@ namespace PlanBuild.Blueprints
                 KeybindSection, "MarkerSwitch", KeyCode.Q,
                 new ConfigDescription("Key to switch between marker shapes on various tools", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
+            
+            // Create Buttons
+            CreateCustomButtons();
 
-            // Create Buttons and KeyHints if and when PixelFix is created
+            // Create KeyHints if and when PixelFix is created
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
-
-        /// <summary>
-        ///     Create custom KeyHints for the static Blueprint Rune pieces
-        /// </summary>
-        private static void CreateCustomKeyHints()
+        
+        private static void CreateCustomButtons()
         {
             // Global
 
@@ -228,7 +228,6 @@ namespace PlanBuild.Blueprints
                 Name = nameof(CameraModifierButton),
                 Config = CameraModifierConfig
             };
-
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CameraModifierButton);
 
             RadiusModifierButton = new ButtonConfig
@@ -251,7 +250,13 @@ namespace PlanBuild.Blueprints
                 Config = MarkerSwitchConfig
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MarkerSwitchButton);
+        }
 
+        /// <summary>
+        ///     Create custom KeyHints for the static Blueprint Rune pieces
+        /// </summary>
+        private static void CreateCustomKeyHints()
+        {
             // Mode Switch
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
