@@ -199,7 +199,7 @@ namespace PlanBuild.Blueprints
                 return;
             }
             
-            if (BlueprintInstance.TryGetInstance(LastHoveredPiece, out var blueprintInstance))
+            if (LastHoveredPiece && BlueprintInstance.TryGetInstance(LastHoveredPiece, out var blueprintInstance))
             {
                 foreach (Piece blueprintPiece in blueprintInstance.GetPieceInstances())
                 {
