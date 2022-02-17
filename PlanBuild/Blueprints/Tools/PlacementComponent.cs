@@ -203,7 +203,6 @@ namespace PlanBuild.Blueprints.Tools
         /// <summary>
         ///     Hook for patching
         /// </summary>
-        /// <param name="newpiece"></param>
         internal virtual void OnPiecePlaced(GameObject placedPiece)
         {
         }

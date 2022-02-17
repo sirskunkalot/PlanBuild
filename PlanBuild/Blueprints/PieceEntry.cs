@@ -5,17 +5,20 @@ namespace PlanBuild.Blueprints
 {
     public class PieceEntry
     {
-        public string line { get; set; }
-        public string name { get; set; }
-        public string category { get; set; }
-        public float posX { get; set; }
-        public float posY { get; set; }
-        public float posZ { get; set; }
-        public float rotX { get; set; }
-        public float rotY { get; set; }
-        public float rotZ { get; set; }
-        public float rotW { get; set; }
-        public string additionalInfo { get; set; }
+        public string line;
+        public string name;
+        public string category;
+        public float posX;
+        public float posY;
+        public float posZ;
+        public float rotX;
+        public float rotY;
+        public float rotZ;
+        public float rotW;
+        public string additionalInfo;
+        public float scaleX;
+        public float scaleY;
+        public float scaleZ;
 
         public static PieceEntry FromBlueprint(string line)
         {
@@ -38,7 +41,15 @@ namespace PlanBuild.Blueprints
             Vector3 pos = new Vector3(posX, posY, posZ);
             Quaternion rot = new Quaternion(rotX, rotY, rotZ, rotW).normalized;
             string additionalInfo = parts[9];
-            return new PieceEntry(name, category, pos, rot, additionalInfo);
+            Vector3 scale = Vector3.one;
+            if (parts.Length > 10)
+            {
+                float scaleX = InvariantFloat(parts[10]);
+                float scaleY = InvariantFloat(parts[11]);
+                float scaleZ = InvariantFloat(parts[12]);
+                scale = new Vector3(scaleX, scaleY, scaleZ);
+            }
+            return new PieceEntry(name, category, pos, rot, additionalInfo, scale);
         }
 
         public static PieceEntry FromVBuild(string line)
@@ -62,10 +73,10 @@ namespace PlanBuild.Blueprints
             Quaternion rot = new Quaternion(x, y, z, w).normalized;
             Vector3 pos = new Vector3(x2, y2, z2);
             string additionalInfo = string.Empty;
-            return new PieceEntry(name, category, pos, rot, additionalInfo);
+            return new PieceEntry(name, category, pos, rot, additionalInfo, Vector3.one);
         }
 
-        public PieceEntry(string name, string category, Vector3 pos, Quaternion rot, string additionalInfo)
+        public PieceEntry(string name, string category, Vector3 pos, Quaternion rot, string additionalInfo, Vector3 scale)
         {
             this.name = name.Split('(')[0];
             this.category = category;
@@ -77,12 +88,16 @@ namespace PlanBuild.Blueprints
             rotZ = rot.z;
             rotW = rot.w;
             this.additionalInfo = additionalInfo;
+            scaleX = scale.x;
+            scaleY = scale.y;
+            scaleZ = scale.z;
 
             line = string.Join(";",
                 this.name, this.category,
                 InvariantString(posX), InvariantString(posY), InvariantString(posZ),
                 InvariantString(rotX), InvariantString(rotY), InvariantString(rotZ), InvariantString(rotW),
-                this.additionalInfo);
+                this.additionalInfo,
+                InvariantString(scaleX), InvariantString(scaleY), InvariantString(scaleZ));
         }
 
         public Vector3 GetPosition()
@@ -95,16 +110,18 @@ namespace PlanBuild.Blueprints
             return new Quaternion(rotX, rotY, rotZ, rotW);
         }
 
+        public Vector3 GetScale()
+        {
+            return new Vector3(scaleX, scaleY, scaleZ);
+        }
+
         internal static float InvariantFloat(string s)
         {
             if (string.IsNullOrEmpty(s))
             {
                 return 0f;
             }
-            else
-            {
-                return float.Parse(s, NumberStyles.Any, NumberFormatInfo.InvariantInfo);
-            }
+            return float.Parse(s, NumberStyles.Any, NumberFormatInfo.InvariantInfo);
         }
 
         internal static string InvariantString(float f)

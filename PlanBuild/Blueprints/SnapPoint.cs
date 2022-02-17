@@ -5,10 +5,10 @@ namespace PlanBuild.Blueprints
 {
     public class SnapPoint
     {
-        public string line { get; set; }
-        public float posX { get; set; }
-        public float posY { get; set; }
-        public float posZ { get; set; }
+        public string line;
+        public float posX;
+        public float posY;
+        public float posZ;
 
         public SnapPoint(string line)
         {
