@@ -12,16 +12,16 @@ namespace PlanBuild.Blueprints.Tools
         public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
+        internal bool ResetPlacementOffset = true;
 
         private void Start()
         {
-            // if (!Player.m_localPlayer || Player.m_localPlayer.GetSelectedPiece() == null ||
-            //     !gameObject.name.StartsWith(Player.m_localPlayer.GetSelectedPiece().gameObject.name))
-            // {
-            //     return;
-            // }
-
             OnStart();
+            
+            if (ResetPlacementOffset)
+            {
+                PlacementOffset = Vector3.zero;
+            }
 
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PieceRayTest += Player_PieceRayTest;
