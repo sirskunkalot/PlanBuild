@@ -26,12 +26,12 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
-            return MakeBlueprint();
+            MakeBlueprint();
         }
 
-        private bool MakeBlueprint()
+        private void MakeBlueprint()
         {
             var bp = new Blueprint();
             var bpname = Selection.Instance.BlueprintName;
@@ -46,9 +46,6 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
             }
-
-            // Don't place the piece and clutter the world with it
-            return false;
         }
 
         /// <summary>

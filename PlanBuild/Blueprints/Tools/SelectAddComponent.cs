@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
@@ -60,7 +60,6 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
             UpdateDescription();
-            return false;
         }
     }
 }

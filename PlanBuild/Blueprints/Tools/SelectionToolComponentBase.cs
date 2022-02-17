@@ -1,6 +1,4 @@
-﻿using UnityEngine;
-
-namespace PlanBuild.Blueprints.Tools
+﻿namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectionToolComponentBase : ToolComponentBase
     {
@@ -14,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             Selection.Instance.StopHighlightSelection();
         }
-        
+
         public override void UpdateDescription()
         {
             Hud.instance.m_pieceDescription.text = Selection.Instance.ToString();

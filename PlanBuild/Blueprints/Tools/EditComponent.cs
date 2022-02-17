@@ -34,9 +34,12 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (!hoveredPiece)
             {
-                CurrentHoveredBlueprintID = ZDOID.None;
-                CurrentHoveredBlueprint = null;
-                UpdateDescription();
+                if (CurrentHoveredBlueprintID != ZDOID.None)
+                {
+                    CurrentHoveredBlueprintID = ZDOID.None;
+                    CurrentHoveredBlueprint = null;
+                    //UpdateDescription();
+                }
                 return;
             }
 
@@ -48,10 +51,10 @@ namespace PlanBuild.Blueprints.Tools
 
             CurrentHoveredBlueprintID = blueprintID;
             CurrentHoveredBlueprint = ZDOMan.instance.GetZDO(blueprintID);
-            UpdateDescription();
+            //UpdateDescription();
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             // Set current blueprint and add all pieces to selection
             if (BlueprintManager.Instance.LastHoveredPiece)
@@ -61,12 +64,11 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     Selection.Instance.Clear();
                     Selection.Instance.AddBlueprint(blueprintID);
-                    return false;
+                    return;
                 }
             }
 
             Selection.Instance.Clear();
-            return false;
         }
 
         public override void UpdateDescription()

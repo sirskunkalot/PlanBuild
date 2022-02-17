@@ -42,12 +42,12 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
-                return false;
+                return;
             }
 
             if (ZInput.GetButton(Config.DeleteModifierButton.Name))
@@ -61,7 +61,6 @@ namespace PlanBuild.Blueprints.Tools
                     SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
             }
             PlacementOffset = Vector3.zero;
-            return false;
         }
     }
 }

@@ -31,12 +31,12 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
-                return false;
+                return;
             }
 
             int delcnt;
@@ -68,8 +68,6 @@ namespace PlanBuild.Blueprints.Tools
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
                     Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
             }
-
-            return false;
         }
     }
 }

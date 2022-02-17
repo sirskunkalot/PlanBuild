@@ -23,11 +23,13 @@ namespace PlanBuild.Blueprints.Tools
                 PlacementOffset = Vector3.zero;
             }
 
-            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
-            On.Player.PieceRayTest += Player_PieceRayTest;
             On.Player.UpdatePlacement += Player_UpdatePlacement;
-            On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
+            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PlacePiece += Player_PlacePiece;
+
+            On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
+            On.Player.PieceRayTest += Player_PieceRayTest;
+
             On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
             On.Hud.SetupPieceInfo += Hud_SetupPieceInfo;
 
@@ -51,11 +53,13 @@ namespace PlanBuild.Blueprints.Tools
             OnOnDestroy();
             DisableSelectionProjector();
 
-            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
-            On.Player.PieceRayTest -= Player_PieceRayTest;
             On.Player.UpdatePlacement -= Player_UpdatePlacement;
-            On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
+            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
             On.Player.PlacePiece -= Player_PlacePiece;
+
+            On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
+            On.Player.PieceRayTest -= Player_PieceRayTest;
+
             On.GameCamera.UpdateCamera -= GameCamera_UpdateCamera;
             On.Hud.SetupPieceInfo -= Hud_SetupPieceInfo;
 
@@ -63,35 +67,6 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         public virtual void OnOnDestroy()
-        {
-        }
-
-        /// <summary>
-        ///     Dont highlight pieces while capturing when enabled
-        /// </summary>
-        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
-        {
-            if (!SuppressPieceHighlight)
-            {
-                orig(self);
-            }
-        }
-
-        /// <summary>
-        ///     Apply the PlacementOffset to the placementMarker and react on piece hover
-        /// </summary>
-        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
-        {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
-            {
-                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
-            }
-            OnPieceHovered(piece);
-            return result;
-        }
-        
-        public virtual void OnPieceHovered(Piece hoveredPiece)
         {
         }
 
@@ -116,6 +91,17 @@ namespace PlanBuild.Blueprints.Tools
             PlacementOffset = Vector3.zero;
             CameraOffset = 0f;
             DisableSelectionProjector();
+        }
+        
+        /// <summary>
+        ///     Dont highlight pieces while capturing when enabled
+        /// </summary>
+        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
+        {
+            if (!SuppressPieceHighlight)
+            {
+                orig(self);
+            }
         }
 
         public float GetPlacementOffset(float scrollWheel)
@@ -218,6 +204,51 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         /// <summary>
+        ///     Flatten placement marker
+        /// </summary>
+        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            orig(self, flashGuardStone);
+
+            if (self.m_placementMarkerInstance && self.m_placementGhost)
+            {
+                self.m_placementMarkerInstance.transform.up = Vector3.back;
+            }
+        }
+        
+        /// <summary>
+        ///     Apply the PlacementOffset to the placementMarker and react on piece hover
+        /// </summary>
+        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        {
+            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
+            {
+                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
+            }
+            OnPieceHovered(piece);
+            return result;
+        }
+        
+        public virtual void OnPieceHovered(Piece hoveredPiece)
+        {
+        }
+
+        /// <summary>
+        ///     Incept placing of the meta pieces.
+        ///     Cancels the real placement of the placeholder pieces.
+        /// </summary>
+        private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        {
+            OnPlacePiece(self, piece);
+            return false;
+        }
+
+        public virtual void OnPlacePiece(Player self, Piece piece)
+        {
+        }
+        
+        /// <summary>
         ///     Adjust camera height
         /// </summary>
         private void GameCamera_UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
@@ -231,33 +262,6 @@ namespace PlanBuild.Blueprints.Tools
             {
                 self.transform.position += new Vector3(0, CameraOffset, 0);
             }
-        }
-
-        /// <summary>
-        ///     Flatten placement marker
-        /// </summary>
-        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
-        {
-            orig(self, flashGuardStone);
-
-            if (self.m_placementMarkerInstance && self.m_placementGhost)
-            {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
-            }
-        }
-
-        /// <summary>
-        ///     Incept placing of the meta pieces.
-        ///     Cancels the real placement of the placeholder pieces.
-        /// </summary>
-        private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
-        {
-            return OnPlacePiece(self, piece);
-        }
-
-        public virtual bool OnPlacePiece(Player self, Piece piece)
-        {
-            return false;
         }
 
         /// <summary>

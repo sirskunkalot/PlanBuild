@@ -49,22 +49,24 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (ZInput.GetButton(Config.RadiusModifierButton.Name))
             {
-                return DeletePlans(self);
+                DeletePlans(self);
+                return;
             }
 
             if (ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
-                return UndoBlueprint();
+                UndoBlueprint();
+                return;
             }
 
-            return UndoPiece();
+            UndoPiece();
         }
 
-        private bool UndoPiece()
+        private void UndoPiece()
         {
             if (BlueprintManager.Instance.LastHoveredPiece)
             {
@@ -73,26 +75,24 @@ namespace PlanBuild.Blueprints.Tools
                     planPiece.m_wearNTear.Remove();
                 }
             }
-
-            return false;
         }
 
-        private bool UndoBlueprint()
+        private void UndoBlueprint()
         {
             if (!BlueprintManager.Instance.LastHoveredPiece)
             {
-                return false;
+                return;
             }
 
             if (!BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece _))
             {
-                return false;
+                return;
             }
 
             if (!BlueprintInstance.TryGetInstance(BlueprintManager.Instance.LastHoveredPiece,
                     out var instance))
             {
-                return false;
+                return;
             }
             
             int removedPieces = 0;
@@ -108,11 +108,9 @@ namespace PlanBuild.Blueprints.Tools
             ZNetScene.instance.Destroy(instance.gameObject);
 
             Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-
-            return false;
         }
 
-        private bool DeletePlans(Player self)
+        private void DeletePlans(Player self)
         {
             Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
@@ -122,8 +120,6 @@ namespace PlanBuild.Blueprints.Tools
                 removedPieces++;
             }
             self.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-
-            return false;
         }
     }
 }

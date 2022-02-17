@@ -31,18 +31,16 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");
-                return false;
+                return;
             }
 
             StopAllCoroutines();
             StartCoroutine(ConstantDraw(self.m_placementGhost.transform));
-
-            return false;
         }
 
         private IEnumerator ConstantDraw(Transform ghost)

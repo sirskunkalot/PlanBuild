@@ -42,7 +42,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
@@ -67,7 +67,6 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
             UpdateDescription();
-            return false;
         }
     }
 }

@@ -45,7 +45,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (self.m_placementStatus == Player.PlacementStatus.Valid)
             {
@@ -58,9 +58,6 @@ namespace PlanBuild.Blueprints.Tools
                     Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
                 }
             }
-
-            // Dont set the blueprint piece and clutter the world with it
-            return false;
         }
 
         private void PlaceBlueprint(Player player, Piece piece)
