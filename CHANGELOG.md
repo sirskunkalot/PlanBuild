@@ -1,3 +1,7 @@
+# Version 0.9.4
+* Fixed placement offset not resetting
+* Fixed custom inputs for 0.207.15
+
 # Version 0.9.3
 * Fixed manual selection tools
 
