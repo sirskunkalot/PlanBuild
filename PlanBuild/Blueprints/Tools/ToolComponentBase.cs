@@ -270,7 +270,10 @@ namespace PlanBuild.Blueprints.Tools
         private void Hud_SetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
             orig(self, piece);
-            UpdateDescription();
+            if (!self.m_pieceSelectionWindow.activeSelf)
+            {
+                UpdateDescription();
+            }
         }
 
         public virtual void UpdateDescription()
