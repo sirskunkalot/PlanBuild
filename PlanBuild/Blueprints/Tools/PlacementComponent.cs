@@ -124,6 +124,7 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
+                // No Terrain stuff unless allowed
                 if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
@@ -131,9 +132,9 @@ namespace PlanBuild.Blueprints.Tools
                     continue;
                 }
 
-                // Instantiate a new object with the new prefab
+                // Instantiate a new object with the prefab
                 GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
-                if(!gameObject)
+                if (!gameObject)
                 {
                     Jotunn.Logger.LogWarning($"Invalid PieceEntry: {entry.name}");
                     continue;
@@ -153,6 +154,8 @@ namespace PlanBuild.Blueprints.Tools
                         zNetView.m_zdo.Set(BlueprintManager.zdoAdditionalInfo, entry.additionalInfo);
                     }
                     blueprintPieces.Add(zNetView.m_zdo.m_uid);
+                    
+                    zNetView.SetLocalScale(entry.GetScale());
                 }
 
                 // Register special effects
@@ -181,11 +184,11 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     textReceiver.SetText(entry.additionalInfo);
                 }
-
+                
                 // Limited build effects and none for planned pieces
-                if (placeDirect && cntEffects < maxEffects)
+                if (newpiece && placeDirect && cntEffects < maxEffects)
                 {
-                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
+                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
                     player.AddNoise(50f);
                     cntEffects++;
                 }
