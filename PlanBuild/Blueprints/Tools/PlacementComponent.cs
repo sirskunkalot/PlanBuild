@@ -12,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
             SuppressPieceHighlight = false;
             ResetPlacementOffset = false;
         }
-        
+
         public override void OnUpdatePlacement(Player self)
         {
             DisableSelectionProjector();
@@ -96,7 +96,7 @@ namespace PlanBuild.Blueprints.Tools
 
                 // Final rotation
                 Quaternion entryQuat = transform.rotation * entry.GetRotation();
-                
+
                 // Dont place an erroneously captured piece_blueprint
                 if (entry.name == Blueprint.PieceBlueprintName)
                 {
@@ -120,7 +120,7 @@ namespace PlanBuild.Blueprints.Tools
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (!prefab)
                 {
-                    Jotunn.Logger.LogWarning($"{entry.name} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
+                    Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
                     continue;
                 }
 
@@ -154,7 +154,7 @@ namespace PlanBuild.Blueprints.Tools
                         zNetView.m_zdo.Set(BlueprintManager.zdoAdditionalInfo, entry.additionalInfo);
                     }
                     blueprintPieces.Add(zNetView.m_zdo.m_uid);
-                    
+
                     zNetView.SetLocalScale(entry.GetScale());
                 }
 
@@ -184,7 +184,7 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     textReceiver.SetText(entry.additionalInfo);
                 }
-                
+
                 // Limited build effects and none for planned pieces
                 if (newpiece && placeDirect && cntEffects < maxEffects)
                 {
@@ -196,8 +196,15 @@ namespace PlanBuild.Blueprints.Tools
                 // Count up player builds
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
-            
-            blueprintInstance.SetPieceIDs(blueprintPieces);
+
+            if (blueprintPieces.Count > 0)
+            {
+                blueprintInstance.SetPieceIDs(blueprintPieces);
+            }
+            else
+            {
+                Destroy(blueprintObject);
+            }
         }
 
         /// <summary>
