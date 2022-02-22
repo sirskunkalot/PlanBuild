@@ -586,7 +586,7 @@ namespace PlanBuild.Blueprints
                 var scale = piece.transform.localScale;
 
                 string pieceName = piece.name.Split('(')[0];
-                if (piece.gameObject.GetComponent<ZNetView>() is {m_zdo: { }} znet && 
+                if (piece.gameObject.GetComponent<ZNetView>() is { m_zdo: { } } znet &&
                     ZNetScene.instance.GetPrefab(znet.m_zdo.m_prefab) is { } prefab)
                 {
                     pieceName = prefab.name;
@@ -812,7 +812,7 @@ namespace PlanBuild.Blueprints
                         var piecePosition = tf.position + piece.GetPosition();
                         var pieceRotation = tf.rotation * piece.GetRotation();
                         var pieceScale = piece.GetScale();
-                        
+
                         if (prefabs.TryGetValue(piece.name, out var prefab))
                         {
                             var child = Object.Instantiate(prefab, piecePosition, pieceRotation, tf);

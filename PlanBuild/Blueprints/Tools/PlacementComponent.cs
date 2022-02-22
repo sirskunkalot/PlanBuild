@@ -91,17 +91,17 @@ namespace PlanBuild.Blueprints.Tools
             {
                 PieceEntry entry = bp.PieceEntries[i];
 
-                // Final position
-                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
-
-                // Final rotation
-                Quaternion entryQuat = transform.rotation * entry.GetRotation();
-
                 // Dont place an erroneously captured piece_blueprint
                 if (entry.name == Blueprint.PieceBlueprintName)
                 {
                     continue;
                 }
+
+                // Final position
+                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
+
+                // Final rotation
+                Quaternion entryQuat = transform.rotation * entry.GetRotation();
 
                 // Dont place blacklisted pieces
                 if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))
@@ -155,10 +155,7 @@ namespace PlanBuild.Blueprints.Tools
                     }
                     blueprintPieces.Add(zNetView.m_zdo.m_uid);
 
-                    if (zNetView.m_syncInitialScale)
-                    {
-                        zNetView.SetLocalScale(entry.GetScale());
-                    }
+                    zNetView.SetLocalScale(entry.GetScale());
                 }
 
                 // Register special effects
