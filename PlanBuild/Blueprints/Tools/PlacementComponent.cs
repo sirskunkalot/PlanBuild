@@ -155,7 +155,10 @@ namespace PlanBuild.Blueprints.Tools
                     }
                     blueprintPieces.Add(zNetView.m_zdo.m_uid);
 
-                    zNetView.SetLocalScale(entry.GetScale());
+                    if (zNetView.m_syncInitialScale)
+                    {
+                        zNetView.SetLocalScale(entry.GetScale());
+                    }
                 }
 
                 // Register special effects
