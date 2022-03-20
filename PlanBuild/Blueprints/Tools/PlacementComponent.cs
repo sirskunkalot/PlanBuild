@@ -186,7 +186,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
 
                 // Limited build effects and none for planned pieces
-                if (placeDirect && newpiece && cntEffects < maxEffects)
+                if (newpiece && placeDirect && cntEffects < maxEffects)
                 {
                     newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
                     player.AddNoise(50f);

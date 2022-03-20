@@ -1,3 +1,6 @@
+# Version 0.9.5
+* Fixed placement of non-Piece prefabs
+
 # Version 0.9.4
 * Fixed placement offset not resetting
 * Fixed custom inputs for 0.207.20
