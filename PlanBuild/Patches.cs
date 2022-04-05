@@ -43,10 +43,5 @@ namespace PlanBuild
                 Harmony.PatchAll(typeof(ModCompat.PatcherValheimRaft));
             }
         }
-
-        internal static void Remove()
-        {
-            Harmony?.UnpatchAll(PlanBuildPlugin.PluginGUID);
-        }
     }
 }

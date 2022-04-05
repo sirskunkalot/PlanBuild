@@ -60,12 +60,7 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
         }
-
-        public void OnDestroy()
-        {
-            Patches.Remove();
-        }
-
+        
         public void Update()
         {
             // No keys without ZInput
