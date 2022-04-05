@@ -163,7 +163,7 @@ namespace PlanBuild.Blueprints
 
                 IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() && 
+                                  obj.GetComponent<ZNetView>() &&
                                   //obj.GetComponents<Component>().Select(x => x.GetType()) is Type[] comp &&
                                   (includeTypes == null || includeTypes.All(x => obj.GetComponent(x) != null)) &&
                                   (excludeTypes == null || excludeTypes.All(x => obj.GetComponent(x) == null)));

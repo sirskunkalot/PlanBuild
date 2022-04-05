@@ -12,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
             SuppressPieceHighlight = false;
             ResetPlacementOffset = false;
         }
-        
+
         public override void OnUpdatePlacement(Player self)
         {
             DisableSelectionProjector();
@@ -20,8 +20,8 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
+                bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+                bool deleteModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
                 if (radiusModifier && deleteModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
@@ -37,7 +37,7 @@ namespace PlanBuild.Blueprints.Tools
                     PlacementOffset.z += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                else if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -45,7 +45,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
             if (self.m_placementStatus == Player.PlacementStatus.Valid)
             {
@@ -58,9 +58,6 @@ namespace PlanBuild.Blueprints.Tools
                     Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
                 }
             }
-
-            // Dont set the blueprint piece and clutter the world with it
-            return false;
         }
 
         private void PlaceBlueprint(Player player, Piece piece)
@@ -71,10 +68,10 @@ namespace PlanBuild.Blueprints.Tools
             var position = transform.position;
             var rotation = transform.rotation;
 
-            bool placeDirect = BlueprintConfig.DirectBuildDefault;
-            placeDirect ^= ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
+            bool placeDirect = Config.DirectBuildDefault;
+            placeDirect ^= ZInput.GetButton(Config.RadiusModifierButton.Name);
             if (placeDirect
-                && !BlueprintConfig.AllowDirectBuildConfig.Value
+                && !Config.AllowDirectBuildConfig.Value
                 && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_direct_build_disabled");
@@ -84,31 +81,27 @@ namespace PlanBuild.Blueprints.Tools
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
-            ZDOIDSet createdPlans = new ZDOIDSet();
-            ZDO blueprintZDO = null;
-            if (!placeDirect)
-            {
-                GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
-                GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
-                blueprintZDO = blueprintObject.GetComponent<ZNetView>().GetZDO();
-                blueprintZDO.Set(Blueprint.ZDOBlueprintName, bp.Name);
-            }
+            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
+            GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
+            BlueprintInstance blueprintInstance = blueprintObject.GetComponent<BlueprintInstance>();
+            blueprintInstance.SetName(bp.Name);
+            ZDOIDSet blueprintPieces = new ZDOIDSet();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
                 PieceEntry entry = bp.PieceEntries[i];
+
+                // Dont place an erroneously captured piece_blueprint
+                if (entry.name == Blueprint.PieceBlueprintName)
+                {
+                    continue;
+                }
 
                 // Final position
                 Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
                 // Final rotation
                 Quaternion entryQuat = transform.rotation * entry.GetRotation();
-                
-                // Dont place an erroneously captured piece_blueprint
-                if (entry.name == Blueprint.PieceBlueprintName)
-                {
-                    continue;
-                }
 
                 // Dont place blacklisted pieces
                 if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))
@@ -127,20 +120,21 @@ namespace PlanBuild.Blueprints.Tools
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (!prefab)
                 {
-                    Jotunn.Logger.LogWarning($"{entry.name} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
+                    Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
                     continue;
                 }
 
-                if (!(SynchronizationManager.Instance.PlayerIsAdmin || BlueprintConfig.AllowTerrainmodConfig.Value)
+                // No Terrain stuff unless allowed
+                if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
                     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
                 {
                     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
                     continue;
                 }
 
-                // Instantiate a new object with the new prefab
+                // Instantiate a new object with the prefab
                 GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
-                if(!gameObject)
+                if (!gameObject)
                 {
                     Jotunn.Logger.LogWarning($"Invalid PieceEntry: {entry.name}");
                     continue;
@@ -152,10 +146,16 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
                 }
-                else if (!placeDirect && gameObject.TryGetComponent(out PlanPiece planPiece))
+                else
                 {
-                    planPiece.PartOfBlueprint(blueprintZDO.m_uid, entry);
-                    createdPlans.Add(planPiece.GetPlanPieceID());
+                    zNetView.m_zdo.Set(BlueprintManager.zdoBlueprintID, blueprintInstance.GetID());
+                    if (!placeDirect)
+                    {
+                        zNetView.m_zdo.Set(BlueprintManager.zdoAdditionalInfo, entry.additionalInfo);
+                    }
+                    blueprintPieces.Add(zNetView.m_zdo.m_uid);
+
+                    zNetView.SetLocalScale(entry.GetScale());
                 }
 
                 // Register special effects
@@ -188,7 +188,7 @@ namespace PlanBuild.Blueprints.Tools
                 // Limited build effects and none for planned pieces
                 if (newpiece && placeDirect && cntEffects < maxEffects)
                 {
-                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform, 1f);
+                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
                     player.AddNoise(50f);
                     cntEffects++;
                 }
@@ -197,16 +197,19 @@ namespace PlanBuild.Blueprints.Tools
                 Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
 
-            if(!placeDirect)
+            if (blueprintPieces.Count > 0)
             {
-                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, createdPlans.ToZPackage().GetArray());
+                blueprintInstance.SetPieceIDs(blueprintPieces);
+            }
+            else
+            {
+                Destroy(blueprintObject);
             }
         }
 
         /// <summary>
         ///     Hook for patching
         /// </summary>
-        /// <param name="newpiece"></param>
         internal virtual void OnPiecePlaced(GameObject placedPiece)
         {
         }

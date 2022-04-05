@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\JotunnLib.2.4.5\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.4.5\build\JotunnLib.props')" />
+  <Import Project="..\packages\JotunnLib.2.4.10\build\JotunnLib.props" Condition="Exists('..\packages\JotunnLib.2.4.10\build\JotunnLib.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -58,8 +58,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\GizmoReloaded.dll</HintPath>
     </Reference>
-    <Reference Include="Jotunn, Version=2.4.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\JotunnLib.2.4.5\lib\net462\Jotunn.dll</HintPath>
+    <Reference Include="Jotunn, Version=2.4.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\JotunnLib.2.4.10\lib\net462\Jotunn.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Cecil, Version=0.11.4.0, Culture=neutral, PublicKeyToken=50cebf1cceb9d05e, processorArchitecture=MSIL">
       <HintPath>..\packages\Mono.Cecil.0.11.4\lib\net40\Mono.Cecil.dll</HintPath>
@@ -99,7 +99,7 @@
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
-    <Compile Include="Blueprints\BlueprintConfig.cs" />
+    <Compile Include="Blueprints\BlueprintInstance.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
@@ -108,18 +108,19 @@
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectAddComponent.cs" />
-    <Compile Include="Blueprints\Tools\CaptureComponent.cs" />
     <Compile Include="Blueprints\Tools\DeleteObjectsComponent.cs" />
     <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
     <Compile Include="Blueprints\Tools\PaintComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectionToolComponentBase.cs" />
+    <Compile Include="Blueprints\Tools\EditComponent.cs" />
     <Compile Include="Blueprints\Tools\TerrainComponent.cs" />
     <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
+    <Compile Include="Config.cs" />
     <Compile Include="Plans\PlanCommands.cs" />
     <Compile Include="Plans\PlanBlacklist.cs" />
-    <Compile Include="Plans\PlanConfig.cs" />
     <Compile Include="Plans\PlanDB.cs" />
     <Compile Include="Blueprints\Selection.cs" />
+    <Compile Include="Plans\PlanHammerPrefab.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />
@@ -182,6 +183,6 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\JotunnLib.2.4.5\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.4.5\build\JotunnLib.props'))" />
+    <Error Condition="!Exists('..\packages\JotunnLib.2.4.10\build\JotunnLib.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\JotunnLib.2.4.10\build\JotunnLib.props'))" />
   </Target>
 </Project>

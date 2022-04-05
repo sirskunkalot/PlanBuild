@@ -8,7 +8,7 @@ namespace PlanBuild.Blueprints.Tools
     {
         public static ShapedProjector SelectionProjector;
         public static float SelectionRadius = 10.0f;
-        public static float CameraOffset = 5.0f;
+        public static float CameraOffset = 0.0f;
         public static Vector3 PlacementOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
@@ -23,12 +23,20 @@ namespace PlanBuild.Blueprints.Tools
                 PlacementOffset = Vector3.zero;
             }
 
-            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
-            On.Player.PieceRayTest += Player_PieceRayTest;
+            if (ResetPlacementOffset)
+            {
+                PlacementOffset = Vector3.zero;
+            }
+
             On.Player.UpdatePlacement += Player_UpdatePlacement;
-            On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
+            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PlacePiece += Player_PlacePiece;
+
+            On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
+            On.Player.PieceRayTest += Player_PieceRayTest;
+
             On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
+            On.Hud.SetupPieceInfo += Hud_SetupPieceInfo;
 
             Jotunn.Logger.LogDebug($"{gameObject.name} started");
         }
@@ -50,42 +58,21 @@ namespace PlanBuild.Blueprints.Tools
             OnOnDestroy();
             DisableSelectionProjector();
 
-            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
-            On.Player.PieceRayTest -= Player_PieceRayTest;
             On.Player.UpdatePlacement -= Player_UpdatePlacement;
-            On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
+            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
             On.Player.PlacePiece -= Player_PlacePiece;
+
+            On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
+            On.Player.PieceRayTest -= Player_PieceRayTest;
+
             On.GameCamera.UpdateCamera -= GameCamera_UpdateCamera;
+            On.Hud.SetupPieceInfo -= Hud_SetupPieceInfo;
 
             Jotunn.Logger.LogDebug($"{gameObject.name} destroyed");
         }
 
         public virtual void OnOnDestroy()
         {
-        }
-
-        /// <summary>
-        ///     Dont highlight pieces while capturing when enabled
-        /// </summary>
-        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
-        {
-            if (!SuppressPieceHighlight)
-            {
-                orig(self);
-            }
-        }
-
-        /// <summary>
-        ///     Apply the PlacementOffset to the placementMarker
-        /// </summary>
-        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
-        {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
-            {
-                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
-            }
-            return result;
         }
 
         /// <summary>
@@ -104,29 +91,38 @@ namespace PlanBuild.Blueprints.Tools
         /// <summary>
         ///     Default UpdatePlacement when subclass does not override.
         /// </summary>
-        /// <param name="self"></param>
         public virtual void OnUpdatePlacement(Player self)
         {
-            DisableSelectionProjector();
-
-            CameraOffset = 5f;
             PlacementOffset = Vector3.zero;
+            CameraOffset = 0f;
+            DisableSelectionProjector();
+        }
+        
+        /// <summary>
+        ///     Dont highlight pieces while capturing when enabled
+        /// </summary>
+        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
+        {
+            if (!SuppressPieceHighlight)
+            {
+                orig(self);
+            }
         }
 
         public float GetPlacementOffset(float scrollWheel)
         {
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.InvertPlacementOffsetScrollConfig.Value)
+            if (Config.InvertPlacementOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                return -BlueprintConfig.PlacementOffsetIncrementConfig.Value;
+                return -Config.PlacementOffsetIncrementConfig.Value;
             }
             else
             {
-                return BlueprintConfig.PlacementOffsetIncrementConfig.Value;
+                return Config.PlacementOffsetIncrementConfig.Value;
             }
         }
 
@@ -150,17 +146,17 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.InvertSelectionScrollConfig.Value)
+            if (Config.InvertSelectionScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                SelectionRadius -= BlueprintConfig.SelectionIncrementConfig.Value;
+                SelectionRadius -= Config.SelectionIncrementConfig.Value;
             }
             else
             {
-                SelectionRadius += BlueprintConfig.SelectionIncrementConfig.Value;
+                SelectionRadius += Config.SelectionIncrementConfig.Value;
             }
 
             SelectionRadius = Mathf.Clamp(SelectionRadius, 2f, 100f);
@@ -198,20 +194,65 @@ namespace PlanBuild.Blueprints.Tools
             float minOffset = 0f;
             float maxOffset = 20f;
             bool scrollingDown = scrollWheel < 0f;
-            if (BlueprintConfig.InvertCameraOffsetScrollConfig.Value)
+            if (Config.InvertCameraOffsetScrollConfig.Value)
             {
                 scrollingDown = !scrollingDown;
             }
             if (scrollingDown)
             {
-                CameraOffset = Mathf.Clamp(CameraOffset + BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset + Config.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
             else
             {
-                CameraOffset = Mathf.Clamp(CameraOffset - BlueprintConfig.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
+                CameraOffset = Mathf.Clamp(CameraOffset - Config.CameraOffsetIncrementConfig.Value, minOffset, maxOffset);
             }
         }
 
+        /// <summary>
+        ///     Flatten placement marker
+        /// </summary>
+        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        {
+            orig(self, flashGuardStone);
+
+            if (self.m_placementMarkerInstance && self.m_placementGhost)
+            {
+                self.m_placementMarkerInstance.transform.up = Vector3.back;
+            }
+        }
+        
+        /// <summary>
+        ///     Apply the PlacementOffset to the placementMarker and react on piece hover
+        /// </summary>
+        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        {
+            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
+            {
+                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
+            }
+            OnPieceHovered(piece);
+            return result;
+        }
+        
+        public virtual void OnPieceHovered(Piece hoveredPiece)
+        {
+        }
+
+        /// <summary>
+        ///     Incept placing of the meta pieces.
+        ///     Cancels the real placement of the placeholder pieces.
+        /// </summary>
+        private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        {
+            OnPlacePiece(self, piece);
+            return false;
+        }
+
+        public virtual void OnPlacePiece(Player self, Piece piece)
+        {
+        }
+        
         /// <summary>
         ///     Adjust camera height
         /// </summary>
@@ -229,33 +270,20 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         /// <summary>
-        ///     Flatten placement marker
+        ///     Hook SetupPieceInfo to alter the piece description per tool.
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
-        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        private void Hud_SetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
         {
-            orig(self, flashGuardStone);
-
-            if (self.m_placementMarkerInstance && self.m_placementGhost)
+            orig(self, piece);
+            if (!self.m_pieceSelectionWindow.activeSelf)
             {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
+                UpdateDescription();
             }
         }
 
-        /// <summary>
-        ///     Incept placing of the meta pieces.
-        ///     Cancels the real placement of the placeholder pieces.
-        /// </summary>
-        private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        public virtual void UpdateDescription()
         {
-            return OnPlacePiece(self, piece);
-        }
-
-        public virtual bool OnPlacePiece(Player self, Piece piece)
-        {
-            return false;
+            
         }
     }
 }

@@ -13,19 +13,19 @@ namespace PlanBuild.Plans
         private const string PrefabName = "PlanCrystal";
         private const string LocalizationName = "plan_crystal";
 
-        internal static bool ShowRealTextures;
+        public static bool ShowRealTextures;
 
-        private readonly Sprite CrystalIcon;
-        private CustomItem PlanCrystalItem;
+        private static Sprite CrystalIcon;
+        private static CustomItem PlanCrystalItem;
 
-        public PlanCrystalPrefab(AssetBundle planbuildBundle)
+        public static void Create(AssetBundle planbuildBundle)
         {
             CrystalIcon = planbuildBundle.LoadAsset<Sprite>("plan_crystal");
-            PrefabManager.OnVanillaPrefabsAvailable += CreatePlanCrytalItem;
+            PrefabManager.OnVanillaPrefabsAvailable += CreatePlanCrystalItem;
             ItemManager.OnItemsRegistered += FixShader;
         }
 
-        private void CreatePlanCrytalItem()
+        private static void CreatePlanCrystalItem()
         {
             try
             {
@@ -105,11 +105,11 @@ namespace PlanBuild.Plans
             }
             finally
             {
-                PrefabManager.OnVanillaPrefabsAvailable -= CreatePlanCrytalItem;
+                PrefabManager.OnVanillaPrefabsAvailable -= CreatePlanCrystalItem;
             }
         }
 
-        public void FixShader()
+        private static void FixShader()
         {
             ShaderHelper.UpdateTextures(PlanCrystalItem.ItemDrop.m_itemData.m_dropPrefab, ShaderHelper.ShaderState.Supported);
         }

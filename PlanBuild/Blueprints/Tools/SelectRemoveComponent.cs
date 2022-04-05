@@ -11,7 +11,8 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.RadiusModifierButton.Name) &&
+                !ZInput.GetButton(Config.DeleteModifierButton.Name))
             {
                 EnableSelectionProjector(self);
             }
@@ -23,22 +24,28 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(BlueprintConfig.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.CameraModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name))
+                else if (ZInput.GetButton(Config.RadiusModifierButton.Name))
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
                 UndoRotation(self, scrollWheel);
             }
+            
+            if (ZInput.GetButtonDown(Config.ToggleButton.Name))
+            {
+                Player.m_localPlayer.m_buildPieces.LeftPiece();
+                Player.m_localPlayer.SetupPlacementGhost();
+            }
         }
 
-        public override bool OnPlacePiece(Player self, Piece piece)
+        public override void OnPlacePiece(Player self, Piece piece)
         {
-            bool radiusModifier = ZInput.GetButton(BlueprintConfig.RadiusModifierButton.Name);
-            bool connectedModifier = ZInput.GetButton(BlueprintConfig.DeleteModifierButton.Name);
+            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
             if (radiusModifier && connectedModifier)
             {
                 Selection.Instance.Clear();
@@ -60,7 +67,6 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
             UpdateDescription();
-            return false;
         }
     }
 }

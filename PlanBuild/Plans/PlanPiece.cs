@@ -6,23 +6,19 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using static Piece;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.Plans
 {
     public class PlanPiece : MonoBehaviour, Interactable, Hoverable
     {
-        public const string zdoBlueprintID = "BlueprintID";
         public const string zdoPlanResource = "PlanResource";
-        public const string zdoAdditionalInfo = "AdditionalText";
-        public const string zdoBlueprintPiece = "BlueprintPiece";
 
         internal static readonly List<PlanPiece> m_planPieces = new List<PlanPiece>();
 
         private Piece m_piece;
         private ZNetView m_nView;
         internal WearNTear m_wearNTear;
-         
+
         public Piece originalPiece;
 
         //GUI
@@ -32,7 +28,7 @@ namespace PlanBuild.Plans
         {
             if (m_forceDisableInit)
             {
-                Object.Destroy(this);
+                Destroy(this);
                 return;
             }
 
@@ -65,11 +61,11 @@ namespace PlanBuild.Plans
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
             m_nView.Register<long>("SpawnPieceAndDestroy", RPC_SpawnPieceAndDestroy);
         }
-         
+
 
         private void OnDestroyed()
         {
-            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
+            BlueprintManager.Instance.RemoveFromBlueprint(m_piece);
             if (m_nView.IsOwner())
             {
                 Refund(true);
@@ -123,7 +119,7 @@ namespace PlanBuild.Plans
 
         internal void Highlight()
         {
-            m_wearNTear.Highlight(PlanConfig.UnsupportedColorConfig.Value, BlueprintManager.HighlightTimeout + 0.1f);
+            m_wearNTear.Highlight(Config.UnsupportedColorConfig.Value, BlueprintManager.HighlightTimeout + 0.1f);
         }
 
         public static int m_planLayer = LayerMask.NameToLayer("piece_nonsolid");
@@ -141,7 +137,7 @@ namespace PlanBuild.Plans
                     {
                         continue;
                     }
-                    Object.Destroy(subComponent);
+                    Destroy(subComponent);
                 }
             }
 
@@ -363,13 +359,6 @@ namespace PlanBuild.Plans
             return player.GetInventory().CountItems(resourceName);
         }
 
-        internal void PartOfBlueprint(ZDOID blueprintID, PieceEntry entry)
-        {
-            ZDO pieceZDO = m_nView.GetZDO();
-            pieceZDO.Set(zdoBlueprintID, blueprintID);
-            pieceZDO.Set(zdoAdditionalInfo, entry.additionalInfo);
-        }
-
         [Obsolete]
         public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
         {
@@ -416,7 +405,7 @@ namespace PlanBuild.Plans
                 user.Message(MessageHud.MessageType.Center, "$msg_missingrequirement");
                 return false;
             }
-            if (user.GetInventory().GetItem("$item_hammer") == null)
+            if (user.GetInventory().GetItem(PlanHammerPrefab.PlanHammerItemName) == null)
             {
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_need_hammer");
                 return false;
@@ -444,12 +433,7 @@ namespace PlanBuild.Plans
         {
             return hasSupport;
         }
-
-        internal ZDOID GetPlanPieceID()
-        {
-            return m_nView.m_zdo.m_uid;
-        }
-
+        
         public void Build(long playerID)
         {
             m_nView.InvokeRPC("Refund", false);
@@ -555,7 +539,7 @@ namespace PlanBuild.Plans
                     itemData.m_stack = dropCount;
                     currentCount -= dropCount;
 
-                    Object.Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
+                    Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
                         .GetComponent<ItemDrop>().SetStack(dropCount);
                 }
             }
@@ -614,17 +598,23 @@ namespace PlanBuild.Plans
             {
                 return;
             }
-            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation, originalPiece.gameObject, m_nView.GetZDO().GetString(zdoAdditionalInfo)); 
+
+            GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation,
+                originalPiece.gameObject, m_nView.GetZDO().GetString(BlueprintManager.zdoAdditionalInfo));
 #if DEBUG
             Jotunn.Logger.LogDebug("Plan spawn actual piece: " + actualPiece + " -> Destroying self");
 #endif
-            BlueprintManager.Instance.PlanPieceRemovedFromBlueprint(this);
-            ZNetScene.instance.Destroy(this.gameObject);
+            if (BlueprintInstance.TryGetInstance(m_piece, out var instance))
+            {
+                instance.RemovePieceID(m_nView.m_zdo.m_uid);
+                instance.AddPiece(actualPiece.GetComponent<Piece>());
+            }
+            ZNetScene.instance.Destroy(gameObject);
         }
 
         internal static GameObject SpawnPiece(GameObject originatingObject, long creatorID, Vector3 position, Quaternion rotation, GameObject prefab, string textReceiverInput)
         {
-            GameObject actualPiece = Object.Instantiate(prefab, position, rotation);
+            GameObject actualPiece = Instantiate(prefab, position, rotation);
             OnPieceReplaced(originatingObject, actualPiece);
             // Register special effects
             if (creatorID == Player.m_localPlayer?.GetPlayerID())
@@ -694,27 +684,6 @@ namespace PlanBuild.Plans
         private static bool WearNTear_HaveSupport_Prefix(WearNTear __instance, ref bool __result)
         {
             if (__instance.GetComponent<PlanPiece>())
-            {
-                __result = true;
-                return false;
-            }
-            return true;
-        }
-
-        internal ZDOID GetBlueprintID()
-        {
-            if (!m_nView.IsValid())
-            {
-                return ZDOID.None;
-            }
-            return m_nView.GetZDO().GetZDOID(zdoBlueprintID);
-        }
-
-        [HarmonyPatch(typeof(Player), "CheckCanRemovePiece")]
-        private static bool Player_CheckCanRemovePiece_Prefix(Piece piece, ref bool __result)
-        {
-            PlanPiece PlanPiece = piece.GetComponent<PlanPiece>();
-            if (PlanPiece)
             {
                 __result = true;
                 return false;

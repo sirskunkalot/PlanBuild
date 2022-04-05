@@ -23,10 +23,10 @@ namespace PlanBuild.Plans
             MeshRenderer meshRenderer = prefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
             meshRenderer.materials
                 .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
-                .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);
+                .SetColor("_EmissionColor", Config.GlowColorConfig.Value);
         }
 
-        public PlanTotemPrefab(AssetBundle planbuildBundle)
+        public static void Create(AssetBundle planbuildBundle)
         {
             PlanTotemKitbash = KitbashManager.Instance.AddKitbash(planbuildBundle.LoadAsset<GameObject>(PlanTotemPieceName), new KitbashConfig
             {
@@ -85,11 +85,11 @@ namespace PlanBuild.Plans
                 MeshRenderer meshRenderer = planTotemPrefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
                 meshRenderer.materials
                     .First(material => material.name.StartsWith("Guardstone_OdenGlow_mat"))
-                    .SetColor("_EmissionColor", PlanConfig.GlowColorConfig.Value);
+                    .SetColor("_EmissionColor", Config.GlowColorConfig.Value);
 
                 CircleProjector circleProjector = planTotemPrefab.GetComponentInChildren<CircleProjector>(includeInactive: true);
                 circleProjector.m_prefab = PrefabManager.Instance.GetPrefab("guard_stone").GetComponentInChildren<CircleProjector>().m_prefab;
-                circleProjector.m_radius = PlanConfig.RadiusConfig.Value;
+                circleProjector.m_radius = Config.RadiusConfig.Value;
             };
 
             CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, false, new PieceConfig()

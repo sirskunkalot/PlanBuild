@@ -17,25 +17,23 @@ namespace PlanBuild.Blueprints
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
         public const string BlueprintRuneName = "BlueprintRune";
+        public const string BlueprintRuneItemName = "$item_blueprintrune";
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
         public const string CategoryBlueprints = "Blueprints";
 
         public const string PieceSnapPointName = "piece_bpsnappoint";
         public const string PieceCenterPointName = "piece_bpcenterpoint";
-        public const string PieceCaptureName = "piece_bpcapture";
+        public const string PieceEditName = "piece_bpedit";
+        public const string PieceSelectAddName = "piece_bpselectadd";
+        public const string PieceSelectRemoveName = "piece_bpselectremove";
+        public const string PieceSelectSaveName = "piece_bpselectsave";
         public const string PieceDeletePlansName = "piece_bpdelete";
         public const string PieceDeleteObjectsName = "piece_bpobjects";
         public const string PieceTerrainName = "piece_bpterrain";
         public const string PiecePaintName = "piece_bppaint";
-
-        public const string PieceSelectAddName = "piece_bpselectadd";
-        public const string PieceSelectRemoveName = "piece_bpselectremove";
-        public const string PieceSelectSaveName = "piece_bpselectsave";
-
-        public static string BlueprintRuneItemName;
-
-        public BlueprintAssets(AssetBundle assetBundle)
+        
+        public static void Load(AssetBundle assetBundle)
         {
             // Asset Bundle GameObjects
             GameObject[] prefabArray = assetBundle.LoadAllAssets<GameObject>();
@@ -56,7 +54,7 @@ namespace PlanBuild.Blueprints
             GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
 
             // World Runes
-            foreach (string pieceName in new string[]
+            foreach (string pieceName in new []
             {
                 StandingBlueprintRuneName, BlueprintRuneStackName
             })
@@ -64,12 +62,12 @@ namespace PlanBuild.Blueprints
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
                 {
                     PieceTable = "Hammer",
-                    Requirements = new RequirementConfig[] {
+                    Requirements = new [] {
                         new RequirementConfig
                         {
                             Item = "Stone",
                             Amount = 5,
-                            Recover= true
+                            Recover = true
                         }
                     }
                 });
@@ -77,38 +75,41 @@ namespace PlanBuild.Blueprints
                 piece.FixReference = true;
                 PieceManager.Instance.AddPiece(piece);
             }
-
-            // Blueprint Rune
-            CustomItem item = new CustomItem(prefabs[BlueprintRuneName], false, new ItemConfig
-            {
-                Amount = 1,
-                Requirements = new RequirementConfig[]
-                {
-                    new RequirementConfig {Item = "Stone", Amount = 1}
-                }
-            });
-            ItemManager.Instance.AddItem(item);
-            BlueprintRuneItemName = item.ItemDrop.m_itemData.m_shared.m_name;
-
+            
             // Rune PieceTable
             CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
             {
+                CanRemovePieces = false,
                 UseCategories = false,
                 UseCustomCategories = true,
-                CustomCategories = new string[]
+                CustomCategories = new []
                 {
                     CategoryTools, CategoryBlueprints
                 }
             });
             PieceManager.Instance.AddPieceTable(table);
 
+            // Blueprint Rune
+            CustomItem item = new CustomItem(prefabs[BlueprintRuneName], false, new ItemConfig
+            {
+                Amount = 1,
+                Requirements = new []
+                {
+                    new RequirementConfig {Item = "Stone", Amount = 1}
+                }
+            });
+            item.ItemDrop.m_itemData.m_shared.m_buildPieces = table.PieceTable;
+            ItemManager.Instance.AddItem(item);
+
             // Stub Piece
-            PrefabManager.Instance.AddPrefab(prefabs[Blueprint.PieceBlueprintName]);
+            var stub = prefabs[Blueprint.PieceBlueprintName];
+            PrefabManager.Instance.AddPrefab(stub);
+            stub.AddComponent<BlueprintInstance>();
 
             // Tool pieces
-            foreach (string pieceName in new string[]
+            foreach (string pieceName in new []
             {
-                PieceCaptureName, PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
+                PieceEditName, PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
                 PieceSnapPointName, PieceCenterPointName,
                 PieceDeletePlansName, PieceTerrainName, PieceDeleteObjectsName,
                 PiecePaintName
@@ -124,8 +125,8 @@ namespace PlanBuild.Blueprints
                 // Add tool component per Tool
                 switch (pieceName)
                 {
-                    case PieceCaptureName:
-                        prefabs[pieceName].AddComponent<CaptureComponent>();
+                    case PieceEditName:
+                        prefabs[pieceName].AddComponent<EditComponent>();
                         break;
 
                     case PieceSelectAddName:
@@ -139,13 +140,13 @@ namespace PlanBuild.Blueprints
                     case PieceSelectSaveName:
                         prefabs[pieceName].AddComponent<SelectSaveComponent>();
                         break;
+                        
+                    case PieceDeletePlansName:
+                        prefabs[pieceName].AddComponent<DeletePlansComponent>();
+                        break;
 
                     case PieceDeleteObjectsName:
                         prefabs[pieceName].AddComponent<DeleteObjectsComponent>();
-                        break;
-
-                    case PieceDeletePlansName:
-                        prefabs[pieceName].AddComponent<DeletePlansComponent>();
                         break;
 
                     case PieceTerrainName:

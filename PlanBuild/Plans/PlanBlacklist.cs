@@ -24,7 +24,7 @@ namespace PlanBuild.Plans
         {
             Names.Clear();
             Hashes.Clear();
-            foreach (var prefabName in PlanConfig.PlanBlacklistConfig.Value.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)))
+            foreach (var prefabName in Config.PlanBlacklistConfig.Value.Split(',').Select(x => x.Trim()).Where(x => !string.IsNullOrEmpty(x)))
             {
                 int hash = prefabName.GetStableHashCode();
                 if (Hashes.Contains(hash))
@@ -61,7 +61,7 @@ namespace PlanBuild.Plans
             Names.Add(prefabName);
             Hashes.Add(hash);
 
-            PlanConfig.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
+            Config.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
             PlanBuildPlugin.Instance.Config.Reload();
         }
         
@@ -81,7 +81,7 @@ namespace PlanBuild.Plans
             Names.Remove(prefabName);
             Hashes.Remove(hash);
 
-            PlanConfig.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
+            Config.PlanBlacklistConfig.Value = Names.OrderBy(x => x).Join();
             PlanBuildPlugin.Instance.Config.Reload();
         }
 

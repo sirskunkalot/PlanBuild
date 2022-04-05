@@ -5,9 +5,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn;
 using UnityEngine;
 using UnityEngine.UI;
+using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
 {
@@ -15,32 +15,28 @@ namespace PlanBuild.Blueprints
     {
         private static BlueprintManager _instance;
 
-        public static BlueprintManager Instance
-        {
-            get
-            {
-                if (_instance == null) _instance = new BlueprintManager();
-                return _instance;
-            }
-        }
+        public static BlueprintManager Instance => _instance ??= new BlueprintManager();
 
-        internal static BlueprintDictionary LocalBlueprints;
-        internal static BlueprintDictionary ServerBlueprints;
+        public static BlueprintDictionary LocalBlueprints;
+        public static BlueprintDictionary ServerBlueprints;
+        
+        public const float HighlightTimeout = 0.5f;
+        public const float GhostTimeout = 10f;
 
-        private float OriginalPlaceDistance;
+        public const string zdoBlueprintName = "BlueprintName";
+        public const string zdoBlueprintID = "BlueprintID";
+        public const string zdoBlueprintPiece = "BlueprintPiece";
+        public const string zdoAdditionalInfo = "AdditionalText";
 
-        internal const float HighlightTimeout = 0.5f;
+        public Piece LastHoveredPiece;
+
         private float LastHightlightTime;
-
-        private const float GhostTimeout = 10f;
-
-        internal Piece LastHoveredPiece;
-
+        private float OriginalPlaceDistance;
         private GameObject OriginalTooltip;
 
         internal void Init()
         {
-            Jotunn.Logger.LogInfo("Initializing BlueprintManager");
+            Logger.LogInfo("Initializing BlueprintManager");
 
             try
             {
@@ -49,9 +45,6 @@ namespace PlanBuild.Blueprints
                 ServerBlueprints = new BlueprintDictionary();
 
                 Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
-
-                // Init config
-                BlueprintConfig.Init();
 
                 // Init sync
                 BlueprintSync.Init();
@@ -74,6 +67,7 @@ namespace PlanBuild.Blueprints
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
+                On.WearNTear.Destroy += WearNTear_Destroy;
 
                 GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
                 On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
@@ -99,10 +93,10 @@ namespace PlanBuild.Blueprints
             }
             catch (Exception ex)
             {
-                Jotunn.Logger.LogWarning($"Error caught while initializing: {ex}");
+                Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-        
+
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -154,136 +148,97 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" pieces in a given radius with a given color.
         /// </summary>
-        /// <param name="startPosition"></param>
-        /// <param name="radius"></param>
-        /// <param name="color"></param>
-        /// <param name="onlyPlanned"></param>
         public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
                 return;
             }
+
             foreach (var piece in GetPiecesInRadius(startPosition, radius, onlyPlanned))
             {
                 if (piece.TryGetComponent(out WearNTear wearNTear))
                 {
-                    wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
+                    wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                 }
             }
             LastHightlightTime = Time.time;
         }
 
         /// <summary>
-        ///     "Highlights" the last hovered planned piece with a given color.
+        ///     "Highlights" the last hovered piece with a given color.
         /// </summary>
-        /// <param name="color"></param>
-        public void HighlightHoveredPiece(Color color)
+        public void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
         {
-            if (Time.time > LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHightlightTime + HighlightTimeout)
             {
-                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
-                {
-                    hoveredPlanPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
-                }
-                LastHightlightTime = Time.time;
+                return;
             }
+
+            if (LastHoveredPiece)
+            {
+                if (onlyPlanned && !LastHoveredPiece.GetComponent<PlanPiece>())
+                {
+                    return;
+                }
+                if (LastHoveredPiece.TryGetComponent(out WearNTear wearNTear))
+                {
+                    wearNTear.Highlight(color, HighlightTimeout + 0.1f);
+                }
+            }
+            LastHightlightTime = Time.time;
         }
 
         /// <summary>
-        ///     "Highlights" all pieces belonging to the last hovered Blueprint with a given color.
+        ///     "Highlights" all pieces belonging to the current hovered Blueprint with a given color.
         /// </summary>
-        /// <param name="color"></param>
-        public void HighlightHoveredBlueprint(Color color)
+        public void HighlightHoveredBlueprint(Color color, bool onlyPlanned = false)
         {
-            if (Time.time > LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHightlightTime + HighlightTimeout)
             {
-                if (LastHoveredPiece != null && LastHoveredPiece.TryGetComponent(out PlanPiece hoveredPlanPiece))
+                return;
+            }
+            
+            if (LastHoveredPiece && BlueprintInstance.TryGetInstance(LastHoveredPiece, out var blueprintInstance))
+            {
+                foreach (Piece blueprintPiece in blueprintInstance.GetPieceInstances())
                 {
-                    ZDOID blueprintID = hoveredPlanPiece.GetBlueprintID();
-                    if (blueprintID != ZDOID.None)
+                    if (onlyPlanned && !blueprintPiece.GetComponent<PlanPiece>())
                     {
-                        foreach (PlanPiece planPiece in GetPlanPiecesInBlueprint(blueprintID))
-                        {
-                            planPiece.m_wearNTear.Highlight(color, BlueprintManager.HighlightTimeout + 0.1f);
-                        }
+                        continue;
+                    }
+
+                    if (blueprintPiece.TryGetComponent(out WearNTear wearNTear))
+                    {
+                        wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                     }
                 }
-                LastHightlightTime = Time.time;
+            }
+            LastHightlightTime = Time.time;
+        }
+        
+        /// <summary>
+        ///     Remove a <see cref="Piece"/> instance ZDO from its Blueprint <see cref="ZDOIDSet"/>
+        /// </summary>
+        public void RemoveFromBlueprint(Piece piece)
+        {
+            if (BlueprintInstance.TryGetInstance(piece, out var blueprintInstance))
+            {
+                blueprintInstance.RemovePiece(piece);
             }
         }
 
         /// <summary>
-        ///     Get all pieces belonging to a given Blueprint identified by its <see cref="ZDOID"/>
+        ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
         /// </summary>
-        /// <param name="blueprintID"></param>
-        /// <returns></returns>
-        public List<PlanPiece> GetPlanPiecesInBlueprint(ZDOID blueprintID)
+        public GameObject GetGameObject(ZDOID zdoid, bool required = false)
         {
-            List<PlanPiece> result = new List<PlanPiece>();
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
+            GameObject go = ZNetScene.instance.FindInstance(zdoid);
+            if (go)
             {
-                return result;
+                return go;
             }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
-            foreach (ZDOID pieceZDOID in planPieces)
-            {
-                GameObject pieceObject = ZNetScene.instance.FindInstance(pieceZDOID);
-                if (pieceObject && pieceObject.TryGetComponent(out PlanPiece planPiece))
-                {
-                    result.Add(planPiece);
-                }
-            }
-            return result;
-        }
-
-        /// <summary>
-        ///     Get a specific <see cref="Piece"/> from a Blueprint identified by its <see cref="ZDO"/>
-        /// </summary>
-        /// <param name="blueprintZDO"></param>
-        /// <returns></returns>
-        public ZDOIDSet GetPlanPieces(ZDO blueprintZDO)
-        {
-            byte[] data = blueprintZDO.GetByteArray(PlanPiece.zdoBlueprintPiece);
-            if (data == null)
-            {
-                return null;
-            }
-            return ZDOIDSet.From(new ZPackage(data));
-        }
-
-        /// <summary>
-        ///     Remove a <see cref="Piece"/> instances ZDO from its Blueprint <see cref="ZDOIDSet"/>
-        /// </summary>
-        /// <param name="planPiece"></param>
-        public void PlanPieceRemovedFromBlueprint(PlanPiece planPiece)
-        {
-            ZDOID blueprintID = planPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None)
-            {
-                return;
-            }
-
-            ZDO blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                return;
-            }
-            ZDOIDSet planPieces = GetPlanPieces(blueprintZDO);
-            planPieces?.Remove(planPiece.GetPlanPieceID());
-            if (planPieces == null || !planPieces.Any())
-            {
-                GameObject blueprintObject = ZNetScene.instance.FindInstance(blueprintID);
-                if (blueprintObject)
-                {
-                    ZNetScene.instance.Destroy(blueprintObject);
-                }
-            }
-            else
-            {
-                blueprintZDO.Set(PlanPiece.zdoBlueprintPiece, planPieces.ToZPackage().GetArray());
-            }
+            return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
         }
 
         /// <summary>
@@ -294,7 +249,7 @@ namespace PlanBuild.Blueprints
             // Client only
             if (ZNet.instance != null && !ZNet.instance.IsDedicated())
             {
-                Jotunn.Logger.LogInfo("Registering known blueprints");
+                Logger.LogInfo("Registering known blueprints");
 
                 // Create prefabs for all known blueprints
                 foreach (var bp in LocalBlueprints.Values)
@@ -335,9 +290,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Timed ghost destruction
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="flashGuardStone"></param>
         private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
         {
             if (self.m_buildPieces == null)
@@ -384,10 +336,8 @@ namespace PlanBuild.Blueprints
                 RegisterKnownBlueprints();
 
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
-                Player.m_localPlayer.m_maxPlaceDistance = BlueprintConfig.RayDistanceConfig.Value;
-
-                On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
-
+                Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
+                
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -409,9 +359,7 @@ namespace PlanBuild.Blueprints
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
-
-                On.Player.CheckCanRemovePiece -= Player_CheckCanRemovePiece;
-
+                
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -419,12 +367,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-
-        private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
-        {
-            return CanCapture(piece, true);
-        }
-
+        
         private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
         {
             orig(self);
@@ -436,6 +379,15 @@ namespace PlanBuild.Blueprints
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
+        
+        private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear self)
+        {
+            if (self.m_piece)
+            {
+                RemoveFromBlueprint(self.m_piece);
+            }
+            orig(self);
+        }
 
         // Get all prefabs for this GUI session
         private void GUIManager_OnCustomGUIAvailable()
@@ -446,9 +398,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Display the blueprint tooltip panel when a blueprint building item is hovered
         /// </summary>
-        /// <param name="orig"></param>
-        /// <param name="self"></param>
-        /// <param name="go"></param>
         private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
             if (BlueprintAssets.BlueprintTooltip && Hud.IsPieceSelectionVisible())
@@ -458,7 +407,7 @@ namespace PlanBuild.Blueprints
                 {
                     piece = Player.m_localPlayer.GetSelectedPiece();
                 }
-                if (BlueprintConfig.TooltipEnabledConfig.Value && piece &&
+                if (Config.TooltipEnabledConfig.Value && piece &&
                     piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
                     LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
                     bp.Thumbnail != null)
@@ -466,7 +415,7 @@ namespace PlanBuild.Blueprints
                     self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
                     orig(self, go);
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Background")
-                        .GetComponent<Image>().color = BlueprintConfig.TooltipBackgroundConfig.Value;
+                        .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Image")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                 }

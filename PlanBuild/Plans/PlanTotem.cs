@@ -62,7 +62,7 @@ namespace PlanBuild.Plans
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
             m_activeMarker = transform.Find("new/pivot").gameObject;
             m_model = transform.Find("new/totem").GetComponent<MeshRenderer>();
-            m_areaMarker.m_radius = PlanConfig.RadiusConfig.Value;
+            m_areaMarker.m_radius = Config.RadiusConfig.Value;
             m_chestBounds = transform.Find("new/chest/privatechest").GetComponent<BoxCollider>().bounds;
             m_allPlanTotems.Add(this);
             if (m_nview)
@@ -87,7 +87,7 @@ namespace PlanBuild.Plans
 
         public bool InRange(GameObject go)
         {
-            return GetDistanceTo(go) <= PlanConfig.RadiusConfig.Value;
+            return GetDistanceTo(go) <= Config.RadiusConfig.Value;
         }
 
         private float GetDistanceTo(GameObject go)
@@ -105,7 +105,7 @@ namespace PlanBuild.Plans
                 try
                 {
                     float distance = GetDistanceTo(piece.gameObject);
-                    if (distance <= PlanConfig.RadiusConfig.Value)
+                    if (distance <= Config.RadiusConfig.Value)
                     {
                         PlanPiece planPiece = piece.GetComponent<PlanPiece>();
                         if (planPiece)
@@ -165,7 +165,7 @@ namespace PlanBuild.Plans
                         {
                             if (planPiece.HasRequiredCraftingStationInRange())
                             {
-                                if (PlanConfig.ShowParticleEffects.Value)
+                                if (Config.ShowParticleEffects.Value)
                                 {
                                     TriggerConnection(GetCenter(planPiece.gameObject));
                                 }

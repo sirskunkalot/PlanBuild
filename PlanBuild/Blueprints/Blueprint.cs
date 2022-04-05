@@ -1,7 +1,6 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
 using Jotunn.Utils;
-using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Blueprints.Tools;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
@@ -19,7 +18,6 @@ namespace PlanBuild.Blueprints
 {
     internal class Blueprint
     {
-        public const string ZDOBlueprintName = "BlueprintName";
         public const string PieceBlueprintName = "piece_blueprint";
         public const string PlaceColliderName = "place_collider";
 
@@ -115,9 +113,9 @@ namespace PlanBuild.Blueprints
         private Texture2D ResizedThumbnail;
 
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:&lt;ID&gt;"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:{ID}"
         /// </summary>
-        private string PrefabName;
+        private string PrefabName => $"{PieceBlueprintName}:{ID}";
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -238,10 +236,9 @@ namespace PlanBuild.Blueprints
         {
             Blueprint ret = new Blueprint();
             ret.ID = id;
-            ret.PrefabName = $"{PieceBlueprintName}:{id}";
             ret.FileFormat = Format.Blueprint;
-            ret.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
-            ret.ThumbnailLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
+            ret.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint");
+            ret.ThumbnailLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
             List<SnapPoint> snapPoints = new List<SnapPoint>();
@@ -495,7 +492,7 @@ namespace PlanBuild.Blueprints
 
             foreach (var zdoid in selection)
             {
-                GameObject selected = selection.GetGameObject(zdoid, true);
+                GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid, true);
                 if (selected.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints.Add(selected.transform.position);
@@ -520,7 +517,7 @@ namespace PlanBuild.Blueprints
                 Piece piece = selected.GetComponent<Piece>();
                 if (!BlueprintManager.Instance.CanCapture(piece))
                 {
-                    Logger.LogWarning($"Ignoring piece {piece}, not able to make Plan");
+                    Logger.LogWarning($"Ignoring piece {piece}, not able to make blueprint");
                     continue;
                 }
                 collected.Add(piece);
@@ -586,10 +583,11 @@ namespace PlanBuild.Blueprints
 
                 var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
 
+                var scale = piece.transform.localScale;
+
                 string pieceName = piece.name.Split('(')[0];
-                if (piece.gameObject.GetComponent<ZNetView>() is ZNetView znet &&
-                    znet.m_zdo != null &&
-                    ZNetScene.instance.GetPrefab(znet.m_zdo.m_prefab) is GameObject prefab)
+                if (piece.gameObject.GetComponent<ZNetView>() is { m_zdo: { } } znet &&
+                    ZNetScene.instance.GetPrefab(znet.m_zdo.m_prefab) is { } prefab)
                 {
                     pieceName = prefab.name;
                 }
@@ -597,7 +595,7 @@ namespace PlanBuild.Blueprints
                 {
                     pieceName = pieceName.Replace(PlanPiecePrefab.PlannedSuffix, null);
                 }
-                PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo);
+                PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo, scale);
             }
 
             // Create instance snap points
@@ -630,6 +628,7 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
+
             Logger.LogDebug($"Creating dynamic prefab {PrefabName}");
 
             if (PieceEntries == null)
@@ -696,21 +695,16 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.PlanSwitchButton.Name, Config = BlueprintConfig.PlanSwitchConfig,
-                        HintToken = "$hud_bp_switch_to_plan_mode"
-                    },
-                    new ButtonConfig
-                    {
                         Name = "Attack", HintToken = "$hud_bpplace"
                     },
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.RadiusModifierButton.Name, Config = BlueprintConfig.RadiusModifierConfig,
-                        HintToken = BlueprintConfig.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
+                        Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig,
+                        HintToken = Config.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
                     },
                     new ButtonConfig
                     {
-                        Name = BlueprintConfig.CameraModifierButton.Name, Config = BlueprintConfig.CameraModifierConfig,
+                        Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig,
                         HintToken = "$hud_bpcamera"
                     },
                     new ButtonConfig
@@ -797,7 +791,6 @@ namespace PlanBuild.Blueprints
                 sphereCollider.radius = 0.002f;
 
                 var tf = baseObject.transform;
-                var quat = Quaternion.Euler(0, tf.rotation.eulerAngles.y, 0);
 
                 var prefabs = new Dictionary<string, GameObject>();
                 foreach (var piece in pieces.GroupBy(x => x.name).Select(x => x.FirstOrDefault()))
@@ -808,7 +801,6 @@ namespace PlanBuild.Blueprints
                         Logger.LogWarning($"No prefab found for {piece.name}! You are probably missing a dependency for blueprint {Name}");
                         continue;
                     }
-                    go.transform.SetPositionAndRotation(go.transform.position, quat);
                     prefabs.Add(piece.name, go);
                 }
 
@@ -818,46 +810,14 @@ namespace PlanBuild.Blueprints
                     try
                     {
                         var piecePosition = tf.position + piece.GetPosition();
-
-                        GameObject pieceObject = new GameObject($"piece_entry ({i})");
-                        pieceObject.transform.SetParent(tf);
-                        pieceObject.transform.rotation = piece.GetRotation();
-                        pieceObject.transform.position = piecePosition;
+                        var pieceRotation = tf.rotation * piece.GetRotation();
+                        var pieceScale = piece.GetScale();
 
                         if (prefabs.TryGetValue(piece.name, out var prefab))
                         {
-                            GameObject ghostPrefab;
-                            Vector3 ghostPosition;
-                            Quaternion ghostRotation;
-                            if (prefab.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_new)
-                            {
-                                // Only instantiate the visual part
-                                ghostPrefab = wearNTear.m_new;
-                                ghostRotation = ghostPrefab.transform.localRotation;
-                                ghostPosition = ghostPrefab.transform.localPosition;
-                            }
-                            else
-                            {
-                                // No WearNTear?? Just use the entire prefab
-                                ghostPrefab = prefab;
-                                ghostRotation = Quaternion.identity;
-                                ghostPosition = Vector3.zero;
-                            }
-
-                            var child = Object.Instantiate(ghostPrefab, pieceObject.transform);
-                            child.transform.localRotation = ghostRotation;
-                            child.transform.localPosition = ghostPosition;
+                            var child = Object.Instantiate(prefab, piecePosition, pieceRotation, tf);
+                            child.transform.localScale = pieceScale;
                             PrepareGhostPiece(child);
-
-                            // Doors have a dynamic object that also needs to be added
-                            if (prefab.TryGetComponent(out Door door))
-                            {
-                                GameObject doorPrefab = door.m_doorObject;
-                                var doorChild = Object.Instantiate(doorPrefab, pieceObject.transform);
-                                doorChild.transform.localRotation = doorPrefab.transform.localRotation;
-                                doorChild.transform.localPosition = doorPrefab.transform.localPosition;
-                                PrepareGhostPiece(doorChild);
-                            }
                         }
                     }
                     catch (Exception e)
@@ -866,7 +826,7 @@ namespace PlanBuild.Blueprints
                     }
                 }
 
-                if (BlueprintConfig.ShowGridConfig.Value)
+                if (Config.ShowGridConfig.Value)
                 {
                     DebugUtils.InitLaserGrid(baseObject, GetBounds());
                 }
@@ -893,13 +853,22 @@ namespace PlanBuild.Blueprints
             // A Ghost doesn't need fancy scripts
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
             {
-                Object.Destroy(component);
+                Object.DestroyImmediate(component);
             }
 
             // Also no fancy colliders
             foreach (var collider in child.GetComponentsInChildren<Collider>())
             {
-                Object.Destroy(collider);
+                Object.DestroyImmediate(collider);
+            }
+
+            // Remove original snap points
+            foreach (var tf in child.GetComponentsInChildren<Transform>(true))
+            {
+                if (tf.name.StartsWith("_snappoint"))
+                {
+                    Object.DestroyImmediate(tf.gameObject);
+                }
             }
 
             // Disable ripple effect on ghost (only visible when using Skuld crystal)
@@ -1000,67 +969,6 @@ namespace PlanBuild.Blueprints
             if (File.Exists(ThumbnailLocation))
             {
                 File.Delete(ThumbnailLocation);
-            }
-        }
-
-        /// <summary>
-        ///     Helper class for naming and saving a captured blueprint via GUI
-        ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
-        ///     an name for the blueprint.<br />
-        ///     Save the actual blueprint and add it to the list of known blueprints.
-        /// </summary>
-        internal class BlueprintSaveGUI : TextReceiver
-        {
-            private Blueprint newbp;
-
-            public BlueprintSaveGUI(Blueprint bp)
-            {
-                newbp = bp;
-            }
-
-            public string GetText()
-            {
-                return newbp.Name;
-            }
-
-            public void SetText(string text)
-            {
-                if (string.IsNullOrEmpty(text))
-                {
-                    return;
-                }
-
-                string playerName = Player.m_localPlayer.GetPlayerName();
-                string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
-
-                newbp.ID = $"{playerName}_{fileName}".Trim();
-                newbp.PrefabName = $"{PieceBlueprintName}:{newbp.ID}";
-                newbp.Name = text;
-                newbp.Creator = playerName;
-                newbp.FileLocation = Path.Combine(BlueprintConfig.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
-                newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
-
-                if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))
-                {
-                    oldbp.DestroyBlueprint();
-                    BlueprintManager.LocalBlueprints.Remove(newbp.ID);
-                }
-
-                if (!newbp.ToFile())
-                {
-                    return;
-                }
-
-                if (!newbp.CreatePiece())
-                {
-                    return;
-                }
-
-                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                Selection.Instance.Clear();
-                newbp.CreateThumbnail();
-                Player.m_localPlayer?.UpdateKnownRecipesList();
-                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
             }
         }
     }
