@@ -168,6 +168,18 @@ namespace PlanBuild.Blueprints.Tools
                 if (newpiece)
                 {
                     newpiece.SetCreator(player.GetPlayerID());
+
+                    if (placeDirect && cntEffects < maxEffects)
+                    {
+                        newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
+                        player.AddNoise(50f);
+                        cntEffects++;
+                    }
+
+                    if (placeDirect)
+                    {
+                        Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
+                    }
                 }
                 PrivateArea privateArea = gameObject.GetComponent<PrivateArea>();
                 if (privateArea)
@@ -184,17 +196,6 @@ namespace PlanBuild.Blueprints.Tools
                 {
                     textReceiver.SetText(entry.additionalInfo);
                 }
-
-                // Limited build effects and none for planned pieces
-                if (newpiece && placeDirect && cntEffects < maxEffects)
-                {
-                    newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
-                    player.AddNoise(50f);
-                    cntEffects++;
-                }
-
-                // Count up player builds
-                Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
             }
 
             if (blueprintPieces.Count > 0)
