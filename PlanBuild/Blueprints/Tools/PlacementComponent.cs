@@ -1,6 +1,7 @@
 ﻿using Jotunn.Managers;
 using PlanBuild.Plans;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -80,12 +81,8 @@ namespace PlanBuild.Blueprints.Tools
 
             uint cntEffects = 0u;
             uint maxEffects = 10u;
-
-            GameObject blueprintPrefab = PrefabManager.Instance.GetPrefab(Blueprint.PieceBlueprintName);
-            GameObject blueprintObject = Instantiate(blueprintPrefab, position, rotation);
-            BlueprintInstance blueprintInstance = blueprintObject.GetComponent<BlueprintInstance>();
-            blueprintInstance.SetName(bp.Name);
-            ZDOIDSet blueprintPieces = new ZDOIDSet();
+            
+            BlueprintInstance blueprintInstance = new BlueprintInstance(id);
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -148,13 +145,11 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 else
                 {
-                    zNetView.m_zdo.Set(BlueprintManager.zdoBlueprintID, blueprintInstance.GetID());
                     if (!placeDirect)
                     {
-                        zNetView.m_zdo.Set(BlueprintManager.zdoAdditionalInfo, entry.additionalInfo);
+                        zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
                     }
-                    blueprintPieces.Add(zNetView.m_zdo.m_uid);
-
+                    blueprintInstance.AddZDOID(zNetView.m_zdo.m_uid);
                     zNetView.SetLocalScale(entry.GetScale());
                 }
 
@@ -198,13 +193,9 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
 
-            if (blueprintPieces.Count > 0)
+            if (blueprintInstance.Any())
             {
-                blueprintInstance.SetPieceIDs(blueprintPieces);
-            }
-            else
-            {
-                Destroy(blueprintObject);
+                BlueprintInstance.Instances.Add(blueprintInstance);
             }
         }
 

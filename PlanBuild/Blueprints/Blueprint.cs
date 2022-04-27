@@ -19,7 +19,9 @@ namespace PlanBuild.Blueprints
     internal class Blueprint
     {
         public const string PieceBlueprintName = "piece_blueprint";
+        public static int PieceBlueprintHash = PieceBlueprintName.GetStableHashCode();
         public const string PlaceColliderName = "place_collider";
+        public const string AdditionalInfo = "AdditionalText";
 
         private const string HeaderName = "#Name:";
         private const string HeaderCreator = "#Creator:";
@@ -646,9 +648,7 @@ namespace PlanBuild.Blueprints
             }
 
             // Instantiate clone from stub
-            ZNetView.m_forceDisableInit = true;
             Prefab = Object.Instantiate(stub);
-            ZNetView.m_forceDisableInit = false;
             Prefab.name = PrefabName;
 
             // Set piece information

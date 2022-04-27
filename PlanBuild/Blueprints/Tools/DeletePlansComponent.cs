@@ -39,10 +39,10 @@ namespace PlanBuild.Blueprints.Tools
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red, onlyPlanned: true);
             }
-            else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
-            {
-                BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red, true);
-            }
+            // else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
+            // {
+            //     BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red, true);
+            // }
             else
             {
                 BlueprintManager.Instance.HighlightHoveredPiece(Color.red, true);
@@ -57,11 +57,11 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(Config.DeleteModifierButton.Name))
-            {
-                UndoBlueprint();
-                return;
-            }
+            // if (ZInput.GetButton(Config.DeleteModifierButton.Name))
+            // {
+            //     UndoBlueprint();
+            //     return;
+            // }
 
             UndoPiece();
         }
@@ -77,7 +77,7 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        private void UndoBlueprint()
+        /*private void UndoBlueprint()
         {
             if (!BlueprintManager.Instance.LastHoveredPiece)
             {
@@ -108,7 +108,7 @@ namespace PlanBuild.Blueprints.Tools
             ZNetScene.instance.Destroy(instance.gameObject);
 
             Player.m_localPlayer.Message(MessageHud.MessageType.Center, Localization.instance.Localize("$msg_removed_plans", removedPieces.ToString()));
-        }
+        }*/
 
         private void DeletePlans(Player self)
         {

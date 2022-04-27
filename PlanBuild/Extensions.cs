@@ -52,16 +52,6 @@ namespace PlanBuild
             }
         }
         
-        public static ZDOID GetBlueprintID(this Piece piece)
-        {
-            var zdo = piece?.m_nview?.GetZDO();
-            if (zdo == null || !zdo.IsValid())
-            {
-                return ZDOID.None;
-            }
-            return zdo.GetZDOID(BlueprintManager.zdoBlueprintID);
-        }
-
         public static ZDOID? GetZDOID(this Piece piece)
         {
             return piece?.m_nview?.GetZDO()?.m_uid;

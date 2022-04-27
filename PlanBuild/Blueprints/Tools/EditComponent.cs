@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
     internal class EditComponent : ToolComponentBase
     {
-        private ZDOID CurrentHoveredBlueprintID = ZDOID.None;
-        private ZDO CurrentHoveredBlueprint;
+        private BlueprintInstance CurrentBlueprintInstance;
         
         public override void OnUpdatePlacement(Player self)
         {
@@ -26,46 +26,43 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 UndoRotation(self, scrollWheel);
             }
-
-            BlueprintManager.Instance.HighlightHoveredBlueprint(Color.white);
         }
 
-        public override void OnPieceHovered(Piece hoveredPiece)
-        {
-            if (!hoveredPiece)
-            {
-                if (CurrentHoveredBlueprintID != ZDOID.None)
-                {
-                    CurrentHoveredBlueprintID = ZDOID.None;
-                    CurrentHoveredBlueprint = null;
-                    //UpdateDescription();
-                }
-                return;
-            }
+        // public override void OnPieceHovered(Piece hoveredPiece)
+        // {
+        //     BlueprintInstance.TryGetInstance(hoveredPiece, out var hovered);
+        //     if (hovered && hovered != CurrentBlueprintInstance)
+        //     {
+        //         CurrentBlueprintInstance = hovered;
+        //         BlueprintManager.Instance.HighlightHoveredBlueprint(Color.white);
+        //     }
+        // }
 
-            ZDOID blueprintID = hoveredPiece.GetBlueprintID();
-            if (blueprintID == ZDOID.None || blueprintID == CurrentHoveredBlueprintID)
-            {
-                return;
-            }
-
-            CurrentHoveredBlueprintID = blueprintID;
-            CurrentHoveredBlueprint = ZDOMan.instance.GetZDO(blueprintID);
-            //UpdateDescription();
-        }
-
-        public override void OnPlacePiece(Player self, Piece piece)
+        /*public override void OnPlacePiece(Player self, Piece piece)
         {
             // Set current blueprint and add all pieces to selection
             if (BlueprintManager.Instance.LastHoveredPiece)
             {
-                ZDOID blueprintID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintID();
-                if (blueprintID != ZDOID.None)
+                ZDOID blueprintZDOID = BlueprintManager.Instance.LastHoveredPiece.GetBlueprintZDOID();
+                if (blueprintZDOID != ZDOID.None)
                 {
                     Selection.Instance.Clear();
-                    Selection.Instance.AddBlueprint(blueprintID);
+                    Selection.Instance.AddBlueprint(blueprintZDOID);
                     return;
                 }
+            }
+
+            Selection.Instance.Clear();
+        }*/
+
+        public override void OnPlacePiece(Player self, Piece piece)
+        {
+            // Get last blueprint and add all pieces to selection
+            if (BlueprintInstance.Instances.Count > 0)
+            {
+                Selection.Instance.Clear();
+                Selection.Instance.AddBlueprint(BlueprintInstance.Instances.Last());
+                return;
             }
 
             Selection.Instance.Clear();
@@ -73,17 +70,17 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void UpdateDescription()
         {
-            if (CurrentHoveredBlueprintID == ZDOID.None)
+            if (CurrentBlueprintInstance == null)
             {
                 return;
             }
 
             var text = string.Empty;
 
-            var bpname = CurrentHoveredBlueprint.GetString(BlueprintManager.zdoBlueprintName);
-            if (!string.IsNullOrEmpty(bpname))
+            var bpid = CurrentBlueprintInstance.ID;
+            if (!string.IsNullOrEmpty(bpid))
             {
-                text += Localization.instance.Localize("$piece_blueprint_select_bp", bpname);
+                text += Localization.instance.Localize("$piece_blueprint_select_bp", bpid);
                 text += Environment.NewLine;
             }
 

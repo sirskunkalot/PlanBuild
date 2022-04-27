@@ -5,6 +5,7 @@
 * __If you want to use plans, you must craft the new item from your player crafting screen__
 * Reorganized configuration entries for more clarity
 * __Please revise your configuration once after installing this version__
+* Added saving of local scaling into blueprints. Note that the scale is not saved/synced by the vanilla game for most of the prefabs, so an additional mod for piece scaling should be installed.
 
 # Version 0.9.5
 * Fixed placement of non-Piece prefabs

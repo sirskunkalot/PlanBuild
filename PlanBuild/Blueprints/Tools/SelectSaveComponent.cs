@@ -34,7 +34,7 @@ namespace PlanBuild.Blueprints.Tools
         private void MakeBlueprint()
         {
             var bp = new Blueprint();
-            var bpname = Selection.Instance.BlueprintName;
+            var bpname = Selection.Instance.BlueprintInstance?.ID;
             bpname ??= $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
 
             if (bp.Capture(Selection.Instance))

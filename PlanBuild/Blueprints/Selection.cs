@@ -15,10 +15,9 @@ namespace PlanBuild.Blueprints
         
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
-        
-        public ZDOID BlueprintZDOID;
-        public string BlueprintName;
 
+        public BlueprintInstance BlueprintInstance;
+        
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
@@ -60,36 +59,12 @@ namespace PlanBuild.Blueprints
             return false;
         }
 
-        public void AddBlueprint(ZDOID blueprintID)
+        public void AddBlueprint(BlueprintInstance instance)
         {
-            if (!BlueprintInstance.TryGetInstance(blueprintID, out var instance))
-            {
-                Logger.LogWarning($"ZDO for blueprint ID {blueprintID} not found");
-                return;
-            }
-
-            BlueprintZDOID = blueprintID;
-            BlueprintName = instance.Name;
-
             foreach (var piece in instance.GetPieceInstances())
             {
                 AddPiece(piece);
             }
-
-            /*var blueprintZDO = ZDOMan.instance.GetZDO(blueprintID);
-            if (blueprintZDO == null)
-            {
-                Logger.LogWarning($"ZDO for blueprint ID {blueprintID} not found");
-                return;
-            }
-
-            BlueprintZDOID = blueprintID;
-            BlueprintName = blueprintZDO.GetString(BlueprintManager.zdoBlueprintName);
-
-            foreach (var piece in BlueprintManager.Instance.GetPiecesInBlueprint(blueprintID))
-            {
-                AddPiece(piece.GetComponent<Piece>());
-            }*/
         }
 
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
@@ -152,8 +127,7 @@ namespace PlanBuild.Blueprints
                 GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
                 Unhighlight(zdoid, selected);
             }
-            BlueprintZDOID = ZDOID.None;
-            BlueprintName = null;
+            BlueprintInstance = null;
             SelectedZDOIDs.Clear();
         }
         
@@ -421,9 +395,9 @@ namespace PlanBuild.Blueprints
         public override string ToString()
         {
             string result = string.Empty;
-            if (!string.IsNullOrEmpty(BlueprintName))
+            if (BlueprintInstance != null)
             {
-                result += Localization.instance.Localize("$piece_blueprint_select_bp", BlueprintName);
+                result += Localization.instance.Localize("$piece_blueprint_select_bp", BlueprintInstance.ID);
                 result += Environment.NewLine;
             }
             result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());

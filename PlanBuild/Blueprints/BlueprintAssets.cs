@@ -104,7 +104,6 @@ namespace PlanBuild.Blueprints
             // Stub Piece
             var stub = prefabs[Blueprint.PieceBlueprintName];
             PrefabManager.Instance.AddPrefab(stub);
-            stub.AddComponent<BlueprintInstance>();
 
             // Tool pieces
             foreach (string pieceName in new []

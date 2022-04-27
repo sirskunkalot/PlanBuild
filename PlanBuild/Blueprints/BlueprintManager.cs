@@ -23,11 +23,6 @@ namespace PlanBuild.Blueprints
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
 
-        public const string zdoBlueprintName = "BlueprintName";
-        public const string zdoBlueprintID = "BlueprintID";
-        public const string zdoBlueprintPiece = "BlueprintPiece";
-        public const string zdoAdditionalInfo = "AdditionalText";
-
         public Piece LastHoveredPiece;
 
         private float LastHightlightTime;
@@ -67,7 +62,8 @@ namespace PlanBuild.Blueprints
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
-                On.WearNTear.Destroy += WearNTear_Destroy;
+                //On.WearNTear.Destroy += WearNTear_Destroy;
+                On.ZDO.Load += ZDO_Load;
 
                 GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
                 On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
@@ -192,7 +188,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" all pieces belonging to the current hovered Blueprint with a given color.
         /// </summary>
-        public void HighlightHoveredBlueprint(Color color, bool onlyPlanned = false)
+        /*public void HighlightHoveredBlueprint(Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
@@ -215,18 +211,18 @@ namespace PlanBuild.Blueprints
                 }
             }
             LastHightlightTime = Time.time;
-        }
+        }*/
         
         /// <summary>
         ///     Remove a <see cref="Piece"/> instance ZDO from its Blueprint <see cref="ZDOIDSet"/>
         /// </summary>
-        public void RemoveFromBlueprint(Piece piece)
-        {
-            if (BlueprintInstance.TryGetInstance(piece, out var blueprintInstance))
-            {
-                blueprintInstance.RemovePiece(piece);
-            }
-        }
+        // public void RemoveFromBlueprint(Piece piece)
+        // {
+        //     if (BlueprintInstance.TryGetInstance(piece, out var blueprintInstance))
+        //     {
+        //         blueprintInstance.RemovePiece(piece);
+        //     }
+        // }
 
         /// <summary>
         ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
@@ -380,14 +376,14 @@ namespace PlanBuild.Blueprints
             Selection.Instance.OnPieceUnload(self);
         }
         
-        private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear self)
-        {
-            if (self.m_piece)
-            {
-                RemoveFromBlueprint(self.m_piece);
-            }
-            orig(self);
-        }
+        // private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear self)
+        // {
+        //     if (self.m_piece)
+        //     {
+        //         RemoveFromBlueprint(self.m_piece);
+        //     }
+        //     orig(self);
+        // }
 
         // Get all prefabs for this GUI session
         private void GUIManager_OnCustomGUIAvailable()
@@ -430,5 +426,18 @@ namespace PlanBuild.Blueprints
 
             orig(self, go);
         }
+        
+        /// <summary>
+        ///     Prevent blueprint ZDOs from loading for backward compatibility
+        /// </summary>
+        private void ZDO_Load(On.ZDO.orig_Load orig, ZDO self, ZPackage pkg, int version)
+        {
+            orig(self, pkg, version);
+            if (self.m_prefab == Blueprint.PieceBlueprintHash)
+            {
+                self.m_prefab = 0;
+            }
+        }
+
     }
 }
