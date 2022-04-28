@@ -11,8 +11,11 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name) &&
-                !ZInput.GetButton(Config.DeleteModifierButton.Name))
+            bool cameraModifier = ZInput.GetButton(Config.CameraModifierButton.Name);
+            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+
+            if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
             }
@@ -24,11 +27,11 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                if (cameraModifier)
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+                else if (radiusModifier && !connectedModifier)
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
@@ -46,6 +49,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+
             if (radiusModifier && connectedModifier)
             {
                 Selection.Instance.Clear();
