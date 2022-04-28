@@ -83,16 +83,11 @@ blueprint_name: ID of the blueprint according to bp.local");
                 }
 
                 var id = args[0];
-                BlueprintSync.PushLocalBlueprint(id, (bool success, string message) =>
+                BlueprintSync.PushLocalBlueprint(id, (success, message) =>
                 {
-                    if (!success)
-                    {
-                        Console.instance.Print($"Could not upload blueprint: {message}");
-                    }
-                    else
-                    {
-                        Console.instance.Print($"Blueprint {id} uploaded");
-                    }
+                    Console.instance.Print(!success
+                        ? $"Could not upload blueprint: {message}"
+                        : $"Blueprint {id} uploaded");
                 });
             }
         }
@@ -108,17 +103,13 @@ blueprint_name: ID of the blueprint according to bp.local");
 
             public override void Run(string[] args)
             {
-                BlueprintSync.GetServerBlueprints((bool success, string message) =>
-                {
-                    if (!success)
+                BlueprintSync.GetServerBlueprints((success, message) =>
                     {
-                        Console.instance.Print($"Could not get server list: {message}");
-                    }
-                    else
-                    {
-                        Console.instance.Print(BlueprintManager.ServerBlueprints.ToString());
-                    }
-                }, useCache: args.Length == 0
+                        Console.instance.Print(!success
+                            ? $"Could not get server list: {message}"
+                            : BlueprintManager.ServerBlueprints.ToString());
+                    }, 
+                    args.Length == 0
                 );
             }
         }
@@ -143,7 +134,7 @@ blueprint_name: ID of the blueprint according to bp.server");
                 }
 
                 var id = args[0];
-                BlueprintSync.GetServerBlueprints((bool success, string message) =>
+                BlueprintSync.GetServerBlueprints((success, message) =>
                 {
                     if (!success)
                     {
@@ -184,7 +175,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;
                 }
 
-                int additionalRot = 0;
+                var additionalRot = 0;
                 if (args.Length > 1 && int.TryParse(args[1], out int rot))
                 {
                     additionalRot = rot;

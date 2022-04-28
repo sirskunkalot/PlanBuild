@@ -108,7 +108,7 @@ namespace PlanBuild.Blueprints
             // Tool pieces
             foreach (string pieceName in new []
             {
-                PieceEditName, PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
+                /*PieceEditName,*/ PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
                 PieceSnapPointName, PieceCenterPointName,
                 PieceDeletePlansName, PieceTerrainName, PieceDeleteObjectsName,
                 PiecePaintName
