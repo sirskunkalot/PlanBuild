@@ -66,8 +66,9 @@ namespace PlanBuild.Blueprints.Marketplace
         /// <returns>true if any visible fiels have focus</returns>
         public static bool TextFieldHasFocus()
         {
-            return Instance.CurrentTab.DetailDisplay.Name.isFocused
-                || Instance.CurrentTab.DetailDisplay.Description.isFocused;
+            return Instance.CurrentTab.DetailDisplay.Name.isFocused 
+                   || Instance.CurrentTab.DetailDisplay.Category.isFocused
+                   || Instance.CurrentTab.DetailDisplay.Description.isFocused;
         }
 
         /// <summary>
@@ -221,7 +222,8 @@ namespace PlanBuild.Blueprints.Marketplace
                     if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var bplocal))
                     {
                         bplocal.Name = string.IsNullOrEmpty(detail.Name) ? bplocal.Name : detail.Name;
-                        bplocal.Description = string.IsNullOrEmpty(detail.Description) ? bplocal.Description : detail.Description;
+                        bplocal.Category = string.IsNullOrEmpty(detail.Category) ? BlueprintAssets.CategoryBlueprints : detail.Category;
+                        bplocal.Description = detail.Description;
 
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                     }
@@ -232,7 +234,8 @@ namespace PlanBuild.Blueprints.Marketplace
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var bpserver))
                     {
                         bpserver.Name = string.IsNullOrEmpty(detail.Name) ? bpserver.Name : detail.Name;
-                        bpserver.Description = string.IsNullOrEmpty(detail.Description) ? bpserver.Description : detail.Description;
+                        bpserver.Category = string.IsNullOrEmpty(detail.Category) ? BlueprintAssets.CategoryBlueprints : detail.Category;
+                        bpserver.Description = detail.Description;
 
                         Instance.ActionAppliedOverlay.Show();
                         BlueprintSync.PushServerBlueprint(bpserver.ID, (success, message) =>
@@ -499,6 +502,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
                 newBp.ID = bp.ID;
                 newBp.Name = bp.Name;
+                newBp.Category = bp.Category;
                 newBp.Creator = bp.Creator;
                 newBp.Description = bp.Description;
                 newBp.Text.text = bp.ToGUIString();
@@ -561,6 +565,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
         public Text Creator { get; set; }
         public InputField Name { get; set; }
+        public InputField Category { get; set; }
         public InputField Description { get; set; }
 
         // Main Action Buttons
@@ -583,14 +588,17 @@ namespace PlanBuild.Blueprints.Marketplace
             SelectedBlueprintDetail = blueprint;
 
             Name.onEndEdit.RemoveAllListeners();
+            Category.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
 
             ID.text = blueprint.ID;
             Creator.text = blueprint.Creator;
             Name.text = blueprint.Name;
+            Category.text = blueprint.Category;
             Description.text = blueprint.Description;
 
             Name.onEndEdit.AddListener((text) => { blueprint.Name = text; });
+            Category.onEndEdit.AddListener((text) => { blueprint.Category = text; });
             Description.onEndEdit.AddListener((text) => { blueprint.Description = text; });
 
             SaveButton.onClick.RemoveAllListeners();
@@ -637,11 +645,13 @@ namespace PlanBuild.Blueprints.Marketplace
         public void Clear()
         {
             Name.onEndEdit.RemoveAllListeners();
+            Category.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
 
             ID.text = "ID";
             Creator.text = null;
             Name.text = null;
+            Category.text = null;
             Description.text = null;
         }
 
@@ -658,6 +668,7 @@ namespace PlanBuild.Blueprints.Marketplace
                 ID = tabTrans.Find("ID").GetComponent<Text>();
                 Creator = tabTrans.Find("Creator").GetComponent<Text>();
                 Name = tabTrans.Find("Name").GetComponent<InputField>();
+                Category = tabTrans.Find("Category").GetComponent<InputField>();
                 Description = tabTrans.Find("Description").GetComponent<InputField>();
 
                 RefreshButton = tabTrans.Find("RefreshButton").GetComponent<Button>();
@@ -689,6 +700,7 @@ namespace PlanBuild.Blueprints.Marketplace
         public GameObject ContentHolder { get; set; }
         public string ID { get; set; }
         public string Name { get; set; }
+        public string Category { get; set; }
         public string Creator { get; set; }
         public string Description { get; set; }
         public Text Text { get; set; }

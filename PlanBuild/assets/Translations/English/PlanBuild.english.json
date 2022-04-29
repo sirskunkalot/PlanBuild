@@ -98,6 +98,8 @@
   "gui_bpmarket_creator": "Creator:",
   "gui_bpmarket_name": "Name",
   "gui_bpmarket_name_placeholder": "Enter Name...",
+  "gui_bpmarket_category": "Category",
+  "gui_bpmarket_category_placeholder": "Enter Category...",
   "gui_bpmarket_description": "Description",
   "gui_bpmarket_description_placeholder": "Enter Description...",
   "gui_bpmarket_save": "Save",

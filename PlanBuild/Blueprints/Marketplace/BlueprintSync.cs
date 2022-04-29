@@ -231,7 +231,9 @@ namespace PlanBuild.Blueprints.Marketplace
 
             Logger.LogMessage($"Saving local blueprint {id}");
 
+            blueprint.DestroyBlueprint();
             blueprint.ToFile();
+            BlueprintManager.Instance.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
@@ -287,7 +289,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
-                // TODO: this needs a flag is it is local or server push
+                // TODO: this needs a flag if it is local or server push
                 if (BlueprintManager.LocalBlueprints.TryGetValue(id, out var blueprint))
                 {
                     Logger.LogMessage($"Sending blueprint {id} to server");
@@ -315,7 +317,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
-                // TODO: this needs a flag is it is local or server push
+                // TODO: this needs a flag if it is local or server push
                 if (BlueprintManager.ServerBlueprints.TryGetValue(id, out var blueprint))
                 {
                     Logger.LogMessage($"Sending blueprint {id} to server");

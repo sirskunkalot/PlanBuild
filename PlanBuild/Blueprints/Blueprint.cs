@@ -947,6 +947,8 @@ namespace PlanBuild.Blueprints
                 {
                     Player.m_localPlayer.m_knownRecipes.Remove(PrefabName);
                 }
+
+                Prefab = null;
             }
 
             if (Player.m_localPlayer)
