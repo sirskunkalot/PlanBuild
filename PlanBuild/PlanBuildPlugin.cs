@@ -23,7 +23,7 @@ namespace PlanBuild
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ValheimRaftGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ItemDrawersGUID, BepInDependency.DependencyFlags.SoftDependency)]
-    //[NetworkCompatibility(CompatibilityLevel.ServerMustHaveMod, VersionStrictness.Minor)]
+    [NetworkCompatibility(CompatibilityLevel.ServerMustHaveMod, VersionStrictness.Minor)]
     internal class PlanBuildPlugin : BaseUnityPlugin
     {
         public const string PluginGUID = "marcopogo.PlanBuild";

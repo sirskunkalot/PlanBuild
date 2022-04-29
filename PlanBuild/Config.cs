@@ -321,20 +321,7 @@ namespace PlanBuild
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
-
-            // Capture
-
-            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceEditName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpedit" },
-                    new ButtonConfig { Name = CameraModifierButton.Name, Config = CameraModifierConfig, HintToken = "$hud_bpcamera" }
-                }
-            });
-
+            
             // Add selection
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
