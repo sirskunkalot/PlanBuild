@@ -722,7 +722,7 @@ namespace PlanBuild.Blueprints
         ///     Create a thumbnail from the piece prefab and write it to <see cref="ThumbnailLocation"/>
         /// </summary>
         /// <param name="additionalRotation">Rotation added to the base rotation of the rendered prefab on the Y-axis</param>
-        public bool CreateThumbnail(int additionalRotation = 0)
+        public bool CreateThumbnail(int additionalRotation = 0, bool flush = true)
         {
             if (!InstantiateGhost())
             {
@@ -744,8 +744,12 @@ namespace PlanBuild.Blueprints
             }
 
             Thumbnail = sprite.texture;
-            File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
             Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
+            
+            if (flush)
+            {
+                File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
+            }
 
             return true;
         }

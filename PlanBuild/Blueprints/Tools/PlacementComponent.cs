@@ -64,7 +64,15 @@ namespace PlanBuild.Blueprints.Tools
         private void PlaceBlueprint(Player player, Piece piece)
         {
             string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
-            Blueprint bp = BlueprintManager.LocalBlueprints[id];
+            Blueprint bp;
+            if (id.StartsWith("__temp"))
+            {
+                bp = BlueprintManager.TemporaryBlueprints[id];
+            }
+            else
+            {
+                bp = BlueprintManager.LocalBlueprints[id];
+            }
             var transform = player.m_placementGhost.transform;
             var position = transform.position;
             var rotation = transform.rotation;

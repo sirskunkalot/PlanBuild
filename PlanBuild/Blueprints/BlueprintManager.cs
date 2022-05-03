@@ -17,6 +17,7 @@ namespace PlanBuild.Blueprints
 
         public static BlueprintManager Instance => _instance ??= new BlueprintManager();
 
+        public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary LocalBlueprints;
         public static BlueprintDictionary ServerBlueprints;
         public static Stack<BlueprintInstance> BlueprintInstances;
@@ -37,6 +38,7 @@ namespace PlanBuild.Blueprints
             try
             {
                 // Init lists
+                TemporaryBlueprints = new BlueprintDictionary();
                 LocalBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
                 BlueprintInstances = new Stack<BlueprintInstance>();
@@ -58,6 +60,7 @@ namespace PlanBuild.Blueprints
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
                 // Hooks
+                On.ZNetScene.Shutdown += (orig, self) => TemporaryBlueprints.Clear();
                 On.ZNetScene.Shutdown += (orig, self) => BlueprintInstances.Clear();
                 On.ZNetScene.Shutdown += (orig, self) => Selection.Instance.Clear();
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;

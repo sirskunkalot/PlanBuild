@@ -111,9 +111,15 @@ namespace PlanBuild.Blueprints.Tools
         private void Copy()
         {
             var bp = new Blueprint();
-            bp.Name = "temp";
+            bp.ID = $"__temp{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
+            bp.Name = bp.ID;
+            bp.Category = BlueprintAssets.CategoryClipboard;
             bp.Capture(Selection.Instance);
             bp.CreatePiece();
+            BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
+            Selection.Instance.Clear();
+            bp.CreateThumbnail(flush: false);
+            Player.m_localPlayer?.UpdateKnownRecipesList();
         }
 
         private void Save()

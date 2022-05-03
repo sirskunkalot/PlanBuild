@@ -3,6 +3,7 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints.Tools;
 using System.Collections.Generic;
+using Mono.Security;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -20,6 +21,7 @@ namespace PlanBuild.Blueprints
         public const string BlueprintRuneItemName = "$item_blueprintrune";
         public const string PieceTableName = "_BlueprintPieceTable";
         public const string CategoryTools = "Tools";
+        public const string CategoryClipboard = "Clipboard";
         public const string CategoryBlueprints = "Blueprints";
 
         public const string PieceSnapPointName = "piece_bpsnappoint";
@@ -83,7 +85,7 @@ namespace PlanBuild.Blueprints
                 UseCustomCategories = true,
                 CustomCategories = new []
                 {
-                    CategoryTools, CategoryBlueprints
+                    CategoryTools, CategoryClipboard, CategoryBlueprints
                 }
             });
             PieceManager.Instance.AddPieceTable(table);
