@@ -648,7 +648,9 @@ namespace PlanBuild.Blueprints
             }
 
             // Instantiate clone from stub
+            ZNetView.m_forceDisableInit = true;
             Prefab = Object.Instantiate(stub);
+            ZNetView.m_forceDisableInit = false;
             Prefab.name = PrefabName;
 
             // Set piece information

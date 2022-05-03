@@ -63,7 +63,6 @@ namespace PlanBuild.Blueprints
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
                 //On.WearNTear.Destroy += WearNTear_Destroy;
-                On.ZDO.Load += ZDO_Load;
 
                 GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
                 On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
@@ -426,18 +425,5 @@ namespace PlanBuild.Blueprints
 
             orig(self, go);
         }
-        
-        /// <summary>
-        ///     Prevent blueprint ZDOs from loading for backward compatibility
-        /// </summary>
-        private void ZDO_Load(On.ZDO.orig_Load orig, ZDO self, ZPackage pkg, int version)
-        {
-            orig(self, pkg, version);
-            if (self.m_prefab == Blueprint.PieceBlueprintHash)
-            {
-                self.m_prefab = 0;
-            }
-        }
-
     }
 }
