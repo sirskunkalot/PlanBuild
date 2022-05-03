@@ -29,17 +29,19 @@ namespace PlanBuild.Blueprints.Marketplace
 
         public static void Init()
         {
-            if (!GUIManager.IsHeadless())
+            if (GUIManager.IsHeadless())
             {
-                Instance = new BlueprintGUI();
-                AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
-                Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
-                Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
-                bundle.Unload(false);
-
-                GUIManager.OnCustomGUIAvailable += Instance.Register;
-                LocalizationManager.OnLocalizationAdded += Instance.Localize;
+                return;
             }
+
+            Instance = new BlueprintGUI();
+            AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
+            Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
+            Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
+            bundle.Unload(false);
+
+            GUIManager.OnCustomGUIAvailable += Instance.Register;
+            LocalizationManager.OnLocalizationAdded += Instance.Localize;
         }
 
         /// <summary>

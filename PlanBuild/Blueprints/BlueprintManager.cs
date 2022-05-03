@@ -41,9 +41,10 @@ namespace PlanBuild.Blueprints
                 ServerBlueprints = new BlueprintDictionary();
                 BlueprintInstances = new Stack<BlueprintInstance>();
 
+                // Init Selection
                 Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
 
-                // Init sync
+                // Init Sync
                 BlueprintSync.Init();
 
                 // Init Commands

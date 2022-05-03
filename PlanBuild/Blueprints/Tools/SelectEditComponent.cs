@@ -1,10 +1,14 @@
-﻿using System.IO;
+﻿using Jotunn.Managers;
 using PlanBuild.Blueprints.Marketplace;
+using System;
+using System.IO;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PlanBuild.Blueprints.Tools
 {
-    internal class SelectSaveComponent : SelectionToolComponentBase
+    internal class SelectEditComponent : SelectionToolComponentBase
     {
         public override void OnUpdatePlacement(Player self)
         {
@@ -28,10 +32,73 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
-            MakeBlueprint();
+            ShowGUI();
+        }
+
+        public void ShowGUI()
+        {
+            if (!Selection.Instance.Any())
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
+                    Localization.instance.Localize("$msg_blueprint_select_empty"));
+                return;
+            }
+
+            var panel = GUIManager.Instance.CreateWoodpanel(
+                parent: GUIManager.CustomGUIFront.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0, 0),
+                width: 400,
+                height: 400,
+                draggable: false);
+            panel.SetActive(false);
+
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.padding = new RectOffset(15, 15, 15, 15);
+            layout.spacing = 5f;
+
+            var saveButton = GUIManager.Instance.CreateButton(
+                text: "Copy",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            saveButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(MakeBlueprint));
+
+            var saveButton2 = GUIManager.Instance.CreateButton(
+                text: "Save Blueprint",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            saveButton2.AddComponent<LayoutElement>().preferredHeight = 40f;
+            saveButton2.GetComponent<Button>().onClick.AddListener(() => SelectGUI(SaveBlueprint));
+
+            void SelectGUI(Action action)
+            {
+                action.Invoke();
+                panel.SetActive(false);
+                GUIManager.BlockInput(false);
+            }
+
+            panel.SetActive(true);
+            GUIManager.BlockInput(true);
         }
 
         private void MakeBlueprint()
+        {
+            var bp = new Blueprint();
+            bp.Name = "temp";
+            bp.Capture(Selection.Instance);
+            bp.CreatePiece();
+        }
+
+        private void SaveBlueprint()
         {
             var bp = new Blueprint();
             var bpname = Selection.Instance.BlueprintInstance?.ID;
@@ -48,14 +115,6 @@ namespace PlanBuild.Blueprints.Tools
             }
         }
 
-        /// <summary>
-        ///     Hook for patching
-        /// </summary>
-        /// <param name="placedPiece"></param>
-        internal virtual void OnPiecePlaced(GameObject placedPiece)
-        {
-        }
-        
         /// <summary>
         ///     Helper class for naming and saving a captured blueprint via GUI
         ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering

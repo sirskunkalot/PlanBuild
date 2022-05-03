@@ -6,7 +6,7 @@
 * Reorganized configuration entries for more clarity
 * __Please revise your configuration once after installing this version__
 * Added saving of local scaling into blueprints. Note that the scale is not saved/synced by the vanilla game for most of the prefabs, so an additional mod for piece scaling should be installed.
-* Added the ability to change blueprint categories to the Marketplace GUI
+* Added the ability to change blueprint categories via the Marketplace GUI
 * Removed the blueprint "Quick Select" tool, use the add/remove/edit selection tools instead
 
 # Version 0.9.5

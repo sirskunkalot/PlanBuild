@@ -355,15 +355,15 @@ namespace PlanBuild
                 }
             });
 
-            // Save selection
+            // Edit selection
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
-                Piece = BlueprintAssets.PieceSelectSaveName,
+                Piece = BlueprintAssets.PieceSelectEditName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_save" }
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_edit" }
                 }
             });
 

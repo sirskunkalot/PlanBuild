@@ -26,7 +26,7 @@ namespace PlanBuild.Blueprints
         public const string PieceCenterPointName = "piece_bpcenterpoint";
         public const string PieceSelectAddName = "piece_bpselectadd";
         public const string PieceSelectRemoveName = "piece_bpselectremove";
-        public const string PieceSelectSaveName = "piece_bpselectsave";
+        public const string PieceSelectEditName = "piece_bpselectedit";
         public const string PieceDeletePlansName = "piece_bpdelete";
         public const string PieceDeleteObjectsName = "piece_bpobjects";
         public const string PieceTerrainName = "piece_bpterrain";
@@ -107,7 +107,7 @@ namespace PlanBuild.Blueprints
             // Tool pieces
             foreach (string pieceName in new []
             {
-                PieceSelectAddName, PieceSelectRemoveName, PieceSelectSaveName,
+                PieceSelectAddName, PieceSelectRemoveName, PieceSelectEditName,
                 PieceSnapPointName, PieceCenterPointName,
                 PieceDeletePlansName, PieceTerrainName, PieceDeleteObjectsName,
                 PiecePaintName
@@ -131,8 +131,8 @@ namespace PlanBuild.Blueprints
                         prefabs[pieceName].AddComponent<SelectRemoveComponent>();
                         break;
 
-                    case PieceSelectSaveName:
-                        prefabs[pieceName].AddComponent<SelectSaveComponent>();
+                    case PieceSelectEditName:
+                        prefabs[pieceName].AddComponent<SelectEditComponent>();
                         break;
                         
                     case PieceDeletePlansName:

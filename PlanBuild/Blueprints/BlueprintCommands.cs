@@ -11,6 +11,11 @@ namespace PlanBuild.Blueprints
     {
         public static void Init()
         {
+            if (GUIManager.IsHeadless())
+            {
+                return;
+            }
+
             CommandManager.Instance.AddConsoleCommand(new GetLocalListCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new PushBlueprintCommand());

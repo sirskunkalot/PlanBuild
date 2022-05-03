@@ -61,6 +61,7 @@ namespace PlanBuild.Blueprints
 
         public void AddBlueprint(BlueprintInstance instance)
         {
+            BlueprintInstance = instance;
             foreach (var piece in instance.GetPieceInstances())
             {
                 AddPiece(piece);
