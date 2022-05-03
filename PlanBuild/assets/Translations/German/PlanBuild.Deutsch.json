@@ -44,6 +44,7 @@
   "piece_blueprint_select_remove_desc": "Entfernt bereits markierte Objekte wieder aus der Selektion.",
   "piece_blueprint_select_edit": "Selektion editieren",
   "piece_blueprint_select_edit_desc": "Momentane Selektion kopieren, speichern oder löschen",
+  "msg_select_delete_disabled": "Löschen nicht erlaubt",
   "piece_blueprint_snappoint": "Fangpunkt-Markierung",
   "piece_blueprint_snappoint_desc": "Diese Markierungen werden beim Erstellen einer Blaupause gelöscht und in der Blaupause als Fangpunkte gespeichert",
   "piece_blueprint_centerpoint": "Mittelpunkt-Markierung",

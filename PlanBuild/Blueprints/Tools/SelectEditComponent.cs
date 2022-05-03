@@ -50,38 +50,56 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0, 0),
                 width: 400,
-                height: 400,
+                height: 200,
                 draggable: false);
             panel.SetActive(false);
 
             var layout = panel.AddComponent<VerticalLayoutGroup>();
-            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childAlignment = TextAnchor.MiddleCenter;
             layout.childForceExpandWidth = true;
             layout.childForceExpandHeight = false;
             layout.padding = new RectOffset(15, 15, 15, 15);
             layout.spacing = 5f;
 
-            var saveButton = GUIManager.Instance.CreateButton(
+            var copyButton = GUIManager.Instance.CreateButton(
                 text: "Copy",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
-            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(MakeBlueprint));
+            copyButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            copyButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Copy));
 
-            var saveButton2 = GUIManager.Instance.CreateButton(
-                text: "Save Blueprint",
+            var saveButton = GUIManager.Instance.CreateButton(
+                text: "Save",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
-            saveButton2.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton2.GetComponent<Button>().onClick.AddListener(() => SelectGUI(SaveBlueprint));
+            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            saveButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Save));
+            
+            var deleteButton = GUIManager.Instance.CreateButton(
+                text: "Delete",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            deleteButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            deleteButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Delete));
+            
+            var cancelButton = GUIManager.Instance.CreateButton(
+                text: "Cancel",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            cancelButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            cancelButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(null));
 
             void SelectGUI(Action action)
             {
-                action.Invoke();
+                action?.Invoke();
                 panel.SetActive(false);
                 GUIManager.BlockInput(false);
             }
@@ -90,7 +108,7 @@ namespace PlanBuild.Blueprints.Tools
             GUIManager.BlockInput(true);
         }
 
-        private void MakeBlueprint()
+        private void Copy()
         {
             var bp = new Blueprint();
             bp.Name = "temp";
@@ -98,7 +116,7 @@ namespace PlanBuild.Blueprints.Tools
             bp.CreatePiece();
         }
 
-        private void SaveBlueprint()
+        private void Save()
         {
             var bp = new Blueprint();
             var bpname = Selection.Instance.BlueprintInstance?.ID;
@@ -112,6 +130,26 @@ namespace PlanBuild.Blueprints.Tools
             else
             {
                 Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
+            }
+        }
+        
+        private void Delete()
+        {
+            if (!SynchronizationManager.Instance.PlayerIsAdmin)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_select_delete_disabled");
+                return;
+            }
+
+            var toClear = Selection.Instance.ToList();
+            Selection.Instance.Clear();
+            foreach (var zdoid in toClear)
+            {
+                var go = ZNetScene.instance.FindInstance(zdoid);
+                if (go)
+                {
+                    ZNetScene.instance.Destroy(go);
+                }
             }
         }
 
