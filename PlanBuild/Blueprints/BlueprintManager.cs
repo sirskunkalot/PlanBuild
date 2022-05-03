@@ -19,6 +19,7 @@ namespace PlanBuild.Blueprints
 
         public static BlueprintDictionary LocalBlueprints;
         public static BlueprintDictionary ServerBlueprints;
+        public static Stack<BlueprintInstance> BlueprintInstances;
         
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
@@ -38,6 +39,7 @@ namespace PlanBuild.Blueprints
                 // Init lists
                 LocalBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
+                BlueprintInstances = new Stack<BlueprintInstance>();
 
                 Selection.GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
 
@@ -55,6 +57,8 @@ namespace PlanBuild.Blueprints
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
                 // Hooks
+                On.ZNetScene.Shutdown += (orig, self) => BlueprintInstances.Clear();
+                On.ZNetScene.Shutdown += (orig, self) => Selection.Instance.Clear();
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
                 On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
@@ -91,7 +95,7 @@ namespace PlanBuild.Blueprints
                 Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-
+        
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -234,6 +238,41 @@ namespace PlanBuild.Blueprints
                 return go;
             }
             return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
+        }
+        
+        public bool SelectLastBlueprint()
+        {
+            if (BlueprintInstances.Count == 0)
+            {
+                return false;
+            }
+
+            var instance = BlueprintInstances.Peek();
+            Selection.Instance.Clear();
+            Selection.Instance.AddBlueprint(instance);
+            
+            return true;
+        }
+
+        public bool UndoLastBlueprint()
+        {
+            if (BlueprintInstances.Count == 0)
+            {
+                return false;
+            }
+
+            var instance = BlueprintInstances.Pop();
+            Selection.Instance.Clear();
+            foreach (var zdoid in instance.ZDOIDs)
+            {
+                var go = ZNetScene.instance.FindInstance(zdoid);
+                if (go)
+                {
+                    ZNetScene.instance.Destroy(go);
+                }
+            }
+
+            return true;
         }
 
         /// <summary>

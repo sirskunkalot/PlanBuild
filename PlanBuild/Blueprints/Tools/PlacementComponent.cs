@@ -193,9 +193,9 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
 
-            if (blueprintInstance.Any())
+            if (blueprintInstance.ZDOIDs.Any())
             {
-                BlueprintInstance.Instances.Add(blueprintInstance);
+                BlueprintManager.BlueprintInstances.Push(blueprintInstance);
             }
         }
 

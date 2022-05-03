@@ -18,6 +18,8 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new PullBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
+            CommandManager.Instance.AddConsoleCommand(new UndoBlueprintCommand());
+            CommandManager.Instance.AddConsoleCommand(new SelectBlueprintCommand());
         }
 
         /// <summary>
@@ -216,6 +218,42 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                 }
 
                 PlanBuildPlugin.Instance.StartCoroutine(RegenAll());
+            }
+        }
+
+        /// <summary>
+        ///     Console command to select the last built blueprint
+        /// </summary>
+        private class SelectBlueprintCommand : ConsoleCommand
+        {
+            public override string Name => "bp.select";
+
+            public override string Help => "Select your last built blueprint";
+
+            public override void Run(string[] args)
+            {
+                var success = BlueprintManager.Instance.SelectLastBlueprint();
+                Console.instance.Print(success
+                    ? $"Selected {Selection.Instance.BlueprintInstance.ID}"
+                    : "No blueprint to select");
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to undo built blueprints
+        /// </summary>
+        private class UndoBlueprintCommand : ConsoleCommand
+        {
+            public override string Name => "bp.undo";
+
+            public override string Help => "Undo your last built blueprint";
+
+            public override void Run(string[] args)
+            {
+                var success = BlueprintManager.Instance.UndoLastBlueprint();
+                Console.instance.Print(success
+                    ? "Blueprint removed"
+                    : "No blueprint to remove");
             }
         }
     }

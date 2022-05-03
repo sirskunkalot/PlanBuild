@@ -1,39 +1,23 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
-    internal class BlueprintInstance : IEnumerable<ZDOID>
+    internal class BlueprintInstance
     {
-        public static List<BlueprintInstance> Instances = new List<BlueprintInstance>();
-
         public string ID;
-        private ZDOIDSet ZDOIDs = new ZDOIDSet();
-        
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        public IEnumerator<ZDOID> GetEnumerator()
-        {
-            foreach (ZDOID zdoid in new List<ZDOID>(ZDOIDs))
-            {
-                yield return zdoid;
-            }
-        }
+        public ZDOIDSet ZDOIDs = new ZDOIDSet();
 
         public BlueprintInstance(string ID)
         {
             this.ID = ID;
         }
-        
+
         public bool AddZDOID(ZDOID? zdoid)
         {
             return zdoid.HasValue && ZDOIDs.Add(zdoid.Value);
         }
-        
+
         public bool RemoveZDOID(ZDOID? zdoid)
         {
             return zdoid.HasValue && ZDOIDs.Remove(zdoid.Value);
