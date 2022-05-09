@@ -134,12 +134,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\SelectionCommands.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
     <Compile Include="Blueprints\BlueprintInstance.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
+    <Compile Include="Blueprints\SelectionTools.cs" />
     <Compile Include="Blueprints\Tools\SelectEditComponent.cs" />
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
