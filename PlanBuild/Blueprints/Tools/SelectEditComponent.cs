@@ -68,7 +68,7 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             copyButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            copyButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Copy));
+            copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Copy));
 
             var saveButton = GUIManager.Instance.CreateButton(
                 text: "Save",
@@ -77,7 +77,7 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Save));
+            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Save));
             
             var deleteButton = GUIManager.Instance.CreateButton(
                 text: "Delete",
@@ -86,7 +86,7 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             deleteButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            deleteButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(Delete));
+            deleteButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Delete));
             
             var cancelButton = GUIManager.Instance.CreateButton(
                 text: "Cancel",
@@ -95,9 +95,9 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             cancelButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            cancelButton.GetComponent<Button>().onClick.AddListener(() => SelectGUI(null));
+            cancelButton.GetComponent<Button>().onClick.AddListener(() => OnClick(null));
 
-            void SelectGUI(Action action)
+            void OnClick(Action action)
             {
                 action?.Invoke();
                 panel.SetActive(false);
@@ -111,7 +111,7 @@ namespace PlanBuild.Blueprints.Tools
         private void Copy()
         {
             var bp = new Blueprint();
-            bp.ID = $"__temp{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
+            bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
             bp.Capture(Selection.Instance);

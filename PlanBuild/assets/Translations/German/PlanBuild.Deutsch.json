@@ -77,7 +77,7 @@
   "hud_blueprint_select_remove_switch": "Zum Hinzufügen wechseln",
   "hud_blueprint_select_remove_radius": "Im Radius entfernen, Mausrad: Radius anpassen",
   "hud_blueprint_select_remove_connected": "Verbundene entfernen",
-  "hud_blueprint_select_remove_clear": "Selektion löschen",
+  "hud_blueprint_select_clear": "Selektion löschen",
   "hud_blueprint_select_edit": "Öffne das Selektions-Menü",
   "hud_bpsnappoint": "Fangmarkierung bauen",
   "hud_bpcenterpoint": "Mittelpunkt-Markierung bauen",

@@ -65,7 +65,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
             Blueprint bp;
-            if (id.StartsWith("__temp"))
+            if (id.StartsWith("__"))
             {
                 bp = BlueprintManager.TemporaryBlueprints[id];
             }

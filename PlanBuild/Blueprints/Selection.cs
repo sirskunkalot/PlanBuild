@@ -22,7 +22,7 @@ namespace PlanBuild.Blueprints
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
         private int CenterMarkers;
-        private bool Highlighted;
+        private bool HighlightActive;
         private Coroutine UnhighlightCoroutine;
         
         IEnumerator IEnumerable.GetEnumerator()
@@ -84,7 +84,11 @@ namespace PlanBuild.Blueprints
         
         public bool Contains(Piece piece)
         {
-            ZDOID? zdoid = piece.GetZDOID();
+            return Contains(piece?.GetZDOID());
+        }
+        
+        public bool Contains(ZDOID? zdoid)
+        {
             return zdoid.HasValue && SelectedZDOIDs.Contains(zdoid.Value);
         }
 
@@ -269,7 +273,7 @@ namespace PlanBuild.Blueprints
             Logger.LogInfo($"{Time.frameCount} Enqueue highlight coroutine");
 #endif
 
-            Highlighted = true;
+            HighlightActive = true;
             PlanBuildPlugin.Instance.StartCoroutine(Start());
         }
 
@@ -312,7 +316,7 @@ namespace PlanBuild.Blueprints
             Logger.LogInfo($"{Time.frameCount} Enqueue unhighlight coroutine");
 #endif
             UnhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
-            Highlighted = false;
+            HighlightActive = false;
         }
 
         public void Highlight(ZDOID zdoid, GameObject selected)
@@ -341,12 +345,16 @@ namespace PlanBuild.Blueprints
             }
         }
         
-        private bool IsHighlighted(Piece piece)
+        public bool IsHighlighted(Piece piece)
         {
-            ZDOID zdoid = piece.m_nview.GetZDO().m_uid;
-            return HighlightedZDOIDs.Contains(zdoid);
+            return IsHighlighted(piece?.GetZDOID());
         }
         
+        public bool IsHighlighted(ZDOID? zdoid)
+        {
+            return HighlightActive && zdoid.HasValue && HighlightedZDOIDs.Contains(zdoid.Value);
+        }
+
         internal void OnPieceAwake(Piece piece)
         {
             ZDOID? zdoid = piece.GetZDOID();
@@ -355,7 +363,7 @@ namespace PlanBuild.Blueprints
                 return;
             }
             bool containsPiece = SelectedZDOIDs.Contains(zdoid.Value); ;
-            if (Highlighted && containsPiece && !IsHighlighted(piece))
+            if (containsPiece && !IsHighlighted(piece))
             {
                 Highlight(zdoid.Value, piece.gameObject);
             }

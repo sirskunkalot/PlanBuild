@@ -19,7 +19,6 @@ namespace PlanBuild.Blueprints
     internal class Blueprint
     {
         public const string PieceBlueprintName = "piece_blueprint";
-        public static int PieceBlueprintHash = PieceBlueprintName.GetStableHashCode();
         public const string PlaceColliderName = "place_collider";
         public const string AdditionalInfo = "AdditionalText";
 
@@ -657,7 +656,11 @@ namespace PlanBuild.Blueprints
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;
             piece.m_enabled = true;
-            piece.m_description = $"File name: {Path.GetFileName(FileLocation)}";
+            piece.m_description = "";
+            if (!string.IsNullOrEmpty(FileLocation))
+            {
+                piece.m_description += $"File name: {Path.GetFileName(FileLocation)}";
+            }
             if (!string.IsNullOrEmpty(Creator))
             {
                 piece.m_description += $"{Environment.NewLine}Creator: {Creator}";

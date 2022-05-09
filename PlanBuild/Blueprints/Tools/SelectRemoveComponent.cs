@@ -18,6 +18,7 @@ namespace PlanBuild.Blueprints.Tools
             if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
+                //BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red);
             }
             else
             {

@@ -10,10 +10,15 @@ namespace PlanBuild.Blueprints.Tools
             {
                 return;
             }
+            
+            bool cameraModifier = ZInput.GetButton(Config.CameraModifierButton.Name);
+            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
 
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
+                //BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }
             else
             {
@@ -23,11 +28,11 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                if (cameraModifier)
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+                else if (radiusModifier && !connectedModifier)
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
@@ -43,14 +48,21 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+
+            if (radiusModifier && connectedModifier)
+            {
+                Selection.Instance.Clear();
+            }
+            else if (radiusModifier)
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
-            else if (BlueprintManager.Instance.LastHoveredPiece && 
+            else if (BlueprintManager.Instance.LastHoveredPiece &&
                      BlueprintManager.Instance.CanCapture(BlueprintManager.Instance.LastHoveredPiece))
             {
-                if (ZInput.GetButton(Config.DeleteModifierButton.Name))
+                if (connectedModifier)
                 {
                     Selection.Instance.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
                 }

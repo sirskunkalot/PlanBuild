@@ -3,7 +3,6 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints.Tools;
 using System.Collections.Generic;
-using Mono.Security;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -33,7 +32,7 @@ namespace PlanBuild.Blueprints
         public const string PieceDeleteObjectsName = "piece_bpobjects";
         public const string PieceTerrainName = "piece_bpterrain";
         public const string PiecePaintName = "piece_bppaint";
-        
+
         public static void Load(AssetBundle assetBundle)
         {
             // Asset Bundle GameObjects
@@ -53,9 +52,12 @@ namespace PlanBuild.Blueprints
                 GUIManager.OnCustomGUIAvailable -= GUIManagerOnOnCustomGUIAvailable;
             }
             GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
+            
+            // Blueprint KeyHints
+            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
 
             // World Runes
-            foreach (string pieceName in new []
+            foreach (string pieceName in new[]
             {
                 StandingBlueprintRuneName, BlueprintRuneStackName
             })
@@ -63,7 +65,7 @@ namespace PlanBuild.Blueprints
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
                 {
                     PieceTable = "Hammer",
-                    Requirements = new [] {
+                    Requirements = new[] {
                         new RequirementConfig
                         {
                             Item = "Stone",
@@ -76,14 +78,14 @@ namespace PlanBuild.Blueprints
                 piece.FixReference = true;
                 PieceManager.Instance.AddPiece(piece);
             }
-            
+
             // Rune PieceTable
             CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
             {
                 CanRemovePieces = false,
                 UseCategories = false,
                 UseCustomCategories = true,
-                CustomCategories = new []
+                CustomCategories = new[]
                 {
                     CategoryTools, CategoryClipboard, CategoryBlueprints
                 }
@@ -94,7 +96,7 @@ namespace PlanBuild.Blueprints
             CustomItem item = new CustomItem(prefabs[BlueprintRuneName], false, new ItemConfig
             {
                 Amount = 1,
-                Requirements = new []
+                Requirements = new[]
                 {
                     new RequirementConfig {Item = "Stone", Amount = 1}
                 }
@@ -107,7 +109,7 @@ namespace PlanBuild.Blueprints
             PrefabManager.Instance.AddPrefab(stub);
 
             // Tool pieces
-            foreach (string pieceName in new []
+            foreach (string pieceName in new[]
             {
                 PieceSelectAddName, PieceSelectRemoveName, PieceSelectEditName,
                 PieceSnapPointName, PieceCenterPointName,
@@ -136,7 +138,7 @@ namespace PlanBuild.Blueprints
                     case PieceSelectEditName:
                         prefabs[pieceName].AddComponent<SelectEditComponent>();
                         break;
-                        
+
                     case PieceDeletePlansName:
                         prefabs[pieceName].AddComponent<DeletePlansComponent>();
                         break;
@@ -157,6 +159,160 @@ namespace PlanBuild.Blueprints
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        ///     Create custom KeyHints for the static Blueprint Rune pieces
+        /// </summary>
+        private static void CreateCustomKeyHints()
+        {
+            // Mode Switch
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
+                }
+            });
+            
+            // Add selection
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceSelectAddName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_add" },
+                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_blueprint_select_add_switch" },
+                    new ButtonConfig { Name = Config.DeleteModifierButton.Name, Config = Config.DeleteModifierConfig, HintToken = "$hud_blueprint_select_add_connected" },
+                    new ButtonConfig { Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig, HintToken = "$hud_blueprint_select_add_radius" },
+                    new ButtonConfig { Name = $"{Config.DeleteModifierButton.Key} + {Config.RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_clear" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig, HintToken = "$hud_bpcamera" }
+                }
+            });
+
+            // Remove selection
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceSelectRemoveName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_remove" },
+                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_blueprint_select_remove_switch" },
+                    new ButtonConfig { Name = Config.DeleteModifierButton.Name, Config = Config.DeleteModifierConfig, HintToken = "$hud_blueprint_select_remove_connected" },
+                    new ButtonConfig { Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig, HintToken = "$hud_blueprint_select_remove_radius" },
+                    new ButtonConfig { Name = $"{Config.DeleteModifierButton.Key} + {Config.RadiusModifierButton.Key}", HintToken = "$hud_blueprint_select_clear" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig, HintToken = "$hud_bpcamera" }
+                }
+            });
+
+            // Edit selection
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceSelectEditName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_blueprint_select_edit" }
+                }
+            });
+
+            // Snap Point
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceSnapPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                }
+            });
+
+            // Center point
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceCenterPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                }
+            });
+
+            // Remove
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceDeletePlansName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpdelete" },
+                    new ButtonConfig { Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig, HintToken = "$hud_bpdelete_radius" },
+                    new ButtonConfig { Name = Config.DeleteModifierButton.Name, Config = Config.DeleteModifierConfig, HintToken = "$hud_bpdelete_all" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig, HintToken = "$hud_bpcamera" }
+                }
+            });
+
+            // Terrain
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceTerrainName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
+                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = Config.DeleteModifierButton.Name, Config = Config.DeleteModifierConfig, HintToken = "$hud_bpterrain_delete" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
+                }
+            });
+
+            // Delete
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceDeleteObjectsName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpobjects_deleteveg" },
+                    new ButtonConfig { Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig, HintToken = "$hud_bpobjects_deletepieces" },
+                    new ButtonConfig { Name = Config.DeleteModifierButton.Name, Config = Config.DeleteModifierConfig, HintToken = "$hud_bpobjects_deleteall" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            // Paint
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PiecePaintName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
+                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
+                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },
+                    new ButtonConfig { Name = Config.CameraModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
+
+            GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
         }
     }
 }
