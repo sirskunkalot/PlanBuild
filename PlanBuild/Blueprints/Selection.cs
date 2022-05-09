@@ -15,15 +15,20 @@ namespace PlanBuild.Blueprints
         
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
-
+        
+        public bool Active;
         public BlueprintInstance BlueprintInstance;
         
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
         private int CenterMarkers;
-        private bool HighlightActive;
         private Coroutine UnhighlightCoroutine;
+
+        public static void Init()
+        {
+            GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
+        }
         
         IEnumerator IEnumerable.GetEnumerator()
         {
@@ -273,7 +278,7 @@ namespace PlanBuild.Blueprints
             Logger.LogInfo($"{Time.frameCount} Enqueue highlight coroutine");
 #endif
 
-            HighlightActive = true;
+            Active = true;
             PlanBuildPlugin.Instance.StartCoroutine(Start());
         }
 
@@ -316,7 +321,7 @@ namespace PlanBuild.Blueprints
             Logger.LogInfo($"{Time.frameCount} Enqueue unhighlight coroutine");
 #endif
             UnhighlightCoroutine = PlanBuildPlugin.Instance.StartCoroutine(Stop());
-            HighlightActive = false;
+            Active = false;
         }
 
         public void Highlight(ZDOID zdoid, GameObject selected)
@@ -352,7 +357,7 @@ namespace PlanBuild.Blueprints
         
         public bool IsHighlighted(ZDOID? zdoid)
         {
-            return HighlightActive && zdoid.HasValue && HighlightedZDOIDs.Contains(zdoid.Value);
+            return Active && zdoid.HasValue && HighlightedZDOIDs.Contains(zdoid.Value);
         }
 
         internal void OnPieceAwake(Piece piece)

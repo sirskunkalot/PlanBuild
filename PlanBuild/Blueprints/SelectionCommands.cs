@@ -29,7 +29,7 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!Selection.Instance.Any())
+                if (!(Selection.Instance.Active && Selection.Instance.Any()))
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -50,7 +50,7 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!Selection.Instance.Any())
+                if (!(Selection.Instance.Active && Selection.Instance.Any()))
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -71,7 +71,7 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!Selection.Instance.Any())
+                if (!(Selection.Instance.Active && Selection.Instance.Any()))
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
