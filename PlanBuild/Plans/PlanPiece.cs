@@ -367,6 +367,17 @@ namespace PlanBuild.Plans
 
         public bool Interact(Humanoid user, bool hold, bool alt)
         {
+            if (!(user is Player player))
+            {
+                return false;
+            }
+
+            if (player.m_noPlacementCost)
+            {
+                Build(player.GetPlayerID());
+                return false;
+            }
+            
             if (hold)
             {
                 if (Time.time - m_lastUseTime < m_holdRepeatInterval)
@@ -424,8 +435,7 @@ namespace PlanBuild.Plans
                 user.Message(MessageHud.MessageType.Center, "$message_plan_piece_not_enough_support");
                 return false;
             }
-            long playerID = (user as Player).GetPlayerID();
-            Build(playerID);
+            Build(player.GetPlayerID());
             return false;
         }
 

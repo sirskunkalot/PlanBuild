@@ -8,6 +8,7 @@
 * Added saving of local scaling into blueprints. Note that the scale is not saved/synced by the vanilla game for most of the prefabs, so an additional mod for piece scaling should be installed.
 * Added the ability to change blueprint categories via the Marketplace GUI
 * Removed the blueprint "Quick Select" tool, use the add/remove/edit selection tools instead
+* Added ability to "finish" planned pieces without having the needed resources when the "no placement cost" debug option is active
 
 # Version 0.9.5
 * Fixed placement of non-Piece prefabs
