@@ -1,6 +1,9 @@
-﻿using PlanBuild.Blueprints.Marketplace;
+﻿using Jotunn.Managers;
+using PlanBuild.Blueprints.Marketplace;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
@@ -17,7 +20,14 @@ namespace PlanBuild.Blueprints
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
             Selection.Instance.Clear();
             bp.CreateThumbnail(flush: false);
-            Player.m_localPlayer?.UpdateKnownRecipesList();
+            Player.m_localPlayer.UpdateKnownRecipesList();
+            Player.m_localPlayer.UpdateAvailablePiecesList();
+            int cat = (int)PieceManager.Instance.GetPieceCategory(BlueprintAssets.CategoryClipboard);
+            List<Piece> reorder = Player.m_localPlayer.m_buildPieces.m_availablePieces[cat].OrderByDescending(x => x.name).ToList();
+            Player.m_localPlayer.m_buildPieces.m_availablePieces[cat] = reorder;
+            Player.m_localPlayer.m_buildPieces.m_selectedCategory = (Piece.PieceCategory)cat;
+            Player.m_localPlayer.m_buildPieces.SetSelected(new Vector2Int(0, 0));
+            Player.m_localPlayer.SetupPlacementGhost();
         }
 
         public static void Save()

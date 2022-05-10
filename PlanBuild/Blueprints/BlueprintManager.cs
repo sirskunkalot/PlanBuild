@@ -31,7 +31,7 @@ namespace PlanBuild.Blueprints
         private float OriginalPlaceDistance;
         private GameObject OriginalTooltip;
 
-        internal void Init()
+        public void Init()
         {
             Logger.LogInfo("Initializing BlueprintManager");
 
@@ -61,9 +61,7 @@ namespace PlanBuild.Blueprints
                 PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
 
                 // Hooks
-                On.ZNetScene.Shutdown += (orig, self) => TemporaryBlueprints.Clear();
-                On.ZNetScene.Shutdown += (orig, self) => BlueprintInstances.Clear();
-                On.ZNetScene.Shutdown += (orig, self) => Selection.Instance.Clear();
+                On.ZNetScene.Shutdown += (orig, self) => Reset();
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
                 On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
@@ -99,6 +97,13 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning($"Error caught while initializing: {ex}");
             }
+        }
+
+        public void Reset()
+        {
+            TemporaryBlueprints.Clear();
+            BlueprintInstances.Clear();
+            Selection.Instance.Clear();
         }
         
         /// <summary>
