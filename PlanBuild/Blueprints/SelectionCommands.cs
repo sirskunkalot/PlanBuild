@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
             }
 
             CommandManager.Instance.AddConsoleCommand(new CopySelectionCommand());
+            CommandManager.Instance.AddConsoleCommand(new CopySelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
         }
@@ -35,7 +36,28 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Copy();
+                SelectionTools.Copy(false);
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to copy the current selection with snap points
+        /// </summary>
+        private class CopySelectionWithSnapPointsCommand : ConsoleCommand
+        {
+            public override string Name => "selection.copywithsnappoints";
+
+            public override string Help => "Copy the current selection as a temporary blueprint including the vanilla snap points";
+
+            public override void Run(string[] args)
+            {
+                if (!(Selection.Instance.Active && Selection.Instance.Any()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
+                    return;
+                }
+
+                SelectionTools.Copy(true);
             }
         }
 

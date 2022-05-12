@@ -48,7 +48,7 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0, 0),
                 width: 400,
-                height: 200,
+                height: 250,
                 draggable: false);
             panel.SetActive(false);
 
@@ -66,7 +66,16 @@ namespace PlanBuild.Blueprints.Tools
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             copyButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SelectionTools.Copy));
+            copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Copy));
+            
+            var copySnapButton = GUIManager.Instance.CreateButton(
+                text: "Copy with vanilla SnapPoints",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            copySnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            copySnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CopyWithSnapPoints));
 
             var saveButton = GUIManager.Instance.CreateButton(
                 text: "Save",
@@ -105,6 +114,10 @@ namespace PlanBuild.Blueprints.Tools
             panel.SetActive(true);
             GUIManager.BlockInput(true);
         }
+
+        private void Copy() => SelectionTools.Copy(false);
+        
+        private void CopyWithSnapPoints() => SelectionTools.Copy(true);
 
         private void Delete()
         {

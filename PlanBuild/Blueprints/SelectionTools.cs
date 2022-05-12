@@ -9,13 +9,13 @@ namespace PlanBuild.Blueprints
 {
     internal class SelectionTools
     {
-        public static void Copy()
+        public static void Copy(bool captureVanillaSnapPoints)
         {
             var bp = new Blueprint();
             bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
-            bp.Capture(Selection.Instance);
+            bp.Capture(Selection.Instance, captureVanillaSnapPoints);
             bp.CreatePiece();
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
             Selection.Instance.Clear();

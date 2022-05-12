@@ -91,7 +91,7 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
-
+        
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
@@ -480,9 +480,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>
-        /// <param name="selection">Selection</param>
-        /// <returns></returns>
-        public bool Capture(Selection selection)
+        public bool Capture(Selection selection, bool captureVanillaSnapPoints = false)
         {
             Logger.LogDebug("Collecting piece information");
 
@@ -520,6 +518,16 @@ namespace PlanBuild.Blueprints
                 {
                     Logger.LogWarning($"Ignoring piece {piece}, not able to make blueprint");
                     continue;
+                }
+                if (captureVanillaSnapPoints)
+                {
+                    foreach (var tf in selected.GetComponentsInChildren<Transform>(true))
+                    {
+                        if (tf.name.StartsWith("_snappoint"))
+                        {
+                            snapPoints.Add(tf.position);
+                        }
+                    }
                 }
                 collected.Add(piece);
                 numPieces++;
@@ -600,19 +608,25 @@ namespace PlanBuild.Blueprints
             }
 
             // Create instance snap points
+            var group = snapPoints
+                .GroupBy(x => x)
+                .Where(x => x.Count() == 1)
+                .Select(x => x.Key)
+                .ToList();
+
             if (SnapPoints == null)
             {
-                SnapPoints = new SnapPoint[snapPoints.Count];
+                SnapPoints = new SnapPoint[group.Count];
             }
             else if (SnapPoints.Length > 0)
             {
                 Array.Clear(SnapPoints, 0, SnapPoints.Length - 1);
-                Array.Resize(ref SnapPoints, snapPoints.Count);
+                Array.Resize(ref SnapPoints, group.Count);
             }
 
-            for (int j = 0; j < snapPoints.Count; j++)
+            for (int j = 0; j < group.Count; j++)
             {
-                SnapPoints[j] = new SnapPoint(snapPoints[j] - center);
+                SnapPoints[j] = new SnapPoint(group[j] - center);
             }
 
             return true;
@@ -856,7 +870,6 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Prepare a GameObject for the placement ghost
         /// </summary>
-        /// <param name="child"></param>
         private void PrepareGhostPiece(GameObject child)
         {
             // A Ghost doesn't need fancy scripts
@@ -871,7 +884,7 @@ namespace PlanBuild.Blueprints
                 Object.DestroyImmediate(collider);
             }
 
-            // Remove original snap points
+            // Delete or move original snap points
             foreach (var tf in child.GetComponentsInChildren<Transform>(true))
             {
                 if (tf.name.StartsWith("_snappoint"))
