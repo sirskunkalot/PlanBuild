@@ -1,14 +1,13 @@
 # Version 0.10.0
-* Splitted plan and blueprint functionality into two separate items
-* Added item "Plan Hammer" for planned piece building
-* Removed toggle key for the blueprint rune
-* __If you want to use plans, you must craft the new item from your player crafting screen__
+* Split plan and blueprint functionality into two separate items
+* __If you want to use plans, you must craft the new item "Plan Hammer" from your player crafting screen__
 * Reorganized configuration entries for more clarity
 * __Please revise your configuration once after installing this version__
 * Added saving of local scaling into blueprints. Note that the scale is not saved/synced by the vanilla game for most of the prefabs, so an additional mod for piece scaling should be installed.
 * Added the ability to change blueprint categories via the Marketplace GUI
 * Removed the blueprint "Quick Select" tool, use the add/remove/edit selection tools instead
 * Added ability to "finish" planned pieces without having the needed resources when the "no placement cost" debug option is active
+* Added ability to capture blueprints using the vanilla snap points (can be used in copy+paste)
 
 # Version 0.9.5
 * Fixed placement of non-Piece prefabs
