@@ -46,14 +46,14 @@ namespace PlanBuild
         private const string KeybindSection = "Keybindings";
         public static ConfigEntry<KeyCode> MarketHotkeyConfig;
         public static ButtonConfig MarketHotkeyButton;
-        public static ConfigEntry<KeyCode> CameraModifierConfig;
-        public static ButtonConfig CameraModifierButton;
-        public static ConfigEntry<KeyCode> RadiusModifierConfig;
-        public static ButtonConfig RadiusModifierButton;
+        public static ConfigEntry<KeyCode> ShiftModifierConfig;
+        public static ButtonConfig ShiftModifierButton;
+        public static ConfigEntry<KeyCode> CtrlModifierConfig;
+        public static ButtonConfig CtrlModifierButton;
         public static ConfigEntry<KeyCode> ToggleConfig;
         public static ButtonConfig ToggleButton;
-        public static ConfigEntry<KeyCode> DeleteModifierConfig;
-        public static ButtonConfig DeleteModifierButton;
+        public static ConfigEntry<KeyCode> AltModifierConfig;
+        public static ButtonConfig AltModifierButton;
         
         private const string PlansSection = "Plans";
         public static ConfigEntry<bool> ShowAllPieces;
@@ -121,7 +121,7 @@ namespace PlanBuild
 
             CameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Camera offset increment", 2f,
-                new ConfigDescription("Camera height change when holding the camera modifier key and scrolling while in Blueprint mode.", null,
+                new ConfigDescription("Camera height change when holding the camera modifier key and scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -131,7 +131,7 @@ namespace PlanBuild
 
             PlacementOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Placement offset increment", 0.1f,
-                new ConfigDescription("Placement height change when holding the modifier key and scrolling while in Blueprint mode.", null,
+                new ConfigDescription("Placement height change when holding the modifier key and scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertPlacementOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -141,7 +141,7 @@ namespace PlanBuild
 
             SelectionIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Selection increment", 1f,
-                new ConfigDescription("Selection radius increment when scrolling while in Blueprint mode.", null,
+                new ConfigDescription("Selection radius increment when scrolling.", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             InvertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -185,22 +185,22 @@ namespace PlanBuild
 
             MarketHotkeyConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "Blueprint Marketplace GUI toggle key", KeyCode.End,
-                new ConfigDescription("Hotkey to show blueprint marketplace GUI", null,
+                new ConfigDescription("Hotkey to show the blueprint marketplace GUI", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
-            CameraModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "CameraModifier", KeyCode.LeftShift,
-                new ConfigDescription("Modifier key to modify camera behavior on various tools", null,
+            ShiftModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "ShiftModifier", KeyCode.LeftShift,
+                new ConfigDescription("First modifier key to change behaviours on various tools (defaults to LeftShift)", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
-            RadiusModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "RadiusModifier", KeyCode.LeftControl,
-                new ConfigDescription("Modifier key to use radius based selection on various tools", null,
+            CtrlModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "CtrlModifier", KeyCode.LeftControl,
+                new ConfigDescription("Second modifier key to change behaviours on various tools (defaults to LeftCtrl)", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
-            DeleteModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
-                KeybindSection, "DeleteModifier", KeyCode.LeftAlt,
-                new ConfigDescription("Modifier key for removal operations on various tools", null,
+            AltModifierConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "AltModifier", KeyCode.LeftAlt,
+                new ConfigDescription("Third modifier key to change behaviours on various tools (defaults to LeftAlt)", null,
                     new ConfigurationManagerAttributes { Order = ++order }));
 
             ToggleConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -243,7 +243,7 @@ namespace PlanBuild
                     new ConfigurationManagerAttributes { Order = ++order }));
             TransparencyConfig = PlanBuildPlugin.Instance.Config.Bind(
                 VisualSection, "Transparency", 0.30f,
-                new ConfigDescription("Additional transparency", new AcceptableValueRange<float>(0f, 1f),
+                new ConfigDescription("Additional transparency for finer control.", new AcceptableValueRange<float>(0f, 1f),
                     new ConfigurationManagerAttributes { Order = ++order }));
             GlowColorConfig = PlanBuildPlugin.Instance.Config.Bind(
                 VisualSection, "Plan totem glow color", Color.cyan,
@@ -274,26 +274,26 @@ namespace PlanBuild
 
             // Shared
 
-            CameraModifierButton = new ButtonConfig
+            ShiftModifierButton = new ButtonConfig
             {
-                Name = nameof(CameraModifierButton),
-                Config = CameraModifierConfig
+                Name = nameof(ShiftModifierButton),
+                Config = ShiftModifierConfig
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CameraModifierButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, ShiftModifierButton);
 
-            RadiusModifierButton = new ButtonConfig
+            CtrlModifierButton = new ButtonConfig
             {
-                Name = nameof(RadiusModifierButton),
-                Config = RadiusModifierConfig
+                Name = nameof(CtrlModifierButton),
+                Config = CtrlModifierConfig
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, RadiusModifierButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, CtrlModifierButton);
 
-            DeleteModifierButton = new ButtonConfig
+            AltModifierButton = new ButtonConfig
             {
-                Name = nameof(DeleteModifierButton),
-                Config = DeleteModifierConfig
+                Name = nameof(AltModifierButton),
+                Config = AltModifierConfig
             };
-            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, DeleteModifierButton);
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, AltModifierButton);
 
             ToggleButton = new ButtonConfig
             {

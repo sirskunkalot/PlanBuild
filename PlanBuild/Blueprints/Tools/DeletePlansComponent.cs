@@ -12,7 +12,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
                 EnableSelectionProjector(self);
             }
@@ -24,18 +24,18 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0)
             {
-                if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.ShiftModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+                else if (ZInput.GetButton(Config.CtrlModifierButton.Name))
                 {
                     UpdateSelectionRadius(scrollWheel);
                 }
                 UndoRotation(self, scrollWheel);
             }
 
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
                 BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red, onlyPlanned: true);
             }
@@ -51,7 +51,7 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
                 DeletePlans(self);
                 return;

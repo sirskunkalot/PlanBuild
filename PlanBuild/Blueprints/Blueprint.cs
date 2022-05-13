@@ -718,12 +718,12 @@ namespace PlanBuild.Blueprints
                     },
                     new ButtonConfig
                     {
-                        Name = Config.RadiusModifierButton.Name, Config = Config.RadiusModifierConfig,
+                        Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig,
                         HintToken = Config.DirectBuildDefault ? "$hud_bpplanned" : "$hud_bpdirect"
                     },
                     new ButtonConfig
                     {
-                        Name = Config.CameraModifierButton.Name, Config = Config.CameraModifierConfig,
+                        Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig,
                         HintToken = "$hud_bpcamera"
                     },
                     new ButtonConfig

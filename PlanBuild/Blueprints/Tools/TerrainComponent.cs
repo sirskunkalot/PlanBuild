@@ -18,14 +18,14 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+                bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
+                bool deleteModifier = ZInput.GetButton(Config.AltModifierButton.Name);
                 if (deleteModifier && radiusModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                else if (ZInput.GetButton(Config.ShiftModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -50,7 +50,7 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
-            if (ZInput.GetButton(Config.DeleteModifierButton.Name))
+            if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
                 TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
                     SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);

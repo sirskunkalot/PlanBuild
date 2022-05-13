@@ -11,9 +11,9 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
             
-            bool cameraModifier = ZInput.GetButton(Config.CameraModifierButton.Name);
-            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
-            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+            bool cameraModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
+            bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
 
             if (radiusModifier && !connectedModifier)
             {
@@ -48,8 +48,8 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
-            bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
-            bool connectedModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+            bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
+            bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
 
             if (radiusModifier && connectedModifier)
             {

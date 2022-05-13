@@ -21,8 +21,8 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(Config.RadiusModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(Config.DeleteModifierButton.Name);
+                bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
+                bool deleteModifier = ZInput.GetButton(Config.AltModifierButton.Name);
                 if (radiusModifier && deleteModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
@@ -38,7 +38,7 @@ namespace PlanBuild.Blueprints.Tools
                     PlacementOffset.z += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                else if (ZInput.GetButton(Config.ShiftModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -78,7 +78,7 @@ namespace PlanBuild.Blueprints.Tools
             var rotation = transform.rotation;
 
             bool placeDirect = Config.DirectBuildDefault;
-            placeDirect ^= ZInput.GetButton(Config.RadiusModifierButton.Name);
+            placeDirect ^= ZInput.GetButton(Config.CtrlModifierButton.Name);
             if (placeDirect
                 && !Config.AllowDirectBuildConfig.Value
                 && !SynchronizationManager.Instance.PlayerIsAdmin)

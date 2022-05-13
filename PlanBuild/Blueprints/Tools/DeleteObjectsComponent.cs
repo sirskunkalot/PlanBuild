@@ -19,7 +19,7 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                if (ZInput.GetButton(Config.CameraModifierButton.Name))
+                if (ZInput.GetButton(Config.ShiftModifierButton.Name))
                 {
                     UpdateCameraOffset(scrollWheel);
                 }
@@ -40,7 +40,7 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             int delcnt;
-            if (ZInput.GetButton(Config.RadiusModifierButton.Name))
+            if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
                 // Remove Pieces
                 delcnt = TerrainTools.RemoveObjects(
@@ -48,7 +48,7 @@ namespace PlanBuild.Blueprints.Tools
                     new Type[] { typeof(Piece) },
                     new Type[] { typeof(PlanPiece) });
             }
-            else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
+            else if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
                 // Remove All
                 delcnt = TerrainTools.RemoveObjects(

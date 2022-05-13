@@ -44,9 +44,9 @@ namespace PlanBuild.ModCompat
         {
             if (axis == "Y" && Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
              Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
-             (ZInput.GetButton(Config.CameraModifierButton.Name) ||
-              ZInput.GetButton(Config.DeleteModifierButton.Name) ||
-              ZInput.GetButton(Config.RadiusModifierButton.Name)))
+             (ZInput.GetButton(Config.ShiftModifierButton.Name) ||
+              ZInput.GetButton(Config.AltModifierButton.Name) ||
+              ZInput.GetButton(Config.CtrlModifierButton.Name)))
             {
                 return false;
             }
