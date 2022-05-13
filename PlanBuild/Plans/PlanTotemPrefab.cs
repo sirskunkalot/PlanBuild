@@ -95,11 +95,10 @@ namespace PlanBuild.Plans
             CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, false, new PieceConfig()
             {
                 PieceTable = "Hammer",
-                Requirements = new RequirementConfig[]
+                Requirements = new []
                 {
-                    new RequirementConfig{ Item = "FineWood", Amount = 5 ,Recover = true},
-                    new RequirementConfig{ Item = "GreydwarfEye", Amount = 5, Recover = true},
-                    new RequirementConfig{ Item = "SurtlingCore", Recover = true }
+                    new RequirementConfig{ Item = "Wood", Amount = 1 ,Recover = true},
+                    new RequirementConfig{ Item = "GreydwarfEye", Amount = 1, Recover = true}
                 }
             });
             PieceManager.Instance.AddPiece(planTotemPiece);

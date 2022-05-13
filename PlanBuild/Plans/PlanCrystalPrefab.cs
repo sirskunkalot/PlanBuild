@@ -31,22 +31,17 @@ namespace PlanBuild.Plans
             {
                 Logger.LogDebug("Creating PlanCrystal item");
 
-                PlanCrystalItem = new CustomItem(PrefabName, "Ruby", new ItemConfig()
+                PlanCrystalItem = new CustomItem(PrefabName, "Ruby", new ItemConfig
                 {
                     Name = $"$item_{LocalizationName}",
                     Description = $"$item_{LocalizationName}_description",
-                    Icons = new Sprite[]
+                    Icons = new []
                     {
                         CrystalIcon
                     },
                     CraftingStation = "piece_workbench",
-                    Requirements = new RequirementConfig[]
+                    Requirements = new []
                     {
-                        new RequirementConfig()
-                        {
-                            Item = "Ruby",
-                            Amount = 1
-                        },
                         new RequirementConfig()
                         {
                             Item = "GreydwarfEye",
