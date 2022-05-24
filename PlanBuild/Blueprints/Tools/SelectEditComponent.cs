@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints.Tools
             layout.spacing = 5f;
 
             var copyButton = GUIManager.Instance.CreateButton(
-                text: "Copy",
+                text: "Copy with custom snap points",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
@@ -69,7 +69,7 @@ namespace PlanBuild.Blueprints.Tools
             copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Copy));
             
             var copySnapButton = GUIManager.Instance.CreateButton(
-                text: "Copy with vanilla SnapPoints",
+                text: "Copy with vanilla snap points",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
