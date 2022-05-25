@@ -17,8 +17,8 @@ namespace PlanBuild.Blueprints
 
         public static BlueprintManager Instance => _instance ??= new BlueprintManager();
 
-        public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary LocalBlueprints;
+        public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary ServerBlueprints;
         public static Stack<BlueprintInstance> BlueprintInstances;
         
@@ -38,8 +38,8 @@ namespace PlanBuild.Blueprints
             try
             {
                 // Init lists
-                TemporaryBlueprints = new BlueprintDictionary();
                 LocalBlueprints = new BlueprintDictionary();
+                TemporaryBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
                 BlueprintInstances = new Stack<BlueprintInstance>();
 
@@ -55,13 +55,11 @@ namespace PlanBuild.Blueprints
 
                 // Init GUI
                 BlueprintGUI.Init();
-
-                // Create blueprint prefabs when all pieces were registered
-                // Some may still fail, these will be retried every time the blueprint rune is opened
-                PieceManager.OnPiecesRegistered += RegisterKnownBlueprints;
-
+                
                 // Hooks
                 On.ZNetScene.Shutdown += (orig, self) => Reset();
+                On.Player.OnSpawned += Player_OnSpawned;
+                On.PieceTable.UpdateAvailable += PieceTable_UpdateAvailable;
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
                 On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
                 On.Player.PieceRayTest += Player_PieceRayTest;
@@ -290,17 +288,48 @@ namespace PlanBuild.Blueprints
         /// </summary>
         public void RegisterKnownBlueprints()
         {
-            // Client only
-            if (ZNet.instance != null && !ZNet.instance.IsDedicated())
+            if (Player.m_localPlayer)
             {
                 Logger.LogInfo("Registering known blueprints");
-
-                // Create prefabs for all known blueprints
+                
                 foreach (var bp in LocalBlueprints.Values)
                 {
                     bp.CreatePiece();
                 }
-                Player.m_localPlayer?.UpdateKnownRecipesList();
+                Player.m_localPlayer.UpdateKnownRecipesList();
+            }
+        }
+        
+        /// <summary>
+        ///     Create blueprint pieces on player spawn
+        /// </summary>
+        private void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        {
+            orig(self);
+            if (self == Player.m_localPlayer)
+            {
+                RegisterKnownBlueprints();
+            }
+        }
+        
+        /// <summary>
+        ///     Reorder pieces in local blueprint categories by name
+        /// </summary>
+        private void PieceTable_UpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
+        {
+            orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
+
+            if (self.name.Equals(BlueprintAssets.PieceTableName))
+            {
+                foreach (var cats in LocalBlueprints.Values.GroupBy(x => x.Category))
+                {
+                    Piece.PieceCategory? cat = PieceManager.Instance.GetPieceCategory(cats.Key);
+                    if (cat.HasValue)
+                    {
+                        List<Piece> reorder = self.m_availablePieces[(int)cat].OrderBy(x => x.m_name).ToList();
+                        self.m_availablePieces[(int)cat] = reorder;
+                    }
+                }
             }
         }
 
@@ -377,7 +406,7 @@ namespace PlanBuild.Blueprints
             if (Player.m_localPlayer && result &&
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
-                RegisterKnownBlueprints();
+                //RegisterKnownBlueprints();
 
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;

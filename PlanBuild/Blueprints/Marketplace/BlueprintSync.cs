@@ -67,10 +67,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
 
             // Reload blueprints and GUI, if available
-            if (Player.m_localPlayer)
-            {
-                BlueprintManager.Instance.RegisterKnownBlueprints();
-            }
+            BlueprintManager.Instance.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
         }
 
