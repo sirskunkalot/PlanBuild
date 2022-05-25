@@ -223,8 +223,8 @@ namespace PlanBuild
                 new ConfigDescription("Show particle effects when building pieces with the plan totem", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Order = ++order }));
 
-            ShowAllPieces.SettingChanged += (obj, attr) => PlanManager.Instance.UpdateKnownRecipes();
-            //RadiusConfig.SettingChanged += (_, _) => PlanManager.Instance.UpdateAllPlanTotems();  // that doesnt change the radius...
+            ShowAllPieces.SettingChanged += (obj, attr) => PlanManager.UpdateKnownRecipes();
+            //RadiusConfig.SettingChanged += (_, _) => PlanManager.UpdateAllPlanTotems();  // that doesnt change the radius...
             //PlanBlacklistConfig.SettingChanged += (sender, args) => PlanBlacklist.Reload();
             
             // Visual Section
@@ -305,18 +305,18 @@ namespace PlanBuild
 
         private static void UpdateGhostPlanPieceTextures(object sender, EventArgs e)
         {
-            PlanManager.Instance.UpdateAllPlanPieceTextures();
+            PlanManager.UpdateAllPlanPieceTextures();
         }
 
         private static void UpdateAllPlanPieceTextures(object sender, EventArgs e)
         {
             ShaderHelper.ClearCache();
-            PlanManager.Instance.UpdateAllPlanPieceTextures();
+            PlanManager.UpdateAllPlanPieceTextures();
         }
 
         private static void UpdateAllPlanTotems(object sender, EventArgs e)
         {
-            PlanManager.Instance.UpdateAllPlanTotems();
+            PlanManager.UpdateAllPlanTotems();
         }
     }
 }

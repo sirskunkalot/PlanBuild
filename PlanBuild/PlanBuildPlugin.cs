@@ -52,7 +52,7 @@ namespace PlanBuild
             PlanCrystalPrefab.Create(planbuildBundle);
             PlanHammerPrefab.Create(planbuildBundle);
             planbuildBundle.Unload(false);
-            PlanManager.Instance.Init();
+            PlanManager.Init();
 
             // Init Shader
             ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");

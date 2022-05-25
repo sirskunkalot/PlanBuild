@@ -9,13 +9,9 @@ using Object = UnityEngine.Object;
 
 namespace PlanBuild.Plans
 {
-    internal class PlanManager
+    internal static class PlanManager
     {
-        private static PlanManager _instance;
-
-        public static PlanManager Instance => _instance ??= new PlanManager();
-
-        internal void Init()
+        internal static void Init()
         {
             Logger.LogInfo("Initializing PlanManager");
             
@@ -39,7 +35,7 @@ namespace PlanBuild.Plans
             On.WearNTear.Destroy += WearNTear_Destroy;
         }
         
-        public void UpdateKnownRecipes()
+        public static void UpdateKnownRecipes()
         {
             Player player = Player.m_localPlayer;
             if (player == null)
@@ -70,7 +66,7 @@ namespace PlanBuild.Plans
                 .UpdateAvailable(player.m_knownRecipes, player, true, false);
         }
 
-        public void UpdateAllPlanPieceTextures()
+        public static void UpdateAllPlanPieceTextures()
         {
             Player self = Player.m_localPlayer;
             if (self && self.m_placementGhost &&
@@ -92,7 +88,7 @@ namespace PlanBuild.Plans
             }
         }
 
-        public void UpdateAllPlanTotems()
+        public static void UpdateAllPlanTotems()
         {
             PlanTotemPrefab.UpdateGlowColor(PlanTotemPrefab.PlanTotemKitbash?.Prefab);
             foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
@@ -101,7 +97,7 @@ namespace PlanBuild.Plans
             }
         }
 
-        private void Player_AddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
+        private static void Player_AddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
         {
             if (piece.name.EndsWith(PlanPiecePrefab.PlannedSuffix))
             {
@@ -122,7 +118,7 @@ namespace PlanBuild.Plans
         /// <param name="player"></param>
         /// <param name="originalPiece"></param>
         /// <returns></returns>
-        private bool PlayerKnowsPiece(Player player, Piece originalPiece)
+        private static bool PlayerKnowsPiece(Player player, Piece originalPiece)
         {
             if (!PlanDB.Instance.FindOriginalByPieceName(originalPiece.m_name, out List<Piece> originalPieces))
             {
@@ -138,7 +134,7 @@ namespace PlanBuild.Plans
             return false;
         }
 
-        private bool Player_HaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
+        private static bool Player_HaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
         {
             try
             {
@@ -162,7 +158,7 @@ namespace PlanBuild.Plans
             return orig(self, piece, mode);
         }
 
-        private void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        private static void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
             try
             {
@@ -193,7 +189,7 @@ namespace PlanBuild.Plans
             }
         }
         
-        private bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
+        private static bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
         {
             var planHammer = self.m_visEquipment.m_rightItem.Equals(PlanHammerPrefab.PlanHammerName);
             var planPiece = piece.TryGetComponent<PlanPiece>(out _);
@@ -211,7 +207,7 @@ namespace PlanBuild.Plans
             return orig(self, piece);
         }
 
-        private void WearNTear_Highlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        private static void WearNTear_Highlight(On.WearNTear.orig_Highlight orig, WearNTear self)
         {
             if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
             {
@@ -221,7 +217,7 @@ namespace PlanBuild.Plans
             orig(self);
         }
         
-        private void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
+        private static void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
         {
             // Check if actually destoyed, not removed by middle clicking with Hammer
             if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
