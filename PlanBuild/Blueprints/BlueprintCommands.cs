@@ -237,7 +237,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
 
             public override void Run(string[] args)
             {
-                var success = BlueprintManager.Instance.SelectLastBlueprint();
+                var success = BlueprintManager.SelectLastBlueprint();
                 Console.instance.Print(success
                     ? $"Selected {Selection.Instance.BlueprintInstance.ID}"
                     : "No blueprint to select");
@@ -255,7 +255,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
 
             public override void Run(string[] args)
             {
-                var success = BlueprintManager.Instance.UndoLastBlueprint();
+                var success = BlueprintManager.UndoLastBlueprint();
                 Console.instance.Print(success
                     ? "Blueprint removed"
                     : "No blueprint to remove");

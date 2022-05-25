@@ -37,15 +37,15 @@ namespace PlanBuild.Blueprints.Tools
 
             if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
-                BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red, onlyPlanned: true);
+                BlueprintManager.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red, onlyPlanned: true);
             }
             // else if (ZInput.GetButton(Config.DeleteModifierButton.Name))
             // {
-            //     BlueprintManager.Instance.HighlightHoveredBlueprint(Color.red, true);
+            //     BlueprintManager.HighlightHoveredBlueprint(Color.red, true);
             // }
             else
             {
-                BlueprintManager.Instance.HighlightHoveredPiece(Color.red, true);
+                BlueprintManager.HighlightHoveredPiece(Color.red, true);
             }
         }
 
@@ -68,9 +68,9 @@ namespace PlanBuild.Blueprints.Tools
 
         private void UndoPiece()
         {
-            if (BlueprintManager.Instance.LastHoveredPiece)
+            if (BlueprintManager.LastHoveredPiece)
             {
-                if (BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                if (BlueprintManager.LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                 {
                     planPiece.m_wearNTear.Remove();
                 }
@@ -79,17 +79,17 @@ namespace PlanBuild.Blueprints.Tools
 
         /*private void UndoBlueprint()
         {
-            if (!BlueprintManager.Instance.LastHoveredPiece)
+            if (!BlueprintManager.LastHoveredPiece)
             {
                 return;
             }
 
-            if (!BlueprintManager.Instance.LastHoveredPiece.TryGetComponent(out PlanPiece _))
+            if (!BlueprintManager.LastHoveredPiece.TryGetComponent(out PlanPiece _))
             {
                 return;
             }
 
-            if (!BlueprintInstance.TryGetInstance(BlueprintManager.Instance.LastHoveredPiece,
+            if (!BlueprintInstance.TryGetInstance(BlueprintManager.LastHoveredPiece,
                     out var instance))
             {
                 return;
@@ -114,7 +114,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             Vector3 deletePosition = self.m_placementMarkerInstance.transform.position;
             int removedPieces = 0;
-            foreach (Piece pieceToRemove in BlueprintManager.Instance.GetPiecesInRadius(deletePosition, SelectionRadius, true))
+            foreach (Piece pieceToRemove in BlueprintManager.GetPiecesInRadius(deletePosition, SelectionRadius, true))
             {
                 pieceToRemove.GetComponent<PlanPiece>().m_wearNTear.Remove();
                 removedPieces++;

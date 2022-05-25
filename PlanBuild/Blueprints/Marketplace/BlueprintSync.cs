@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace PlanBuild.Blueprints.Marketplace
 {
-    internal class BlueprintSync
+    internal static class BlueprintSync
     {
         private static Action<bool, string> OnAnswerReceived;
 
@@ -67,7 +67,7 @@ namespace PlanBuild.Blueprints.Marketplace
             }
 
             // Reload blueprints and GUI, if available
-            BlueprintManager.Instance.RegisterKnownBlueprints();
+            BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
         }
 
@@ -230,7 +230,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
             blueprint.DestroyBlueprint();
             blueprint.ToFile();
-            BlueprintManager.Instance.RegisterKnownBlueprints();
+            BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
@@ -266,7 +266,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
             bp.ToFile();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
-            BlueprintManager.Instance.RegisterKnownBlueprints();
+            BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;
@@ -524,7 +524,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
             bp.DestroyBlueprint();
             BlueprintManager.LocalBlueprints.Remove(id);
-            BlueprintManager.Instance.RegisterKnownBlueprints();
+            BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;

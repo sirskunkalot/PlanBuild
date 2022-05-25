@@ -18,7 +18,7 @@ namespace PlanBuild.Blueprints.Tools
             if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
-                //BlueprintManager.Instance.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
+                //BlueprintManager.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }
             else
             {
@@ -59,16 +59,16 @@ namespace PlanBuild.Blueprints.Tools
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
-            else if (BlueprintManager.Instance.LastHoveredPiece &&
-                     BlueprintManager.Instance.CanCapture(BlueprintManager.Instance.LastHoveredPiece))
+            else if (BlueprintManager.LastHoveredPiece &&
+                     BlueprintManager.CanCapture(BlueprintManager.LastHoveredPiece))
             {
                 if (connectedModifier)
                 {
-                    Selection.Instance.AddGrowFromPiece(BlueprintManager.Instance.LastHoveredPiece);
+                    Selection.Instance.AddGrowFromPiece(BlueprintManager.LastHoveredPiece);
                 }
                 else
                 {
-                    Selection.Instance.AddPiece(BlueprintManager.Instance.LastHoveredPiece);
+                    Selection.Instance.AddPiece(BlueprintManager.LastHoveredPiece);
                 }
             }
             UpdateDescription();

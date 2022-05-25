@@ -11,12 +11,8 @@ using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
 {
-    internal class BlueprintManager
+    internal static class BlueprintManager
     {
-        private static BlueprintManager _instance;
-
-        public static BlueprintManager Instance => _instance ??= new BlueprintManager();
-
         public static BlueprintDictionary LocalBlueprints;
         public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary ServerBlueprints;
@@ -25,13 +21,13 @@ namespace PlanBuild.Blueprints
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
 
-        public Piece LastHoveredPiece;
+        public static Piece LastHoveredPiece;
 
-        private float LastHightlightTime;
-        private float OriginalPlaceDistance;
-        private GameObject OriginalTooltip;
+        private static float LastHightlightTime;
+        private static float OriginalPlaceDistance;
+        private static GameObject OriginalTooltip;
 
-        public void Init()
+        public static void Init()
         {
             Logger.LogInfo("Initializing BlueprintManager");
 
@@ -96,7 +92,7 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public void Reset()
+        public static void Reset()
         {
             TemporaryBlueprints.Clear();
             BlueprintInstances.Clear();
@@ -109,7 +105,7 @@ namespace PlanBuild.Blueprints
         /// <param name="piece">Piece instance to be tested</param>
         /// <param name="onlyPlanned">When true, only pieces with the PlanPiece component return true</param>
         /// <returns></returns>
-        public bool CanCapture(Piece piece, bool onlyPlanned = false)
+        public static bool CanCapture(Piece piece, bool onlyPlanned = false)
         {
             if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName) || piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
             {
@@ -136,7 +132,7 @@ namespace PlanBuild.Blueprints
         /// <param name="radius"></param>
         /// <param name="onlyPlanned"></param>
         /// <returns></returns>
-        public List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
+        public static List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
             List<Piece> result = new List<Piece>();
             foreach (var piece in Piece.m_allPieces)
@@ -154,7 +150,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" pieces in a given radius with a given color.
         /// </summary>
-        public void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
+        public static void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
@@ -174,7 +170,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     "Highlights" the last hovered piece with a given color.
         /// </summary>
-        public void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
+        public static void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
         {
             if (Time.time < LastHightlightTime + HighlightTimeout)
             {
@@ -198,7 +194,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
         /// </summary>
-        public GameObject GetGameObject(ZDOID zdoid, bool required = false)
+        public static GameObject GetGameObject(ZDOID zdoid, bool required = false)
         {
             GameObject go = ZNetScene.instance.FindInstance(zdoid);
             if (go)
@@ -208,7 +204,7 @@ namespace PlanBuild.Blueprints
             return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
         }
         
-        public bool SelectLastBlueprint()
+        public static bool SelectLastBlueprint()
         {
             if (BlueprintInstances.Count == 0)
             {
@@ -222,7 +218,7 @@ namespace PlanBuild.Blueprints
             return true;
         }
 
-        public bool UndoLastBlueprint()
+        public static bool UndoLastBlueprint()
         {
             if (BlueprintInstances.Count == 0)
             {
@@ -246,7 +242,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create pieces for all known local Blueprints
         /// </summary>
-        public void RegisterKnownBlueprints()
+        public static void RegisterKnownBlueprints()
         {
             if (Player.m_localPlayer)
             {
@@ -264,7 +260,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create blueprint pieces on player spawn
         /// </summary>
-        private void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        private static void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self)
         {
             orig(self);
             if (self == Player.m_localPlayer)
@@ -276,7 +272,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Reorder pieces in local blueprint categories by name
         /// </summary>
-        private void PieceTable_UpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
+        private static void PieceTable_UpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
         {
             orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
 
@@ -297,7 +293,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Lazy ghost instantiation
         /// </summary>
-        private void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        private static void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
         {
             if (self.m_buildPieces == null)
             {
@@ -324,7 +320,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Timed ghost destruction
         /// </summary>
-        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        private static void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
         {
             if (self.m_buildPieces == null)
             {
@@ -351,7 +347,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Save the reference to the last hovered piece
         /// </summary>
-        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        private static bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
             LastHoveredPiece = piece;
@@ -361,7 +357,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     BlueprintRune equip
         /// </summary>
-        private bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        private static bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             bool result = orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer && result &&
@@ -384,7 +380,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     BlueprintRune uneqip
         /// </summary>
-        private void Humanoid_UnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        private static void Humanoid_UnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer &&
@@ -400,20 +396,20 @@ namespace PlanBuild.Blueprints
             }
         }
         
-        private void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
+        private static void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
         {
             orig(self);
             Selection.Instance.OnPieceAwake(self);
         }
 
-        private void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
+        private static void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
         {
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
         
         // Get all prefabs for this GUI session
-        private void GUIManager_OnCustomGUIAvailable()
+        private static void GUIManager_OnCustomGUIAvailable()
         {
             OriginalTooltip = PrefabManager.Instance.GetPrefab("Tooltip");
         }
@@ -421,7 +417,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Display the blueprint tooltip panel when a blueprint building item is hovered
         /// </summary>
-        private void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
+        private static void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
         {
             if (BlueprintAssets.BlueprintTooltip && Hud.IsPieceSelectionVisible())
             {

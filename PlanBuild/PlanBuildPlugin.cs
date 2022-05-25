@@ -44,7 +44,7 @@ namespace PlanBuild
             AssetBundle blueprintsBundle = AssetUtils.LoadAssetBundleFromResources("blueprints", assembly);
             BlueprintAssets.Load(blueprintsBundle);
             blueprintsBundle.Unload(false);
-            BlueprintManager.Instance.Init();
+            BlueprintManager.Init();
 
             // Init Plans
             AssetBundle planbuildBundle = AssetUtils.LoadAssetBundleFromResources("planbuild", assembly);

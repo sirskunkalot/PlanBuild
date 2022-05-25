@@ -491,7 +491,7 @@ namespace PlanBuild.Blueprints
 
             foreach (var zdoid in selection)
             {
-                GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid, true);
+                GameObject selected = BlueprintManager.GetGameObject(zdoid, true);
                 if (selected.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints.Add(selected.transform.position);
@@ -514,7 +514,7 @@ namespace PlanBuild.Blueprints
                     continue;
                 }
                 Piece piece = selected.GetComponent<Piece>();
-                if (!BlueprintManager.Instance.CanCapture(piece))
+                if (!BlueprintManager.CanCapture(piece))
                 {
                     Logger.LogWarning($"Ignoring piece {piece}, not able to make blueprint");
                     continue;

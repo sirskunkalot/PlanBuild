@@ -80,7 +80,7 @@ namespace PlanBuild.Blueprints
             {
                 Vector3 piecePos = piece.transform.position;
                 if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
-                    && BlueprintManager.Instance.CanCapture(piece, onlyPlanned))
+                    && BlueprintManager.CanCapture(piece, onlyPlanned))
                 {
                     AddPiece(piece);
                 }
@@ -123,7 +123,7 @@ namespace PlanBuild.Blueprints
             {
                 Vector3 piecePos = piece.transform.position;
                 if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
-                    && BlueprintManager.Instance.CanCapture(piece, onlyPlanned))
+                    && BlueprintManager.CanCapture(piece, onlyPlanned))
                 {
                     RemovePiece(piece);
                 }
@@ -134,7 +134,7 @@ namespace PlanBuild.Blueprints
         {
             foreach (ZDOID zdoid in this)
             {
-                GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
+                GameObject selected = BlueprintManager.GetGameObject(zdoid);
                 Unhighlight(zdoid, selected);
             }
             BlueprintInstance = null;
@@ -262,7 +262,7 @@ namespace PlanBuild.Blueprints
                         //Piece was unselected while still highlighting
                         continue;
                     }
-                    GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
+                    GameObject selected = BlueprintManager.GetGameObject(zdoid);
                     Highlight(zdoid, selected);
                     if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
                     {
@@ -295,7 +295,7 @@ namespace PlanBuild.Blueprints
                 int n = 0;
                 foreach (ZDOID zdoid in new List<ZDOID>(HighlightedZDOIDs))
                 {
-                    GameObject selected = BlueprintManager.Instance.GetGameObject(zdoid);
+                    GameObject selected = BlueprintManager.GetGameObject(zdoid);
                     Unhighlight(zdoid, selected);
                     if (n++ >= MAX_HIGHLIGHT_PER_FRAME)
                     {
