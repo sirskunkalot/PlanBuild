@@ -524,6 +524,7 @@ namespace PlanBuild.Blueprints.Marketplace
 
             bp.DestroyBlueprint();
             BlueprintManager.LocalBlueprints.Remove(id);
+            BlueprintManager.Instance.RegisterKnownBlueprints();
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
 
             return true;

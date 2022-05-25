@@ -972,12 +972,7 @@ namespace PlanBuild.Blueprints
 
                 Prefab = null;
             }
-
-            if (Player.m_localPlayer)
-            {
-                Player.m_localPlayer.UpdateAvailablePiecesList();
-            }
-
+            
             // Remove KeyHint
             if (KeyHint != null)
             {

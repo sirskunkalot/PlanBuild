@@ -116,7 +116,7 @@ namespace PlanBuild.Blueprints
                 BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
                 Selection.Instance.Clear();
                 newbp.CreateThumbnail();
-                Player.m_localPlayer?.UpdateKnownRecipesList();
+                BlueprintManager.Instance.RegisterKnownBlueprints();
                 BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
             }
         }
