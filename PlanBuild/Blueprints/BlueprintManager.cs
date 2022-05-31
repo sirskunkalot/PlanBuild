@@ -239,6 +239,24 @@ namespace PlanBuild.Blueprints
             return true;
         }
 
+        public static bool ClearClipboard()
+        {
+            if (TemporaryBlueprints.Count == 0)
+            {
+                return false;
+            }
+
+            foreach (var tmp in TemporaryBlueprints)
+            {
+                tmp.Value.DestroyBlueprint();
+            }
+            TemporaryBlueprints.Clear();
+            Player.m_localPlayer.UpdateKnownRecipesList();
+            Player.m_localPlayer.UpdateAvailablePiecesList();
+
+            return true;
+        }
+
         /// <summary>
         ///     Create pieces for all known local Blueprints
         /// </summary>

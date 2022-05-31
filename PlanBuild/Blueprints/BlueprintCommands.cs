@@ -25,6 +25,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
             CommandManager.Instance.AddConsoleCommand(new UndoBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new SelectBlueprintCommand());
+            CommandManager.Instance.AddConsoleCommand(new ClearClipboardCommand());
         }
 
         /// <summary>
@@ -259,6 +260,24 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                 Console.instance.Print(success
                     ? "Blueprint removed"
                     : "No blueprint to remove");
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to clear clipboard blueprints
+        /// </summary>
+        private class ClearClipboardCommand : ConsoleCommand
+        {
+            public override string Name => "bp.clearclipboard";
+
+            public override string Help => "Clear the clipboard category of all saved blueprints";
+
+            public override void Run(string[] args)
+            {
+                var success = BlueprintManager.ClearClipboard();
+                Console.instance.Print(success
+                    ? "Clipboard cleared"
+                    : "Clipboard is empty");
             }
         }
     }
