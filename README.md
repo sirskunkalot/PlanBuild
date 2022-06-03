@@ -55,23 +55,23 @@ Copy existing structures into __Blueprints__ and rebuild them as planned or regu
 The Blueprint Rune comes with a handful of tools handle blueprint creation and terraforming. 
 
 * __Add to selection__: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
-  * Press __Alt__ to add all connected pieces. This uses a flood fill to find connected pieces.
-  * Press __Ctrl__ to add pieces in a radius
-  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
-  * Press __Alt__ and __Ctrl__ and click to clear selection
   * Press __Q__ to quickly switch to the "Remove from selection" tool
+  * Hold __Alt__ and click to add all connected pieces. This uses a flood fill to find connected pieces.
+  * Hold __Ctrl__ and click to add pieces in a radius
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
+  * Hold __Shift__ and click once to define a "starting piece" and click again on another piece to select every piece in between those two.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Remove from selection__: Remove pieces from the current selection. Currently selected pieces will be highlighted in green.  Per default only the hovered piece will be removed from the selection. You can use various modifiers to change that behaviour.
-  * Press __Alt__ to remove all connected pieces. This uses a flood fill to find connected pieces.
-  * Press __Ctrl__ to remove pieces in a radius
-  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
-  * Press __Alt__ and __Ctrl__ and click to clear selection
   * Press __Q__ to quickly switch to the "Add to selection" tool
+  * Hold __Alt__ and click to remove all connected pieces. This uses a flood fill to find connected pieces.
+  * Hold __Ctrl__ and click to remove pieces in a radius
+  * Use the __Scroll Wheel__ while holding __Ctrl__ to change the selection radius
+  * Hold __Shift__  and click to clear the current selection
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Edit selection__: Left click to open a menu. From here you can choose what to do with your current selection:
-  * __Copy__: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
+  * __Copy with custom SnapPoints__: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
   * __Copy with vanilla SnapPoints__: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
   * __Save__: Save the current selection as a new blueprint into the file system. These blueprints are kapt between game sessions and can also be used in the marketplace and shared with other players.
   * __Delete__: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
