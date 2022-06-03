@@ -70,6 +70,7 @@
   "hud_blueprint_select_add_switch": "Switch to remove tool",
   "hud_blueprint_select_add_radius": "Add in radius, Scroll: Change radius",
   "hud_blueprint_select_add_connected": "Add connected",
+  "hud_blueprint_select_add_between": "Hold to select all in between",
   "hud_blueprint_select_remove": "Remove hovered",
   "hud_blueprint_select_remove_switch": "Switch to add tool",
   "hud_blueprint_select_remove_radius": "Remove in radius, Scroll: Change radius",

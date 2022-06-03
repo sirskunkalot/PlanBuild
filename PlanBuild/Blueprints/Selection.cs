@@ -12,13 +12,13 @@ namespace PlanBuild.Blueprints
         public const int MAX_HIGHLIGHT_PER_FRAME = 50;
         public const int MAX_GROW_PER_FRAME = 50;
         public static int GrowMask;
-        
+
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
-        
+
         public bool Active;
         public BlueprintInstance BlueprintInstance;
-        
+
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
@@ -29,7 +29,7 @@ namespace PlanBuild.Blueprints
         {
             GrowMask = LayerMask.GetMask("Default", "piece", "piece_nonsolid");
         }
-        
+
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
@@ -42,7 +42,7 @@ namespace PlanBuild.Blueprints
                 yield return zdoid;
             }
         }
-        
+
         public bool AddPiece(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
@@ -86,12 +86,26 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-        
+
+        public void AddPiecesBetween(Piece startPiece, Piece endPiece)
+        {
+            var bounds = new Bounds();
+            bounds.SetMinMax(
+                Vector3.Min(startPiece.GetCenter(), endPiece.GetCenter()),
+                Vector3.Max(startPiece.GetCenter(), endPiece.GetCenter()));
+
+            foreach (var piece in Piece.m_allPieces
+                         .Where(x => x.GetComponentInChildren<Collider>() is Collider col && bounds.Intersects(col.bounds)))
+            {
+                AddPiece(piece);
+            }
+        }
+
         public bool Contains(Piece piece)
         {
             return Contains(piece?.GetZDOID());
         }
-        
+
         public bool Contains(ZDOID? zdoid)
         {
             return zdoid.HasValue && SelectedZDOIDs.Contains(zdoid.Value);
@@ -115,7 +129,7 @@ namespace PlanBuild.Blueprints
             }
             return false;
         }
-        
+
         public void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
@@ -140,7 +154,7 @@ namespace PlanBuild.Blueprints
             BlueprintInstance = null;
             SelectedZDOIDs.Clear();
         }
-        
+
         public void AddGrowFromPiece(Piece piece)
         {
             IEnumerator Start(Piece originalPiece)
@@ -234,7 +248,7 @@ namespace PlanBuild.Blueprints
             }
             return result;
         }
-        
+
         public void StartHighlightSelection()
         {
             IEnumerator Start()
@@ -349,12 +363,12 @@ namespace PlanBuild.Blueprints
                 HighlightedZDOIDs.Remove(zdoid);
             }
         }
-        
+
         public bool IsHighlighted(Piece piece)
         {
             return IsHighlighted(piece?.GetZDOID());
         }
-        
+
         public bool IsHighlighted(ZDOID? zdoid)
         {
             return Active && zdoid.HasValue && HighlightedZDOIDs.Contains(zdoid.Value);

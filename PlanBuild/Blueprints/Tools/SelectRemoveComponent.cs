@@ -48,10 +48,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            bool cameraModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
             bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
 
-            if (radiusModifier && connectedModifier)
+            if (cameraModifier)
             {
                 Selection.Instance.Clear();
             }

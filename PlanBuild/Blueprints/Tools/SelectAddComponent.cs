@@ -4,6 +4,8 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class SelectAddComponent : SelectionToolComponentBase
     {
+        private Piece StartPiece;
+
         public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
@@ -18,7 +20,6 @@ namespace PlanBuild.Blueprints.Tools
             if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
-                //BlueprintManager.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.green);
             }
             else
             {
@@ -48,21 +49,31 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            bool cameraModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
             bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
 
-            if (radiusModifier && connectedModifier)
-            {
-                Selection.Instance.Clear();
-            }
-            else if (radiusModifier)
+            if (radiusModifier)
             {
                 Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.LastHoveredPiece &&
                      BlueprintManager.CanCapture(BlueprintManager.LastHoveredPiece))
             {
-                if (connectedModifier)
+                if (cameraModifier)
+                {
+                    if (StartPiece == null)
+                    {
+                        Selection.Instance.AddPiece(BlueprintManager.LastHoveredPiece);
+                        StartPiece = BlueprintManager.LastHoveredPiece;
+                    }
+                    else
+                    {
+                        Selection.Instance.AddPiecesBetween(StartPiece, BlueprintManager.LastHoveredPiece);
+                        StartPiece = null;
+                    }
+                }
+                else if (connectedModifier)
                 {
                     Selection.Instance.AddGrowFromPiece(BlueprintManager.LastHoveredPiece);
                 }

@@ -189,7 +189,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_blueprint_select_add_switch" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_blueprint_select_add_connected" },
                     new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_blueprint_select_add_radius" },
-                    new ButtonConfig { Name = $"{Config.AltModifierButton.Key} + {Config.CtrlModifierButton.Key}", HintToken = "$hud_blueprint_select_clear" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_blueprint_select_add_between" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" }
                 }
             });
@@ -206,7 +206,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_blueprint_select_remove_switch" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_blueprint_select_remove_connected" },
                     new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_blueprint_select_remove_radius" },
-                    new ButtonConfig { Name = $"{Config.AltModifierButton.Key} + {Config.CtrlModifierButton.Key}", HintToken = "$hud_blueprint_select_clear" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_blueprint_select_clear" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" }
                 }
             });
