@@ -214,6 +214,7 @@ PlanBuild adds some new console commands to the game:
 * __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
 * __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints
 * __bp.undo__ - Undo your last built blueprint
+* __selection.clear__ - Clears the current selection
 * __selection.copy__ - Copy the current selection as a temporary blueprint
 * __selection.copywithsnappoints__ - Copy the current selection as a temporary blueprint including the vanilla snap points
 * __selection.save__ - Save the current selection as a blueprint

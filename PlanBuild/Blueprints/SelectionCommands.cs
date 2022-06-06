@@ -17,6 +17,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new CopySelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
+            CommandManager.Instance.AddConsoleCommand(new ClearSelectionCommand());
         }
 
         /// <summary>
@@ -30,7 +31,13 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Selection.Instance.Active && Selection.Instance.Any()))
+                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                    return;
+                }
+
+                if (!Selection.Instance.Any())
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -51,7 +58,13 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Selection.Instance.Active && Selection.Instance.Any()))
+                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                    return;
+                }
+
+                if (!Selection.Instance.Any())
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -72,7 +85,13 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Selection.Instance.Active && Selection.Instance.Any()))
+                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                    return;
+                }
+
+                if (!Selection.Instance.Any())
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -93,7 +112,13 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Selection.Instance.Active && Selection.Instance.Any()))
+                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                    return;
+                }
+
+                if (!Selection.Instance.Any())
                 {
                     Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
@@ -108,6 +133,32 @@ namespace PlanBuild.Blueprints
                 SelectionTools.Delete();
             }
         }
+        
+        /// <summary>
+        ///     Console command to clear the current selection
+        /// </summary>
+        private class ClearSelectionCommand : ConsoleCommand
+        {
+            public override string Name => "selection.clear";
 
+            public override string Help => "Clear the current selection";
+
+            public override void Run(string[] args)
+            {
+                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                    return;
+                }
+
+                if (!Selection.Instance.Any())
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
+                    return;
+                }
+                
+                Selection.Instance.Clear();
+            }
+        }
     }
 }

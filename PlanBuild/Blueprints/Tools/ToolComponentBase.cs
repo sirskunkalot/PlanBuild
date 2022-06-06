@@ -49,9 +49,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             if (!ZNetScene.instance)
             {
-#if DEBUG
                 Jotunn.Logger.LogDebug("Skipping destroy because the game is exiting");
-#endif
                 return;
             }
 
