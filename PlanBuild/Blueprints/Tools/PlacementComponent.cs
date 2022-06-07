@@ -153,20 +153,11 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 else
                 {
-                    if (!placeDirect)
-                    {
-                        zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
-                    }
                     blueprintInstance.AddZDOID(zNetView.m_zdo.m_uid);
                     zNetView.SetLocalScale(entry.GetScale());
                 }
 
                 // Register special effects
-                CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
-                if (craftingStation)
-                {
-                    player.AddKnownStation(craftingStation);
-                }
                 Piece newpiece = gameObject.GetComponent<Piece>();
                 if (newpiece)
                 {
@@ -184,6 +175,11 @@ namespace PlanBuild.Blueprints.Tools
                         Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
                     }
                 }
+                CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
+                if (craftingStation)
+                {
+                    player.AddKnownStation(craftingStation);
+                }
                 PrivateArea privateArea = gameObject.GetComponent<PrivateArea>();
                 if (privateArea)
                 {
@@ -197,7 +193,44 @@ namespace PlanBuild.Blueprints.Tools
                 TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
                 if (textReceiver != null)
                 {
+                    if (!placeDirect && zNetView)
+                    {
+                        zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
+                    }
                     textReceiver.SetText(entry.additionalInfo);
+                }
+                ItemStand itemStand = gameObject.GetComponent<ItemStand>();
+                if (itemStand != null)
+                {
+                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    {
+                        var fields = entry.additionalInfo.Split(':');
+                        var item = fields[0];
+                        var variant = int.Parse(fields[1]);
+                        zNetView.m_zdo.Set("item", item);
+                        zNetView.m_zdo.Set("variant", variant);
+                        itemStand.SetVisualItem(item, variant);
+                    }
+                }
+                ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
+                if (armorStand != null)
+                {
+                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    {
+                        var fields = entry.additionalInfo.Split(':');
+                        var pose = int.Parse(fields[0]);
+                        zNetView.m_zdo.Set("pose", pose);
+                        armorStand.SetPose(pose, false);
+                        var cnt = int.Parse(fields[1]);
+                        for (int j = 0; j < cnt; j++)
+                        {
+                            var item = fields[j*2+2];
+                            var variant = int.Parse(fields[j*2+3]);
+                            zNetView.m_zdo.Set($"{j}_item", item);
+                            zNetView.m_zdo.Set($"{j}_variant", variant);
+                            armorStand.SetVisualItem(j, item, variant);
+                        }
+                    }
                 }
             }
 

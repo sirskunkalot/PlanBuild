@@ -590,7 +590,28 @@ namespace PlanBuild.Blueprints
                 var quat = piece.m_nview.GetZDO().m_rotation;
                 quat.eulerAngles = piece.transform.eulerAngles;
 
-                var additionalInfo = piece.GetComponent<TextReceiver>() != null ? piece.GetComponent<TextReceiver>().GetText() : "";
+                var additionalInfo = string.Empty;
+                TextReceiver textReceiver = piece.GetComponent<TextReceiver>();
+                if (textReceiver != null)
+                {
+                    additionalInfo = textReceiver.GetText();
+                }
+                ItemStand itemStand = piece.GetComponent<ItemStand>();
+                if (itemStand != null && itemStand.HaveAttachment() && itemStand.m_nview)
+                {
+                    additionalInfo =
+                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}";
+                }
+                ArmorStand armorStand = piece.GetComponent<ArmorStand>();
+                if (armorStand != null && armorStand.m_nview)
+                {
+                    additionalInfo = $"{armorStand.m_pose}:";
+                    additionalInfo += $"{armorStand.m_slots.Count}:";
+                    foreach (var slot in armorStand.m_slots)
+                    {
+                        additionalInfo += $"{slot.m_visualName}:{slot.m_visualVariant}:";
+                    }
+                }
 
                 var scale = piece.transform.localScale;
 
