@@ -141,6 +141,7 @@
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
+    <Compile Include="Blueprints\SelectionGUI.cs" />
     <Compile Include="Blueprints\SelectionTools.cs" />
     <Compile Include="Blueprints\Tools\SelectEditComponent.cs" />
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />

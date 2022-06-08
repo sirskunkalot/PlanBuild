@@ -13,11 +13,74 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
+            CommandManager.Instance.AddConsoleCommand(new SelectionGUICommand());
+            CommandManager.Instance.AddConsoleCommand(new ClearSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CopySelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CopySelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
-            CommandManager.Instance.AddConsoleCommand(new ClearSelectionCommand());
+        }
+
+        public static bool CheckSelection()
+        {
+            if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+            {
+                Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
+                return false;
+            }
+
+            if (!Selection.Instance.Any())
+            {
+                Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
+                return false;
+            }
+
+            return true;
+        }
+        
+        /// <summary>
+        ///     Console command to show the Selection GUI
+        /// </summary>
+        private class SelectionGUICommand : ConsoleCommand
+        {
+            public override string Name => "selection.gui";
+
+            public override string Help => "Show the selection GUI";
+
+            public override void Run(string[] args)
+            {
+                if (!CheckSelection())
+                {
+                    return;
+                }
+
+                if (Console.IsVisible())
+                {
+                    Console.instance.m_chatWindow.gameObject.SetActive(false);
+                }
+
+                SelectionGUI.ShowGUI();
+            }
+        }
+
+        /// <summary>
+        ///     Console command to clear the current selection
+        /// </summary>
+        private class ClearSelectionCommand : ConsoleCommand
+        {
+            public override string Name => "selection.clear";
+
+            public override string Help => "Clear the current selection";
+
+            public override void Run(string[] args)
+            {
+                if (!CheckSelection())
+                {
+                    return;
+                }
+
+                Selection.Instance.Clear();
+            }
         }
 
         /// <summary>
@@ -31,22 +94,15 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                if (!CheckSelection())
                 {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
-                    return;
-                }
-
-                if (!Selection.Instance.Any())
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
                 }
 
                 SelectionTools.Copy(false);
             }
         }
-        
+
         /// <summary>
         ///     Console command to copy the current selection with snap points
         /// </summary>
@@ -58,15 +114,8 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                if (!CheckSelection())
                 {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
-                    return;
-                }
-
-                if (!Selection.Instance.Any())
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
                 }
 
@@ -85,15 +134,8 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                if (!CheckSelection())
                 {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
-                    return;
-                }
-
-                if (!Selection.Instance.Any())
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
                 }
 
@@ -112,15 +154,8 @@ namespace PlanBuild.Blueprints
 
             public override void Run(string[] args)
             {
-                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
+                if (!CheckSelection())
                 {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
-                    return;
-                }
-
-                if (!Selection.Instance.Any())
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
                     return;
                 }
 
@@ -131,33 +166,6 @@ namespace PlanBuild.Blueprints
                 }
 
                 SelectionTools.Delete();
-            }
-        }
-        
-        /// <summary>
-        ///     Console command to clear the current selection
-        /// </summary>
-        private class ClearSelectionCommand : ConsoleCommand
-        {
-            public override string Name => "selection.clear";
-
-            public override string Help => "Clear the current selection";
-
-            public override void Run(string[] args)
-            {
-                if (!(Player.m_localPlayer && Player.m_localPlayer.InPlaceMode()))
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_inactive"));
-                    return;
-                }
-
-                if (!Selection.Instance.Any())
-                {
-                    Console.instance.Print(Localization.instance.Localize("$msg_blueprint_select_empty"));
-                    return;
-                }
-                
-                Selection.Instance.Clear();
             }
         }
     }
