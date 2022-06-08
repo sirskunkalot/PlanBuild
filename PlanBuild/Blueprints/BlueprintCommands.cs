@@ -59,7 +59,7 @@ namespace PlanBuild.Blueprints
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id]
-blueprint_name: ID of the blueprint according to bp.local");
+blueprint_id: ID of the blueprint according to bp.local");
                     return;
                 }
 
@@ -86,7 +86,7 @@ blueprint_name: ID of the blueprint according to bp.local");
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id]
-blueprint_name: ID of the blueprint according to bp.local");
+blueprint_id: ID of the blueprint according to bp.local");
                     return;
                 }
 
@@ -137,7 +137,7 @@ blueprint_name: ID of the blueprint according to bp.local");
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id]
-blueprint_name: ID of the blueprint according to bp.server");
+blueprint_id: ID of the blueprint according to bp.server");
                     return;
                 }
 
@@ -171,7 +171,7 @@ blueprint_name: ID of the blueprint according to bp.server");
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id] ([rotation])
-blueprint_name: ID of the blueprint according to bp.local
+blueprint_id: ID of the blueprint according to bp.local
 rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;
                 }
