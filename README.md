@@ -52,7 +52,7 @@ Copy existing structures into __Blueprints__ and rebuild them as planned or regu
 
 ![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintTools.png)
 
-The Blueprint Rune comes with a handful of tools handle blueprint creation and terraforming. 
+The Blueprint Rune comes with a handful of tools to handle blueprint creation and terraforming. 
 
 * __Add to selection__: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
   * Press __Q__ to quickly switch to the "Remove from selection" tool

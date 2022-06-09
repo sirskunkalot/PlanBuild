@@ -12,6 +12,7 @@
 * Added ability to capture blueprints using the vanilla snap points (can be used in copy+paste)
 * Added ability to "finish" planned pieces without having the needed resources when the "no placement cost" debug option is active
 * Changed building requirements for the plan totem (1x Wood, 1x Grey Dwarf Eye) and skuld crystal (1 x Grey Dwarf Eye)
+* __Check out the README file on github for more in-depth instructions on the new usage: https://github.com/sirskunkalot/PlanBuild/blob/master/README.md__
 
 # Version 0.9.5
 * Fixed placement of non-Piece prefabs
