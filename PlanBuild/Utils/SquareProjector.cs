@@ -15,6 +15,7 @@ namespace PlanBuild.Utils
         private float cubesThickness = 0.15f;
         private float cubesHeight = 0.1f;
         private float cubesLength = 1f;
+        public LayerMask mask = 0;
         
         private float updatesPerSecond = 60f;
         private int cubesPerSide;
@@ -182,27 +183,39 @@ namespace PlanBuild.Utils
                     cube.gameObject.SetActive(true);
 
                     // Deterministic, baby
-                    float pos = (Time.time * cubesSpeed + (sideLength / cubesPerSide) * i) % (sideLength + cubesLength100);
+                    float delta = (Time.time * cubesSpeed + (sideLength / cubesPerSide) * i) % (sideLength + cubesLength100);
+                    Vector3 pos;
+                    Vector3 scale;
 
-                    if (pos < cubesLength)                                              // Is growing
+                    if (delta < cubesLength)                                              // Is growing
                     {
-                        cube.position = dir.normalized * pos + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (cubesLength - pos)));
+                        pos = dir.normalized * delta + a.position;
+                        scale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (cubesLength - delta)));
                     }
-                    else if (pos >= sideLength && pos <= sideLength + cubesLength)      // Is shrinking
+                    else if (delta >= sideLength && delta <= sideLength + cubesLength)      // Is shrinking
                     {
-                        cube.position = dir.normalized * sideLength + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (pos - sideLength)));
+                        pos = dir.normalized * sideLength + a.position;
+                        scale = new Vector3(cube.localScale.x, cube.localScale.y, (cubesLength - (delta - sideLength)));
                     }
-                    else if (pos >= sideLength && pos >= sideLength + cubesLength)      // Is waiting
+                    else if (delta >= sideLength && delta >= sideLength + cubesLength)      // Is waiting
                     {
                         cube.gameObject.SetActive(false);
+                        continue;
                     }
                     else                                                                // Need to move
                     {
-                        cube.position = dir.normalized * pos + a.position;
-                        cube.localScale = new Vector3(cube.localScale.x, cube.localScale.y, cubesLength);
+                        pos = dir.normalized * delta + a.position;
+                        scale = new Vector3(cube.localScale.x, cube.localScale.y, cubesLength);
                     }
+                    
+                    RaycastHit hitInfo;
+                    if (Physics.Raycast(cube.position + Vector3.up * 500f, Vector3.down, out hitInfo, 1000f, mask.value))
+                    {
+                        pos.y = hitInfo.point.y;
+                    }
+
+                    cube.position = pos;
+                    cube.localScale = scale;
                 }
                 yield return new WaitForSecondsRealtime(1 / updatesPerSecond);
             }

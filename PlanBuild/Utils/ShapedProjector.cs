@@ -125,6 +125,11 @@ namespace PlanBuild.Utils
             return Shape;
         }
 
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+
         public void SetRadius(float newRadius)
         {
             if (Radius == newRadius)
@@ -149,7 +154,7 @@ namespace PlanBuild.Utils
         {
             return Radius;
         }
-        
+
         public void SetRotation(int newRotation)
         {
             if (Shape == ProjectorShape.Square && Square != null)
@@ -159,11 +164,21 @@ namespace PlanBuild.Utils
             }
         }
 
+        public int GetRotation()
+        {
+            return Rotation;
+        }
+
         public void EnableMask()
         {
             if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 2048)
             {
                 Circle.m_mask = 2048;
+            }
+
+            if (Shape == ProjectorShape.Square && Square != null && Square.mask != 2048)
+            {
+                Square.mask = 2048;
             }
         }
 
@@ -172,6 +187,11 @@ namespace PlanBuild.Utils
             if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 0)
             {
                 Circle.m_mask = 0;
+            }
+
+            if (Shape == ProjectorShape.Square && Square != null && Square.mask != 0)
+            {
+                Square.mask = 0;
             }
         }
     }
