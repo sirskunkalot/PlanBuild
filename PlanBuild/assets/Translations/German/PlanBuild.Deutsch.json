@@ -93,6 +93,7 @@
     "hud_bpobjectsradius": "Radius ändern, Shift: Kameraabstand",
     "hud_bpterrain_flatten": "Landschaft begradigen",
     "hud_bpterrain_delete": "Landschafts-Änderungen zurücksetzen",
+    "hud_bpterrain_rotate": "und Mausrad zum Rotieren",
     "hud_bpterrain_marker": "Zwischen Kreis- und Rechteck-Markierer wechseln",
     "hud_bpterrainradius": "Radius ändern, Strg + Alt: Auf Y-Achse bewegen\nShift: Kameraabstand",
     "hud_bppaint_reset": "Textur zurücksetzen",

@@ -275,6 +275,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_delete" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_rotate" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
                 }

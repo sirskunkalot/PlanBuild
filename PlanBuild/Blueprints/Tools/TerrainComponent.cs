@@ -30,6 +30,11 @@ namespace PlanBuild.Blueprints.Tools
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
+                else if (radiusModifier)
+                {
+                    UpdateSelectionRotation(scrollWheel);
+                    UndoRotation(self, scrollWheel);
+                }
                 else
                 {
                     UpdateSelectionRadius(scrollWheel);

@@ -31,6 +31,7 @@ namespace PlanBuild.Utils
 
         private ProjectorShape Shape = ProjectorShape.Circle;
         private float Radius = 10f;
+        private int Rotation;
 
         private CircleProjector Circle;
         private SquareProjector Square;
@@ -52,7 +53,7 @@ namespace PlanBuild.Utils
             Disable();
         }
 
-        internal void Enable()
+        public void Enable()
         {
             if (!ShowProjectors)
             {
@@ -66,7 +67,6 @@ namespace PlanBuild.Utils
                 Circle.m_prefab.SetActive(true);
                 Circle.m_radius = Radius;
                 Circle.m_nrOfSegments = (int)Radius * 4;
-                Circle.Start();
             }
 
             if (Shape == ProjectorShape.Square && Square == null)
@@ -74,11 +74,11 @@ namespace PlanBuild.Utils
                 Square = gameObject.AddComponent<SquareProjector>();
                 Square.prefab = SelectionSegment;
                 Square.radius = Radius;
-                Square.Start();
+                Square.rotation = Rotation;
             }
         }
 
-        internal void Disable()
+        public void Disable()
         {
             if (Circle != null)
             {
@@ -96,7 +96,7 @@ namespace PlanBuild.Utils
             }
         }
 
-        internal void SwitchShape()
+        public void SwitchShape()
         {
             if (Shape == ProjectorShape.Circle)
             {
@@ -108,7 +108,7 @@ namespace PlanBuild.Utils
             }
         }
 
-        internal void SetShape(ProjectorShape newShape)
+        public void SetShape(ProjectorShape newShape)
         {
             if (Shape == newShape)
             {
@@ -120,12 +120,12 @@ namespace PlanBuild.Utils
             Enable();
         }
 
-        internal ProjectorShape GetShape()
+        public ProjectorShape GetShape()
         {
             return Shape;
         }
 
-        internal void SetRadius(float newRadius)
+        public void SetRadius(float newRadius)
         {
             if (Radius == newRadius)
             {
@@ -145,12 +145,21 @@ namespace PlanBuild.Utils
             }
         }
 
-        internal float GetRadius()
+        public float GetRadius()
         {
             return Radius;
         }
+        
+        public void SetRotation(int newRotation)
+        {
+            if (Shape == ProjectorShape.Square && Square != null)
+            {
+                Rotation = newRotation;
+                Square.rotation = Rotation;
+            }
+        }
 
-        internal void EnableMask()
+        public void EnableMask()
         {
             if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 2048)
             {
@@ -158,7 +167,7 @@ namespace PlanBuild.Utils
             }
         }
 
-        internal void DisableMask()
+        public void DisableMask()
         {
             if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 0)
             {

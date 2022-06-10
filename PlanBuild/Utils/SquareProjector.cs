@@ -8,20 +8,23 @@ namespace PlanBuild.Utils
     {
         public float cubesSpeed = 1f;
         public float radius = 2f;
+        public int rotation = 0;
         public GameObject prefab;
 
         private GameObject cube;
         private float cubesThickness = 0.15f;
         private float cubesHeight = 0.1f;
         private float cubesLength = 1f;
-
-        private int cubesPerSide;
+        
         private float updatesPerSecond = 60f;
+        private int cubesPerSide;
         private float sideLength;
         private float cubesLength100;
         private float sideLengthHalved;
+        private Quaternion translatedRotation;
         private bool isRunning = false;
 
+        private Transform center;
         private Transform parentNorth;
         private Transform parentEast;
         private Transform parentSouth;
@@ -71,6 +74,10 @@ namespace PlanBuild.Utils
                 return;
             }
             isRunning = true;
+            
+            center = new GameObject("center").transform;
+            center.SetParent(transform);
+            center.position = transform.position;
 
             parentNorth = CreateElements(0, cubesNorth);
             parentEast = CreateElements(90, cubesEast);
@@ -93,10 +100,7 @@ namespace PlanBuild.Utils
 
             StopAllCoroutines();
 
-            Destroy(parentNorth.gameObject);
-            Destroy(parentEast.gameObject);
-            Destroy(parentSouth.gameObject);
-            Destroy(parentWest.gameObject);
+            Destroy(center.gameObject);
 
             cubesNorth.Clear();
             cubesEast.Clear();
@@ -110,11 +114,22 @@ namespace PlanBuild.Utils
             sideLength = radius * 2;
             cubesLength100 = sideLength / cubesPerSide;
             sideLengthHalved = sideLength / 2;
-
-            if (isRunning && cubesPerSide + 1 != cubesNorth.Count)
+            translatedRotation = Quaternion.Euler(0f, rotation, 0f);
+            
+            if (!isRunning)
+            {
+                return;
+            }
+            
+            if (cubesPerSide + 1 != cubesNorth.Count)
             {
                 StopProjecting();
                 StartProjecting();
+            }
+
+            if (translatedRotation != center.rotation)
+            {
+                center.rotation = translatedRotation;
             }
         }
 
@@ -122,9 +137,9 @@ namespace PlanBuild.Utils
         {
             // Spawn parent object, each which represent a side of the cube
             Transform cubesParent = new GameObject(rotation.ToString()).transform;
-            cubesParent.transform.position = transform.position;
-            cubesParent.transform.RotateAround(transform.position, Vector3.up, rotation);
-            cubesParent.SetParent(transform);
+            cubesParent.transform.position = center.position;
+            cubesParent.transform.RotateAround(center.position, Vector3.up, rotation);
+            cubesParent.SetParent(center);
 
             // Spawn cubes
             for (int i = 0; i < cubesPerSide + 1; i++)
