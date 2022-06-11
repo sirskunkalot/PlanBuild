@@ -1,5 +1,6 @@
 ﻿using Jotunn.Managers;
 using PlanBuild.Utils;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -18,19 +19,20 @@ namespace PlanBuild.Blueprints.Tools
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
             {
-                bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
-                bool deleteModifier = ZInput.GetButton(Config.AltModifierButton.Name);
-                if (deleteModifier && radiusModifier)
+                bool ctrlModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
+                bool altModifier = ZInput.GetButton(Config.AltModifierButton.Name);
+                bool shiftModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
+                if (altModifier)
                 {
                     PlacementOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (ZInput.GetButton(Config.ShiftModifierButton.Name))
+                else if (shiftModifier)
                 {
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
-                else if (radiusModifier)
+                else if (ctrlModifier)
                 {
                     UpdateSelectionRotation(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -55,15 +57,28 @@ namespace PlanBuild.Blueprints.Tools
                 return;
             }
 
+            Dictionary<TerrainComp, Indices> indices = null;
+            var pos = SelectionProjector.GetPosition();
+            var rad = SelectionProjector.GetRadius();
+            var rot = SelectionProjector.GetRotation();
+            var check = ZInput.GetButton(Config.CtrlModifierButton.Name) ? BlockCheck.On : BlockCheck.Off;
+
+            if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Circle)
+            {
+                indices = TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, check);
+            }
+            if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
+            {
+                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot, check);
+            }
+
             if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
-                TerrainTools.RemoveTerrain(self.m_placementGhost.transform,
-                    SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
+                TerrainTools.ResetTerrain(indices, pos, rad);
             }
             else
             {
-                TerrainTools.Flatten(self.m_placementGhost.transform,
-                    SelectionProjector.GetRadius(), SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square);
+                TerrainTools.LevelTerrain(indices, pos, rad, 0f, pos.y);
             }
             PlacementOffset = Vector3.zero;
         }

@@ -52,7 +52,7 @@ namespace PlanBuild.Blueprints
                 GUIManager.OnCustomGUIAvailable -= GUIManagerOnOnCustomGUIAvailable;
             }
             GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
-            
+
             // Blueprint KeyHints
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
 
@@ -176,7 +176,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
-            
+
             // Add selection
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
@@ -274,10 +274,10 @@ namespace PlanBuild.Blueprints
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
-                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_delete" },
-                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_rotate" },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_alt" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_ctrl" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpterrainradius" }
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });
 
@@ -306,9 +306,10 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bppaint_reset" },
-                    new ButtonConfig { Name = "Ctrl", HintToken = "$hud_bppaint_dirt" },
-                    new ButtonConfig { Name = "Alt", HintToken = "$hud_bppaint_paved" },
-                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bppaint_marker" },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bppaint_alt" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bppaint_ctrl" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
             });

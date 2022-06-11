@@ -1,5 +1,7 @@
 ﻿using Jotunn.Managers;
 using System.Collections;
+using System.Collections.Generic;
+using PlanBuild.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -23,11 +25,20 @@ namespace PlanBuild.Blueprints.Tools
                     UpdateCameraOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
+                else if (ZInput.GetButton(Config.CtrlModifierButton.Name))
+                {
+                    UpdateSelectionRotation(scrollWheel);
+                    UndoRotation(self, scrollWheel);
+                }
                 else
                 {
                     UpdateSelectionRadius(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
+            }
+            if (ZInput.GetButtonDown(Config.ToggleButton.Name))
+            {
+                SelectionProjector.SwitchShape();
             }
         }
 
@@ -40,15 +51,16 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             StopAllCoroutines();
-            StartCoroutine(ConstantDraw(self.m_placementGhost.transform));
+            StartCoroutine(ConstantDraw());
         }
 
-        private IEnumerator ConstantDraw(Transform ghost)
+        private IEnumerator ConstantDraw()
         {
-            Vector3 lastPos = Vector3.zero;
+            var lastPos = Vector3.zero;
+            var ghost = SelectionProjector.transform;
             while (ghost != null && ZInput.GetButton("Attack"))
             {
-                TerrainModifier.PaintType type = TerrainModifier.PaintType.Reset;
+                var type = TerrainModifier.PaintType.Reset;
 
                 if (ZInput.GetButton(Config.CtrlModifierButton.Name))
                 {
@@ -61,7 +73,21 @@ namespace PlanBuild.Blueprints.Tools
 
                 if (ghost.position != lastPos)
                 {
-                    TerrainTools.Paint(ghost, SelectionRadius, type);
+                    Dictionary<TerrainComp, Indices> indices = null;
+                    var pos = SelectionProjector.GetPosition();
+                    var rad = SelectionProjector.GetRadius();
+                    var rot = SelectionProjector.GetRotation();
+
+                    if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Circle)
+                    {
+                        indices = TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, BlockCheck.Off);
+                    }
+                    if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
+                    {
+                        indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot, BlockCheck.Off);
+                    }
+
+                    TerrainTools.PaintTerrain(indices, pos, rad, type);
                     lastPos = ghost.position;
                 }
 

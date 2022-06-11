@@ -79,11 +79,12 @@ namespace PlanBuild.Utils
             center = new GameObject("center").transform;
             center.SetParent(transform);
             center.position = transform.position;
+            center.rotation = Quaternion.Euler(0f, rotation, 0f);
 
-            parentNorth = CreateElements(0, cubesNorth);
-            parentEast = CreateElements(90, cubesEast);
-            parentSouth = CreateElements(180, cubesSouth);
-            parentWest = CreateElements(270, cubesWest);
+            parentNorth = CreateElements(rotation + 0, cubesNorth);
+            parentEast = CreateElements(rotation + 90, cubesEast);
+            parentSouth = CreateElements(rotation + 180, cubesSouth);
+            parentWest = CreateElements(rotation + 270, cubesWest);
 
             StartCoroutine(AnimateElements(parentNorth, cubesNorth));
             StartCoroutine(AnimateElements(parentEast, cubesEast));
@@ -134,12 +135,12 @@ namespace PlanBuild.Utils
             }
         }
 
-        private Transform CreateElements(int rotation, List<Transform> cubes)
+        private Transform CreateElements(int localRotation, List<Transform> cubes)
         {
             // Spawn parent object, each which represent a side of the cube
-            Transform cubesParent = new GameObject(rotation.ToString()).transform;
+            Transform cubesParent = new GameObject(localRotation.ToString()).transform;
             cubesParent.transform.position = center.position;
-            cubesParent.transform.RotateAround(center.position, Vector3.up, rotation);
+            cubesParent.transform.RotateAround(center.position, Vector3.up, localRotation);
             cubesParent.SetParent(center);
 
             // Spawn cubes

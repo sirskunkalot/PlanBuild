@@ -143,6 +143,7 @@
     <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
     <Compile Include="Blueprints\SelectionGUI.cs" />
     <Compile Include="Blueprints\SelectionTools.cs" />
+    <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\Tools\SelectEditComponent.cs" />
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
@@ -161,7 +162,6 @@
     <Compile Include="Plans\PlanHammerPrefab.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
-    <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\Marketplace\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />

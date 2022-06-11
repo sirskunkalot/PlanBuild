@@ -2,191 +2,434 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Logger = Jotunn.Logger;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
-    internal class TerrainTools
+    public class HeightIndex
     {
-        private static List<TerrainComp> GetTerrainComp(Vector3 position, float radius)
+        public int Index;
+        public Vector3 Position;
+        public float DistanceWidth;
+        public float DistanceDepth;
+        public float Distance;
+    }
+
+    public class PaintIndex
+    {
+        public int Index;
+        public Vector3 Position;
+    }
+
+    public class Indices
+    {
+        public HeightIndex[] HeightIndices = new HeightIndex[0];
+        public PaintIndex[] PaintIndices = new PaintIndex[0];
+    }
+
+    public enum BlockCheck
+    {
+        Off,
+        On,
+        Inverse
+    }
+
+    public static class TerrainTools
+    {
+        public static void Save(TerrainComp compiler)
         {
-            List<TerrainComp> ret = new List<TerrainComp>();
-            List<Heightmap> maps = new List<Heightmap>();
-            Heightmap.FindHeightmap(position, radius, maps);
-            Logger.LogDebug($"Found {maps.Count} Heightmaps in radius {radius}");
-            foreach (Heightmap map in maps)
-            {
-                TerrainComp comp = map.GetAndCreateTerrainCompiler();
-                if (comp != null)
-                {
-                    ret.Add(comp);
-                    if (!comp.IsOwner())
-                    {
-                        comp.m_nview.ClaimOwnership();
-                    }
-                }
-            }
-            return ret;
+            compiler.GetComponent<ZNetView>()?.ClaimOwnership();
+            compiler.m_operations++;
+            // These are only used to remove grass which isn't really needed.
+            compiler.m_lastOpPoint = Vector3.zero;
+            compiler.m_lastOpRadius = 0f;
+            compiler.Save();
+            compiler.m_hmap.Poke(false);
         }
 
-        public static void Flatten(Transform transform, float radius, bool square = false)
+        private static Indices FilterByBlockCheck(Indices indices, BlockCheck blockCheck)
         {
-            Logger.LogDebug($"Entered Flatten {transform.position} / {radius}");
+            indices.HeightIndices = indices.HeightIndices.Where(index => CheckBlocking(index.Position, blockCheck))
+                .ToArray();
+            indices.PaintIndices =
+                indices.PaintIndices.Where(index => CheckBlocking(index.Position, blockCheck)).ToArray();
+            return indices;
+        }
 
-            try
-            {
-                TerrainOp.Settings settings = new TerrainOp.Settings
+        private static IEnumerable<TerrainComp> GetTerrainCompilersWithCircle(Vector3 position, float radius)
+        {
+            List<Heightmap> heightMaps = new List<Heightmap>();
+            Heightmap.FindHeightmap(position, radius, heightMaps);
+            var pos = ZNet.instance.GetReferencePosition();
+            var zs = ZoneSystem.instance;
+            var ns = ZNetScene.instance;
+            return heightMaps.Where(hmap => ns.InActiveArea(zs.GetZone(hmap.transform.position), pos))
+                .Select(hmap => hmap.GetAndCreateTerrainCompiler());
+        }
+
+        private static IEnumerable<TerrainComp> GetTerrainCompilersWithRect(Vector3 position, float width, float depth,
+            float angle)
+        {
+            List<Heightmap> heightMaps = new List<Heightmap>();
+            // Turn the rectable to a square for an upper bound.
+            var maxDimension = Mathf.Max(width, depth);
+            // Rotating increases the square dimensions.
+            var dimensionMultiplier = Mathf.Abs(Mathf.Sin(angle)) + Mathf.Abs(Mathf.Cos(angle));
+            var size = maxDimension * dimensionMultiplier / 2f;
+            Heightmap.FindHeightmap(position, size, heightMaps);
+            var pos = ZNet.instance.GetReferencePosition();
+            var zs = ZoneSystem.instance;
+            var ns = ZNetScene.instance;
+            return heightMaps.Where(hmap => ns.InActiveArea(zs.GetZone(hmap.transform.position), pos))
+                .Select(hmap => hmap.GetAndCreateTerrainCompiler());
+        }
+
+        public static Dictionary<TerrainComp, Indices> GetCompilerIndicesWithCircle(Vector3 centerPos, float diameter,
+            BlockCheck blockCheck)
+        {
+            return GetTerrainCompilersWithCircle(centerPos, diameter / 2f).ToDictionary(comp => comp, comp =>
                 {
-                    m_raise = true,
-                    m_raiseRadius = radius,
-                    m_raisePower = 3f,
-                    m_square = square,
-                    m_paintRadius = radius,
-                    m_paintType = TerrainModifier.PaintType.Dirt
+                    return new Indices
+                    {
+                        HeightIndices = GetHeightIndicesWithCircle(comp, centerPos, diameter)
+                            .Where(index => CheckBlocking(index.Position, blockCheck)).ToArray(),
+                        PaintIndices = GetPaintIndicesWithCircle(comp, centerPos, diameter)
+                            .Where(index => CheckBlocking(index.Position, blockCheck)).ToArray()
+                    };
+                }).Where(kvp => kvp.Value.HeightIndices.Count() + kvp.Value.PaintIndices.Count() > 0)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public static Dictionary<TerrainComp, Indices> GetCompilerIndicesWithRect(Vector3 centerPos, float width, float depth,
+            float angle, BlockCheck blockCheck)
+        {
+            return GetTerrainCompilersWithRect(centerPos, width, depth, angle).ToDictionary(comp => comp, comp =>
+                {
+                    return new Indices
+                    {
+                        HeightIndices = GetHeightIndicesWithRect(comp, centerPos, width, depth, angle)
+                            .Where(index => CheckBlocking(index.Position, blockCheck)).ToArray(),
+                        PaintIndices = GetPaintIndicesWithRect(comp, centerPos, width, depth, angle)
+                            .Where(index => CheckBlocking(index.Position, blockCheck)).ToArray()
+                    };
+                }).Where(kvp => kvp.Value.HeightIndices.Count() + kvp.Value.PaintIndices.Count() > 0)
+                .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+        }
+
+        public static void SetTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+            float delta)
+        {
+            Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
+            {
+                var multiplier = CalculateSmooth(smooth, heightIndex.Distance);
+                var index = heightIndex.Index;
+                compiler.m_levelDelta[index] = delta * multiplier;
+                compiler.m_smoothDelta[index] = 0f;
+                compiler.m_modifiedHeight[index] = compiler.m_levelDelta[index] != 0f;
+            };
+            DoHeightOperation(compilerIndices, pos, radius, action);
+        }
+
+        private static float CalculateSmooth(float smooth, float distance) =>
+            (1f - distance) >= smooth ? 1f : (1f - distance) / smooth;
+
+        private static float CalculateSlope(float angle, float distanceWidth, float distanceDepth) =>
+            Mathf.Sin(angle) * distanceWidth + Mathf.Cos(angle) * distanceDepth;
+
+        public static void RaiseTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+            float amount)
+        {
+            Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
+            {
+                var multiplier = CalculateSmooth(smooth, heightIndex.Distance);
+                var index = heightIndex.Index;
+                compiler.m_levelDelta[index] += multiplier * amount + compiler.m_smoothDelta[index];
+                compiler.m_smoothDelta[index] = 0f;
+                compiler.m_modifiedHeight[index] = compiler.m_levelDelta[index] != 0f;
+            };
+            DoHeightOperation(compilerIndices, pos, radius, action);
+        }
+
+        public static void LevelTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+            float altitude)
+        {
+            Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
+            {
+                var multiplier = CalculateSmooth(smooth, heightIndex.Distance);
+                var index = heightIndex.Index;
+                compiler.m_levelDelta[index] += multiplier * (altitude - compiler.m_hmap.m_heights[index]);
+                compiler.m_smoothDelta[index] = 0f;
+                compiler.m_modifiedHeight[index] = compiler.m_levelDelta[index] != 0f;
+            };
+            DoHeightOperation(compilerIndices, pos, radius, action);
+        }
+
+        public static void SlopeTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float angle,
+            float smooth, float altitude, float amount)
+        {
+            Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
+            {
+                var multiplier = CalculateSlope(angle, heightIndex.DistanceWidth, heightIndex.DistanceDepth) *
+                                 CalculateSmooth(smooth, heightIndex.Distance);
+                var index = heightIndex.Index;
+                compiler.m_levelDelta[index] +=
+                    (altitude - compiler.m_hmap.m_heights[index]) + multiplier * amount / 2f;
+                compiler.m_smoothDelta[index] = 0f;
+                compiler.m_modifiedHeight[index] = compiler.m_levelDelta[index] != 0f;
+            };
+            DoHeightOperation(compilerIndices, pos, radius, action);
+        }
+
+        public static void ResetTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius)
+        {
+            Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
+            {
+                var index = heightIndex.Index;
+                compiler.m_levelDelta[index] = 0f;
+                compiler.m_smoothDelta[index] = 0f;
+                compiler.m_modifiedHeight[index] = false;
+            };
+            DoHeightOperation(compilerIndices, pos, radius, action);
+            PaintTerrain(compilerIndices, pos, radius, Color.black);
+        }
+        
+        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, TerrainModifier.PaintType type)
+        {
+            Color color = type switch
+            {
+                TerrainModifier.PaintType.Dirt => Color.red,
+                TerrainModifier.PaintType.Cultivate => Color.green,
+                TerrainModifier.PaintType.Paved => Color.blue,
+                TerrainModifier.PaintType.Reset => Color.black,
+                _ => throw new ArgumentOutOfRangeException(nameof(type), type, "PaintType not supported")
+            };
+            PaintTerrain(compilerIndices, pos, radius, color);
+        }
+
+        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, Color color)
+        {
+            Action<TerrainComp, int> action = (compiler, index) =>
+            {
+                compiler.m_paintMask[index] = color;
+                compiler.m_modifiedPaint[index] = true;
+            };
+            DoPaintOperation(compilerIndices, pos, radius, action);
+        }
+
+        ///<summary>Returns terrain data of given indices</summary>
+        /*public static Dictionary<Vector3, TerrainUndoData> GetData(CompilerIndices compilerIndices)
+        {
+            return compilerIndices.ToDictionary(kvp => kvp.Key.transform.position, kvp =>
+            {
+                return new TerrainUndoData
+                {
+                    Heights = kvp.Value.HeightIndices.Select(heightIndex => new HeightUndoData
+                    {
+                        Index = heightIndex.Index,
+                        HeightModified = kvp.Key.m_modifiedHeight[heightIndex.Index],
+                        Level = kvp.Key.m_levelDelta[heightIndex.Index],
+                        Smooth = kvp.Key.m_smoothDelta[heightIndex.Index]
+                    }).ToArray(),
+                    Paints = kvp.Value.PaintIndices.Select(paintIndex => new PaintUndoData
+                    {
+                        Index = paintIndex.Index,
+                        PaintModified = kvp.Key.m_modifiedPaint[paintIndex.Index],
+                        Paint = kvp.Key.m_paintMask[paintIndex.Index],
+                    }).ToArray(),
                 };
-
-                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius + 1f))
-                {
-                    comp.DoOperation(transform.position, settings);
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while flattening: {ex}");
-            }
+            });
         }
 
-        public static void Paint(Transform transform, float radius, TerrainModifier.PaintType type)
+        public static void ApplyData(Dictionary<Vector3, TerrainUndoData> data, Vector3 pos, float radius)
         {
-            Logger.LogDebug($"Entered Paint {transform.position} / {radius}");
-
-            try
+            foreach (var kvp in data)
             {
-                TerrainOp.Settings settings = new TerrainOp.Settings();
-                settings.m_paintRadius = radius;
-                settings.m_paintType = type;
-
-                foreach (TerrainComp comp in GetTerrainComp(transform.position, radius))
+                var compiler = TerrainComp.FindTerrainCompiler(kvp.Key);
+                if (!compiler) continue;
+                foreach (var value in kvp.Value.Heights)
                 {
-                    comp.DoOperation(transform.position, settings);
+                    compiler.m_smoothDelta[value.Index] = value.Smooth;
+                    compiler.m_levelDelta[value.Index] = value.Level;
+                    compiler.m_modifiedHeight[value.Index] = value.HeightModified;
                 }
+
+                foreach (var value in kvp.Value.Paints)
+                {
+                    compiler.m_modifiedPaint[value.Index] = value.PaintModified;
+                    compiler.m_paintMask[value.Index] = value.Paint;
+                }
+
+                Save(compiler);
             }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while painting: {ex}");
-            }
+
+            ClutterSystem.instance?.ResetGrass(pos, radius);
+        }*/
+
+        private static Vector3 VertexToWorld(Heightmap hmap, int x, int y)
+        {
+            var vector = hmap.transform.position;
+            vector.x += (x - hmap.m_width / 2 + 0.5f) * hmap.m_scale;
+            vector.z += (y - hmap.m_width / 2 + 0.5f) * hmap.m_scale;
+            return vector;
         }
 
-        public static void RemoveTerrain(Transform transform, float radius, bool square = false)
+        private static void DoHeightOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            Action<TerrainComp, HeightIndex> action)
         {
-            Logger.LogDebug($"Entered RemoveTerrain {transform.position} / {radius}");
-
-            ZNetScene zNetScene = ZNetScene.instance;
-            try
+            foreach (var kvp in compilerIndices)
             {
-                Vector3 startPosition = transform.position;
-
-                List<TerrainModifier> modifiers = new List<TerrainModifier>();
-                TerrainModifier.GetModifiers(startPosition, radius + 1f, modifiers);
-                int tmodcnt = 0;
-                foreach (TerrainModifier modifier in modifiers)
-                {
-                    if (modifier.m_nview == null)
-                    {
-                        continue;
-                    }
-                    modifier.m_nview.ClaimOwnership();
-                    zNetScene.Destroy(modifier.gameObject);
-                    ++tmodcnt;
-                }
-
-                int tcompcnt = 0;
-                foreach (TerrainComp comp in GetTerrainComp(startPosition, radius + 1f))
-                {
-                    Heightmap hmap = comp.m_hmap;
-                    hmap.WorldToVertex(startPosition, out int x, out int y);
-                    float scaledRadius = radius / hmap.m_scale;
-                    int maxRadius = Mathf.CeilToInt(scaledRadius);
-                    int maxWidth = comp.m_width + 1;
-                    Vector2 a = new Vector2(x, y);
-                    bool modified = false;
-                    for (int i = y - maxRadius; i <= y + maxRadius; i++)
-                    {
-                        for (int j = x - maxRadius; j <= x + maxRadius; j++)
-                        {
-                            if ((square || !(Vector2.Distance(a, new Vector2(j, i)) > scaledRadius)) && j >= 0 && i >= 0 && j < maxWidth && i < maxWidth)
-                            {
-                                int index = i * maxWidth + j;
-                                modified |= comp.m_modifiedHeight[index];
-
-                                comp.m_smoothDelta[index] = 0f;
-                                comp.m_levelDelta[index] = 0f;
-                                comp.m_modifiedHeight[index] = false;
-                            }
-                        }
-                    }
-                    if (modified)
-                    {
-                        comp.PaintCleared(startPosition, radius, TerrainModifier.PaintType.Reset, false, true);
-                        comp.Save();
-                        hmap.Poke(false);
-                        if (ClutterSystem.instance)
-                        {
-                            ClutterSystem.instance.ResetGrass(hmap.transform.position, hmap.m_width * hmap.m_scale / 2f);
-                        }
-                        ++tcompcnt;
-                    }
-                }
-                Logger.LogDebug($"Removed {tmodcnt} TerrainMod(s) and {tcompcnt} TerrainComp(s)");
+                var compiler = kvp.Key;
+                var indices = kvp.Value.HeightIndices;
+                foreach (var heightIndex in indices) action(compiler, heightIndex);
+                Save(compiler);
             }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing terrain: {ex}");
-            }
+
+            ClutterSystem.instance?.ResetGrass(pos, radius);
         }
 
-        public static int RemoveObjects(Transform transform, float radius, Type[] includeTypes, Type[] excludeTypes)
+        private static void DoPaintOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            Action<TerrainComp, int> action)
         {
-            Logger.LogDebug($"Entered RemoveVegetation {transform.position} / {radius}");
-
-            int delcnt = 0;
-            ZNetScene zNetScene = ZNetScene.instance;
-            try
+            foreach (var kvp in compilerIndices)
             {
-                Vector3 startPosition = transform.position;
+                var compiler = kvp.Key;
+                var indices = kvp.Value.PaintIndices;
+                foreach (var index in indices) action(compiler, index.Index);
+                Save(compiler);
+            }
 
-                if (Location.IsInsideNoBuildLocation(startPosition))
+            ClutterSystem.instance?.ResetGrass(pos, radius);
+        }
+
+        private static bool CheckBlocking(Vector3 position, BlockCheck blockCheck)
+        {
+            if (blockCheck == BlockCheck.Off) return true;
+            var blocked = ZoneSystem.instance.IsBlocked(position);
+            if (blocked && blockCheck == BlockCheck.On) return false;
+            if (!blocked && blockCheck == BlockCheck.Inverse) return false;
+            return true;
+        }
+
+        private static IEnumerable<HeightIndex> GetHeightIndicesWithCircle(TerrainComp compiler, Vector3 centerPos,
+            float diameter)
+        {
+            List<HeightIndex> indices = new List<HeightIndex>();
+            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            var maxDistance = diameter / 2f / compiler.m_hmap.m_scale;
+            var max = compiler.m_width + 1;
+            Vector2 center = new Vector2((float)cx, (float)cy);
+            for (int i = 0; i < max; i++)
+            {
+                for (int j = 0; j < max; j++)
                 {
-                    return delcnt;
-                }
-
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
-                    .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
-                                  obj.GetComponent<ZNetView>() &&
-                                  //obj.GetComponents<Component>().Select(x => x.GetType()) is Type[] comp &&
-                                  (includeTypes == null || includeTypes.All(x => obj.GetComponent(x) != null)) &&
-                                  (excludeTypes == null || excludeTypes.All(x => obj.GetComponent(x) == null)));
-
-                foreach (GameObject prefab in prefabs)
-                {
-                    if (!prefab.TryGetComponent(out ZNetView zNetView))
+                    var distance = Vector2.Distance(center, new Vector2((float)j, (float)i));
+                    if (distance > maxDistance) continue;
+                    var distanceX = j - cx;
+                    var distanceY = i - cy;
+                    indices.Add(new HeightIndex()
                     {
-                        continue;
-                    }
-
-                    zNetView.ClaimOwnership();
-                    zNetScene.Destroy(prefab);
-                    ++delcnt;
+                        Index = i * max + j,
+                        Position = VertexToWorld(compiler.m_hmap, j, i),
+                        DistanceWidth = distanceX / maxDistance,
+                        DistanceDepth = distanceY / maxDistance,
+                        Distance = distance / maxDistance
+                    });
                 }
-                Logger.LogDebug($"Removed {delcnt} objects");
-            }
-            catch (Exception ex)
-            {
-                Logger.LogWarning($"Error while removing objects: {ex}");
             }
 
-            return delcnt;
+            return indices;
+        }
+
+        private static float GetX(int x, int y, float angle) => Mathf.Cos(angle) * x - Mathf.Sin(angle) * y;
+        private static float GetY(int x, int y, float angle) => Mathf.Sin(angle) * x + Mathf.Cos(angle) * y;
+
+        private static IEnumerable<HeightIndex> GetHeightIndicesWithRect(TerrainComp compiler, Vector3 centerPos,
+            float width, float depth, float angle)
+        {
+            List<HeightIndex> indices = new List<HeightIndex>();
+            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            var maxWidth = width / 2f / compiler.m_hmap.m_scale;
+            var maxDepth = depth / 2f / compiler.m_hmap.m_scale;
+            var max = compiler.m_width + 1;
+            for (int x = 0; x < max; x++)
+            {
+                for (int y = 0; y < max; y++)
+                {
+                    var dx = x - cx;
+                    var dy = y - cy;
+                    var distanceX = GetX(dx, dy, angle);
+                    var distanceY = GetY(dx, dy, angle);
+                    if (Mathf.Abs(distanceX) > maxWidth) continue;
+                    if (Mathf.Abs(distanceY) > maxDepth) continue;
+                    var distanceWidth = distanceX / maxWidth;
+                    var distanceDepth = distanceY / maxDepth;
+                    indices.Add(new HeightIndex()
+                    {
+                        Index = y * max + x,
+                        Position = VertexToWorld(compiler.m_hmap, x, y),
+                        DistanceWidth = distanceWidth,
+                        DistanceDepth = distanceDepth,
+                        Distance = Mathf.Max(Mathf.Abs(distanceWidth), Mathf.Abs(distanceDepth))
+                    });
+                }
+            }
+
+            return indices;
+        }
+
+        private static IEnumerable<PaintIndex> GetPaintIndicesWithRect(TerrainComp compiler, Vector3 centerPos,
+            float width, float depth, float angle)
+        {
+            centerPos = new Vector3(centerPos.x - 0.5f, centerPos.y, centerPos.z - 0.5f);
+            List<PaintIndex> indices = new List<PaintIndex>();
+            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            var maxWidth = width / 2f / compiler.m_hmap.m_scale;
+            var maxDepth = depth / 2f / compiler.m_hmap.m_scale;
+            var max = compiler.m_width;
+            for (int x = 0; x < max; x++)
+            {
+                for (int y = 0; y < max; y++)
+                {
+                    var dx = x - cx;
+                    var dy = y - cy;
+                    var distanceX = GetX(dx, dy, angle);
+                    var distanceY = GetY(dx, dy, angle);
+                    if (Mathf.Abs(distanceX) > maxWidth) continue;
+                    if (Mathf.Abs(distanceY) > maxDepth) continue;
+                    indices.Add(new PaintIndex()
+                    {
+                        Index = y * max + x,
+                        Position = VertexToWorld(compiler.m_hmap, x, y)
+                    });
+                }
+            }
+
+            return indices;
+        }
+
+        private static IEnumerable<PaintIndex> GetPaintIndicesWithCircle(TerrainComp compiler, Vector3 centerPos,
+            float diameter)
+        {
+            centerPos = new Vector3(centerPos.x - 0.5f, centerPos.y, centerPos.z - 0.5f);
+            List<PaintIndex> indices = new List<PaintIndex>();
+            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            var maxDistance = diameter / 2f / compiler.m_hmap.m_scale;
+            var max = compiler.m_width;
+            Vector2 center = new Vector2(cx, cy);
+            for (int i = 0; i < max; i++)
+            {
+                for (int j = 0; j < max; j++)
+                {
+                    var distance = Vector2.Distance(center, new Vector2(j, i));
+                    if (distance > maxDistance) continue;
+                    indices.Add(new PaintIndex()
+                    {
+                        Index = i * max + j,
+                        Position = VertexToWorld(compiler.m_hmap, j, i)
+                    });
+                }
+            }
+
+            return indices;
         }
     }
 }
