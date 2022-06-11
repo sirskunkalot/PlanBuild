@@ -91,7 +91,7 @@
     "msg_removed_objects": "Removed $1 object(s)",
     "hud_bpterrain_flatten": "Flatten terrain",
     "hud_bpterrain_alt": "Reset terrain, Scroll to move Y-Axis",
-    "hud_bpterrain_ctrl": "Exclude blocked terrain, Scroll to rotate marker",
+    "hud_bpterrain_ctrl": "Smooth edges, Scroll to rotate marker",
     "hud_bpterrain_marker": "Switch circle and square marker",
     "hud_bppaint_reset": "Reset paint",
     "hud_bppaint_alt": "Paint paved",

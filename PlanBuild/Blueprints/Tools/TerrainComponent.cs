@@ -61,20 +61,23 @@ namespace PlanBuild.Blueprints.Tools
             var pos = SelectionProjector.GetPosition();
             var rad = SelectionProjector.GetRadius();
             var rot = SelectionProjector.GetRotation();
-            var check = ZInput.GetButton(Config.CtrlModifierButton.Name) ? BlockCheck.On : BlockCheck.Off;
 
             if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Circle)
             {
-                indices = TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, check);
+                indices = TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, BlockCheck.Off);
             }
             if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
             {
-                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot, check);
+                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot, BlockCheck.Off);
             }
 
             if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
                 TerrainTools.ResetTerrain(indices, pos, rad);
+            }
+            else if (ZInput.GetButton(Config.CtrlModifierButton.Name))
+            {
+                TerrainTools.LevelTerrain(indices, pos, rad, 0.33f, pos.y);
             }
             else
             {
