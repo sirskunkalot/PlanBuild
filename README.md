@@ -90,6 +90,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Press __Q__ to switch between a circle and a square shaped marker.
   * Press __Ctrl__ to remove terrain modifications.
   * Use the __Scroll Wheel__ to change the tool radius.
+  * Use __Ctrl + Scroll__ to rotate the square marker.
   * Use __Ctrl + Alt + Scroll__ to move the marker on the Y-axis.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
@@ -99,9 +100,11 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Paint terrain:__ Allows you to reset the terrain "paint" per biome (grass in the Meadows, sand at beaches, etc). Can also paint dirt or paved onto every terrain. Can be used as a "brush" by holding down the Attack button continously.
+  * Press __Q__ to switch between a circle and a square shaped marker.
   * Press __Ctrl__ to paint "dirt".
   * Press __Alt__ to paint "paved".
   * Use the __Scroll Wheel__ to change the tool radius.
+  * Use __Ctrl + Scroll__ to rotate the square marker.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 ### Clipboard
