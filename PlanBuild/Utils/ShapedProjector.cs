@@ -132,10 +132,6 @@ namespace PlanBuild.Utils
 
         public void SetRadius(float newRadius)
         {
-            if (Radius == newRadius)
-            {
-                return;
-            }
             Radius = newRadius;
 
             if (Shape == ProjectorShape.Circle && Circle != null)
@@ -157,9 +153,10 @@ namespace PlanBuild.Utils
 
         public void SetRotation(int newRotation)
         {
+            Rotation = newRotation;
+
             if (Shape == ProjectorShape.Square && Square != null)
             {
-                Rotation = newRotation;
                 Square.rotation = Rotation;
             }
         }

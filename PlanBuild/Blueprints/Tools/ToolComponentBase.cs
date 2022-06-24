@@ -183,6 +183,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
                 SelectionProjector.SetRadius(SelectionRadius);
+                SelectionProjector.SetRotation(SelectionRotation);
             }
             if (enableMask)
             {
