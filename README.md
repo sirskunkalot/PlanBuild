@@ -46,7 +46,7 @@ Introducing a new item, the __Blueprint Rune__, which can be crafted from a sing
 
 ![BlueprintRune](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuildUnity/Assets/Blueprints/Icons/BlueprintRuneIcon.png)
 
-Copy existing structures into __Blueprints__ and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as __.blueprint__ files. Also supports __.vbuild__ files (you can load and build your BuildShare saves with this mod)! After switching to the blueprint mode, the piece table of the Blueprint Rune offers two different categories:
+Copy existing structures into __Blueprints__ and rebuild them as planned or regular pieces all at once. The blueprints are saved in and loaded from the filesystem as __.blueprint__ files. Also supports __.vbuild__ files (you can load and build your BuildShare saves with this mod)! After switching to the blueprint mode, the piece table of the Blueprint Rune offers three different categories:
 
 ### Tools
 
