@@ -68,7 +68,7 @@ namespace PlanBuild.Blueprints.Tools
             }
             if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
             {
-                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot, BlockCheck.Off);
+                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot * Mathf.PI / 180f, BlockCheck.Off);
             }
 
             if (ZInput.GetButton(Config.AltModifierButton.Name))

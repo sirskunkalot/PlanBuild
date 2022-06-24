@@ -92,7 +92,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Press __Alt__ to remove terrain modifications.
   * Use the __Scroll Wheel__ to change the tool radius.
   * Use __Ctrl + Scroll__ to rotate the square marker.
-  * Use __Ctrl + Alt + Scroll__ to move the marker on the Y-axis.
+  * Use __Alt + Scroll__ to move the marker on the Y-axis.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Delete Objects:__ Allows you to remove vegetation objects in a chosen radius.
