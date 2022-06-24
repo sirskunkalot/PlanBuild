@@ -210,7 +210,7 @@ namespace PlanBuild.Utils
                     }
                     
                     RaycastHit hitInfo;
-                    if (Physics.Raycast(cube.position + Vector3.up * 500f, Vector3.down, out hitInfo, 1000f, mask.value))
+                    if (Physics.Raycast(pos + Vector3.up * 500f, Vector3.down, out hitInfo, 1000f, mask.value))
                     {
                         pos.y = hitInfo.point.y;
                     }
