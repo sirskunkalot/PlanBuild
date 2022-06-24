@@ -2,7 +2,7 @@
 
 PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. The mod adds two new tools to the game. The __Plan Hammer__ is used to plan your creations before actually gathering all the materials. When you are happy with your build, you can add the required building materials one by one or use a custom totem to automatically build the pieces for you. The __Blueprint Rune__ lets you copy, save or delete your creations as a single building piece which can also be shared with other players using the mod and also includes terrain modification tools for quick and more precise terraforming without using the Hoe or Cultivator.
 
-## Planning Mode
+## Planning
 
 ![Plan mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/PlanMode.png)
 
@@ -38,7 +38,7 @@ Create it from a single __Grey Dwarf Eye__.
 
 __Watch your step!__ The pieces are still not really there, and will not support you!
 
-## Blueprint Mode
+## Blueprinting
 
 ![Blueprint mode](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMode.png)
 
@@ -164,7 +164,7 @@ The Hammer's PieceTable is scanned automatically, mods that add Pieces should be
 
 ## Configuration
 
-A lot aspects of this mod are configurable either through the config file found in your game folder (```<Valheim>\BepInEx\configs\marcopogo.PlanBuild.cfg```) or using the in-game ```Mod Settings``` in the game's menu:
+A lot aspects of this mod are configurable either through the config file found in your game folder (```<Valheim>\BepInEx\configs\marcopogo.PlanBuild.cfg```) or using the [BepInEx ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager):
 * __Server Settings__ (enforced on all clients connecting to a server)
   * __Allow direct build__: Allow placement of blueprints without materials on this server. Admins are always allowed to use it. (default __false__)
   * __Allow terrain tools__: Allow usage of the terrain modification tools on this server. Admins are always allowed to use them. (default __false__)
