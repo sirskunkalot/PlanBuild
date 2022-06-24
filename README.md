@@ -88,7 +88,8 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 
 * __Terrain Tools:__ Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
   * Press __Q__ to switch between a circle and a square shaped marker.
-  * Press __Ctrl__ to remove terrain modifications.
+  * Press __Ctrl__ to add smooth edges to the flattened area
+  * Press __Alt__ to remove terrain modifications.
   * Use the __Scroll Wheel__ to change the tool radius.
   * Use __Ctrl + Scroll__ to rotate the square marker.
   * Use __Ctrl + Alt + Scroll__ to move the marker on the Y-axis.
