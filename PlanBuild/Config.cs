@@ -27,6 +27,7 @@ namespace PlanBuild
 
         private const string RuneSection = "Blueprints";
         public static ConfigEntry<DefaultBuildMode> DefaultBuildModeConfig;
+        public static ConfigEntry<bool> UnlimitedHealthConfig;
         public static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
         public static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
         public static ConfigEntry<bool> InvertSelectionScrollConfig;
@@ -112,6 +113,11 @@ namespace PlanBuild
                     bp.CreateKeyHint();
                 }
             };
+            
+            UnlimitedHealthConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Unlimited health", false,
+                new ConfigDescription("Set Piece health to its maximum value when directly building blueprints.", null,
+                    new ConfigurationManagerAttributes { Order = ++order }));
 
             RayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Place distance", 50f,

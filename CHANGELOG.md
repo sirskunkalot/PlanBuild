@@ -13,6 +13,7 @@
 * Added ability to "finish" planned pieces without having the needed resources when the "no placement cost" debug option is active
 * Changed building requirements for the plan totem (1x Wood, 1x Grey Dwarf Eye) and skuld crystal (1 x Grey Dwarf Eye)
 * Added rotation to the square shaped marker
+* Added config to set piece health to "unlimited" for direct builds
 * __Check out the README file on github for more in-depth instructions on the new usage: https://github.com/sirskunkalot/PlanBuild/blob/master/README.md__
 
 # Version 0.9.5

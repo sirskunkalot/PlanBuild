@@ -189,6 +189,11 @@ namespace PlanBuild.Blueprints.Tools
                 if (wearntear)
                 {
                     wearntear.OnPlaced();
+
+                    if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
+                    {
+                        zNetView.m_zdo.Set("health", float.MaxValue);
+                    }
                 }
                 TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
                 if (textReceiver != null)

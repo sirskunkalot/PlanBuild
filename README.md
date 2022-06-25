@@ -173,6 +173,7 @@ A lot aspects of this mod are configurable either through the config file found 
   * __Excluded plan prefabs__: Comma separated list of prefab names to exclude from the planned piece table on this server. Admins are always allowed to build them.
 * __Blueprints__
   * __Default build mode__: Default build mode when placing blueprints. (default __Plan__)
+  * __Unlimited health__: Set Piece health to its maximum value when directly building blueprints. (default __false__)
   * __Place distance__: Place distance while using the Blueprint Rune. (default __50__)
   * __Camera offset increment__: Camera height change when holding the camera modifier key and scrolling. (default __2__)
   * __Invert camera offset scroll__: Invert the direction of camera offset scrolling. (default __false__)
