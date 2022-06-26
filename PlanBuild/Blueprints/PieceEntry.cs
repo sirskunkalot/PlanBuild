@@ -41,6 +41,10 @@ namespace PlanBuild.Blueprints
             Vector3 pos = new Vector3(posX, posY, posZ);
             Quaternion rot = new Quaternion(rotX, rotY, rotZ, rotW).normalized;
             string additionalInfo = parts[9];
+            if (additionalInfo.StartsWith("\""))
+            {
+                additionalInfo = SimpleJson.SimpleJson.DeserializeObject<string>(additionalInfo);
+            }
             Vector3 scale = Vector3.one;
             if (parts.Length > 10)
             {
@@ -96,7 +100,7 @@ namespace PlanBuild.Blueprints
                 this.name, this.category,
                 InvariantString(posX), InvariantString(posY), InvariantString(posZ),
                 InvariantString(rotX), InvariantString(rotY), InvariantString(rotZ), InvariantString(rotW),
-                this.additionalInfo,
+                SimpleJson.SimpleJson.SerializeObject(additionalInfo),
                 InvariantString(scaleX), InvariantString(scaleY), InvariantString(scaleZ));
         }
 
