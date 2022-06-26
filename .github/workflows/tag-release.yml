@@ -60,12 +60,9 @@ jobs:
         run: |
           wget -O bepinex.zip "https://valheim.thunderstore.io/package/download/denikson/BepInExPack_Valheim/5.4.1901/"
           unzip bepinex.zip -d ~/BepInExRaw
-          wget -O hookgenpatcher.zip "https://valheim.thunderstore.io/package/download/ValheimModding/HookGenPatcher/0.0.3/"
-          unzip hookgenpatcher.zip -d ~/HookGenPatcher
-          steamcmd +login anonymous +force_install_dir ~/VHINSTALL +app_update 896660 validate +exit
+          steamcmd +force_install_dir ~/VHINSTALL +login anonymous +app_update 896660 validate +exit
           mv ~/VHINSTALL/valheim_server_Data/ ~/VHINSTALL/valheim_Data/
           mv ~/BepInExRaw/BepInExPack_Valheim/* ~/VHINSTALL/
-          mv ~/HookGenPatcher/* ~/VHINSTALL/BepInEx/
 
       - name: Remove old publicized and mmhook dlls from cache
         if: steps.cachevalheim.outputs.cache-hit != 'true'
