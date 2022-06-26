@@ -1,4 +1,12 @@
-﻿# PlanBuild
+﻿# BIG REVAMP
+
+Version 0.10.0 of PlanBuild comes with a big internal code refactor and many changes to the handling of plans and blueprints. Please make sure to check out the documentation below. The biggest changes in a nutshell:
+
+- Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the __Plan Hammer__ and the __Blueprint Rune__.
+- All of the blueprinting is done via the __Selection__ tools. You can add and remove parts of your buildings to a selection and need to use the __Edit Selection__ tool or the __selection.gui__ console command to save or copy your blueprint.
+- The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
+
+# PlanBuild
 
 PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. The mod adds two new tools to the game. The __Plan Hammer__ is used to plan your creations before actually gathering all the materials. When you are happy with your build, you can add the required building materials one by one or use a custom totem to automatically build the pieces for you. The __Blueprint Rune__ lets you copy, save or delete your creations as a single building piece which can also be shared with other players using the mod and also includes terrain modification tools for quick and more precise terraforming without using the Hoe or Cultivator.
 
