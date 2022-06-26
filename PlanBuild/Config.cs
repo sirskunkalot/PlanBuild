@@ -28,13 +28,15 @@ namespace PlanBuild
         private const string RuneSection = "Blueprints";
         public static ConfigEntry<DefaultBuildMode> DefaultBuildModeConfig;
         public static ConfigEntry<bool> UnlimitedHealthConfig;
-        public static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
-        public static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
-        public static ConfigEntry<bool> InvertSelectionScrollConfig;
         public static ConfigEntry<float> RayDistanceConfig;
         public static ConfigEntry<float> CameraOffsetIncrementConfig;
+        public static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
         public static ConfigEntry<float> PlacementOffsetIncrementConfig;
+        public static ConfigEntry<bool> InvertPlacementOffsetScrollConfig;
         public static ConfigEntry<float> SelectionIncrementConfig;
+        public static ConfigEntry<bool> InvertSelectionScrollConfig;
+        public static ConfigEntry<int> RotationIncrementConfig;
+        public static ConfigEntry<bool> InvertRotationScrollConfig;
         public static ConfigEntry<float> SelectionConnectedMarginConfig;
         public static ConfigEntry<bool> ShowGridConfig;
         public static ConfigEntry<bool> TooltipEnabledConfig;
@@ -153,6 +155,16 @@ namespace PlanBuild
             InvertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert selection scroll", false,
                 new ConfigDescription("Invert the direction of selection scrolling.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+            
+            RotationIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Rotation increment", 5,
+                new ConfigDescription("Selection rotation increment when scrolling.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+
+            InvertRotationScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Invert rotation scroll", false,
+                new ConfigDescription("Invert the direction of rotation scrolling.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
             SelectionConnectedMarginConfig = PlanBuildPlugin.Instance.Config.Bind(

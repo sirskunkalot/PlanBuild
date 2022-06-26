@@ -165,13 +165,17 @@ namespace PlanBuild.Blueprints.Tools
             }
 
             bool scrollingDown = scrollWheel < 0f;
+            if (Config.InvertRotationScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
             if (scrollingDown)
             {
-                SelectionRotation -= 5;
+                SelectionRotation -= Config.RotationIncrementConfig.Value;
             }
             else
             {
-                SelectionRotation += 5;
+                SelectionRotation += Config.RotationIncrementConfig.Value;
             }
 
             SelectionProjector.SetRotation(SelectionRotation);
