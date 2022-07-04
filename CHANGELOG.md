@@ -1,6 +1,7 @@
 # Version 0.10.1
 * Added stripping of Semicolons on "additionalText" to prevent CSV errors
 * Added unlimited health to other types of prefabs (Trees, Destructibles)
+* Added back "quick select tool" for direct blueprinting
 
 # Version 0.10.0
 * Split plan and blueprint functionality into two separate items

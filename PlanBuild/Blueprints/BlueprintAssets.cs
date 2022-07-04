@@ -181,6 +181,21 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
+            
+            // Capture
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceCaptureName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcapture" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpcapture_highlight" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            });
 
             // Add selection
 

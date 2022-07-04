@@ -1,4 +1,5 @@
-﻿# BIG REVAMP
+﻿
+# BIG REVAMP
 
 Version 0.10.0 of PlanBuild comes with a big internal code refactor and many changes to the handling of plans and blueprints. Please make sure to check out the documentation below. The biggest changes in a nutshell:
 
@@ -61,6 +62,11 @@ Copy existing structures into __Blueprints__ and rebuild them as planned or regu
 ![Blueprint tools](https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintTools.png)
 
 The Blueprint Rune comes with a handful of tools to handle blueprint creation and terraforming. 
+
+* __Create new Blueprint__: Directly create a blueprint from a selection indicated by the circle marker.
+  * Hold __Ctrl__ to highlight all pieces which will be saved into the blueprint
+  * Use the __Scroll Wheel__ to change the selection radius
+  * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Add to selection__: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
   * Press __Q__ to quickly switch to the "Remove from selection" tool

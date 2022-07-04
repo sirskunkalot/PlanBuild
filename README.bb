@@ -58,7 +58,12 @@ Copy existing structures into [b]Blueprints[/b] and rebuild them as planned or r
 The Blueprint Rune comes with a handful of tools to handle blueprint creation and terraforming.
 
 [list]
-[*][b]Add to selection[/b]: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
+[*][b]Create new blueprint[/b]: Directly create a blueprint from a selection indicated by the circle marker.
+[list]
+[*]Hold [b]Ctrl[/b] to highlight all pieces which will be saved into the blueprint
+[*]Use the [b]Scroll Wheel[/b] to change the selection radius
+[*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
+[/list][*][b]Add to selection[/b]: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Q[/b] to quickly switch to the "Remove from selection" tool
 [*]Hold [b]Alt[/b] and click to add all connected pieces. This uses a flood fill to find connected pieces.
@@ -66,8 +71,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the selection radius
 [*]Hold [b]Shift[/b] and click once to define a "starting piece" and click again on another piece to select every piece in between those two.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Remove from selection[/b]: Remove pieces from the current selection. Currently selected pieces will be highlighted in green.  Per default only the hovered piece will be removed from the selection. You can use various modifiers to change that behaviour.
+[/list][*][b]Remove from selection[/b]: Remove pieces from the current selection. Currently selected pieces will be highlighted in green.  Per default only the hovered piece will be removed from the selection. You can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Q[/b] to quickly switch to the "Add to selection" tool
 [*]Hold [b]Alt[/b] and click to remove all connected pieces. This uses a flood fill to find connected pieces.
@@ -75,24 +79,21 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the selection radius
 [*]Hold [b]Shift[/b]  and click to clear the current selection
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Edit selection[/b]: Left click to open a menu. From here you can choose what to do with your current selection:
+[/list][*][b]Edit selection[/b]: Left click to open a menu. From here you can choose what to do with your current selection:
 [list]
 [*][b]Copy with custom SnapPoints[/b]: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
 [*][b]Copy with vanilla SnapPoints[/b]: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
 [*][b]Save[/b]: Save the current selection as a new blueprint into the file system. These blueprints are kapt between game sessions and can also be used in the marketplace and shared with other players.
 [*][b]Delete[/b]: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
 [*][b]Cancel[/b]: Exit the menu without any action.
-[/list]
-[*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint.
+[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint.
 [*][b]Center point marker:[/b] Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
 [*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Ctrl[/b] to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
 [*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the deletion radius.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Terrain Tools:[/b] Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
+[/list][*][b]Terrain Tools:[/b] Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
 [list]
 [*]Press [b]Q[/b] to switch between a circle and a square shaped marker.
 [*]Press [b]Ctrl[/b] to add smooth edges to the flattened area
@@ -101,14 +102,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use [b]Ctrl + Scroll[/b] to rotate the square marker.
 [*]Use [b]Alt + Scroll[/b] to move the marker on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Delete Objects:[/b] Allows you to remove vegetation objects in a chosen radius.
+[/list][*][b]Delete Objects:[/b] Allows you to remove vegetation objects in a chosen radius.
 [list]
 [*]Press [b]Ctrl[/b] to remove all objects including Pieces and Items ([b]Warning:[/b] Very destructive).
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Paint terrain:[/b] Allows you to reset the terrain "paint" per biome (grass in the Meadows, sand at beaches, etc). Can also paint dirt or paved onto every terrain. Can be used as a "brush" by holding down the Attack button continously.
+[/list][*][b]Paint terrain:[/b] Allows you to reset the terrain "paint" per biome (grass in the Meadows, sand at beaches, etc). Can also paint dirt or paved onto every terrain. Can be used as a "brush" by holding down the Attack button continously.
 [list]
 [*]Press [b]Q[/b] to switch between a circle and a square shaped marker.
 [*]Press [b]Ctrl[/b] to paint "dirt".
@@ -116,8 +115,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
 [*]Use [b]Ctrl + Scroll[/b] to rotate the square marker.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[/list]
+[/list][/list]
 
 [b][size=4]Clipboard[/size][/b]
 [img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintClipboard.png[/img]
@@ -179,13 +177,14 @@ A lot aspects of this mod are configurable either through the config file found 
 
 [list]
 [*][b]Server Settings[/b] (enforced on all clients connecting to a server)
+[list]
 [*][b]Allow direct build[/b]: Allow placement of blueprints without materials on this server. Admins are always allowed to use it. (default [b]false[/b])
 [*][b]Allow terrain tools[/b]: Allow usage of the terrain modification tools on this server. Admins are always allowed to use them. (default [b]false[/b])
 [*][b]Allow serverside blueprints[/b]: Allow sharing of blueprints on this server. (default [b]false[/b])
 [*][b]Allow clients to use the GUI toggle key[/b]: Allow clients to use the Hotkey to access server blueprints. Admins are always allowed to use it. (default [b]true[/b])
 [*][b]Excluded plan prefabs[/b]: Comma separated list of prefab names to exclude from the planned piece table on this server. Admins are always allowed to build them.
-
-[*][b]Blueprints[/b]
+[/list][*][b]Blueprints[/b]
+[list]
 [*][b]Default build mode[/b]: Default build mode when placing blueprints. (default [b]Plan[/b])
 [*][b]Unlimited health[/b]: Set Piece health to its maximum value when directly building blueprints. (default [b]false[/b])
 [*][b]Place distance[/b]: Place distance while using the Blueprint Rune. (default [b]50[/b])
@@ -199,30 +198,30 @@ A lot aspects of this mod are configurable either through the config file found 
 [*][b]Show the transform bound grid[/b]: Shows a grid around the blueprints' bounds to visualize the blueprints' edges. (default [b]false[/b])
 [*][b]Tooltip enabled[/b]: Show a tooltip with a bigger thumbnail for blueprint pieces. (default [b]true[/b])
 [*][b]Tooltip Color[/b]: Set the background color for the tooltip on blueprint pieces.
-
-[*][b]Directories[/b]
+[/list][*][b]Directories[/b]
+[list]
 [*][b]Blueprint search directory[/b] Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location (default [b].[/b])
 [*][b]Save directory[/b]: Directory to save blueprint files, relative paths are relative to the valheim.exe location (default [b]BepInEx/config/PlanBuild/blueprints[/b])
-
-[*][b]Keybindings[/b]
+[/list][*][b]Keybindings[/b]
+[list]
 [*][b]Blueprint Marketplace GUI toggle key[/b]: Hotkey to show the blueprint marketplace GUI (default [b]End[/b])
 [*][b]ShiftModifier[/b]: First modifier key to change behaviours on various tools (default [b]LeftShift[/b])
 [*][b]CtrlModifier[/b]: Second modifier key to change behaviours on various tools (default [b]LeftCtrl[/b])
 [*][b]AltModifier[/b]: Third modifier key to change behaviours on various tools (default [b]LeftAlt[/b])
 [*][b]Toggle[/b]: Key to switch between modes on various tools. (default [b]Q[/b])
-
-[*][b]Plans[/b]:
+[/list][*][b]Plans[/b]:
+[list]
 [*][b]Plan unknown pieces[/b]: Show all plans, even for pieces you don't know yet. (default [b]false[/b])
 [*][b]Plan totem build radius[/b]: Build radius of the plan totem (default [b]30[/b])
 [*][b]Plan totem particle effects[/b]: Show particle effects when building pieces with the plan totem. (default [b]true[/b])
-
-[*][b]Visual[/b]
+[/list][*][b]Visual[/b]
+[list]
 [*][b]Transparent Ghost Placement[/b]: Apply plan shader to ghost placement (currently placing piece). (default [b]true[/b])
 [*][b]Unsupported color[/b]: Color of unsupported plan pieces.
 [*][b]Supported color[/b]: Color of supported plan pieces.
 [*][b]Transparency[/b]: Additional transparency for finer control. (default [b]30%[/b])
 [*][b]Plan totem glow color[/b]: Color of the glowing lines on the Plan totem.
-[/list]
+[/list][/list]
 
 [b][size=5]Console commands[/size][/b]
 PlanBuild adds some new console commands to the game:
