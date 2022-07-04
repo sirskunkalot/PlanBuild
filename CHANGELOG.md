@@ -1,3 +1,7 @@
+# Version 0.10.1
+* Added stripping of Semicolons on "additionalText" to prevent CSV errors
+* Added unlimited health to other types of prefabs (Trees, Destructibles)
+
 # Version 0.10.0
 * Split plan and blueprint functionality into two separate items
 * __If you want to use plans, you must craft the new item "Plan Hammer" from your player crafting screen__
