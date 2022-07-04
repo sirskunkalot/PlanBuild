@@ -189,11 +189,6 @@ namespace PlanBuild.Blueprints.Tools
                 if (wearntear)
                 {
                     wearntear.OnPlaced();
-
-                    if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
-                    {
-                        zNetView.m_zdo.Set("health", float.MaxValue);
-                    }
                 }
                 TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
                 if (textReceiver != null)
@@ -235,6 +230,14 @@ namespace PlanBuild.Blueprints.Tools
                             zNetView.m_zdo.Set($"{j}_variant", variant);
                             armorStand.SetVisualItem(j, item, variant);
                         }
+                    }
+                }
+                if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
+                {
+                    if (zNetView.GetComponent<WearNTear>() || zNetView.GetComponent<TreeBase>() ||
+                        zNetView.GetComponent<TreeLog>() || zNetView.GetComponent<Destructible>())
+                    {
+                        zNetView.m_zdo.Set("health", float.MaxValue);
                     }
                 }
             }
