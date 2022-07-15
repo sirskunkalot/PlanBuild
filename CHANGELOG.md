@@ -1,3 +1,6 @@
+# Version 0.10.2
+* Fixed Plan Hammer compat with BuildCamera
+
 # Version 0.10.1
 * Added stripping of Semicolons on "additionalText" to prevent CSV errors
 * Added unlimited health to other types of prefabs (Trees, Destructibles)

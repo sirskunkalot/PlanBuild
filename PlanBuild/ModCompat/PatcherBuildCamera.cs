@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
+using PlanBuild.Plans;
 
 namespace PlanBuild.ModCompat
 {
@@ -11,7 +12,8 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static bool ValheimBuildCamera_IsTool_Prefix(ItemDrop.ItemData itemData, ref bool __result)
         {
-            if (itemData?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
+            if (itemData?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName ||
+                itemData?.m_shared.m_name == PlanHammerPrefab.PlanHammerItemName)
             {
                 __result = true;
                 return false;
