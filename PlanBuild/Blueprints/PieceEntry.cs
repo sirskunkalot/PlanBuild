@@ -41,7 +41,11 @@ namespace PlanBuild.Blueprints
             Vector3 pos = new Vector3(posX, posY, posZ);
             Quaternion rot = new Quaternion(rotX, rotY, rotZ, rotW).normalized;
             string additionalInfo = parts[9];
-            if (additionalInfo.StartsWith("\"") && additionalInfo.EndsWith("\"") && additionalInfo.Length > 2)
+            if (string.IsNullOrEmpty(additionalInfo) || additionalInfo.Equals("\"\""))
+            {
+                additionalInfo = null;
+            }
+            else
             {
                 try
                 {

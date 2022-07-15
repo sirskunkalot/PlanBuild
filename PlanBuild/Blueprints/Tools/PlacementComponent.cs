@@ -125,7 +125,7 @@ namespace PlanBuild.Blueprints.Tools
                 GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
                 if (!prefab)
                 {
-                    Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency for blueprint {bp.Name}, not placing @{entryPosition}");
+                    Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency, not placing @{entryPosition}");
                     continue;
                 }
 
@@ -193,7 +193,7 @@ namespace PlanBuild.Blueprints.Tools
                 TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
                 if (textReceiver != null)
                 {
-                    if (!placeDirect && zNetView)
+                    if (!placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                     {
                         zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
                     }
@@ -205,6 +205,11 @@ namespace PlanBuild.Blueprints.Tools
                     if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                     {
                         var fields = entry.additionalInfo.Split(':');
+                        if (fields.Length < 2)
+                        {
+                            Jotunn.Logger.LogWarning($"ItemStand items not found, not adding items @{entryPosition}");
+                            continue;
+                        }
                         var item = fields[0];
                         var variant = int.Parse(fields[1]);
                         zNetView.m_zdo.Set("item", item);
@@ -218,6 +223,10 @@ namespace PlanBuild.Blueprints.Tools
                     if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                     {
                         var fields = entry.additionalInfo.Split(':');
+                        if (fields.Length < 2)
+                        {
+                            continue;
+                        }
                         var pose = int.Parse(fields[0]);
                         zNetView.m_zdo.Set("pose", pose);
                         armorStand.SetPose(pose, false);

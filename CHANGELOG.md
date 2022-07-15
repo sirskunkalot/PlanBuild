@@ -1,5 +1,6 @@
 # Version 0.10.2
 * Fixed Plan Hammer compat with BuildCamera
+* Fixed errors with some blueprints using item/armor stands
 
 # Version 0.10.1
 * Added stripping of Semicolons on "additionalText" to prevent CSV errors
