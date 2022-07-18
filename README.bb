@@ -237,7 +237,8 @@ PlanBuild adds some new console commands to the game:
 [*][b]bp.pull[/b] - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
 [*][b]bp.thumbnail[/b] - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
 [*][b]bp.regenthumbnails[/b] - Create a new thumbnail for all local blueprints
-[*][b]bp.undo[/b] - Undo your last built blueprint
+[*][b]bp.undo[/b] - Undo your last rune action (build, delete or terrain)
+[*][b]bp.redo[/b] - Redo your last undone rune action (build, delete or terrain)
 [*][b]bp.clearclipboard[/b] - Clear the clipboard category of all saved blueprints
 [*][b]selection.gui[/b] - Show the selection GUI
 [*][b]selection.clear[/b] - Clears the current selection
@@ -258,6 +259,8 @@ Blueprint functionality originally created by [b][url=https://github.com/Algorit
 Blueprint Marketplace GUI created by [b][url=https://github.com/imcanida]Dreous[/url][/b]
 
 All further coding by [b][url=https://github.com/MathiasDecrock]MarcoPogo[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
+
+Special thanks to [b][url=https://github.com/JereKuusela]Jere[/url][/b] for exchanging code and ideas
 
 Made with Löve and [b][url=https://github.com/Valheim-Modding/Jotunn]Jötunn[/url][/b]
 

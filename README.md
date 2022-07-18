@@ -233,7 +233,7 @@ PlanBuild adds some new console commands to the game:
 * __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
 * __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints
 * __bp.undo__ - Undo your last rune action (build, delete or terrain)
-* __bp.redo__ - Redo your last undone rune action (build delete or terrain)
+* __bp.redo__ - Redo your last undone rune action (build, delete or terrain)
 * __bp.clearclipboard__ - Clear the clipboard category of all saved blueprints
 * __selection.gui__ - Show the selection GUI
 * __selection.clear__ - Clears the current selection
@@ -255,6 +255,8 @@ Blueprint functionality originally created by __[Algorithman](https://github.com
 Blueprint Marketplace GUI created by __[Dreous](https://github.com/imcanida)__
 
 All further coding by __[MarcoPogo](https://github.com/MathiasDecrock)__ & __[Jules](https://github.com/sirskunkalot)__
+
+Special thanks to __[Jere](https://github.com/JereKuusela)__ for exchanging code and ideas
 
 Made with Löve and __[Jötunn](https://github.com/Valheim-Modding/Jotunn)__
 
