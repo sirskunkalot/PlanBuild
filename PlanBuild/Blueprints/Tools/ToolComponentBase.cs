@@ -11,9 +11,11 @@ namespace PlanBuild.Blueprints.Tools
         public static int SelectionRotation;
         public static float CameraOffset;
         public static Vector3 PlacementOffset = Vector3.zero;
+        public static Vector3 MarkerOffset = Vector3.zero;
 
         internal bool SuppressPieceHighlight = true;
         internal bool ResetPlacementOffset = true;
+        internal bool ResetMarkerOffset = true;
 
         private void Start()
         {
@@ -22,6 +24,11 @@ namespace PlanBuild.Blueprints.Tools
             if (ResetPlacementOffset)
             {
                 PlacementOffset = Vector3.zero;
+            }
+
+            if (ResetMarkerOffset)
+            {
+                MarkerOffset = Vector3.zero;
             }
             
             On.Player.UpdatePlacement += Player_UpdatePlacement;
@@ -88,6 +95,7 @@ namespace PlanBuild.Blueprints.Tools
         public virtual void OnUpdatePlacement(Player self)
         {
             PlacementOffset = Vector3.zero;
+            MarkerOffset = Vector3.zero;
             CameraOffset = 0f;
             DisableSelectionProjector();
         }
@@ -228,7 +236,7 @@ namespace PlanBuild.Blueprints.Tools
         }
 
         /// <summary>
-        ///     Flatten placement marker
+        ///     Flatten placement marker and apply the PlacementOffset
         /// </summary>
         private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
         {
@@ -237,18 +245,28 @@ namespace PlanBuild.Blueprints.Tools
             if (self.m_placementMarkerInstance && self.m_placementGhost)
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
+
+                if (PlacementOffset != Vector3.zero)
+                {
+                    var pos = self.m_placementGhost.transform.position;
+                    var rot = self.m_placementGhost.transform.rotation;
+                    pos += rot * Vector3.right * PlacementOffset.x;
+                    pos += rot * Vector3.up * PlacementOffset.y;
+                    pos += rot * Vector3.forward * PlacementOffset.z;
+                    self.m_placementGhost.transform.position = pos;
+                }
             }
         }
         
         /// <summary>
-        ///     Apply the PlacementOffset to the placementMarker and react on piece hover
+        ///     Apply the MarkerOffset and react on piece hover
         /// </summary>
         private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            if (result && PlacementOffset != Vector3.zero && self.m_placementGhost)
+            if (result && self.m_placementGhost && MarkerOffset != Vector3.zero)
             {
-                point += self.m_placementGhost.transform.TransformDirection(PlacementOffset);
+                point += self.m_placementGhost.transform.TransformDirection(MarkerOffset);
             }
             OnPieceHovered(piece);
             return result;

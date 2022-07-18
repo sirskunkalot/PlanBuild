@@ -7,6 +7,11 @@ namespace PlanBuild.Blueprints.Tools
 {
     internal class TerrainComponent : ToolComponentBase
     {
+        public override void OnStart()
+        {
+            ResetMarkerOffset = false;
+        }
+
         public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance)
@@ -24,7 +29,7 @@ namespace PlanBuild.Blueprints.Tools
                 bool shiftModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
                 if (altModifier)
                 {
-                    PlacementOffset.y += GetPlacementOffset(scrollWheel);
+                    MarkerOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
                 else if (shiftModifier)
@@ -83,7 +88,7 @@ namespace PlanBuild.Blueprints.Tools
             {
                 TerrainTools.LevelTerrain(indices, pos, rad, 0f, pos.y);
             }
-            PlacementOffset = Vector3.zero;
+            MarkerOffset = Vector3.zero;
         }
     }
 }
