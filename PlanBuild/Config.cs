@@ -41,6 +41,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> ShowGridConfig;
         public static ConfigEntry<bool> TooltipEnabledConfig;
         public static ConfigEntry<Color> TooltipBackgroundConfig;
+        public static ConfigEntry<string> BlueprintUndoQueueNameConfig;
         
         private const string DirectorySection = "Directories";
         public static ConfigEntry<string> BlueprintSearchDirectoryConfig;
@@ -185,6 +186,11 @@ namespace PlanBuild
             TooltipBackgroundConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Tooltip Color", new Color(0.13f, 0.13f, 0.13f, 0.65f),
                 new ConfigDescription("Set the background color for the tooltip on blueprint pieces.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+            
+            BlueprintUndoQueueNameConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Undo queue name", "blueprintqueue",
+                new ConfigDescription("Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
             // Directory Section

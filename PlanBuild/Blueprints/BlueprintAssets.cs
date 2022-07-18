@@ -34,8 +34,6 @@ namespace PlanBuild.Blueprints
         public const string PieceTerrainName = "piece_bpterrain";
         public const string PiecePaintName = "piece_bppaint";
 
-        public const string UndoQueueName = "planbuildqueue";
-
         public static void Load(AssetBundle assetBundle)
         {
             // Asset Bundle GameObjects

@@ -113,7 +113,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
 
                 var action = new UndoActions.UndoRemove(ZDOs);
-                UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, action);
+                UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
 
                 Logger.LogDebug($"Removed {delcnt} objects");
             }

@@ -257,7 +257,7 @@ namespace PlanBuild.Blueprints.Tools
             if (ZDOs.Any())
             {
                 var action = new UndoActions.UndoCreate(ZDOs);
-                UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, action);
+                UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
             }
         }
 

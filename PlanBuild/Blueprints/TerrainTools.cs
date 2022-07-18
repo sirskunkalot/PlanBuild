@@ -263,7 +263,7 @@ namespace PlanBuild.Blueprints
             ClutterSystem.instance?.ResetGrass(pos, radius);
             var after = GetData(compilerIndices);
             var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
-            UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, undo);
+            UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, undo);
         }
 
         private static void DoPaintOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
@@ -280,7 +280,7 @@ namespace PlanBuild.Blueprints
             ClutterSystem.instance?.ResetGrass(pos, radius);
             var after = GetData(compilerIndices);
             var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
-            UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, undo);
+            UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, undo);
         }
 
         private static bool CheckBlocking(Vector3 position, BlockCheck blockCheck)
