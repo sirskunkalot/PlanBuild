@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jotunn.Managers;
+using Jotunn.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -216,20 +218,20 @@ namespace PlanBuild.Blueprints
         }
 
         ///<summary>Returns terrain data of given indices</summary>
-        /*public static Dictionary<Vector3, TerrainUndoData> GetData(CompilerIndices compilerIndices)
+        public static Dictionary<Vector3, UndoActions.TerrainUndoData> GetData(Dictionary<TerrainComp, Indices> compilerIndices)
         {
             return compilerIndices.ToDictionary(kvp => kvp.Key.transform.position, kvp =>
             {
-                return new TerrainUndoData
+                return new UndoActions.TerrainUndoData
                 {
-                    Heights = kvp.Value.HeightIndices.Select(heightIndex => new HeightUndoData
+                    Heights = kvp.Value.HeightIndices.Select(heightIndex => new UndoActions.HeightUndoData
                     {
                         Index = heightIndex.Index,
                         HeightModified = kvp.Key.m_modifiedHeight[heightIndex.Index],
                         Level = kvp.Key.m_levelDelta[heightIndex.Index],
                         Smooth = kvp.Key.m_smoothDelta[heightIndex.Index]
                     }).ToArray(),
-                    Paints = kvp.Value.PaintIndices.Select(paintIndex => new PaintUndoData
+                    Paints = kvp.Value.PaintIndices.Select(paintIndex => new UndoActions.PaintUndoData
                     {
                         Index = paintIndex.Index,
                         PaintModified = kvp.Key.m_modifiedPaint[paintIndex.Index],
@@ -238,32 +240,7 @@ namespace PlanBuild.Blueprints
                 };
             });
         }
-
-        public static void ApplyData(Dictionary<Vector3, TerrainUndoData> data, Vector3 pos, float radius)
-        {
-            foreach (var kvp in data)
-            {
-                var compiler = TerrainComp.FindTerrainCompiler(kvp.Key);
-                if (!compiler) continue;
-                foreach (var value in kvp.Value.Heights)
-                {
-                    compiler.m_smoothDelta[value.Index] = value.Smooth;
-                    compiler.m_levelDelta[value.Index] = value.Level;
-                    compiler.m_modifiedHeight[value.Index] = value.HeightModified;
-                }
-
-                foreach (var value in kvp.Value.Paints)
-                {
-                    compiler.m_modifiedPaint[value.Index] = value.PaintModified;
-                    compiler.m_paintMask[value.Index] = value.Paint;
-                }
-
-                Save(compiler);
-            }
-
-            ClutterSystem.instance?.ResetGrass(pos, radius);
-        }*/
-
+        
         private static Vector3 VertexToWorld(Heightmap hmap, int x, int y)
         {
             var vector = hmap.transform.position;
@@ -275,6 +252,7 @@ namespace PlanBuild.Blueprints
         private static void DoHeightOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
             Action<TerrainComp, HeightIndex> action)
         {
+            var before = GetData(compilerIndices);
             foreach (var kvp in compilerIndices)
             {
                 var compiler = kvp.Key;
@@ -282,13 +260,16 @@ namespace PlanBuild.Blueprints
                 foreach (var heightIndex in indices) action(compiler, heightIndex);
                 Save(compiler);
             }
-
             ClutterSystem.instance?.ResetGrass(pos, radius);
+            var after = GetData(compilerIndices);
+            var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
+            UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, undo);
         }
 
         private static void DoPaintOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
             Action<TerrainComp, int> action)
         {
+            var before = GetData(compilerIndices);
             foreach (var kvp in compilerIndices)
             {
                 var compiler = kvp.Key;
@@ -296,8 +277,10 @@ namespace PlanBuild.Blueprints
                 foreach (var index in indices) action(compiler, index.Index);
                 Save(compiler);
             }
-
             ClutterSystem.instance?.ResetGrass(pos, radius);
+            var after = GetData(compilerIndices);
+            var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
+            UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, undo);
         }
 
         private static bool CheckBlocking(Vector3 position, BlockCheck blockCheck)

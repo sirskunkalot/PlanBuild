@@ -24,6 +24,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new ThumbnailBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
             CommandManager.Instance.AddConsoleCommand(new UndoBlueprintCommand());
+            CommandManager.Instance.AddConsoleCommand(new RedoBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new SelectBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ClearClipboardCommand());
         }
@@ -246,23 +247,35 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
         }
         
         /// <summary>
-        ///     Console command to undo built blueprints
+        ///     Console command to undo blueprint rune actions
         /// </summary>
         private class UndoBlueprintCommand : ConsoleCommand
         {
             public override string Name => "bp.undo";
 
-            public override string Help => "Undo your last built blueprint";
+            public override string Help => "Undo your last rune action";
 
             public override void Run(string[] args)
             {
-                var success = BlueprintManager.UndoLastBlueprint();
-                Console.instance.Print(success
-                    ? "Blueprint removed"
-                    : "No blueprint to remove");
+                UndoManager.Instance.Undo(BlueprintAssets.UndoQueueName, Console.instance);
             }
         }
         
+        /// <summary>
+        ///     Console command to redo blueprint rune actions
+        /// </summary>
+        private class RedoBlueprintCommand : ConsoleCommand
+        {
+            public override string Name => "bp.redo";
+
+            public override string Help => "Redo your last undone rune action again";
+
+            public override void Run(string[] args)
+            {
+                UndoManager.Instance.Redo(BlueprintAssets.UndoQueueName, Console.instance);
+            }
+        }
+
         /// <summary>
         ///     Console command to clear clipboard blueprints
         /// </summary>

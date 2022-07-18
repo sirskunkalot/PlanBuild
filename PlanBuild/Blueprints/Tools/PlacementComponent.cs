@@ -1,7 +1,9 @@
 ﻿using Jotunn.Managers;
 using PlanBuild.Plans;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Jotunn.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
@@ -89,8 +91,8 @@ namespace PlanBuild.Blueprints.Tools
 
             uint cntEffects = 0u;
             uint maxEffects = 10u;
-            
-            BlueprintInstance blueprintInstance = new BlueprintInstance(id);
+
+            List<ZDO> ZDOs = new List<ZDO>();
 
             for (int i = 0; i < bp.PieceEntries.Length; i++)
             {
@@ -153,7 +155,7 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 else
                 {
-                    blueprintInstance.AddZDOID(zNetView.m_zdo.m_uid);
+                    ZDOs.Add(zNetView.m_zdo);
                     zNetView.SetLocalScale(entry.GetScale());
                 }
 
@@ -225,6 +227,7 @@ namespace PlanBuild.Blueprints.Tools
                         var fields = entry.additionalInfo.Split(':');
                         if (fields.Length < 2)
                         {
+                            Jotunn.Logger.LogWarning($"ArmorStand items not found, not adding items @{entryPosition}");
                             continue;
                         }
                         var pose = int.Parse(fields[0]);
@@ -251,9 +254,10 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
 
-            if (blueprintInstance.ZDOIDs.Any())
+            if (ZDOs.Any())
             {
-                BlueprintManager.BlueprintInstances.Push(blueprintInstance);
+                var action = new UndoActions.UndoCreate(ZDOs);
+                UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, action);
             }
         }
 

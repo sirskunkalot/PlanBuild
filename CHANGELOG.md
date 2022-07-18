@@ -1,3 +1,6 @@
+# Version 0.10.3
+* Implemented undo and redo for all blueprint and terrain actions (big thx to Jere)
+
 # Version 0.10.2
 * Fixed Plan Hammer compat with BuildCamera
 * Fixed errors with some blueprints using item/armor stands

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Jotunn.Managers;
+using Jotunn.Utils;
 using PlanBuild.Plans;
 using UnityEngine;
 using Logger = Jotunn.Logger;
@@ -89,12 +90,14 @@ namespace PlanBuild.Blueprints.Tools
                     return delcnt;
                 }
 
-                IEnumerable<GameObject> prefabs = Object.FindObjectsOfType<GameObject>()
+                IEnumerable<GameObject> prefabs = FindObjectsOfType<GameObject>()
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
                                   obj.GetComponent<ZNetView>() &&
                                   //obj.GetComponents<Component>().Select(x => x.GetType()) is Type[] comp &&
                                   (includeTypes == null || includeTypes.All(x => obj.GetComponent(x) != null)) &&
                                   (excludeTypes == null || excludeTypes.All(x => obj.GetComponent(x) == null)));
+
+                var ZDOs = new List<ZDO>();
 
                 foreach (GameObject prefab in prefabs)
                 {
@@ -103,11 +106,16 @@ namespace PlanBuild.Blueprints.Tools
                         continue;
                     }
 
+                    ZDOs.Add(zNetView.m_zdo);
                     zNetView.ClaimOwnership();
                     zNetScene.Destroy(prefab);
                     ++delcnt;
                 }
-                Jotunn.Logger.LogDebug($"Removed {delcnt} objects");
+
+                var action = new UndoActions.UndoRemove(ZDOs);
+                UndoManager.Instance.Add(BlueprintAssets.UndoQueueName, action);
+
+                Logger.LogDebug($"Removed {delcnt} objects");
             }
             catch (Exception ex)
             {
