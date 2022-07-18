@@ -16,7 +16,6 @@ namespace PlanBuild.Blueprints
         public static BlueprintDictionary LocalBlueprints;
         public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary ServerBlueprints;
-        public static Stack<BlueprintInstance> BlueprintInstances;
         
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
@@ -37,7 +36,6 @@ namespace PlanBuild.Blueprints
                 LocalBlueprints = new BlueprintDictionary();
                 TemporaryBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
-                BlueprintInstances = new Stack<BlueprintInstance>();
 
                 // Init Selection
                 Selection.Init();
@@ -95,7 +93,6 @@ namespace PlanBuild.Blueprints
         public static void Reset()
         {
             TemporaryBlueprints.Clear();
-            BlueprintInstances.Clear();
             Selection.Instance.Clear();
         }
         
@@ -204,41 +201,6 @@ namespace PlanBuild.Blueprints
             return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
         }
         
-        public static bool SelectLastBlueprint()
-        {
-            if (BlueprintInstances.Count == 0)
-            {
-                return false;
-            }
-
-            var instance = BlueprintInstances.Peek();
-            Selection.Instance.Clear();
-            Selection.Instance.AddBlueprint(instance);
-            
-            return true;
-        }
-
-        public static bool UndoLastBlueprint()
-        {
-            if (BlueprintInstances.Count == 0)
-            {
-                return false;
-            }
-
-            var instance = BlueprintInstances.Pop();
-            Selection.Instance.Clear();
-            foreach (var zdoid in instance.ZDOIDs)
-            {
-                var go = ZNetScene.instance.FindInstance(zdoid);
-                if (go)
-                {
-                    ZNetScene.instance.Destroy(go);
-                }
-            }
-
-            return true;
-        }
-
         public static bool ClearClipboard()
         {
             if (TemporaryBlueprints.Count == 0)

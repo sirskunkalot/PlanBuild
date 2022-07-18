@@ -232,7 +232,8 @@ PlanBuild adds some new console commands to the game:
 * __bp.pull__ - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
 * __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
 * __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints
-* __bp.undo__ - Undo your last built blueprint
+* __bp.undo__ - Undo your last rune action (build, delete or terrain)
+* __bp.redo__ - Redo your last undone rune action (build delete or terrain)
 * __bp.clearclipboard__ - Clear the clipboard category of all saved blueprints
 * __selection.gui__ - Show the selection GUI
 * __selection.clear__ - Clears the current selection

@@ -25,7 +25,6 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
             CommandManager.Instance.AddConsoleCommand(new UndoBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new RedoBlueprintCommand());
-            CommandManager.Instance.AddConsoleCommand(new SelectBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ClearClipboardCommand());
         }
 
@@ -227,24 +226,6 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                 PlanBuildPlugin.Instance.StartCoroutine(RegenAll());
             }
         }
-
-        /// <summary>
-        ///     Console command to select the last built blueprint
-        /// </summary>
-        private class SelectBlueprintCommand : ConsoleCommand
-        {
-            public override string Name => "bp.select";
-
-            public override string Help => "Select your last built blueprint";
-
-            public override void Run(string[] args)
-            {
-                var success = BlueprintManager.SelectLastBlueprint();
-                Console.instance.Print(success
-                    ? $"Selected {Selection.Instance.BlueprintInstance.ID}"
-                    : "No blueprint to select");
-            }
-        }
         
         /// <summary>
         ///     Console command to undo blueprint rune actions
@@ -253,7 +234,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
         {
             public override string Name => "bp.undo";
 
-            public override string Help => "Undo your last rune action";
+            public override string Help => "Undo your last rune action (build, delete or terrain)";
 
             public override void Run(string[] args)
             {
@@ -268,7 +249,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
         {
             public override string Name => "bp.redo";
 
-            public override string Help => "Redo your last undone rune action again";
+            public override string Help => "Redo your last undone rune action (build, delete or terrain)";
 
             public override void Run(string[] args)
             {
