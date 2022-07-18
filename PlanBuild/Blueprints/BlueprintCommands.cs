@@ -238,7 +238,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
 
             public override void Run(string[] args)
             {
-                UndoManager.Instance.Undo(BlueprintAssets.UndoQueueName, Console.instance);
+                UndoManager.Instance.Undo(BlueprintAssets.UndoQueueName);
             }
         }
         
@@ -253,7 +253,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
 
             public override void Run(string[] args)
             {
-                UndoManager.Instance.Redo(BlueprintAssets.UndoQueueName, Console.instance);
+                UndoManager.Instance.Redo(BlueprintAssets.UndoQueueName);
             }
         }
 
