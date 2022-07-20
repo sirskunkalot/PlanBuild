@@ -51,7 +51,17 @@ namespace PlanBuild.Blueprints
                 BlueprintGUI.Init();
                 
                 // Hooks
-                On.ZNetScene.Shutdown += (orig, self) => Reset();
+                On.ZNetScene.Awake += (orig, self) =>
+                {
+                    orig(self);
+                    UndoManager.Instance.Create(Config.BlueprintUndoQueueNameConfig.Value);
+                };
+                On.ZNetScene.Shutdown += (orig, self) =>
+                {
+                    orig(self);
+                    TemporaryBlueprints.Clear();
+                    Selection.Instance.Clear();
+                };
                 On.Player.OnSpawned += Player_OnSpawned;
                 On.PieceTable.UpdateAvailable += PieceTable_UpdateAvailable;
                 On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
@@ -88,12 +98,6 @@ namespace PlanBuild.Blueprints
             {
                 Logger.LogWarning($"Error caught while initializing: {ex}");
             }
-        }
-
-        public static void Reset()
-        {
-            TemporaryBlueprints.Clear();
-            Selection.Instance.Clear();
         }
         
         /// <summary>

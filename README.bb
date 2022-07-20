@@ -3,7 +3,8 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 
 [list]
 [*]Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the [b]Plan Hammer[/b] and the [b]Blueprint Rune[/b].
-[*]All of the blueprinting is done via the [b]Selection[/b] tools. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
+[*]Lots of improvements to the [b]Selection tools[/b]. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
+[*]You can copy+paste blueprints directly without having to save them (clipboard).
 [*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 [/list]
 
