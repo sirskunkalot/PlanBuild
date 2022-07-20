@@ -8,7 +8,7 @@ namespace PlanBuild
     {
         public const string BuildCameraGUID = "org.gittywithexcitement.plugins.valheim.buildCamera";
         public const string CraftFromContainersGUID = "aedenthorn.CraftFromContainers";
-        public const string GizmoGUID = "m3to.mods.GizmoReloaded";
+        public const string GizmoGUID = "com.rolopogo.gizmo.comfy";
         public const string ValheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         public const string ItemDrawersGUID = "mkz.itemdrawers";
 

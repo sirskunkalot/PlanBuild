@@ -1,52 +1,36 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
-using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.ModCompat
 {
     internal class PatcherGizmo
     {
-        [HarmonyPatch(typeof(GizmoReloaded.Plugin), "UpdatePlacement")]
+        [HarmonyPatch(typeof(Gizmo.ComfyGizmo.PlayerPatch), "UpdatePlacementPostfix")]
         [HarmonyPrefix]
-        private static bool GizmoPlugin_UpdatePlacement_Prefix(Transform ___gizmoRoot, float ___snapAngle)
+        private static bool ComfyGizmo_UpdatePlacementPostfix_Prefix()
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces && Player.m_localPlayer.m_placementGhost &&
                 Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
                 !Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
-                if (___gizmoRoot)
+                if (Gizmo.ComfyGizmo._gizmoRoot)
                 {
-                    Object.Destroy(___gizmoRoot.gameObject);
+                    Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
                 }
                 return false;
             }
             return true;
         }
 
-        [HarmonyPatch(typeof(GizmoReloaded.Plugin), "GetPlacementAngle")]
+        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "HandleAxisInput")]
         [HarmonyPrefix]
-        private static bool GizmoPlugin_GetPlacementAngle_Prefix(ref Quaternion __result)
+        private static bool ComfyGizmo_HandleAxisInput_Prefix()
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
                 Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
-                !Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
-            {
-                __result = Quaternion.Euler(0f, 22.5f * (float)Player.m_localPlayer.m_placeRotation, 0f);
-                return false;
-            }
-            return true;
-        }
-
-        [HarmonyPatch(typeof(GizmoReloaded.Plugin), "UpdateRotation")]
-        [HarmonyPrefix]
-        private static bool GizmoPlugin_UpdateRotation_Prefix(string axis)
-        {
-            if (axis == "Y" && Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
-             Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
-             (ZInput.GetButton(Config.ShiftModifierButton.Name) ||
-              ZInput.GetButton(Config.AltModifierButton.Name) ||
-              ZInput.GetButton(Config.CtrlModifierButton.Name)))
+                (ZInput.GetButton(Config.ShiftModifierButton.Name) ||
+                 ZInput.GetButton(Config.AltModifierButton.Name) ||
+                 ZInput.GetButton(Config.CtrlModifierButton.Name)))
             {
                 return false;
             }

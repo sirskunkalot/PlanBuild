@@ -1,6 +1,7 @@
 # Version 0.10.3
 * Implemented undo and redo for all blueprint and terrain actions (big thx to Jere)
-* Changed offset calculation for blueprints
+* Changed offset handling for blueprints so the placement marker stays in place
+* Added compat patches for ComfyGizmo
 
 # Version 0.10.2
 * Fixed Plan Hammer compat with BuildCamera

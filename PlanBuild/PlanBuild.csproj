@@ -45,18 +45,25 @@
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\HarmonyX.2.9.0\lib\net45\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Build Camera, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="Build Camera">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="CraftFromContainers">
+      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="GizmoReloaded, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="ComfyGizmo">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\GizmoReloaded.dll</HintPath>
+      <HintPath>..\libraries\pub\ComfyGizmo.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="ValheimRAFT">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\pub\ValheimRAFT.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Jotunn, Version=2.7.2.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\JotunnLib.2.7.2\lib\net462\Jotunn.dll</HintPath>
@@ -125,12 +132,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="ValheimRAFT">
-      <HintPath>..\libraries\pub\ValheimRAFT.dll</HintPath>
-    </Reference>
-    <Reference Include="VNEI">
-      <HintPath>..\libraries\VNEI.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
@@ -203,6 +204,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="GizmoReloaded.dll" />
     <Content Include="resources\BlueprintMarket.png" />
     <Content Include="resources\BlueprintMode.png" />
     <Content Include="resources\PlanTotem.png" />
