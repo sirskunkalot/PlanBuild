@@ -51,11 +51,6 @@ namespace PlanBuild.Blueprints
                 BlueprintGUI.Init();
                 
                 // Hooks
-                On.ZNetScene.Awake += (orig, self) =>
-                {
-                    orig(self);
-                    UndoManager.Instance.Create(Config.BlueprintUndoQueueNameConfig.Value);
-                };
                 On.ZNetScene.Shutdown += (orig, self) =>
                 {
                     orig(self);
