@@ -168,7 +168,8 @@ Fully compatible with:
 [list]
 [*][url=https://www.nexusmods.com/valheim/mods/226]Build Camera[/url]
 [*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]
-[*][url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url]
+[*][url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url] (partial compat, blueprinting does not work)
+[*][url=https://github.com/redseiko/ValheimMods/releases/tag/ComfyGizmo-v1.3.0]ComfyGizmo[/url]
 [/list]
 
 The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, please post a bug report with a link to the mod or join the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url] and ping [pre]@Jules[/pre] or [pre]@MarcoPogo[/pre].

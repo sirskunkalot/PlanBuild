@@ -173,7 +173,8 @@ It is possible for clients not using PlanBuild to connect to a server using it. 
 Fully compatible with:
 * [Build Camera](https://www.nexusmods.com/valheim/mods/226)﻿
 * [Craft from Containers](https://www.nexusmods.com/valheim/mods/40)﻿
-* [ValheimRAFT](https://www.nexusmods.com/valheim/mods/1136)
+* [ValheimRAFT](https://www.nexusmods.com/valheim/mods/1136) (partial compat, blueprinting does not work)
+* [ComfyGizmo](https://github.com/redseiko/ValheimMods/releases/tag/ComfyGizmo-v1.3.0)
 
 The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, please post a bug report with a link to the mod or join the [Jötunn Discord](https://discord.gg/DdUt6g7gyA) and ping ```@Jules``` or ```@MarcoPogo```.
 
