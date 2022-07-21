@@ -22,7 +22,7 @@ namespace PlanBuild.Blueprints
 
         public static Piece LastHoveredPiece;
 
-        private static float LastHightlightTime;
+        private static float LastHighlightTime;
         private static float OriginalPlaceDistance;
         private static GameObject OriginalTooltip;
 
@@ -32,23 +32,16 @@ namespace PlanBuild.Blueprints
 
             try
             {
-                // Init lists
+                // Init stuff
                 LocalBlueprints = new BlueprintDictionary();
                 TemporaryBlueprints = new BlueprintDictionary();
                 ServerBlueprints = new BlueprintDictionary();
-
-                // Init Selection
                 Selection.Init();
                 SelectionCommands.Init();
-
-                // Init Sync
                 BlueprintSync.Init();
-
-                // Init Commands
                 BlueprintCommands.Init();
-
-                // Init GUI
                 BlueprintGUI.Init();
+                UndoManager.Instance.CreateQueue(Config.BlueprintUndoQueueNameConfig.Value);
                 
                 // Hooks
                 On.ZNetScene.Shutdown += (orig, self) =>
@@ -148,7 +141,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         public static void HighlightPiecesInRadius(Vector3 startPosition, float radius, Color color, bool onlyPlanned = false)
         {
-            if (Time.time < LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHighlightTime + HighlightTimeout)
             {
                 return;
             }
@@ -160,7 +153,7 @@ namespace PlanBuild.Blueprints
                     wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                 }
             }
-            LastHightlightTime = Time.time;
+            LastHighlightTime = Time.time;
         }
 
         /// <summary>
@@ -168,7 +161,7 @@ namespace PlanBuild.Blueprints
         /// </summary>
         public static void HighlightHoveredPiece(Color color, bool onlyPlanned = false)
         {
-            if (Time.time < LastHightlightTime + HighlightTimeout)
+            if (Time.time < LastHighlightTime + HighlightTimeout)
             {
                 return;
             }
@@ -184,7 +177,7 @@ namespace PlanBuild.Blueprints
                     wearNTear.Highlight(color, HighlightTimeout + 0.1f);
                 }
             }
-            LastHightlightTime = Time.time;
+            LastHighlightTime = Time.time;
         }
         
         /// <summary>
