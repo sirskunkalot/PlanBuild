@@ -13,6 +13,7 @@ namespace PlanBuild.Blueprints.Tools
         public static Vector3 PlacementOffset = Vector3.zero;
         public static Vector3 MarkerOffset = Vector3.zero;
 
+        internal bool SuppressGizmo = true;
         internal bool SuppressPieceHighlight = true;
         internal bool ResetPlacementOffset = true;
         internal bool ResetMarkerOffset = true;

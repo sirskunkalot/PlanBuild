@@ -12,6 +12,7 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override void OnStart()
         {
+            SuppressGizmo = false;
             SuppressPieceHighlight = false;
             ResetPlacementOffset = false;
         }
