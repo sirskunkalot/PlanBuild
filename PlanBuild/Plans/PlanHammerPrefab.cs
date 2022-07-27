@@ -139,7 +139,7 @@ namespace PlanBuild.Plans
                 }
             });
 
-            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
+            GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
         }
         
         private class DeletePlansComponent : MonoBehaviour
