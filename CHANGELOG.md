@@ -1,3 +1,6 @@
+# Version 0.10.4
+* Added global deletion tool to the plan hammer
+
 # Version 0.10.3
 * Implemented bp.undo and bp.redo console commands for all blueprint and terrain actions (big thx to Jere)
 * Changed offset handling for blueprints so the placement marker stays in place
