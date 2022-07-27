@@ -10,7 +10,7 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override void OnUpdatePlacement(Player self)
         {
-            if (!self.m_placementMarkerInstance)
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
                 return;
             }
@@ -44,6 +44,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
+            {
+                return;
+            }
+
             if (!Config.AllowTerrainmodConfig.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_terrain_disabled");

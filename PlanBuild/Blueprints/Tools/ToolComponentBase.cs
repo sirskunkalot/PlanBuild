@@ -242,11 +242,11 @@ namespace PlanBuild.Blueprints.Tools
         {
             orig(self, flashGuardStone);
 
-            if (self.m_placementMarkerInstance && self.m_placementGhost)
+            if (self.m_placementMarkerInstance)
             {
                 self.m_placementMarkerInstance.transform.up = Vector3.back;
 
-                if (PlacementOffset != Vector3.zero)
+                if (self.m_placementGhost && PlacementOffset != Vector3.zero)
                 {
                     var pos = self.m_placementGhost.transform.position;
                     var rot = self.m_placementGhost.transform.rotation;

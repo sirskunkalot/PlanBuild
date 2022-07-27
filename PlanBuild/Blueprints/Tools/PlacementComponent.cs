@@ -18,6 +18,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnUpdatePlacement(Player self)
         {
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
+            {
+                return;
+            }
+
             DisableSelectionProjector();
 
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
@@ -50,16 +55,23 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
-            if (self.m_placementStatus == Player.PlacementStatus.Valid)
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
-                try
-                {
-                    PlaceBlueprint(self, piece);
-                }
-                catch (Exception ex)
-                {
-                    Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
-                }
+                return;
+            }
+
+            if (self.m_placementStatus != Player.PlacementStatus.Valid)
+            {
+                return;
+            }
+
+            try
+            {
+                PlaceBlueprint(self, piece);
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
             }
         }
 

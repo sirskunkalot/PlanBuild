@@ -7,7 +7,7 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override void OnUpdatePlacement(Player self)
         {
-            if (!self.m_placementMarkerInstance)
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
                 return;
             }
@@ -51,6 +51,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
+            {
+                return;
+            }
+
             if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
                 DeletePlans(self);

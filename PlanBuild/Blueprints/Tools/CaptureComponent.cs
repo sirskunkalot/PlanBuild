@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlanBuild.Blueprints.Tools
 {
@@ -7,7 +6,7 @@ namespace PlanBuild.Blueprints.Tools
     {
         public override void OnUpdatePlacement(Player self)
         {
-            if (!self.m_placementMarkerInstance)
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
                 return;
             }
@@ -36,6 +35,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
+            {
+                return;
+            }
+
             MakeBlueprint(self);
         }
 

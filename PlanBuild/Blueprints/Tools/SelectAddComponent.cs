@@ -8,11 +8,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnUpdatePlacement(Player self)
         {
-            if (!self.m_placementMarkerInstance)
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
                 return;
             }
-            
+
             bool cameraModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
             bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
@@ -49,6 +49,11 @@ namespace PlanBuild.Blueprints.Tools
 
         public override void OnPlacePiece(Player self, Piece piece)
         {
+            if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
+            {
+                return;
+            }
+
             bool cameraModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
             bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
