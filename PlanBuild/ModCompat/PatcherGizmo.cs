@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using PlanBuild.Blueprints;
+using PlanBuild.Plans;
 
 namespace PlanBuild.ModCompat
 {
@@ -9,16 +10,26 @@ namespace PlanBuild.ModCompat
         [HarmonyPrefix]
         private static bool ComfyGizmo_UpdatePlacementPostfix_Prefix()
         {
-            if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces && Player.m_localPlayer.m_placementGhost &&
-                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
+            if (!Player.m_localPlayer || !Player.m_localPlayer.m_buildPieces ||
+                !Player.m_localPlayer.m_placementGhost || !Gizmo.ComfyGizmo._gizmoRoot)
+            {
+                return true;
+            }
+
+            if (Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName) &&
                 !Player.m_localPlayer.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName))
             {
-                if (Gizmo.ComfyGizmo._gizmoRoot)
-                {
-                    Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
-                }
+                Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
                 return false;
             }
+
+            if (Player.m_localPlayer.m_buildPieces.name.StartsWith(PlanHammerPrefab.PieceTableName) &&
+                Player.m_localPlayer.m_placementGhost.name.StartsWith(PlanHammerPrefab.PieceDeletePlansName))
+            {
+                Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
+                return false;
+            }
+
             return true;
         }
 

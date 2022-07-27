@@ -12,18 +12,23 @@ namespace PlanBuild.Plans
 {
     internal class PlanHammerPrefab
     {
-        public const string PieceTableName = "_PlanHammerPieceTable";
         public const string PlanHammerName = "PlanHammer";
         public const string PlanHammerItemName = "$item_plan_hammer";
+        public const string PieceTableName = "_PlanHammerPieceTable";
+
+        public const string PieceDeletePlansName = "piece_plan_delete";
 
         private static Sprite HammerIcon;
+        private static GameObject PieceDeletePlansPrefab;
         private static CustomItem PlanHammerItem;
 
         public static void Create(AssetBundle planbuildBundle)
         {
             HammerIcon = planbuildBundle.LoadAsset<Sprite>("plan_hammer");
+            PieceDeletePlansPrefab = planbuildBundle.LoadAsset<GameObject>(PieceDeletePlansName);
             PrefabManager.OnVanillaPrefabsAvailable += CreatePlanHammerItem;
             PieceManager.OnPiecesRegistered += CreatePlanTable;
+            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
         }
 
         private static void CreatePlanHammerItem()
@@ -36,11 +41,11 @@ namespace PlanBuild.Plans
                 {
                     Name = PlanHammerItemName,
                     Description = $"{PlanHammerItemName}_description",
-                    Icons = new Sprite[]
+                    Icons = new []
                     {
                         HammerIcon
                     },
-                    Requirements = new RequirementConfig[]
+                    Requirements = new []
                     {
                         new RequirementConfig
                         {
@@ -101,6 +106,12 @@ namespace PlanBuild.Plans
 
                 // Set table on the hammer
                 PlanHammerItem.ItemDrop.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
+
+                // Create delete tool
+                PieceDeletePlansPrefab.AddComponent<DeletePlansComponent>();
+                CustomPiece pieceDelete = new CustomPiece(PieceDeletePlansPrefab, PieceTableName, false);
+                PieceManager.Instance.AddPiece(pieceDelete);
+                PieceManager.Instance.RegisterPieceInPieceTable(PieceDeletePlansPrefab, PieceTableName, "All");
             }
             catch (Exception ex)
             {
@@ -109,6 +120,58 @@ namespace PlanBuild.Plans
             finally
             {
                 PieceManager.OnPiecesRegistered -= CreatePlanTable;
+            }
+        }
+
+        private static void CreateCustomKeyHints()
+        {
+            // Remove
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = PlanHammerName,
+                Piece = PieceDeletePlansName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_plandelete" }
+                }
+            });
+
+            GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
+        }
+        
+        private class DeletePlansComponent : MonoBehaviour
+        {
+            private Piece LastHoveredPiece;
+            
+            private void Start()
+            {
+                On.Player.PieceRayTest += Player_PieceRayTest;
+                On.Player.PlacePiece += Player_PlacePiece;
+                Logger.LogDebug($"{gameObject.name} started");
+            }
+            
+            private void OnDestroy()
+            {
+                On.Player.PlacePiece -= Player_PlacePiece;
+                On.Player.PieceRayTest -= Player_PieceRayTest;
+                Logger.LogDebug($"{gameObject.name} destroyed");
+            }
+            
+            private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+            {
+                bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
+                LastHoveredPiece = piece;
+                return result;
+            }
+
+            private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+            {
+                if (LastHoveredPiece && LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
+                {
+                    planPiece.m_wearNTear.Remove();
+                }
+                return false;
             }
         }
     }

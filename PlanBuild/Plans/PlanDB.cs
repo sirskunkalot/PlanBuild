@@ -256,7 +256,7 @@ namespace PlanBuild.Plans
         /// <returns>true if a plan prefab was found for that prefabs name</returns>
         internal bool FindPlanByPrefabName(string name, out PlanPiecePrefab planPiecePrefab)
         {
-            int index = name.IndexOf("(Clone)");
+            int index = name.IndexOf("(Clone)", StringComparison.Ordinal);
             if (index != -1)
             {
                 name = name.Substring(0, index);
@@ -272,8 +272,7 @@ namespace PlanBuild.Plans
                    && piece.GetComponent<TerrainModifier>() == null
                    && piece.GetComponent<Ship>() == null
                    && piece.GetComponent<PlanPiece>() == null
-                   && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName)
-                   && !piece.name.Equals(BlueprintAssets.PieceDeletePlansName);
+                   && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName);
         }
     }
 }
