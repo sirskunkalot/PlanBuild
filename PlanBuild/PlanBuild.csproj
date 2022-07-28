@@ -147,6 +147,7 @@
     <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\Tools\CaptureComponent.cs" />
     <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
+    <Compile Include="Blueprints\Tools\MarkerComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectEditComponent.cs" />
     <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
     <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />

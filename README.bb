@@ -5,6 +5,7 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 [*]Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the [b]Plan Hammer[/b] and the [b]Blueprint Rune[/b].
 [*]Lots of improvements to the [b]Selection tools[/b]. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
 [*]You can copy+paste blueprints directly without having to save them (clipboard).
+[*]Most actions can be reversed and replayed using the [b]bp.undo[/b] and [b]bp.redo[/b] console commands.
 [*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 [/list]
 
@@ -87,8 +88,15 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*][b]Save[/b]: Save the current selection as a new blueprint into the file system. These blueprints are kapt between game sessions and can also be used in the marketplace and shared with other players.
 [*][b]Delete[/b]: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
 [*][b]Cancel[/b]: Exit the menu without any action.
-[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint.
-[*][b]Center point marker:[/b] Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
+[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+[list]
+[*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
+[*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
+[/list][*][b]Center point marker:[/b] Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+[list]
+[*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
+[*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
+[/list]
 [*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Ctrl[/b] to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
@@ -134,8 +142,17 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 [*]Use [b]Alt + Scroll[/b] to move the blueprint on the X-axis.
 [*]Use [b]Ctrl + Alt + Scroll[/b] to move the blueprint on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint. Admin's are always allowed to "direct build".
+[*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
 [/list]
+
+[b][size=4]Undo/Redo[/size][/b]
+
+The Blueprint Rune features an undo/redo mechanic for most of its actions. Placed blueprints, terrain/paint modifications and object deletions can be reversed using the __bp.undo__ console command. A reversed action can also be replayed using the __bp.redo__ console command. For easy access we recommend binding those commands to a key of your liking. To bind those commands to your mouse's "back" and "forth" keys for example type this into the game's console:
+
+[code]
+bind mouse3 bp.undo
+bind mouse4 bp.redo
+[/code]
 
 [b][size=5]Blueprint Marketplace[/size][/b]
 [img]https://raw.githubusercontent.com/sirskunkalot/PlanBuild/master/PlanBuild/resources/BlueprintMarket.png[/img]

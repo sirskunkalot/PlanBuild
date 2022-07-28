@@ -49,11 +49,11 @@ namespace PlanBuild.Blueprints
             {
                 AttachListener(piece);
                 Highlight(zdoid.Value, piece.gameObject);
-                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
+                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName, StringComparison.Ordinal))
                 {
                     SnapPoints++;
                 }
-                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
+                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal))
                 {
                     CenterMarkers++;
                 }
@@ -116,11 +116,11 @@ namespace PlanBuild.Blueprints
             if (zdoid.HasValue && SelectedZDOIDs.Remove(zdoid.Value))
             {
                 Unhighlight(zdoid.Value, piece.gameObject);
-                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName))
+                if (piece.name.StartsWith(BlueprintAssets.PieceSnapPointName, StringComparison.Ordinal))
                 {
                     SnapPoints--;
                 }
-                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName))
+                else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal))
                 {
                     CenterMarkers--;
                 }
@@ -151,6 +151,8 @@ namespace PlanBuild.Blueprints
                 Unhighlight(zdoid, selected);
             }
             BlueprintInstance = null;
+            SnapPoints = 0;
+            CenterMarkers = 0;
             SelectedZDOIDs.Clear();
         }
 
@@ -415,6 +417,14 @@ namespace PlanBuild.Blueprints
             }
             SelectedZDOIDs.Remove(zdoid.Value);
             HighlightedZDOIDs.Remove(zdoid.Value);
+            if (wearNTear.name.StartsWith(BlueprintAssets.PieceSnapPointName, StringComparison.Ordinal))
+            {
+                SnapPoints--;
+            }
+            else if (wearNTear.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal))
+            {
+                CenterMarkers--;
+            }
         }
 
         public override string ToString()

@@ -6,6 +6,7 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 - Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the __Plan Hammer__ and the __Blueprint Rune__.
 - Lots of improvements to the __Selection tools__. You can add and remove parts of your buildings to a selection and need to use the __Edit Selection__ tool or the __selection.gui__ console command to save or copy your blueprint.
 - You can copy+paste blueprints directly without having to save them (clipboard).
+- Most actions can be reversed and replayed using the __bp.undo__ and __bp.redo__ console commands.
 - The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 
 # PlanBuild
@@ -92,9 +93,13 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * __Delete__: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
   * __Cancel__: Exit the menu without any action.
 
-* __Snap point marker:__ Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint.
+* __Snap point marker:__ Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [Snap points made easy](https://www.nexusmods.com/valheim/mods/299)﻿ so you can cycle through the snap points when placing the blueprint. __Note__: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+  * Use __Remove__ to delete a placed marker again (just like you would delete a piece with the hammer).
+  * Use __Shift + Scroll__ to adjust the camera distance.
 
-* __Center point marker:__ Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.
+* __Center point marker:__ Add a center point marker to your blueprint to determine the center of the blueprint. This is where it will be anchored while placing it. If a blueprint does not have a center point marker, a bottom corner of the blueprint is found and used as the center.  __Note__: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+  * Use __Remove__ to delete a placed marker again (just like you would delete a piece with the hammer).
+  * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Remove planned pieces:__ Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
   * Press __Ctrl__ to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
@@ -140,7 +145,16 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
 * Use __Shift + Scroll__ to adjust the camera distance.
-* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admin's are always allowed to "direct build".
+* There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
+
+### Undo/Redo
+
+The Blueprint Rune features an undo/redo mechanic for most of its actions. Placed blueprints, terrain/paint modifications and object deletions can be reversed using the __bp.undo__ console command. A reversed action can also be replayed using the __bp.redo__ console command. For easy access we recommend binding those commands to a key of your liking. To bind those commands to your mouse's "back" and "forth" keys for example type this into the game's console:
+
+```
+bind mouse3 bp.undo
+bind mouse4 bp.redo
+```
 
 ## Blueprint Marketplace
 

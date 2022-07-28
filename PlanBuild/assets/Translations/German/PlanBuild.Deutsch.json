@@ -90,6 +90,7 @@
     "hud_blueprint_select_edit": "Öffne das Selektions-Menü",
     "hud_bpsnappoint": "Fangmarkierung bauen",
     "hud_bpcenterpoint": "Mittelpunkt-Markierung bauen",
+    "hud_bpremovemarker": "Fang/Mittelpunkt-Markierung entfernen",
     "hud_bprotate": "Markierung drehen",
     "hud_bpdelete": "Plan entfernen",
     "hud_bpdelete_all": "Halten zum Entfernen der ganzen Blaupause",

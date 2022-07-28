@@ -24,7 +24,9 @@ namespace PlanBuild.Blueprints
         public const string CategoryBlueprints = "Blueprints";
 
         public const string PieceSnapPointName = "piece_bpsnappoint";
+        public const string PieceSnapPointInstanceName = "piece_bpsnappointinstance";
         public const string PieceCenterPointName = "piece_bpcenterpoint";
+        public const string PieceCenterPointInstanceName = "piece_bpcenterpointinstance";
         public const string PieceCaptureName = "piece_bpcapture";
         public const string PieceSelectAddName = "piece_bpselectadd";
         public const string PieceSelectRemoveName = "piece_bpselectremove";
@@ -143,6 +145,20 @@ namespace PlanBuild.Blueprints
                     case PieceSelectEditName:
                         prefabs[pieceName].AddComponent<SelectEditComponent>();
                         break;
+                        
+                    case PieceSnapPointName:
+                        var snap = prefabs[pieceName].AddComponent<MarkerComponent>();
+                        snap.PieceInstanceName = PieceSnapPointInstanceName;
+                        var snapfab = new CustomPrefab(prefabs[PieceSnapPointInstanceName], false);
+                        PrefabManager.Instance.AddPrefab(snapfab);
+                        break;
+                        
+                    case PieceCenterPointName:
+                        var center = prefabs[pieceName].AddComponent<MarkerComponent>();
+                        center.PieceInstanceName = PieceCenterPointInstanceName;
+                        var centerfab = new CustomPrefab(prefabs[PieceCenterPointInstanceName], false);
+                        PrefabManager.Instance.AddPrefab(centerfab);
+                        break;
 
                     case PieceDeletePlansName:
                         prefabs[pieceName].AddComponent<DeletePlansComponent>();
@@ -252,7 +268,9 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpsnappoint" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                    new ButtonConfig { Name = "Remove", HintToken = "$hud_bpremovemarker" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
                 }
             });
 
@@ -265,7 +283,9 @@ namespace PlanBuild.Blueprints
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" },
+                    new ButtonConfig { Name = "Remove", HintToken = "$hud_bpremovemarker" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
                 }
             });
 

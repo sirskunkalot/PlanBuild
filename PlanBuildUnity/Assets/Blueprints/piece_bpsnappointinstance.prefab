@@ -206,9 +206,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6135710912693520326}
+  - component: {fileID: 3046086382475166249}
   - component: {fileID: 4203466953734453122}
+  - component: {fileID: 2707846333782197574}
   m_Layer: 10
-  m_Name: piece_bpsnappoint
+  m_Name: piece_bpsnappointinstance
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -231,6 +233,22 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3046086382475166249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3384657245165582381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1521249158, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_persistent: 1
+  m_distant: 0
+  m_type: 0
+  m_syncInitialScale: 0
 --- !u!114 &4203466953734453122
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281,6 +299,49 @@ MonoBehaviour:
   m_craftingStation: {fileID: 0}
   m_resources: []
   m_destroyedLootPrefab: {fileID: 0}
+--- !u!114 &2707846333782197574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3384657245165582381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 895252998, guid: 9266ceb587ffda14da80e5ef458ca60b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_new: {fileID: 3232563174359360796}
+  m_worn: {fileID: 3232563174359360796}
+  m_broken: {fileID: 3232563174359360796}
+  m_wet: {fileID: 3232563174359360796}
+  m_noRoofWear: 0
+  m_noSupportWear: 0
+  m_materialType: 0
+  m_supports: 1
+  m_comOffset: {x: 0, y: 0, z: 0}
+  m_health: 100
+  m_damages:
+    m_blunt: 0
+    m_slash: 0
+    m_pierce: 0
+    m_chop: 0
+    m_pickaxe: 0
+    m_fire: 0
+    m_frost: 0
+    m_lightning: 0
+    m_poison: 0
+    m_spirit: 0
+  m_hitNoise: 0
+  m_destroyNoise: 0
+  m_destroyedEffect:
+    m_effectPrefabs: []
+  m_hitEffect:
+    m_effectPrefabs: []
+  m_switchEffect:
+    m_effectPrefabs: []
+  m_autoCreateFragments: 0
+  m_fragmentRoots: []
 --- !u!1 &4022554621584472199
 GameObject:
   m_ObjectHideFlags: 0

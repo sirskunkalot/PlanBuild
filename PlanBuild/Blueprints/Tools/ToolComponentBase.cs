@@ -301,7 +301,7 @@ namespace PlanBuild.Blueprints.Tools
             if (PatcherBuildCamera.UpdateCamera
                 && Player.m_localPlayer
                 && Player.m_localPlayer.InPlaceMode()
-                && Player.m_localPlayer.m_placementGhost)
+                && Player.m_localPlayer.m_placementGhost){}
             {
                 self.transform.position += new Vector3(0, CameraOffset, 0);
             }
