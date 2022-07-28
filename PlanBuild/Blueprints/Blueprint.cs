@@ -749,6 +749,11 @@ namespace PlanBuild.Blueprints
                     },
                     new ButtonConfig
                     {
+                        Name = Config.ToggleButton.Name, Config = Config.ToggleConfig,
+                        HintToken = "$hud_bpresetoffset"
+                    },
+                    new ButtonConfig
+                    {
                         Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1"
                     },
                 }

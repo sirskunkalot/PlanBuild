@@ -3,6 +3,8 @@
 * Snap point and center markers are now concidered "selection tools" - if you have a current selection, newly placed markers will automatically be added to that selection and selection highlighting will be retained
 * Fixed rune tools executing without a visible placement marker
 * Increased max camera distance
+* Added key to reset placement offset for blueprints
+* Added automatic reset to the placement offset after placing a blueprint
 
 # Version 0.10.3
 * Implemented bp.undo and bp.redo console commands for all blueprint and terrain actions (big thx to Jere)

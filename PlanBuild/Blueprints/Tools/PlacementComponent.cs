@@ -52,6 +52,11 @@ namespace PlanBuild.Blueprints.Tools
                     UndoRotation(self, scrollWheel);
                 }
             }
+
+            if (ZInput.GetButton(Config.ToggleButton.Name))
+            {
+                PlacementOffset = Vector3.zero;
+            }
         }
 
         public override void OnPlacePiece(Player self, Piece piece)
@@ -267,11 +272,15 @@ namespace PlanBuild.Blueprints.Tools
                 }
             }
 
+            // Create undo action
             if (ZDOs.Any())
             {
                 var action = new UndoActions.UndoCreate(ZDOs);
                 UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
             }
+
+            // Reset offset
+            PlacementOffset = Vector3.zero;
         }
 
         /// <summary>

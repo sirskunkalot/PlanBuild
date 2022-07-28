@@ -144,6 +144,7 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Ctrl + Scroll__ to move the blueprint on the Z-axis.
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
+* Use __Q__ to reset the offset on all axes.
 * Use __Shift + Scroll__ to adjust the camera distance.
 * There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
 

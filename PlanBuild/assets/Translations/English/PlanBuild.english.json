@@ -68,6 +68,7 @@
     "hud_bpplace": "Place",
     "hud_bpdirect": "Direct build",
     "hud_bpplanned": "Planned build",
+    "hud_bpresetoffset": "Reset the offset on all axes",
     "hud_bprotate1": "Rotate, Ctrl + Alt: Move Y-axis\nCtrl: Move Z-axis, Alt: Move X-axis",
     "msg_direct_build_disabled": "Direct build disabled",
     "msg_blueprint_select_inactive": "Selection tool inactive",
