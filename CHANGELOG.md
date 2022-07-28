@@ -1,6 +1,7 @@
 # Version 0.10.4
 * Added global plan deletion tool to the plan hammer
 * Snap point and center markers are now concidered "selection tools" - if you have a current selection, newly placed markers will automatically be added to that selection and selection highlighting will be retained
+* Added deletion of snap/center markers with the rune (like removing pieces with the hammer)
 * Fixed rune tools executing without a visible placement marker
 * Increased max camera distance
 * Added key to reset placement offset for blueprints
