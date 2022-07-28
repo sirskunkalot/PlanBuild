@@ -220,7 +220,7 @@ namespace PlanBuild.Blueprints.Tools
         {
             // TODO: base min/max off of selected piece dimensions
             float minOffset = 0f;
-            float maxOffset = 20f;
+            float maxOffset = 30f;
             bool scrollingDown = scrollWheel < 0f;
             if (Config.InvertCameraOffsetScrollConfig.Value)
             {
