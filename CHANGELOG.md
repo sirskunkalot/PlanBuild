@@ -1,5 +1,7 @@
 # Version 0.10.4
-* Added global deletion tool to the plan hammer
+* Added global plan deletion tool to the plan hammer
+* Snap point and center markers are now concidered "selection tools" - if you have a current selection, newly placed markers will automatically be added to that selection and selection highlighting will be retained
+* Fixed rune tools executing without a visible placement marker
 
 # Version 0.10.3
 * Implemented bp.undo and bp.redo console commands for all blueprint and terrain actions (big thx to Jere)
