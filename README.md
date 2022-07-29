@@ -1,4 +1,3 @@
-﻿
 # BIG REVAMP
 
 Version 0.10.0 of PlanBuild comes with a big internal code refactor and many changes to the handling of plans and blueprints. Please make sure to check out the documentation below. The biggest changes in a nutshell:
