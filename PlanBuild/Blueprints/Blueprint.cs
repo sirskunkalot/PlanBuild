@@ -727,7 +727,7 @@ namespace PlanBuild.Blueprints
             {
                 KeyHintManager.Instance.RemoveKeyHint(KeyHint);
             }
-            var rotatebase = LocalizationManager.Instance.TryTranslate("$hud_bprotatepiece");
+            var rotatebase = LocalizationManager.Instance.TryTranslate("$hud_bpoffsetpiece");
             var ctrlkey =
                 LocalizationManager.Instance.TryTranslate(
                     ZInput.instance.GetBoundKeyString(Config.CtrlModifierButton.Name));
@@ -761,6 +761,10 @@ namespace PlanBuild.Blueprints
                     {
                         Name = Config.ToggleButton.Name, Config = Config.ToggleConfig,
                         HintToken = "$hud_bpresetoffset"
+                    },
+                    new ButtonConfig
+                    {
+                        Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotatepiece"
                     },
                     new ButtonConfig
                     {
