@@ -69,7 +69,7 @@
     "hud_bpdirect": "Direct build",
     "hud_bpplanned": "Planned build",
     "hud_bpresetoffset": "Reset the offset on all axes",
-    "hud_bprotatepiece": "Rotate; Axes: ",
+    "hud_bprotatepiece": "Offset: ",
     "msg_direct_build_disabled": "Direct build disabled",
     "msg_blueprint_select_inactive": "Selection tool inactive",
     "msg_blueprint_select_empty": "Selection is empty",
