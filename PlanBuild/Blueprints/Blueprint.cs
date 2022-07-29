@@ -727,6 +727,16 @@ namespace PlanBuild.Blueprints
             {
                 KeyHintManager.Instance.RemoveKeyHint(KeyHint);
             }
+            var rotatebase = LocalizationManager.Instance.TryTranslate("$hud_bprotatepiece");
+            var ctrlkey =
+                LocalizationManager.Instance.TryTranslate(
+                    ZInput.instance.GetBoundKeyString(Config.CtrlModifierButton.Name));
+            var altkey =
+                LocalizationManager.Instance.TryTranslate(
+                    ZInput.instance.GetBoundKeyString(Config.AltModifierButton.Name));
+            var rotatehint = $"{rotatebase} {ctrlkey} + {altkey} = Y\n{ctrlkey} = Z, {altkey} = X";
+            rotatehint = rotatehint.Replace("[", null);
+            rotatehint = rotatehint.Replace("]", null);
             KeyHint = new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -754,8 +764,8 @@ namespace PlanBuild.Blueprints
                     },
                     new ButtonConfig
                     {
-                        Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate1"
-                    },
+                        Name = "Scroll", Axis = "Mouse ScrollWheel", Hint = rotatehint
+                    }
                 }
             };
             KeyHintManager.Instance.AddKeyHint(KeyHint);

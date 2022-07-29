@@ -231,6 +231,22 @@ namespace PlanBuild
                 KeybindSection, "Toggle", KeyCode.Q,
                 new ConfigDescription("Key to switch between modes on various tools", null,
                     new ConfigurationManagerAttributes { Order = --order }));
+            
+            CtrlModifierConfig.SettingChanged += (sender, args) =>
+            {
+                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
+                {
+                    bp.CreateKeyHint();
+                }
+            };
+            
+            AltModifierConfig.SettingChanged += (sender, args) =>
+            {
+                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
+                {
+                    bp.CreateKeyHint();
+                }
+            };
 
             // Plans Section
 
