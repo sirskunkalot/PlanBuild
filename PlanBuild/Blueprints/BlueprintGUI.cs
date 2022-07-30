@@ -1,12 +1,12 @@
-﻿using Jotunn.Managers;
-using Jotunn.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jotunn.Managers;
+using Jotunn.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PlanBuild.Blueprints.Marketplace
+namespace PlanBuild.Blueprints
 {
     internal class BlueprintGUI
     {

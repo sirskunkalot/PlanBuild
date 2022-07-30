@@ -1,4 +1,4 @@
-﻿namespace PlanBuild.Blueprints.Marketplace
+﻿namespace PlanBuild.Blueprints
 {
     /// <summary>
     ///     Discriminator of the local and server blueprints

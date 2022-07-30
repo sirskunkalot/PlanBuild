@@ -2,7 +2,7 @@
 using PlanBuild.Utils;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class ToolComponentBase : MonoBehaviour
     {

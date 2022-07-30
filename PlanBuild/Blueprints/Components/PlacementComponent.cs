@@ -1,12 +1,12 @@
-﻿using Jotunn.Managers;
-using PlanBuild.Plans;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Jotunn.Managers;
 using Jotunn.Utils;
+using PlanBuild.Plans;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class PlacementComponent : ToolComponentBase
     {

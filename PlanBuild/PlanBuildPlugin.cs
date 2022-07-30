@@ -8,7 +8,6 @@ using BepInEx;
 using Jotunn.Managers;
 using Jotunn.Utils;
 using PlanBuild.Blueprints;
-using PlanBuild.Blueprints.Marketplace;
 using PlanBuild.Plans;
 using System.Reflection;
 using UnityEngine;

@@ -1,8 +1,8 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using PlanBuild.Blueprints.Tools;
 using System.Collections.Generic;
+using PlanBuild.Blueprints.Components;
 using UnityEngine;
 using UnityEngine.UI;
 

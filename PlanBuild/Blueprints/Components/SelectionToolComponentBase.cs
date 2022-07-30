@@ -1,4 +1,4 @@
-﻿namespace PlanBuild.Blueprints.Tools
+﻿namespace PlanBuild.Blueprints.Components
 {
     internal class SelectionToolComponentBase : ToolComponentBase
     {

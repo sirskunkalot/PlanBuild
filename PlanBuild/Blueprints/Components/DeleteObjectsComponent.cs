@@ -6,9 +6,8 @@ using Jotunn.Utils;
 using PlanBuild.Plans;
 using UnityEngine;
 using Logger = Jotunn.Logger;
-using Object = UnityEngine.Object;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class DeleteObjectsComponent : ToolComponentBase
     {

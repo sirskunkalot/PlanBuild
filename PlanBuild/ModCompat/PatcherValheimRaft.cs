@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using PlanBuild.Blueprints.Tools;
+using PlanBuild.Blueprints.Components;
 using PlanBuild.Plans;
 using UnityEngine;
 using ValheimRAFT;

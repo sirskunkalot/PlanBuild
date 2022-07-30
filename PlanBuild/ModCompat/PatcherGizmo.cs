@@ -1,7 +1,7 @@
 ﻿using System;
 using HarmonyLib;
 using PlanBuild.Blueprints;
-using PlanBuild.Blueprints.Tools;
+using PlanBuild.Blueprints.Components;
 using PlanBuild.Plans;
 
 namespace PlanBuild.ModCompat

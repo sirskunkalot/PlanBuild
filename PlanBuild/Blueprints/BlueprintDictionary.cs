@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text;
 
-namespace PlanBuild.Blueprints.Marketplace
+namespace PlanBuild.Blueprints
 {
     internal class BlueprintDictionary : Dictionary<string, Blueprint>
     {

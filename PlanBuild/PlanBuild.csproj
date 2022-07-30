@@ -138,25 +138,25 @@
     <Compile Include="Blueprints\SelectionCommands.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
     <Compile Include="Blueprints\BlueprintInstance.cs" />
-    <Compile Include="Blueprints\Marketplace\BlueprintDictionary.cs" />
+    <Compile Include="Blueprints\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />
-    <Compile Include="Blueprints\Marketplace\BlueprintSync.cs" />
+    <Compile Include="Blueprints\BlueprintSync.cs" />
     <Compile Include="Blueprints\SelectionGUI.cs" />
     <Compile Include="Blueprints\SelectionTools.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />
-    <Compile Include="Blueprints\Tools\CaptureComponent.cs" />
-    <Compile Include="Blueprints\Tools\DeletePlansComponent.cs" />
-    <Compile Include="Blueprints\Tools\MarkerComponent.cs" />
-    <Compile Include="Blueprints\Tools\SelectEditComponent.cs" />
-    <Compile Include="Blueprints\Tools\PlacementComponent.cs" />
-    <Compile Include="Blueprints\Tools\SelectRemoveComponent.cs" />
-    <Compile Include="Blueprints\Tools\SelectAddComponent.cs" />
-    <Compile Include="Blueprints\Tools\DeleteObjectsComponent.cs" />
-    <Compile Include="Blueprints\Tools\PaintComponent.cs" />
-    <Compile Include="Blueprints\Tools\SelectionToolComponentBase.cs" />
-    <Compile Include="Blueprints\Tools\TerrainComponent.cs" />
-    <Compile Include="Blueprints\Tools\ToolComponentBase.cs" />
+    <Compile Include="Blueprints\Components\CaptureComponent.cs" />
+    <Compile Include="Blueprints\Components\DeletePlansComponent.cs" />
+    <Compile Include="Blueprints\Components\MarkerComponent.cs" />
+    <Compile Include="Blueprints\Components\SelectEditComponent.cs" />
+    <Compile Include="Blueprints\Components\PlacementComponent.cs" />
+    <Compile Include="Blueprints\Components\SelectRemoveComponent.cs" />
+    <Compile Include="Blueprints\Components\SelectAddComponent.cs" />
+    <Compile Include="Blueprints\Components\DeleteObjectsComponent.cs" />
+    <Compile Include="Blueprints\Components\PaintComponent.cs" />
+    <Compile Include="Blueprints\Components\SelectionToolComponentBase.cs" />
+    <Compile Include="Blueprints\Components\TerrainComponent.cs" />
+    <Compile Include="Blueprints\Components\ToolComponentBase.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Plans\PlanCommands.cs" />
     <Compile Include="Plans\PlanBlacklist.cs" />
@@ -165,11 +165,11 @@
     <Compile Include="Plans\PlanHammerPrefab.cs" />
     <Compile Include="Utils\ShapedProjector.cs" />
     <Compile Include="Utils\SquareProjector.cs" />
-    <Compile Include="Blueprints\Marketplace\BlueprintLocation.cs" />
+    <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
     <Compile Include="Blueprints\SnapPoint.cs" />
-    <Compile Include="Blueprints\Marketplace\UIDragDrop.cs" />
-    <Compile Include="Blueprints\Marketplace\BlueprintGUI.cs" />
+    <Compile Include="Blueprints\UIDragDrop.cs" />
+    <Compile Include="Blueprints\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />
     <Compile Include="Blueprints\ZDOIDSet.cs" />
     <Compile Include="Utils\DebugUtils.cs" />
@@ -210,6 +210,7 @@
     <Content Include="resources\PlanTotem.png" />
     <Content Include="resources\PlanMode.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
     <Exec Command="powershell.exe -ExecutionPolicy RemoteSigned -File &quot;$(SolutionDir)publish.ps1&quot; -Target &quot;$(ConfigurationName)&quot; -TargetPath &quot;$(TargetDir.TrimEnd('\'))&quot; -TargetAssembly &quot;$(TargetFileName)&quot; -ValheimPath &quot;$(VALHEIM_INSTALL.TrimEnd('\'))&quot; -ProjectPath &quot;$(ProjectDir.TrimEnd('\'))&quot; -SolutionPath &quot;$(SolutionDir.TrimEnd('\'))&quot;" />

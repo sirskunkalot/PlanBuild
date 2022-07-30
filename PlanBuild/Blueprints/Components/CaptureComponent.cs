@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class CaptureComponent : ToolComponentBase
     {

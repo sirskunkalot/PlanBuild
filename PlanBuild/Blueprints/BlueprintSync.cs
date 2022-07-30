@@ -1,13 +1,13 @@
-﻿using Jotunn;
-using Jotunn.Managers;
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Jotunn;
 using Jotunn.Entities;
-using System.Collections;
+using Jotunn.Managers;
 
-namespace PlanBuild.Blueprints.Marketplace
+namespace PlanBuild.Blueprints
 {
     internal static class BlueprintSync
     {
@@ -53,12 +53,12 @@ namespace PlanBuild.Blueprints.Marketplace
             {
                 try
                 {
-                    string id = Path.GetFileNameWithoutExtension(relativeFilePath);
-                    if (!BlueprintManager.LocalBlueprints.ContainsKey(id))
+                    Blueprint bp = Blueprint.FromFile(relativeFilePath);
+                    if (BlueprintManager.LocalBlueprints.ContainsKey(bp.ID))
                     {
-                        Blueprint bp = Blueprint.FromFile(relativeFilePath);
-                        BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+                        throw new Exception($"Blueprint ID {bp.ID} already exists");
                     }
+                    BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
                 }
                 catch (Exception ex)
                 {

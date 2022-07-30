@@ -1,9 +1,9 @@
-﻿using Jotunn.Managers;
-using System;
+﻿using System;
 using System.Linq;
+using Jotunn.Managers;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class MarkerComponent : SelectionToolComponentBase
     {

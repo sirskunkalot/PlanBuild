@@ -1,9 +1,9 @@
-﻿using Jotunn.Managers;
+﻿using System.Collections.Generic;
+using Jotunn.Managers;
 using PlanBuild.Utils;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class TerrainComponent : ToolComponentBase
     {

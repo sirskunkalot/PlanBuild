@@ -1,9 +1,11 @@
 ﻿using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
-    internal class SelectRemoveComponent : SelectionToolComponentBase
+    internal class SelectAddComponent : SelectionToolComponentBase
     {
+        private Piece StartPiece;
+
         public override void OnUpdatePlacement(Player self)
         {
             if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
@@ -18,7 +20,6 @@ namespace PlanBuild.Blueprints.Tools
             if (radiusModifier && !connectedModifier)
             {
                 EnableSelectionProjector(self);
-                //BlueprintManager.HighlightPiecesInRadius(self.m_placementMarkerInstance.transform.position, SelectionRadius, Color.red);
             }
             else
             {
@@ -38,10 +39,10 @@ namespace PlanBuild.Blueprints.Tools
                 }
                 UndoRotation(self, scrollWheel);
             }
-            
+
             if (ZInput.GetButtonDown(Config.ToggleButton.Name))
             {
-                Player.m_localPlayer.m_buildPieces.LeftPiece();
+                Player.m_localPlayer.m_buildPieces.RightPiece();
                 Player.m_localPlayer.SetupPlacementGhost();
             }
         }
@@ -57,24 +58,33 @@ namespace PlanBuild.Blueprints.Tools
             bool radiusModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
             bool connectedModifier = ZInput.GetButton(Config.AltModifierButton.Name);
 
-            if (cameraModifier)
+            if (radiusModifier)
             {
-                Selection.Instance.Clear();
-            }
-            else if (radiusModifier)
-            {
-                Selection.Instance.RemovePiecesInRadius(transform.position, SelectionRadius);
+                Selection.Instance.AddPiecesInRadius(transform.position, SelectionRadius);
             }
             else if (BlueprintManager.LastHoveredPiece &&
                      BlueprintManager.CanCapture(BlueprintManager.LastHoveredPiece))
             {
-                if (connectedModifier)
+                if (cameraModifier)
                 {
-                    Selection.Instance.RemoveGrowFromPiece(BlueprintManager.LastHoveredPiece);
+                    if (StartPiece == null)
+                    {
+                        Selection.Instance.AddPiece(BlueprintManager.LastHoveredPiece);
+                        StartPiece = BlueprintManager.LastHoveredPiece;
+                    }
+                    else
+                    {
+                        Selection.Instance.AddPiecesBetween(StartPiece, BlueprintManager.LastHoveredPiece);
+                        StartPiece = null;
+                    }
+                }
+                else if (connectedModifier)
+                {
+                    Selection.Instance.AddGrowFromPiece(BlueprintManager.LastHoveredPiece);
                 }
                 else
                 {
-                    Selection.Instance.RemovePiece(BlueprintManager.LastHoveredPiece);
+                    Selection.Instance.AddPiece(BlueprintManager.LastHoveredPiece);
                 }
             }
             UpdateDescription();

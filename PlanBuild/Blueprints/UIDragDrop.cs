@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 
-namespace PlanBuild.Blueprints.Marketplace
+namespace PlanBuild.Blueprints
 {
     public class UIDragDrop : MonoBehaviour, IDragHandler
     {

@@ -1,7 +1,7 @@
 ﻿using PlanBuild.Plans;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class DeletePlansComponent : ToolComponentBase
     {

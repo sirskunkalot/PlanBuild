@@ -1,10 +1,10 @@
-﻿using Jotunn.Managers;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using Jotunn.Managers;
 using PlanBuild.Utils;
 using UnityEngine;
 
-namespace PlanBuild.Blueprints.Tools
+namespace PlanBuild.Blueprints.Components
 {
     internal class PaintComponent : ToolComponentBase
     {
