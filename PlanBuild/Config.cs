@@ -196,7 +196,7 @@ namespace PlanBuild
             
             AddPlayerNameConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Add player prefix to file name", true,
-                new ConfigDescription("Add your current player profile name to any blueprint file created with that player", null,
+                new ConfigDescription("Add your current player profile name to any blueprint file created with that player.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
             // Directory Section

@@ -219,6 +219,7 @@ A lot aspects of this mod are configurable either through the config file found 
 [*][b]Tooltip enabled[/b]: Show a tooltip with a bigger thumbnail for blueprint pieces. (default [b]true[/b])
 [*][b]Tooltip Color[/b]: Set the background color for the tooltip on blueprint pieces.
 [*][b]Undo queue name[/b]: Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues. (default [b]blueprintqueue[/b])
+[*][b]Add player prefix to file name[/b]: Add your current player profile name to any blueprint file created with that player. (default [b]true[/b])
 [/list][*][b]Directories[/b]
 [list]
 [*][b]Blueprint search directory[/b] Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location (default [b].[/b])
