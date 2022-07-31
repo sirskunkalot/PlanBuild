@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -80,6 +81,7 @@ namespace PlanBuild.Blueprints
             {
                 action?.Invoke();
                 panel.SetActive(false);
+                Object.Destroy(panel);
                 GUIManager.BlockInput(false);
             }
 
