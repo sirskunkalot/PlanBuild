@@ -59,6 +59,10 @@ namespace PlanBuild.Blueprints
                 var playerName = Player.m_localPlayer.GetPlayerName();
                 var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
                 var id = fileName.Replace(' ', '_').Trim();
+                if (Config.AddPlayerNameConfig.Value)
+                {
+                    id = $"{playerName}_{id}";
+                }
 
                 bp.ID = id;
                 bp.Creator = playerName;

@@ -42,6 +42,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> TooltipEnabledConfig;
         public static ConfigEntry<Color> TooltipBackgroundConfig;
         public static ConfigEntry<string> BlueprintUndoQueueNameConfig;
+        public static ConfigEntry<bool> AddPlayerNameConfig;
         
         private const string DirectorySection = "Directories";
         public static ConfigEntry<string> BlueprintSearchDirectoryConfig;
@@ -191,6 +192,11 @@ namespace PlanBuild
             BlueprintUndoQueueNameConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Undo queue name", "blueprintqueue",
                 new ConfigDescription("Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+            
+            AddPlayerNameConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Add player prefix to file name", true,
+                new ConfigDescription("Add your current player profile name to any blueprint file created with that player", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
             // Directory Section
