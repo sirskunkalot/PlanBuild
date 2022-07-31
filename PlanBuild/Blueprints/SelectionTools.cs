@@ -67,7 +67,7 @@ namespace PlanBuild.Blueprints
                 bp.ID = id;
                 bp.Creator = playerName;
                 bp.Name = name;
-                bp.Category = category ?? BlueprintAssets.CategoryBlueprints;
+                bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
                 bp.Description = description;
                 bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
                 bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
@@ -287,7 +287,7 @@ namespace PlanBuild.Blueprints
 
             void OnClick(Action<string, string, string> action)
             {
-                action?.Invoke(nameValue.text, catValue.text, descValue.text);
+                action?.Invoke(nameValue.text.Trim(), catValue.text.Trim(), descValue.text.Trim());
                 panel.SetActive(false);
                 Object.Destroy(panel);
                 GUIManager.BlockInput(false);
