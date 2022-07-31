@@ -1,9 +1,12 @@
-﻿using Jotunn.Managers;
+﻿using System;
+using Jotunn.Managers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Jotunn.Utils;
 using UnityEngine;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -13,6 +16,7 @@ namespace PlanBuild.Blueprints
         {
             var bp = new Blueprint();
             bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
+            bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
             if (!bp.Capture(selection, captureVanillaSnapPoints))
@@ -45,11 +49,49 @@ namespace PlanBuild.Blueprints
                 selection.Clear();
                 return;
             }
-            TextInput.instance.m_queuedSign = new BlueprintSaveGUI(bp);
-            TextInput.instance.Show(
-                Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
-        }
+            ShowSaveGUI(bpname, (name, category, description) =>
+            {
+                if (string.IsNullOrEmpty(name))
+                {
+                    return;
+                }
 
+                var playerName = Player.m_localPlayer.GetPlayerName();
+                var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
+                var id = fileName.Replace(' ', '_').Trim();
+
+                bp.ID = id;
+                bp.Creator = playerName;
+                bp.Name = name;
+                bp.Category = category ?? BlueprintAssets.CategoryBlueprints;
+                bp.Description = description;
+                bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
+                bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
+
+                if (BlueprintManager.LocalBlueprints.TryGetValue(bp.ID, out var oldbp))
+                {
+                    oldbp.DestroyBlueprint();
+                    BlueprintManager.LocalBlueprints.Remove(bp.ID);
+                }
+
+                if (!bp.ToFile())
+                {
+                    return;
+                }
+
+                if (!bp.CreatePiece())
+                {
+                    return;
+                }
+
+                BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+                selection.Clear();
+                bp.CreateThumbnail();
+                BlueprintManager.RegisterKnownBlueprints();
+                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            });
+        }
+        
         public static void Delete(Selection selection)
         {
             var ZDOs = new List<ZDO>();
@@ -69,65 +111,186 @@ namespace PlanBuild.Blueprints
             var action = new UndoActions.UndoRemove(ZDOs);
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
         }
-
-        /// <summary>
-        ///     Helper class for naming and saving a captured blueprint via GUI
-        ///     Implements the Interface <see cref="TextReceiver" />. SetText is called from <see cref="TextInput" /> upon entering
-        ///     an name for the blueprint.<br />
-        ///     Save the actual blueprint and add it to the list of known blueprints.
-        /// </summary>
-        internal class BlueprintSaveGUI : TextReceiver
+        
+        private static void ShowSaveGUI(string bpname, Action<string, string, string> okAction)
         {
-            private Blueprint newbp;
+            var panel = GUIManager.Instance.CreateWoodpanel(
+                parent: GUIManager.CustomGUIFront.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f),
+                width: 600,
+                height: 500,
+                draggable: false);
+            panel.SetActive(false);
 
-            public BlueprintSaveGUI(Blueprint bp)
+            var layout = panel.AddComponent<VerticalLayoutGroup>();
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            layout.padding = new RectOffset(15, 15, 15, 15);
+            layout.spacing = 20f;
+            
+            // Label
+
+            var saveLabel = GUIManager.Instance.CreateText(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_saveblueprint"),
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f),
+                font: GUIManager.Instance.AveriaSerifBold,
+                fontSize: 30,
+                color: GUIManager.Instance.ValheimOrange,
+                outline: true,
+                outlineColor: Color.black,
+                width: 500f,
+                height: 50f,
+                addContentSizeFitter: false);
+            saveLabel.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
+            saveLabel.AddComponent<LayoutElement>().preferredHeight = 80f;
+
+            // Name
+
+            var name = new GameObject("Name");
+            name.transform.SetParent(panel.transform);
+            name.AddComponent<LayoutElement>().preferredHeight = 70f;
+
+            var nameLabel = GUIManager.Instance.CreateText(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name"),
+                parent: name.transform,
+                anchorMin: new Vector2(0f, 1f),
+                anchorMax: new Vector2(0f, 1f),
+                position: new Vector2(100f, 0f),
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 20,
+                color: GUIManager.Instance.ValheimOrange,
+                outline: true,
+                outlineColor: Color.black,
+                width: 150f,
+                height: 40f,
+                addContentSizeFitter: false);
+
+            var nameInput = GUIManager.Instance.CreateInputField(
+                parent: name.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f),
+                contentType: InputField.ContentType.Standard,
+                placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name_placeholder"),
+                fontSize: 20,
+                width: 400f,
+                height: 40f);
+            
+            var nameValue = nameInput.GetComponent<InputField>();
+            nameValue.text = bpname;
+
+            // Category
+
+            var cat = new GameObject("Category");
+            cat.transform.SetParent(panel.transform);
+            cat.AddComponent<LayoutElement>().preferredHeight = 70f;
+
+            var catLabel = GUIManager.Instance.CreateText(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category"),
+                parent: cat.transform,
+                anchorMin: new Vector2(0f, 1f),
+                anchorMax: new Vector2(0f, 1f),
+                position: new Vector2(100f, 0f),
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 20,
+                color: GUIManager.Instance.ValheimOrange,
+                outline: true,
+                outlineColor: Color.black,
+                width: 150f,
+                height: 40f,
+                addContentSizeFitter: false);
+
+            var catInput = GUIManager.Instance.CreateInputField(
+                parent: cat.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f),
+                contentType: InputField.ContentType.Alphanumeric,
+                placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category_placeholder"),
+                fontSize: 20,
+                width: 400f,
+                height: 40f);
+
+            var catValue = catInput.GetComponent<InputField>();
+            catValue.text = BlueprintAssets.CategoryBlueprints;
+            
+            // Description
+
+            var desc = new GameObject("Description");
+            desc.transform.SetParent(panel.transform);
+            desc.AddComponent<LayoutElement>().preferredHeight = 150f;
+
+            var descLabel = GUIManager.Instance.CreateText(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description"),
+                parent: desc.transform,
+                anchorMin: new Vector2(0f, 1f),
+                anchorMax: new Vector2(0f, 1f),
+                position: new Vector2(100f, 0f),
+                font: GUIManager.Instance.AveriaSerif,
+                fontSize: 20,
+                color: GUIManager.Instance.ValheimOrange,
+                outline: true,
+                outlineColor: Color.black,
+                width: 150f,
+                height: 40f,
+                addContentSizeFitter: false);
+
+            var descInput = GUIManager.Instance.CreateInputField(
+                parent: desc.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f),
+                contentType: InputField.ContentType.Standard,
+                placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description_placeholder"),
+                fontSize: 20,
+                width: 400f,
+                height: 120f);
+
+            var descValue = descInput.GetComponent<InputField>();
+            descValue.lineType = InputField.LineType.MultiLineNewline;
+
+            // Buttons
+
+            var buttons = new GameObject("Buttons");
+            buttons.transform.SetParent(panel.transform);
+            buttons.AddComponent<LayoutElement>().preferredHeight = 80f;
+
+            var okButton = GUIManager.Instance.CreateButton(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_confirm"),
+                parent: buttons.transform,
+                anchorMin: new Vector2(0f, 0.5f),
+                anchorMax: new Vector2(0f, 0.5f),
+                position: new Vector2(100f, 0f),
+                width: 100f,
+                height: 40f); 
+            okButton.GetComponent<Button>().onClick.AddListener(() => OnClick(okAction));
+
+            var cancelButton = GUIManager.Instance.CreateButton(
+                text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
+                parent: buttons.transform,
+                anchorMin: new Vector2(1f, 0.5f),
+                anchorMax: new Vector2(1f, 0.5f),
+                position: new Vector2(-100f, 0f),
+                width: 100f,
+                height: 40f);
+            cancelButton.GetComponent<Button>().onClick.AddListener(() => OnClick(null));
+
+            void OnClick(Action<string, string, string> action)
             {
-                newbp = bp;
+                action?.Invoke(nameValue.text, catValue.text, descValue.text);
+                panel.SetActive(false);
+                Object.Destroy(panel);
+                GUIManager.BlockInput(false);
             }
 
-            public string GetText()
-            {
-                return newbp.Name;
-            }
-
-            public void SetText(string text)
-            {
-                if (string.IsNullOrEmpty(text))
-                {
-                    return;
-                }
-
-                string playerName = Player.m_localPlayer.GetPlayerName();
-                string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
-
-                newbp.ID = $"{fileName}".Trim();
-                newbp.Name = text;
-                newbp.Creator = playerName;
-                newbp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");
-                newbp.ThumbnailLocation = newbp.FileLocation.Replace(".blueprint", ".png");
-
-                if (BlueprintManager.LocalBlueprints.TryGetValue(newbp.ID, out var oldbp))
-                {
-                    oldbp.DestroyBlueprint();
-                    BlueprintManager.LocalBlueprints.Remove(newbp.ID);
-                }
-
-                if (!newbp.ToFile())
-                {
-                    return;
-                }
-
-                if (!newbp.CreatePiece())
-                {
-                    return;
-                }
-
-                BlueprintManager.LocalBlueprints.Add(newbp.ID, newbp);
-                Selection.Instance.Clear();
-                newbp.CreateThumbnail();
-                BlueprintManager.RegisterKnownBlueprints();
-                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-            }
+            panel.SetActive(true);
+            GUIManager.BlockInput(true);
         }
     }
 }

@@ -7,6 +7,7 @@
 * Added key to reset placement offset for blueprints (default Q)
 * Added automatic reset to the placement offset after placing a blueprint
 * Added selection delete to undo queue
+* Added new save dialogue for blueprints
 
 # Version 0.10.3
 * Implemented bp.undo and bp.redo console commands for all blueprint and terrain actions (big thx to Jere)

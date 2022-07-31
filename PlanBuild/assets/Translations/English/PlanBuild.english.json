@@ -108,6 +108,7 @@
     "hud_bppaint_ctrl": "Paint dirt, Scroll to rotate marker",
     "hud_bppaint_marker": "Switch circle and square marker",
     "msg_terrain_disabled": "Terrain tools disabled",
+    "gui_bpmarket_saveblueprint": "Save Blueprint",
     "gui_bpmarket_myblueprints": "My blueprints",
     "gui_bpmarket_serverblueprints": "Server blueprints",
     "gui_bpmarket_creator": "Creator:",

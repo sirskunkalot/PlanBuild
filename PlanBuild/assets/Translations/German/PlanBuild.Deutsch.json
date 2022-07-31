@@ -110,6 +110,7 @@
     "hud_bppaint_ctrl": "Dreck-Textur Mausrad zum Rotieren",
     "hud_bppaint_marker": "Zwischen Kreis- und Rechteck-Markierer wechseln",
     "msg_terrain_disabled": "Landschafts-Werkzeuge verboten",
+    "gui_bpmarket_saveblueprint": "Blaupause speichern",
     "gui_bpmarket_myblueprints": "Meine Blaupausen",
     "gui_bpmarket_serverblueprints": "Server Blaupausen",
     "gui_bpmarket_creator": "Ersteller:",
