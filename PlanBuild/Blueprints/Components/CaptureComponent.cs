@@ -45,23 +45,10 @@ namespace PlanBuild.Blueprints.Components
 
         private void MakeBlueprint(Player self)
         {
-            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
-            Jotunn.Logger.LogInfo($"Capturing blueprint {bpname}");
-
-            var bp = new Blueprint();
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
             Selection selection = new Selection();
             selection.AddPiecesInRadius(capturePosition, SelectionRadius);
-            if (bp.Capture(selection))
-            {
-                TextInput.instance.m_queuedSign = new SelectionTools.BlueprintSaveGUI(bp);
-                TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
-            }
-            else
-            {
-                Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
-            }
-            selection.Clear();
+            SelectionTools.Save(selection);
         }
     }
 }

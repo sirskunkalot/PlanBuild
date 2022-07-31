@@ -15,7 +15,12 @@ namespace PlanBuild.Blueprints
             bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
-            bp.Capture(selection, captureVanillaSnapPoints);
+            if (!bp.Capture(selection, captureVanillaSnapPoints))
+            {
+                Jotunn.Logger.LogWarning($"Could not capture blueprint {bp.ID}");
+                selection.Clear();
+                return;
+            }
             bp.CreatePiece();
             bp.CreateThumbnail(flush: false);
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
@@ -33,24 +38,21 @@ namespace PlanBuild.Blueprints
         public static void Save(Selection selection)
         {
             var bp = new Blueprint();
-            var bpname = selection.BlueprintInstance?.ID;
-            bpname ??= $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
-
-            if (bp.Capture(selection))
-            {
-                TextInput.instance.m_queuedSign = new BlueprintSaveGUI(bp);
-                TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
-            }
-            else
+            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
+            if (!bp.Capture(selection))
             {
                 Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
+                selection.Clear();
+                return;
             }
+            TextInput.instance.m_queuedSign = new BlueprintSaveGUI(bp);
+            TextInput.instance.Show(
+                Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
         }
 
         public static void Delete(Selection selection)
         {
             var ZDOs = new List<ZDO>();
-            var delcnt = 0;
             var toClear = selection.ToList();
             selection.Clear();
             foreach (var zdoid in toClear)
@@ -61,18 +63,11 @@ namespace PlanBuild.Blueprints
                     ZDOs.Add(zNetView.m_zdo);
                     zNetView.ClaimOwnership();
                     ZNetScene.instance.Destroy(go);
-                    delcnt++;
                 }
             }
             
             var action = new UndoActions.UndoRemove(ZDOs);
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
-
-            if (delcnt > 0)
-            {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
-                    Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
-            }
         }
 
         /// <summary>
