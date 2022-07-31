@@ -6,6 +6,7 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 [*]Lots of improvements to the [b]Selection tools[/b]. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
 [*]You can copy+paste blueprints directly without having to save them (clipboard).
 [*]Most actions can be reversed and replayed using the [b]bp.undo[/b] and [b]bp.redo[/b] console commands.
+[*]New save dialogue which lets you enter a category and description directly
 [*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 [/list]
 
