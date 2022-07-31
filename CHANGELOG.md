@@ -1,11 +1,12 @@
 # Version 0.10.4
 * Added global plan deletion tool to the plan hammer
 * Snap point and center markers are now concidered "selection tools" - if you have a current selection, newly placed markers will automatically be added to that selection and selection highlighting will be retained
-* Added deletion of snap/center markers with the rune (like removing pieces with the hammer)
+* Added deletion of snap/center markers with the rune (like removing pieces with the hammer) - only works with a marker selected
 * Fixed rune tools executing without a visible placement marker
 * Increased max camera distance
-* Added key to reset placement offset for blueprints
+* Added key to reset placement offset for blueprints (default Q)
 * Added automatic reset to the placement offset after placing a blueprint
+* Added selection delete to undo queue
 
 # Version 0.10.3
 * Implemented bp.undo and bp.redo console commands for all blueprint and terrain actions (big thx to Jere)

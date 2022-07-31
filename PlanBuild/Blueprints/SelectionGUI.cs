@@ -56,7 +56,7 @@ namespace PlanBuild.Blueprints
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SelectionTools.Save));
+            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Save));
 
             var deleteButton = GUIManager.Instance.CreateButton(
                 text: "Delete",
@@ -87,9 +87,11 @@ namespace PlanBuild.Blueprints
             GUIManager.BlockInput(true);
         }
 
-        private static void Copy() => SelectionTools.Copy(false);
+        private static void Save() => SelectionTools.Save(Selection.Instance);
 
-        private static void CopyWithSnapPoints() => SelectionTools.Copy(true);
+        private static void Copy() => SelectionTools.Copy(Selection.Instance, false);
+
+        private static void CopyWithSnapPoints() => SelectionTools.Copy(Selection.Instance, true);
 
         private static void Delete()
         {
@@ -99,7 +101,7 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
-            SelectionTools.Delete();
+            SelectionTools.Delete(Selection.Instance);
         }
     }
 }

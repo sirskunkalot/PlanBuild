@@ -2,23 +2,24 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Jotunn.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
     internal class SelectionTools
     {
-        public static void Copy(bool captureVanillaSnapPoints)
+        public static void Copy(Selection selection, bool captureVanillaSnapPoints)
         {
             var bp = new Blueprint();
             bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
-            bp.Capture(Selection.Instance, captureVanillaSnapPoints);
+            bp.Capture(selection, captureVanillaSnapPoints);
             bp.CreatePiece();
-            BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
-            Selection.Instance.Clear();
             bp.CreateThumbnail(flush: false);
+            BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
+            selection.Clear();
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
             int cat = (int)PieceManager.Instance.GetPieceCategory(BlueprintAssets.CategoryClipboard);
@@ -29,13 +30,13 @@ namespace PlanBuild.Blueprints
             Player.m_localPlayer.SetupPlacementGhost();
         }
 
-        public static void Save()
+        public static void Save(Selection selection)
         {
             var bp = new Blueprint();
-            var bpname = Selection.Instance.BlueprintInstance?.ID;
+            var bpname = selection.BlueprintInstance?.ID;
             bpname ??= $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
 
-            if (bp.Capture(Selection.Instance))
+            if (bp.Capture(selection))
             {
                 TextInput.instance.m_queuedSign = new BlueprintSaveGUI(bp);
                 TextInput.instance.Show(Localization.instance.Localize("$msg_bpcapture_save", bp.GetPieceCount().ToString()), bpname, 50);
@@ -46,17 +47,31 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public static void Delete()
+        public static void Delete(Selection selection)
         {
-            var toClear = Selection.Instance.ToList();
-            Selection.Instance.Clear();
+            var ZDOs = new List<ZDO>();
+            var delcnt = 0;
+            var toClear = selection.ToList();
+            selection.Clear();
             foreach (var zdoid in toClear)
             {
                 var go = ZNetScene.instance.FindInstance(zdoid);
-                if (go)
+                if (go && go.TryGetComponent(out ZNetView zNetView))
                 {
+                    ZDOs.Add(zNetView.m_zdo);
+                    zNetView.ClaimOwnership();
                     ZNetScene.instance.Destroy(go);
+                    delcnt++;
                 }
+            }
+            
+            var action = new UndoActions.UndoRemove(ZDOs);
+            UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
+
+            if (delcnt > 0)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
+                    Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
             }
         }
 
@@ -90,7 +105,7 @@ namespace PlanBuild.Blueprints
                 string playerName = Player.m_localPlayer.GetPlayerName();
                 string fileName = string.Concat(text.Split(Path.GetInvalidFileNameChars()));
 
-                newbp.ID = $"{playerName}_{fileName}".Trim();
+                newbp.ID = $"{fileName}".Trim();
                 newbp.Name = text;
                 newbp.Creator = playerName;
                 newbp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, newbp.ID + ".blueprint");

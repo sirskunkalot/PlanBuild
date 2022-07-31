@@ -99,7 +99,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Copy(false);
+                SelectionTools.Copy(Selection.Instance, false);
             }
         }
 
@@ -119,7 +119,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Copy(true);
+                SelectionTools.Copy(Selection.Instance, true);
             }
         }
 
@@ -139,7 +139,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Save();
+                SelectionTools.Save(Selection.Instance);
             }
         }
 
@@ -165,7 +165,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Delete();
+                SelectionTools.Delete(Selection.Instance);
             }
         }
     }
