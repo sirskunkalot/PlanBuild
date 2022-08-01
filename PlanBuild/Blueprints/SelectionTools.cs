@@ -228,7 +228,7 @@ namespace PlanBuild.Blueprints
 
             var desc = new GameObject("Description");
             desc.transform.SetParent(panel.transform);
-            desc.AddComponent<LayoutElement>().preferredHeight = 150f;
+            desc.AddComponent<LayoutElement>().preferredHeight = 170f;
 
             var descLabel = GUIManager.Instance.CreateText(
                 text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description"),
