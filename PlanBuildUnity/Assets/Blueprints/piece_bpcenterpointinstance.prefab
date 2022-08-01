@@ -253,7 +253,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5756181508908420822}
-  - component: {fileID: 7270350051059691296}
+  - component: {fileID: 646291862798284583}
   m_Layer: 10
   m_Name: collider
   m_TagString: Untagged
@@ -270,13 +270,13 @@ Transform:
   m_GameObject: {fileID: 3221491958943490658}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.001, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 6674491514115135298}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &7270350051059691296
-SphereCollider:
+--- !u!65 &646291862798284583
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -286,7 +286,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.35
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &4779968207475047827
 GameObject:
