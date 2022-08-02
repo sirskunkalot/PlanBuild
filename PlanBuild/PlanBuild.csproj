@@ -137,7 +137,6 @@
     <Compile Include="Blueprints\Blueprint.cs" />
     <Compile Include="Blueprints\SelectionCommands.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
-    <Compile Include="Blueprints\BlueprintInstance.cs" />
     <Compile Include="Blueprints\BlueprintDictionary.cs" />
     <Compile Include="Blueprints\BlueprintManager.cs" />
     <Compile Include="Blueprints\BlueprintAssets.cs" />

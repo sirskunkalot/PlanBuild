@@ -16,8 +16,6 @@ namespace PlanBuild.Blueprints
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
         
-        public BlueprintInstance BlueprintInstance;
-
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
@@ -62,16 +60,7 @@ namespace PlanBuild.Blueprints
 
             return false;
         }
-
-        public void AddBlueprint(BlueprintInstance instance)
-        {
-            BlueprintInstance = instance;
-            foreach (var piece in instance.GetPieceInstances())
-            {
-                AddPiece(piece);
-            }
-        }
-
+        
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
@@ -150,7 +139,6 @@ namespace PlanBuild.Blueprints
                 GameObject selected = BlueprintManager.GetGameObject(zdoid);
                 Unhighlight(zdoid, selected);
             }
-            BlueprintInstance = null;
             SnapPoints = 0;
             CenterMarkers = 0;
             SelectedZDOIDs.Clear();
@@ -430,11 +418,6 @@ namespace PlanBuild.Blueprints
         public override string ToString()
         {
             string result = string.Empty;
-            if (BlueprintInstance != null)
-            {
-                result += Localization.instance.Localize("$piece_blueprint_select_bp", BlueprintInstance.ID);
-                result += Environment.NewLine;
-            }
             result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());
             if (SnapPoints > 0)
             {
