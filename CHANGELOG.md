@@ -1,3 +1,6 @@
+# Version 0.10.5
+* Fixed old saved markers
+
 # Version 0.10.4
 * Added global plan deletion tool to the plan hammer
 * Snap point and center markers are now concidered "selection tools" - if you have a current selection, newly placed markers will automatically be added to that selection and selection highlighting will be retained
