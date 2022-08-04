@@ -1,3 +1,6 @@
+# Version 0.10.6
+* Added reacting to Escape and Return for the Blueprint Save GUI
+
 # Version 0.10.5
 * Fixed old saved markers
 
