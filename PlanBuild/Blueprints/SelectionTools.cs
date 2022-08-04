@@ -282,6 +282,16 @@ namespace PlanBuild.Blueprints
                 var buttons = new GameObject("Buttons");
                 buttons.transform.SetParent(Panel.transform);
                 buttons.AddComponent<LayoutElement>().preferredHeight = 80f;
+                
+                var cancelButton = GUIManager.Instance.CreateButton(
+                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
+                    parent: buttons.transform,
+                    anchorMin: new Vector2(1f, 0.5f),
+                    anchorMax: new Vector2(1f, 0.5f),
+                    position: new Vector2(-100f, 0f),
+                    width: 100f,
+                    height: 40f);
+                cancelButton.GetComponent<Button>().onClick.AddListener(OnCancel);
 
                 var okButton = GUIManager.Instance.CreateButton(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_confirm"),
@@ -292,16 +302,6 @@ namespace PlanBuild.Blueprints
                     width: 100f,
                     height: 40f);
                 okButton.GetComponent<Button>().onClick.AddListener(OnOk);
-
-                var cancelButton = GUIManager.Instance.CreateButton(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
-                    parent: buttons.transform,
-                    anchorMin: new Vector2(1f, 0.5f),
-                    anchorMax: new Vector2(1f, 0.5f),
-                    position: new Vector2(-100f, 0f),
-                    width: 100f,
-                    height: 40f);
-                cancelButton.GetComponent<Button>().onClick.AddListener(OnCancel);
 
                 Panel.SetActive(true);
                 Name.Select();
@@ -328,14 +328,23 @@ namespace PlanBuild.Blueprints
             {
                 private void Update()
                 {
-                    if (Input.GetKeyDown(KeyCode.Return))
+                    if (Input.GetKeyUp(KeyCode.Return) && !Description.isFocused)
                     {
                         OnOk();
                     }
-
-                    if (Input.GetKeyDown(KeyCode.Escape))
+                    if (Input.GetKeyUp(KeyCode.Escape))
                     {
                         OnCancel();
+                    }
+
+                    // jees, what a horrible way to do that. need to implement generic code someday
+                    if (Input.GetKeyDown(KeyCode.Tab) && Name.isFocused)
+                    {
+                        Category.Select();
+                    }
+                    if (Input.GetKeyDown(KeyCode.Tab) && Category.isFocused)
+                    {
+                        Description.Select();
                     }
                 }
             }
