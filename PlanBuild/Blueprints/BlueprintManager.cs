@@ -15,7 +15,7 @@ namespace PlanBuild.Blueprints
         public static BlueprintDictionary LocalBlueprints;
         public static BlueprintDictionary TemporaryBlueprints;
         public static BlueprintDictionary ServerBlueprints;
-        
+
         public const float HighlightTimeout = 0.5f;
         public const float GhostTimeout = 10f;
 
@@ -41,7 +41,7 @@ namespace PlanBuild.Blueprints
                 BlueprintCommands.Init();
                 BlueprintGUI.Init();
                 UndoManager.Instance.CreateQueue(Config.BlueprintUndoQueueNameConfig.Value);
-                
+
                 // Hooks
                 On.ZNetScene.Shutdown += (orig, self) =>
                 {
@@ -86,7 +86,7 @@ namespace PlanBuild.Blueprints
                 Logger.LogWarning($"Error caught while initializing: {ex}");
             }
         }
-        
+
         /// <summary>
         ///     Determine if a piece can be captured in a blueprint
         /// </summary>
@@ -178,7 +178,7 @@ namespace PlanBuild.Blueprints
             }
             LastHighlightTime = Time.time;
         }
-        
+
         /// <summary>
         ///     Get the GameObject from a ZDOID via ZNetScene or force creation of one via ZDO
         /// </summary>
@@ -191,7 +191,7 @@ namespace PlanBuild.Blueprints
             }
             return required ? ZNetScene.instance.CreateObject(ZDOMan.instance.GetZDO(zdoid)) : null;
         }
-        
+
         public static bool ClearClipboard()
         {
             if (TemporaryBlueprints.Count == 0)
@@ -218,7 +218,7 @@ namespace PlanBuild.Blueprints
             if (Player.m_localPlayer)
             {
                 Logger.LogInfo("Registering known blueprints");
-                
+
                 foreach (var bp in LocalBlueprints.Values)
                 {
                     bp.CreatePiece();
@@ -227,7 +227,7 @@ namespace PlanBuild.Blueprints
                 Player.m_localPlayer.UpdateAvailablePiecesList();
             }
         }
-        
+
         /// <summary>
         ///     Create blueprint pieces on player spawn
         /// </summary>
@@ -239,7 +239,7 @@ namespace PlanBuild.Blueprints
                 RegisterKnownBlueprints();
             }
         }
-        
+
         /// <summary>
         ///     Reorder pieces in local blueprint categories by name
         /// </summary>
@@ -336,7 +336,7 @@ namespace PlanBuild.Blueprints
             {
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
-                
+
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -358,7 +358,7 @@ namespace PlanBuild.Blueprints
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
-                
+
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
                 {
@@ -366,7 +366,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-        
+
         private static void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
         {
             orig(self);
@@ -378,7 +378,7 @@ namespace PlanBuild.Blueprints
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
-        
+
         // Get all prefabs for this GUI session
         private static void GUIManager_OnCustomGUIAvailable()
         {

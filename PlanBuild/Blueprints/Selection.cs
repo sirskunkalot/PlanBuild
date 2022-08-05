@@ -15,7 +15,7 @@ namespace PlanBuild.Blueprints
 
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
-        
+
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
         private int SnapPoints;
@@ -40,6 +40,20 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public bool Add(ZDOID zdoid)
+        {
+            var go = BlueprintManager.GetGameObject(zdoid);
+            if (go && go.TryGetComponent<Piece>(out var piece))
+            {
+                return AddPiece(piece);
+            }
+            if (SelectedZDOIDs.Add(zdoid))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public bool AddPiece(Piece piece)
         {
             ZDOID? zdoid = piece.m_nview?.GetZDO()?.m_uid;
@@ -60,7 +74,7 @@ namespace PlanBuild.Blueprints
 
             return false;
         }
-        
+
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
@@ -97,6 +111,20 @@ namespace PlanBuild.Blueprints
         public bool Contains(ZDOID? zdoid)
         {
             return zdoid.HasValue && SelectedZDOIDs.Contains(zdoid.Value);
+        }
+
+        public bool Remove(ZDOID zdoid)
+        {
+            var go = BlueprintManager.GetGameObject(zdoid);
+            if (go && go.TryGetComponent<Piece>(out var piece))
+            {
+                return RemovePiece(piece);
+            }
+            if (SelectedZDOIDs.Remove(zdoid))
+            {
+                return true;
+            }
+            return false;
         }
 
         public bool RemovePiece(Piece piece)
@@ -344,11 +372,11 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            if (gameObject.TryGetComponent(out WearNTear wearNTear))
+            if (gameObject && gameObject.TryGetComponent(out WearNTear wearNTear))
             {
                 wearNTear.ResetHighlight();
-                HighlightedZDOIDs.Remove(zdoid);
             }
+            HighlightedZDOIDs.Remove(zdoid);
         }
 
         public bool IsHighlighted(Piece piece)

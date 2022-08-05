@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Jotunn.Managers;
+using PlanBuild.Plans;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn.Managers;
-using Jotunn.Utils;
-using PlanBuild.Plans;
 using UnityEngine;
 using Logger = Jotunn.Logger;
 
@@ -71,10 +70,10 @@ namespace PlanBuild.Blueprints.Components
                     self.m_placementGhost.transform, SelectionRadius, null, new Type[]
                     { typeof(Character), typeof(TerrainModifier), typeof(ZSFX), typeof(Piece), typeof(ItemDrop)});
             }
-            
+
             if (delcnt > 0)
             {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, 
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center,
                     Localization.instance.Localize("$msg_removed_objects", delcnt.ToString()));
             }
         }
@@ -110,13 +109,14 @@ namespace PlanBuild.Blueprints.Components
                         continue;
                     }
 
+                    Selection.Instance.Remove(zNetView.m_zdo.m_uid);
                     ZDOs.Add(zNetView.m_zdo);
                     zNetView.ClaimOwnership();
                     zNetScene.Destroy(prefab);
                     ++delcnt;
                 }
 
-                var action = new UndoActions.UndoRemove(ZDOs);
+                var action = new UndoRemove(ZDOs);
                 UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
 
                 Logger.LogDebug($"Removed {delcnt} objects");

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Jotunn.Managers;
+using PlanBuild.Plans;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn.Managers;
-using Jotunn.Utils;
-using PlanBuild.Plans;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Components
@@ -254,8 +253,8 @@ namespace PlanBuild.Blueprints.Components
                         var cnt = int.Parse(fields[1]);
                         for (int j = 0; j < cnt; j++)
                         {
-                            var item = fields[j*2+2];
-                            var variant = int.Parse(fields[j*2+3]);
+                            var item = fields[j * 2 + 2];
+                            var variant = int.Parse(fields[j * 2 + 3]);
                             zNetView.m_zdo.Set($"{j}_item", item);
                             zNetView.m_zdo.Set($"{j}_variant", variant);
                             armorStand.SetVisualItem(j, item, variant);
@@ -275,7 +274,7 @@ namespace PlanBuild.Blueprints.Components
             // Create undo action
             if (ZDOs.Any())
             {
-                var action = new UndoActions.UndoCreate(ZDOs);
+                var action = new UndoCreate(ZDOs);
                 UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
             }
 

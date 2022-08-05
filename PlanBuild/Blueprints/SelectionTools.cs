@@ -1,9 +1,8 @@
-﻿using System;
-using Jotunn.Managers;
+﻿using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Jotunn.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -98,7 +97,7 @@ namespace PlanBuild.Blueprints
                 selection.Clear();
             });
         }
-        
+
         public static void Delete(Selection selection)
         {
             var ZDOs = new List<ZDO>();
@@ -114,8 +113,8 @@ namespace PlanBuild.Blueprints
                     ZNetScene.instance.Destroy(go);
                 }
             }
-            
-            var action = new UndoActions.UndoRemove(ZDOs);
+
+            var action = new UndoRemove(ZDOs);
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
         }
 
@@ -278,11 +277,11 @@ namespace PlanBuild.Blueprints
                 Description.lineType = InputField.LineType.MultiLineNewline;
 
                 // Buttons
-                
+
                 var buttons = new GameObject("Buttons");
                 buttons.transform.SetParent(Panel.transform);
                 buttons.AddComponent<LayoutElement>().preferredHeight = 80f;
-                
+
                 var cancelButton = GUIManager.Instance.CreateButton(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
                     parent: buttons.transform,
@@ -323,7 +322,7 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(Panel);
                 GUIManager.BlockInput(false);
             }
-            
+
             private class SaveGUIBehaviour : MonoBehaviour
             {
                 private void Update()

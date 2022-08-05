@@ -156,6 +156,8 @@
     <Compile Include="Blueprints\Components\SelectionToolComponentBase.cs" />
     <Compile Include="Blueprints\Components\TerrainComponent.cs" />
     <Compile Include="Blueprints\Components\ToolComponentBase.cs" />
+    <Compile Include="Blueprints\UndoCreate.cs" />
+    <Compile Include="Blueprints\UndoRemove.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Plans\PlanCommands.cs" />
     <Compile Include="Plans\PlanBlacklist.cs" />
