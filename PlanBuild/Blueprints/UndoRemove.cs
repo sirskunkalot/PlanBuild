@@ -11,11 +11,11 @@ namespace PlanBuild.Blueprints
 
         public override void Redo()
         {
-            base.Redo();
             foreach (var zdo in Data)
             {
                 Selection.Instance.Remove(zdo.m_uid);
             }
+            base.Redo();
         }
     }
 }

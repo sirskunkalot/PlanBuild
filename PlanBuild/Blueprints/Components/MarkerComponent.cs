@@ -68,6 +68,10 @@ namespace PlanBuild.Blueprints.Components
             {
                 Selection.Instance.AddPiece(newPiece);
             }
+            
+            // Create undo action
+            var action = new UndoCreate(new [] { newPiece.m_nview.m_zdo });
+            UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
         }
 
         public override void UpdateDescription()
