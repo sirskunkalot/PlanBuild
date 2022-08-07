@@ -1,5 +1,6 @@
 # Version 0.10.6
-* Added reacting to Escape and Return for the Blueprint Save GUI
+* Fixed undo not removing pieces from blueprint selections
+* Added reacting to Escape and Return to the blueprint save GUI
 
 # Version 0.10.5
 * Fixed old saved markers
