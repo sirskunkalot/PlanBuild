@@ -261,6 +261,14 @@ namespace PlanBuild.Blueprints.Components
                         }
                     }
                 }
+                Door door = gameObject.GetComponent<Door>();
+                if (door != null)
+                {
+                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    {
+                        zNetView.m_zdo.Set("state", int.Parse(entry.additionalInfo));
+                    }
+                }
                 if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
                 {
                     if (zNetView.GetComponent<WearNTear>() || zNetView.GetComponent<TreeBase>() ||

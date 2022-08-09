@@ -612,6 +612,11 @@ namespace PlanBuild.Blueprints
                         additionalInfo += $"{slot.m_visualName}:{slot.m_visualVariant}:";
                     }
                 }
+                Door door = piece.GetComponent<Door>();
+                if (door != null && door.m_nview)
+                {
+                    additionalInfo = $"{door.m_nview.m_zdo.GetInt("state")}";
+                }
 
                 var scale = piece.transform.localScale;
 
