@@ -1,5 +1,6 @@
 # Version 0.10.7
-* Added door state to blueprints
+* Added door state to blueprints (only interpreted on "direct" build)
+* Added ward state (active/inactive) to blueprints (only interpreted on "direct" build)
 
 # Version 0.10.6
 * Fixed undo not removing pieces from blueprint selections

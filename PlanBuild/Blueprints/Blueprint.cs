@@ -617,6 +617,11 @@ namespace PlanBuild.Blueprints
                 {
                     additionalInfo = $"{door.m_nview.m_zdo.GetInt("state")}";
                 }
+                PrivateArea privateArea = piece.GetComponent<PrivateArea>();
+                if (privateArea != null && privateArea.m_nview)
+                {
+                    additionalInfo = $"{privateArea.m_nview.m_zdo.GetBool("enabled")}";
+                }
 
                 var scale = piece.transform.localScale;
 

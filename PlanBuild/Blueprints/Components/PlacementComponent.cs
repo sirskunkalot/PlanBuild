@@ -203,6 +203,11 @@ namespace PlanBuild.Blueprints.Components
                 if (privateArea)
                 {
                     privateArea.Setup(Game.instance.GetPlayerProfile().GetName());
+
+                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    {
+                        zNetView.m_zdo.Set("enabled", bool.Parse(entry.additionalInfo));
+                    }
                 }
                 WearNTear wearntear = gameObject.GetComponent<WearNTear>();
                 if (wearntear)
