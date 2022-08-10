@@ -87,7 +87,7 @@ namespace PlanBuild.Blueprints.Components
             }
             else if (ZInput.GetButton(Config.CtrlModifierButton.Name))
             {
-                TerrainTools.LevelTerrain(indices, pos, rad, 0.33f, pos.y);
+                TerrainTools.LevelTerrain(indices, pos, rad, Config.TerrainSmoothConfig.Value, pos.y);
             }
             else
             {

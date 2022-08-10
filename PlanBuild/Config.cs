@@ -29,6 +29,7 @@ namespace PlanBuild
         public static ConfigEntry<DefaultBuildMode> DefaultBuildModeConfig;
         public static ConfigEntry<bool> UnlimitedHealthConfig;
         public static ConfigEntry<float> RayDistanceConfig;
+        public static ConfigEntry<float> TerrainSmoothConfig;
         public static ConfigEntry<float> CameraOffsetIncrementConfig;
         public static ConfigEntry<bool> InvertCameraOffsetScrollConfig;
         public static ConfigEntry<float> PlacementOffsetIncrementConfig;
@@ -122,11 +123,17 @@ namespace PlanBuild
                 RuneSection, "Unlimited health", false,
                 new ConfigDescription("Set Piece health to its maximum value when directly building blueprints.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
-
+            
             RayDistanceConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Place distance", 50f,
                 new ConfigDescription("Place distance while using the Blueprint Rune.",
                     new AcceptableValueRange<float>(8f, 80f),
+                    new ConfigurationManagerAttributes { Order = --order }));
+            
+            TerrainSmoothConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Terrain smoothing", .5f,
+                new ConfigDescription("Smoothing value of the terrain tool when flattening with smoothing modifier key pressed.",
+                    new AcceptableValueRange<float>(0f, 1f),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             CameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(

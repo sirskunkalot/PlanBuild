@@ -206,6 +206,7 @@ A lot aspects of this mod are configurable either through the config file found 
   * __Default build mode__: Default build mode when placing blueprints. (default __Plan__)
   * __Unlimited health__: Set Piece health to its maximum value when directly building blueprints. (default __false__)
   * __Place distance__: Place distance while using the Blueprint Rune. (default __50__)
+  * __Terrain smoothing__: Smoothing value of the terrain tool when flattening with smoothing modifier key pressed. (default __0.5__)
   * __Camera offset increment__: Camera height change when holding the camera modifier key and scrolling. (default __2__)
   * __Invert camera offset scroll__: Invert the direction of camera offset scrolling. (default __false__)
   * __Placement offset increment__: Placement height change when holding the modifier key and scrolling. (default __0.1__)
