@@ -2,6 +2,7 @@
 * Added door state to blueprints (only interpreted on "direct" build)
 * Added ward state (active/inactive) to blueprints (only interpreted on "direct" build)
 * Added config value for the smoothing option of the terrain tools
+* Added cut option for selections (copy and delete the selection) in the GUI and as a command
 
 # Version 0.10.6
 * Fixed undo not removing pieces from blueprint selections

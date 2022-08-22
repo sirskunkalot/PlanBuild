@@ -17,6 +17,8 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new ClearSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CopySelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CopySelectionWithSnapPointsCommand());
+            CommandManager.Instance.AddConsoleCommand(new CutSelectionCommand());
+            CommandManager.Instance.AddConsoleCommand(new CutSelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
         }
@@ -100,6 +102,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 SelectionTools.Copy(Selection.Instance, false);
+                Selection.Instance.Clear();
             }
         }
 
@@ -120,6 +123,49 @@ namespace PlanBuild.Blueprints
                 }
 
                 SelectionTools.Copy(Selection.Instance, true);
+                Selection.Instance.Clear();
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to cut the current selection
+        /// </summary>
+        private class CutSelectionCommand : ConsoleCommand
+        {
+            public override string Name => "selection.cut";
+
+            public override string Help => "Cut out the current selection as a temporary blueprint";
+
+            public override void Run(string[] args)
+            {
+                if (!CheckSelection())
+                {
+                    return;
+                }
+
+                SelectionTools.Cut(Selection.Instance, false);
+                Selection.Instance.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     Console command to cut the current selection with snap points
+        /// </summary>
+        private class CutSelectionWithSnapPointsCommand : ConsoleCommand
+        {
+            public override string Name => "selection.cutwithsnappoints";
+
+            public override string Help => "Cut out the current selection as a temporary blueprint including the vanilla snap points";
+
+            public override void Run(string[] args)
+            {
+                if (!CheckSelection())
+                {
+                    return;
+                }
+
+                SelectionTools.Cut(Selection.Instance, true);
+                Selection.Instance.Clear();
             }
         }
 
@@ -139,7 +185,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Save(Selection.Instance);
+                SelectionTools.SaveWithGUI(Selection.Instance);
             }
         }
 
@@ -166,6 +212,7 @@ namespace PlanBuild.Blueprints
                 }
 
                 SelectionTools.Delete(Selection.Instance);
+                Selection.Instance.Clear();
             }
         }
     }

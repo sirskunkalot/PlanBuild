@@ -21,7 +21,7 @@ namespace PlanBuild.Blueprints
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0, 0),
                 width: 400,
-                height: 250,
+                height: 300,
                 draggable: false);
             panel.SetActive(false);
 
@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints
             layout.spacing = 5f;
 
             var copyButton = GUIManager.Instance.CreateButton(
-                text: "Copy with custom snap points",
+                text: "Copy",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
@@ -49,6 +49,24 @@ namespace PlanBuild.Blueprints
                 position: new Vector2(0f, 0f));
             copySnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
             copySnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CopyWithSnapPoints));
+            
+            var cutButton = GUIManager.Instance.CreateButton(
+                text: "Cut",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            cutButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            cutButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Cut));
+
+            var cutSnapButton = GUIManager.Instance.CreateButton(
+                text: "Cut with vanilla snap points",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            cutSnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            cutSnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CutWithSnapPoints));
 
             var saveButton = GUIManager.Instance.CreateButton(
                 text: "Save",
@@ -57,7 +75,7 @@ namespace PlanBuild.Blueprints
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
             saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Save));
+            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUI));
 
             var deleteButton = GUIManager.Instance.CreateButton(
                 text: "Delete",
@@ -89,11 +107,34 @@ namespace PlanBuild.Blueprints
             GUIManager.BlockInput(true);
         }
 
-        private static void Save() => SelectionTools.Save(Selection.Instance);
+        private static void Copy()
+        {
+            SelectionTools.Copy(Selection.Instance, false);
+            Selection.Instance.Clear();
+        }
 
-        private static void Copy() => SelectionTools.Copy(Selection.Instance, false);
+        private static void CopyWithSnapPoints()
+        {
+            SelectionTools.Copy(Selection.Instance, true);
+            Selection.Instance.Clear();
+        }
 
-        private static void CopyWithSnapPoints() => SelectionTools.Copy(Selection.Instance, true);
+        private static void Cut()
+        {
+            SelectionTools.Cut(Selection.Instance, false);
+            Selection.Instance.Clear();
+        }
+
+        private static void CutWithSnapPoints()
+        {
+            SelectionTools.Cut(Selection.Instance, true);
+            Selection.Instance.Clear();
+        }
+        
+        private static void SaveGUI()
+        {
+            SelectionTools.SaveWithGUI(Selection.Instance);
+        }
 
         private static void Delete()
         {
@@ -104,6 +145,7 @@ namespace PlanBuild.Blueprints
             }
 
             SelectionTools.Delete(Selection.Instance);
+            Selection.Instance.Clear();
         }
     }
 }

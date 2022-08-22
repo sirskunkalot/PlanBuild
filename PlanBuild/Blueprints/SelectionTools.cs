@@ -27,7 +27,6 @@ namespace PlanBuild.Blueprints
             bp.CreatePiece();
             bp.CreateThumbnail(flush: false);
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
-            selection.Clear();
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
             int cat = (int)PieceManager.Instance.GetPieceCategory(BlueprintAssets.CategoryClipboard);
@@ -38,71 +37,16 @@ namespace PlanBuild.Blueprints
             Player.m_localPlayer.SetupPlacementGhost();
         }
 
-        public static void Save(Selection selection)
+        public static void Cut(Selection selection, bool captureVanillaSnapPoints)
         {
-            var bp = new Blueprint();
-            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
-            if (!bp.Capture(selection))
-            {
-                Jotunn.Logger.LogWarning($"Could not capture blueprint {bpname}");
-                selection.Clear();
-                return;
-            }
-            SaveGUI.ShowSaveGUI(bpname, (name, category, description) =>
-            {
-                if (string.IsNullOrEmpty(name))
-                {
-                    return;
-                }
-
-                var playerName = Player.m_localPlayer.GetPlayerName();
-                var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
-                var id = fileName.Replace(' ', '_').Trim();
-                if (Config.AddPlayerNameConfig.Value)
-                {
-                    id = $"{playerName}_{id}";
-                }
-
-                bp.ID = id;
-                bp.Creator = playerName;
-                bp.Name = name;
-                bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
-                bp.Description = description;
-                bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
-                bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
-
-                if (BlueprintManager.LocalBlueprints.TryGetValue(bp.ID, out var oldbp))
-                {
-                    oldbp.DestroyBlueprint();
-                    BlueprintManager.LocalBlueprints.Remove(bp.ID);
-                }
-
-                if (!bp.ToFile())
-                {
-                    return;
-                }
-
-                if (!bp.CreatePiece())
-                {
-                    return;
-                }
-
-                BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
-                selection.Clear();
-                bp.CreateThumbnail();
-                BlueprintManager.RegisterKnownBlueprints();
-                BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
-            }, () =>
-            {
-                selection.Clear();
-            });
+            Copy(selection, captureVanillaSnapPoints);
+            Delete(selection);
         }
 
         public static void Delete(Selection selection)
         {
             var ZDOs = new List<ZDO>();
             var toClear = selection.ToList();
-            selection.Clear();
             foreach (var zdoid in toClear)
             {
                 var go = ZNetScene.instance.FindInstance(zdoid);
@@ -116,6 +60,71 @@ namespace PlanBuild.Blueprints
 
             var action = new UndoRemove(ZDOs);
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
+        }
+
+        public static void Save(Selection selection, string name, string category, string description)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return;
+            }
+
+            var bp = new Blueprint();
+
+            if (!bp.Capture(selection))
+            {
+                return;
+            }
+
+            var playerName = Player.m_localPlayer.GetPlayerName();
+            var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
+            var id = fileName.Replace(' ', '_').Trim();
+            if (Config.AddPlayerNameConfig.Value)
+            {
+                id = $"{playerName}_{id}";
+            }
+
+            bp.ID = id;
+            bp.Creator = playerName;
+            bp.Name = name;
+            bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
+            bp.Description = description;
+            bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
+            bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
+
+            if (BlueprintManager.LocalBlueprints.TryGetValue(bp.ID, out var oldbp))
+            {
+                oldbp.DestroyBlueprint();
+                BlueprintManager.LocalBlueprints.Remove(bp.ID);
+            }
+
+            if (!bp.ToFile())
+            {
+                return;
+            }
+
+            if (!bp.CreatePiece())
+            {
+                return;
+            }
+
+            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+            bp.CreateThumbnail();
+            BlueprintManager.RegisterKnownBlueprints();
+            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+        }
+
+        public static void SaveWithGUI(Selection selection)
+        {
+            var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
+            SaveGUI.ShowSaveGUI(bpname, (name, category, description) =>
+            {
+                Save(selection, name, category, description);
+                selection.Clear();
+            }, () =>
+            {
+                selection.Clear();
+            });
         }
 
         private static class SaveGUI
