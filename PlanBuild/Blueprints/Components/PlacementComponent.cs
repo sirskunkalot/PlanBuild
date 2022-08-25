@@ -274,6 +274,14 @@ namespace PlanBuild.Blueprints.Components
                         zNetView.m_zdo.Set("state", int.Parse(entry.additionalInfo));
                     }
                 }
+                Container container = gameObject.GetComponent<Container>();
+                if (container != null)
+                {
+                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    {
+                        zNetView.m_zdo.Set("items", entry.additionalInfo);
+                    }
+                }
                 if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
                 {
                     if (zNetView.GetComponent<WearNTear>() || zNetView.GetComponent<TreeBase>() ||

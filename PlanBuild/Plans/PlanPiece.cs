@@ -622,7 +622,7 @@ namespace PlanBuild.Plans
             ZNetScene.instance.Destroy(gameObject);
         }
 
-        internal static GameObject SpawnPiece(GameObject originatingObject, long creatorID, Vector3 position, Quaternion rotation, GameObject prefab, string textReceiverInput)
+        internal static GameObject SpawnPiece(GameObject originatingObject, long creatorID, Vector3 position, Quaternion rotation, GameObject prefab, string additionalInfo)
         {
             GameObject actualPiece = Instantiate(prefab, position, rotation);
             OnPieceReplaced(originatingObject, actualPiece);
@@ -655,7 +655,7 @@ namespace PlanBuild.Plans
             TextReceiver textReceiver = actualPiece.GetComponent<TextReceiver>();
             if (textReceiver != null)
             {
-                textReceiver.SetText(textReceiverInput);
+                textReceiver.SetText(additionalInfo);
             }
             actualPiece.GetComponent<Piece>().SetCreator(creatorID);
             return actualPiece;

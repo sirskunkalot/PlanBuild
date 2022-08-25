@@ -622,6 +622,11 @@ namespace PlanBuild.Blueprints
                 {
                     additionalInfo = $"{privateArea.m_nview.m_zdo.GetBool("enabled")}";
                 }
+                Container container = piece.GetComponent<Container>();
+                if (container != null && container.m_nview)
+                {
+                    additionalInfo = container.m_nview.GetZDO().GetString("items");
+                }
 
                 var scale = piece.transform.localScale;
 
