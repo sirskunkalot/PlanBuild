@@ -87,9 +87,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Use __Shift + Scroll__ to adjust the camera distance.
 
 * __Edit selection__: Left click to open a menu. From here you can choose what to do with your current selection:
-  * __Copy with custom SnapPoints__: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
-  * __Copy with vanilla SnapPoints__: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
-  * __Save__: Save the current selection as a new blueprint into the file system. These blueprints are kapt between game sessions and can also be used in the marketplace and shared with other players.
+  * __Copy__: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
+  * __Cut__: Make a temporary blueprint of your current selection and delete all pieces in the current selection. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
+  * __Save__: Save the current selection as a new blueprint into the file system. Opens up a new GUI window where you can enter Name, Category and Description of the blueprint. These blueprints are kept between game sessions and can also be used in the marketplace and shared with other players.
+  * __Copy with vanilla snap points__: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
+  * __Cut with vanilla snap points__: Make a temporary blueprint of your current selection and delete all pieces in the current selection including all vanilla snap points of the pieces selected.
+  * __Save with vanilla snap points__: Save the current selection as a new blueprint into the file system including all vanilla snap points.
   * __Delete__: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
   * __Cancel__: Exit the menu without any action.
 

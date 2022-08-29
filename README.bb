@@ -84,9 +84,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Edit selection[/b]: Left click to open a menu. From here you can choose what to do with your current selection:
 [list]
-[*][b]Copy with custom SnapPoints[/b]: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
-[*][b]Copy with vanilla SnapPoints[/b]: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
-[*][b]Save[/b]: Save the current selection as a new blueprint into the file system. These blueprints are kapt between game sessions and can also be used in the marketplace and shared with other players.
+[*][b]Copy[/b]: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
+[*][b]Cut[/b]: Make a temporary blueprint of your current selection and delete all pieces in the current selection. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
+[*][b]Save[/b]: Save the current selection as a new blueprint into the file system. Opens up a new GUI window where you can enter Name, Category and Description of the blueprint. These blueprints are kept between game sessions and can also be used in the marketplace and shared with other players.
+[*][b]Copy with vanilla snap points[/b]: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
+[*][b]Cut with vanilla snap points[/b]: Make a temporary blueprint of your current selection and delete all pieces in the current selection including all vanilla snap points of the pieces selected.
+[*][b]Save with vanilla snap points[/b]: Save the current selection as a new blueprint into the file system including all vanilla snap points.
 [*][b]Delete[/b]: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
 [*][b]Cancel[/b]: Exit the menu without any action.
 [/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
