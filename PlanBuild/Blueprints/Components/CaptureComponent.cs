@@ -48,7 +48,7 @@ namespace PlanBuild.Blueprints.Components
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
             Selection selection = new Selection();
             selection.AddPiecesInRadius(capturePosition, SelectionRadius);
-            SelectionTools.SaveWithGUI(selection);
+            SelectionTools.SaveWithGUI(selection, false);
         }
     }
 }

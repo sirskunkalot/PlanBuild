@@ -271,6 +271,7 @@ PlanBuild adds some new console commands to the game:
 [*][b]selection.cut[/b] - Cut out (copy and delete) the current selection as a temporary blueprint
 [*][b]selection.cutwithsnappoints[/b] - Cut out (copy and delete) the current selection as a temporary blueprint including the vanilla snap points
 [*][b]selection.save[/b] - Save the current selection as a blueprint
+[*][b]selection.savewithsnappoints[/b] - Save the current selection as a blueprint including the vanilla snap points
 [*][b]selection.delete[/b] - Delete all prefabs in the current selection
 [/list]
 

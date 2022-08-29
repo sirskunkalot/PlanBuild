@@ -20,6 +20,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new CutSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CutSelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
+            CommandManager.Instance.AddConsoleCommand(new SaveSelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
         }
 
@@ -185,7 +186,27 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.SaveWithGUI(Selection.Instance);
+                SelectionTools.SaveWithGUI(Selection.Instance, false);
+            }
+        }
+        
+        /// <summary>
+        ///     Console command to save the current selection as a blueprint
+        /// </summary>
+        private class SaveSelectionWithSnapPointsCommand : ConsoleCommand
+        {
+            public override string Name => "selection.savewithsnappoints";
+
+            public override string Help => "Save the current selection as a blueprint including the vanilla snap points";
+
+            public override void Run(string[] args)
+            {
+                if (!CheckSelection())
+                {
+                    return;
+                }
+
+                SelectionTools.SaveWithGUI(Selection.Instance, true);
             }
         }
 

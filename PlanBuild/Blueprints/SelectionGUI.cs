@@ -21,7 +21,7 @@ namespace PlanBuild.Blueprints
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0, 0),
                 width: 400,
-                height: 300,
+                height: 400,
                 draggable: false);
             panel.SetActive(false);
 
@@ -41,15 +41,6 @@ namespace PlanBuild.Blueprints
             copyButton.AddComponent<LayoutElement>().preferredHeight = 40f;
             copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Copy));
 
-            var copySnapButton = GUIManager.Instance.CreateButton(
-                text: "Copy with vanilla snap points",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            copySnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            copySnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CopyWithSnapPoints));
-            
             var cutButton = GUIManager.Instance.CreateButton(
                 text: "Cut",
                 parent: panel.transform,
@@ -59,6 +50,24 @@ namespace PlanBuild.Blueprints
             cutButton.AddComponent<LayoutElement>().preferredHeight = 40f;
             cutButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Cut));
 
+            var saveButton = GUIManager.Instance.CreateButton(
+                text: "Save",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUI));
+            
+            var copySnapButton = GUIManager.Instance.CreateButton(
+                text: "Copy with vanilla snap points",
+                parent: panel.transform,
+                anchorMin: new Vector2(0.5f, 0.5f),
+                anchorMax: new Vector2(0.5f, 0.5f),
+                position: new Vector2(0f, 0f));
+            copySnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            copySnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CopyWithSnapPoints));
+            
             var cutSnapButton = GUIManager.Instance.CreateButton(
                 text: "Cut with vanilla snap points",
                 parent: panel.transform,
@@ -68,14 +77,14 @@ namespace PlanBuild.Blueprints
             cutSnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
             cutSnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CutWithSnapPoints));
 
-            var saveButton = GUIManager.Instance.CreateButton(
-                text: "Save",
+            var saveSnapButton = GUIManager.Instance.CreateButton(
+                text: "Save with vanilla snap points",
                 parent: panel.transform,
                 anchorMin: new Vector2(0.5f, 0.5f),
                 anchorMax: new Vector2(0.5f, 0.5f),
                 position: new Vector2(0f, 0f));
-            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUI));
+            saveSnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
+            saveSnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUIWithSnapPoints));
 
             var deleteButton = GUIManager.Instance.CreateButton(
                 text: "Delete",
@@ -133,7 +142,12 @@ namespace PlanBuild.Blueprints
         
         private static void SaveGUI()
         {
-            SelectionTools.SaveWithGUI(Selection.Instance);
+            SelectionTools.SaveWithGUI(Selection.Instance, false);
+        }
+        
+        private static void SaveGUIWithSnapPoints()
+        {
+            SelectionTools.SaveWithGUI(Selection.Instance, true);
         }
 
         private static void Delete()

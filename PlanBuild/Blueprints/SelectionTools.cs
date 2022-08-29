@@ -62,7 +62,7 @@ namespace PlanBuild.Blueprints
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
         }
 
-        public static void Save(Selection selection, string name, string category, string description)
+        public static void Save(Selection selection, string name, string category, string description, bool captureVanillaSnapPoints)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -71,7 +71,7 @@ namespace PlanBuild.Blueprints
 
             var bp = new Blueprint();
 
-            if (!bp.Capture(selection))
+            if (!bp.Capture(selection, captureVanillaSnapPoints))
             {
                 return;
             }
@@ -114,12 +114,12 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
         }
 
-        public static void SaveWithGUI(Selection selection)
+        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints)
         {
             var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
             SaveGUI.ShowSaveGUI(bpname, (name, category, description) =>
             {
-                Save(selection, name, category, description);
+                Save(selection, name, category, description, captureVanillaSnapPoints);
                 selection.Clear();
             }, () =>
             {
