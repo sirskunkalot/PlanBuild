@@ -288,7 +288,7 @@ namespace PlanBuild.Blueprints
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
                     }
                     break;
-                    
+
                 case BlueprintLocation.Temporary:
                     // Move the temp blueprint to the local blueprints
                     if (detail != null && BlueprintManager.TemporaryBlueprints.TryGetValue(detail.ID, out var bptemp))
@@ -337,7 +337,7 @@ namespace PlanBuild.Blueprints
                         });
                     }
                     break;
-                    
+
                 case BlueprintLocation.Server:
                     // Save server blueprint locally
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
@@ -362,7 +362,7 @@ namespace PlanBuild.Blueprints
                         BlueprintSync.RemoveLocalBlueprint(detail.ID);
                     }
                     break;
-                    
+
                 case BlueprintLocation.Temporary:
                     // Remove local blueprint
                     if (detail != null && BlueprintManager.TemporaryBlueprints.ContainsKey(detail.ID))

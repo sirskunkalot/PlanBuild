@@ -1,13 +1,13 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Managers;
 using Jotunn.Utils;
+using PlanBuild.Blueprints.Components;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using PlanBuild.Blueprints.Components;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Logger = Jotunn.Logger;
@@ -91,7 +91,7 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPoint"/>s of this blueprint
         /// </summary>
         public SnapPoint[] SnapPoints;
-        
+
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
         /// </summary>
@@ -450,7 +450,7 @@ namespace PlanBuild.Blueprints
         {
             return Localization.instance.Localize($"<b>{Name}</b>\n ($gui_bpmarket_pieces)", GetPieceCount().ToString());
         }
-        
+
         /// <summary>
         ///     Creates the ID string of this blueprint
         /// </summary>
@@ -460,7 +460,7 @@ namespace PlanBuild.Blueprints
             var playerName = Player.m_localPlayer.GetPlayerName();
             var fileName = string.Concat(Name.Split(Path.GetInvalidFileNameChars()));
             var id = fileName.Replace(' ', '_').Trim();
-            
+
             if (Config.AddPlayerNameConfig.Value)
             {
                 id = $"{playerName}_{id}";
@@ -494,7 +494,7 @@ namespace PlanBuild.Blueprints
             }
             return Bounds;
         }
-        
+
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>
@@ -835,7 +835,7 @@ namespace PlanBuild.Blueprints
 
             Thumbnail = sprite.texture;
             Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
-            
+
             if (flush)
             {
                 File.WriteAllBytes(ThumbnailLocation, Thumbnail.EncodeToPNG());
@@ -1045,7 +1045,7 @@ namespace PlanBuild.Blueprints
 
                 Prefab = null;
             }
-            
+
             // Remove KeyHint
             if (KeyHint != null)
             {

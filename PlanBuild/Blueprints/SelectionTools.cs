@@ -76,7 +76,7 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            
+
             bp.ID = bp.CreateIDString();
             bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Name = name;

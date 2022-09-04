@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Jotunn;
+using Jotunn.Entities;
+using Jotunn.Managers;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Jotunn;
-using Jotunn.Entities;
-using Jotunn.Managers;
-using static Mono.Security.X509.X520;
 
 namespace PlanBuild.Blueprints
 {
@@ -103,7 +102,7 @@ namespace PlanBuild.Blueprints
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
-        
+
         private static IEnumerator GetListRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
@@ -152,7 +151,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-        
+
         /// <summary>
         ///     Write the local blueprint to disk again
         /// </summary>
@@ -178,7 +177,7 @@ namespace PlanBuild.Blueprints
 
             return true;
         }
-        
+
         /// <summary>
         ///     Write the temporary blueprint to disk and add it to the local blueprints
         /// </summary>
@@ -196,7 +195,7 @@ namespace PlanBuild.Blueprints
             }
 
             Logger.LogMessage($"Saving temporary blueprint {id}");
-            
+
             var newID = oldbp.CreateIDString();
             var bp = Blueprint.FromBlob(newID, oldbp.ToBlob());
             bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
@@ -210,11 +209,11 @@ namespace PlanBuild.Blueprints
 
             bp.ToFile();
             bp.CreatePiece();
-            
+
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
-            
+
             return true;
         }
 
@@ -281,7 +280,7 @@ namespace PlanBuild.Blueprints
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
-        
+
         /// <summary>
         ///     When connected to a server, register a callback and invoke the RPC for uploading
         ///     a local blueprint to the server directory.
@@ -309,7 +308,7 @@ namespace PlanBuild.Blueprints
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
-        
+
         private static IEnumerator PushBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
@@ -399,7 +398,7 @@ namespace PlanBuild.Blueprints
                 OnAnswerReceived = null;
             }
         }
-        
+
         /// <summary>
         ///     Delete a local blueprint from the game and filesystem
         /// </summary>
@@ -425,7 +424,7 @@ namespace PlanBuild.Blueprints
 
             return true;
         }
-        
+
         /// <summary>
         ///     Delete a temp blueprint from the game
         /// </summary>
@@ -480,7 +479,7 @@ namespace PlanBuild.Blueprints
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
-        
+
         private static IEnumerator RemoveServerBlueprintRPC_OnServerReceive(long sender, ZPackage pkg)
         {
             // Globally disabled
@@ -564,7 +563,7 @@ namespace PlanBuild.Blueprints
                 OnAnswerReceived = null;
             }
         }
-        
+
         private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
         {
             BlueprintManager.ServerBlueprints?.Clear();
