@@ -39,7 +39,6 @@ namespace PlanBuild.Blueprints
                 SelectionCommands.Init();
                 BlueprintSync.Init();
                 BlueprintCommands.Init();
-                BlueprintGUI.Init();
                 UndoManager.Instance.CreateQueue(Config.BlueprintUndoQueueNameConfig.Value);
 
                 // Hooks
@@ -206,6 +205,7 @@ namespace PlanBuild.Blueprints
             TemporaryBlueprints.Clear();
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
 
             return true;
         }

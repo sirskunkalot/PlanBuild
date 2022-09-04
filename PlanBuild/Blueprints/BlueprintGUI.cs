@@ -1,8 +1,8 @@
-﻿using System;
+﻿using Jotunn.GUI;
+using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Jotunn.Managers;
-using Jotunn.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,8 +12,7 @@ namespace PlanBuild.Blueprints
     {
         public static BlueprintGUI Instance;
 
-        private GameObject MenuPrefab;
-        private GameObject ContainerPrefab;
+        private GameObject WindowPrefab;
 
         public GameObject Window { get; set; }
 
@@ -25,9 +24,11 @@ namespace PlanBuild.Blueprints
 
         public BlueprintTab LocalTab { get; set; } = new BlueprintTab();
 
+        public BlueprintTab ClipboardTab { get; set; } = new BlueprintTab();
+
         public BlueprintTab ServerTab { get; set; } = new BlueprintTab();
 
-        public static void Init()
+        public static void Init(GameObject prefab)
         {
             if (GUIManager.IsHeadless())
             {
@@ -35,13 +36,10 @@ namespace PlanBuild.Blueprints
             }
 
             Instance = new BlueprintGUI();
-            AssetBundle bundle = AssetUtils.LoadAssetBundleFromResources("blueprintmenuui", typeof(PlanBuildPlugin).Assembly);
-            Instance.MenuPrefab = bundle.LoadAsset<GameObject>("BlueprintMenu");
-            Instance.ContainerPrefab = bundle.LoadAsset<GameObject>("BPDetailsContainer");
-            bundle.Unload(false);
+            Instance.WindowPrefab = prefab;
 
             GUIManager.OnCustomGUIAvailable += Instance.Register;
-            LocalizationManager.OnLocalizationAdded += Instance.Localize;
+            GUIManager.OnCustomGUIAvailable += Instance.Localize;
         }
 
         /// <summary>
@@ -68,9 +66,26 @@ namespace PlanBuild.Blueprints
         /// <returns>true if any visible fiels have focus</returns>
         public static bool TextFieldHasFocus()
         {
-            return Instance.CurrentTab.DetailDisplay.Name.isFocused 
+            if (Instance.CurrentTab == null)
+            {
+                return false;
+            }
+
+            return Instance.CurrentTab.DetailDisplay.Name.isFocused
                    || Instance.CurrentTab.DetailDisplay.Category.isFocused
                    || Instance.CurrentTab.DetailDisplay.Description.isFocused;
+        }
+
+        public static void ShowTab(BlueprintLocation location)
+        {
+            if (!IsAvailable())
+            {
+                return;
+            }
+
+            Instance.LocalTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Local);
+            Instance.ClipboardTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Temporary);
+            Instance.ServerTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Server);
         }
 
         /// <summary>
@@ -84,31 +99,55 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Local)
             {
+                foreach (var cat in Instance.LocalTab.ListDisplay.Categories)
+                {
+                    UnityEngine.Object.DestroyImmediate(cat);
+                }
                 foreach (var detail in Instance.LocalTab.ListDisplay.Blueprints)
                 {
                     UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
+                Instance.LocalTab.ListDisplay.Categories.Clear();
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
                 Instance.LocalTab.DetailDisplay.Clear();
             }
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Temporary)
             {
+                foreach (var cat in Instance.ClipboardTab.ListDisplay.Categories)
+                {
+                    UnityEngine.Object.DestroyImmediate(cat);
+                }
+                foreach (var detail in Instance.ClipboardTab.ListDisplay.Blueprints)
+                {
+                    UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
+                }
+                Instance.ClipboardTab.ListDisplay.Categories.Clear();
+                Instance.ClipboardTab.ListDisplay.Blueprints.Clear();
+                Instance.ClipboardTab.DetailDisplay.Clear();
+            }
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Server)
+            {
+                foreach (var cat in Instance.ServerTab.ListDisplay.Categories)
+                {
+                    UnityEngine.Object.DestroyImmediate(cat);
+                }
                 foreach (var detail in Instance.ServerTab.ListDisplay.Blueprints)
                 {
                     UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
+                Instance.ServerTab.ListDisplay.Categories.Clear();
                 Instance.ServerTab.ListDisplay.Blueprints.Clear();
                 Instance.ServerTab.DetailDisplay.Clear();
             }
         }
 
         /// <summary>
-        ///     Loop through the tab display, clear them and reload from the blueprint dictionary
+        ///     Loop through the tab display, clear them and refresh from the blueprint dictionary
         /// </summary>
         /// <param name="location">Which tab should be reloaded</param>
-        public static void ReloadBlueprints(BlueprintLocation location)
+        public static void RefreshBlueprints(BlueprintLocation location)
         {
             if (!IsAvailable())
             {
@@ -117,18 +156,33 @@ namespace PlanBuild.Blueprints
 
             ClearBlueprints(location);
 
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Local)
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Local)
             {
-                foreach (var entry in BlueprintManager.LocalBlueprints.OrderBy(x => x.Value.Name))
+                foreach (var cat in BlueprintManager.LocalBlueprints.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
                 {
-                    Instance.LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                    Instance.LocalTab.ListDisplay.AddCategory(cat.Key);
+                    foreach (var entry in cat.OrderBy(x => x.Value.Name))
+                    {
+                        Instance.LocalTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                    }
                 }
             }
-            if (location == BlueprintLocation.Both || location == BlueprintLocation.Server)
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Temporary)
             {
-                foreach (var entry in BlueprintManager.ServerBlueprints.OrderBy(x => x.Value.Name))
+                foreach (var entry in BlueprintManager.TemporaryBlueprints.OrderBy(x => x.Value.Name))
                 {
-                    Instance.ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                    Instance.ClipboardTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                }
+            }
+            if (location == BlueprintLocation.All || location == BlueprintLocation.Server)
+            {
+                foreach (var cat in BlueprintManager.ServerBlueprints.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
+                {
+                    Instance.ServerTab.ListDisplay.AddCategory(cat.Key);
+                    foreach (var entry in cat.OrderBy(x => x.Value.Name))
+                    {
+                        Instance.ServerTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
+                    }
                 }
             }
         }
@@ -164,10 +218,10 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Refreshes the blueprint dictionary from the disk or server and reloads the tab display
+        ///     Reload the blueprint dictionary from the disk or server and refresh the tab display
         /// </summary>
         /// <param name="originTab"></param>
-        public void RefreshBlueprints(BlueprintLocation originTab)
+        public void ReloadBlueprints(BlueprintLocation originTab)
         {
             switch (originTab)
             {
@@ -204,6 +258,10 @@ namespace PlanBuild.Blueprints
                     tabToUse = Instance.LocalTab;
                     break;
 
+                case BlueprintLocation.Temporary:
+                    tabToUse = Instance.ClipboardTab;
+                    break;
+
                 case BlueprintLocation.Server:
                     tabToUse = Instance.ServerTab;
                     break;
@@ -228,6 +286,18 @@ namespace PlanBuild.Blueprints
                         bplocal.Description = detail.Description;
 
                         BlueprintSync.SaveLocalBlueprint(bplocal.ID);
+                    }
+                    break;
+                    
+                case BlueprintLocation.Temporary:
+                    // Move the temp blueprint to the local blueprints
+                    if (detail != null && BlueprintManager.TemporaryBlueprints.TryGetValue(detail.ID, out var bptemp))
+                    {
+                        bptemp.Name = string.IsNullOrEmpty(detail.Name) ? bptemp.Name : detail.Name;
+                        bptemp.Category = string.IsNullOrEmpty(detail.Category) ? BlueprintAssets.CategoryBlueprints : detail.Category;
+                        bptemp.Description = detail.Description;
+
+                        BlueprintSync.SaveTempBlueprint(bptemp.ID);
                     }
                     break;
 
@@ -267,7 +337,7 @@ namespace PlanBuild.Blueprints
                         });
                     }
                     break;
-
+                    
                 case BlueprintLocation.Server:
                     // Save server blueprint locally
                     if (detail != null && BlueprintManager.ServerBlueprints.ContainsKey(detail.ID))
@@ -290,6 +360,14 @@ namespace PlanBuild.Blueprints
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
                         BlueprintSync.RemoveLocalBlueprint(detail.ID);
+                    }
+                    break;
+                    
+                case BlueprintLocation.Temporary:
+                    // Remove local blueprint
+                    if (detail != null && BlueprintManager.TemporaryBlueprints.ContainsKey(detail.ID))
+                    {
+                        BlueprintSync.RemoveTempBlueprint(detail.ID);
                     }
                     break;
 
@@ -317,9 +395,15 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogDebug("Recreating BlueprintGUI");
 
                 // Assigning the main window, so we can disable/enable it as we please.
-                Window = UnityEngine.Object.Instantiate(MenuPrefab, GUIManager.CustomGUIFront.transform);
+                Window = UnityEngine.Object.Instantiate(WindowPrefab, GUIManager.CustomGUIFront.transform);
+                Window.AddComponent<DragWindowCntrl>();
 
                 // Setting some vanilla styles
+                var panel = Window.GetComponent<Image>();
+                panel.sprite = GUIManager.Instance.GetSprite("woodpanel_settings");
+                panel.type = Image.Type.Sliced;
+                panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
+
                 foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
                     txt.font = GUIManager.Instance.AveriaSerifBold;
@@ -330,7 +414,93 @@ namespace PlanBuild.Blueprints
                     }
                 }
 
+                foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
+                {
+                    GUIManager.Instance.ApplyInputFieldStyle(fld);
+                }
+
+                foreach (Button btn in Window.GetComponentsInChildren<Button>(true))
+                {
+                    if (btn.name.Equals("ListEntry", StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+                    GUIManager.Instance.ApplyButtonStyle(btn);
+                }
+
+                foreach (ScrollRect scrl in Window.GetComponentsInChildren<ScrollRect>(true))
+                {
+                    GUIManager.Instance.ApplyScrollRectStyle(scrl);
+                }
+
+                // Global overlay
                 try
+                {
+                    ActionAppliedOverlay = new ActionAppliedOverlay();
+                    ActionAppliedOverlay.Register(Window.transform.Find("ActionAppliedOverlay"));
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogDebug($"Failed in the action overlay: {ex}");
+                }
+
+                // Create Tab instances
+                try
+                {
+                    LocalTab.TabElements.Register(Window.transform, "Local", "$gui_bpmarket_localblueprints");
+                    LocalTab.ListDisplay.Register(LocalTab.TabElements.TabContent.transform, BlueprintLocation.Local);
+                    LocalTab.DetailDisplay.Register(LocalTab.TabElements.TabContent.transform, BlueprintLocation.Local);
+                    LocalTab.TabElements.TabButton.onClick.AddListener(() =>
+                    {
+                        ShowTab(BlueprintLocation.Local);
+                        CurrentTab = LocalTab;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogDebug($"Failed in LocalTab: {ex}");
+                }
+
+                try
+                {
+                    ClipboardTab.TabElements.Register(Window.transform, "Clipboard", "$gui_bpmarket_clipboardblueprints");
+                    ClipboardTab.ListDisplay.Register(ClipboardTab.TabElements.TabContent.transform, BlueprintLocation.Temporary);
+                    ClipboardTab.DetailDisplay.Register(ClipboardTab.TabElements.TabContent.transform, BlueprintLocation.Temporary);
+                    ClipboardTab.TabElements.TabButton.onClick.AddListener(() =>
+                    {
+                        ShowTab(BlueprintLocation.Temporary);
+                        CurrentTab = ClipboardTab;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogDebug($"Failed in ClipboardTab: {ex}");
+                }
+
+                try
+                {
+                    ServerTab.TabElements.Register(Window.transform, "Server", "$gui_bpmarket_serverblueprints");
+                    ServerTab.ListDisplay.Register(ServerTab.TabElements.TabContent.transform, BlueprintLocation.Server);
+                    ServerTab.DetailDisplay.Register(ServerTab.TabElements.TabContent.transform, BlueprintLocation.Server);
+                    ServerTab.TabElements.TabButton.onClick.AddListener(() =>
+                    {
+                        ShowTab(BlueprintLocation.Server);
+                        CurrentTab = ServerTab;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    Jotunn.Logger.LogDebug($"Failed in ServerTab: {ex}");
+                }
+
+                // Show initial tab
+                ShowTab(BlueprintLocation.Local);
+                CurrentTab = LocalTab;
+
+                // Init blueprint lists
+                RefreshBlueprints(BlueprintLocation.All);
+
+                /*try
                 {
                     RectTransform windowRectTrans = Window.GetComponent<RectTransform>();
 
@@ -407,7 +577,7 @@ namespace PlanBuild.Blueprints
                 catch (Exception ex)
                 {
                     Jotunn.Logger.LogDebug($"Failed to load Blueprint Window: {ex}");
-                }
+                }*/
 
                 // Dont display directly
                 Window.SetActive(false);
@@ -420,13 +590,6 @@ namespace PlanBuild.Blueprints
             {
                 Localization.instance.Localize(Instance.Window.transform);
             }
-
-            if (MenuPrefab)
-            {
-                Localization.instance.Localize(Instance.MenuPrefab.transform);
-            }
-
-            LocalizationManager.OnLocalizationAdded -= Localize;
         }
     }
 
@@ -452,18 +615,20 @@ namespace PlanBuild.Blueprints
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
         public Text TabText { get; set; }
+        public GameObject TabContent { get; set; }
 
-        // This is to indicate it is the activate tab.
-        public Image TabButtonSelector { get; set; }
-
-        public void Register(Transform window, string tabName, string buttonSearchName)
+        public void Register(Transform window, string tabName, string tabText)
         {
             try
             {
-                TabTransform = window.Find($"{tabName}");
-                TabButton = window.Find($"{buttonSearchName}").GetComponent<Button>();
-                TabText = window.Find($"{buttonSearchName}/Label").GetComponent<Text>();
-                TabButtonSelector = window.Find($"{buttonSearchName}/Enabled").GetComponent<Image>();
+                GameObject button =
+                    GUIManager.Instance.CreateButton(tabText, window.Find("Tabs"), Vector2.zero, Vector2.zero, Vector2.zero);
+                button.name = tabName;
+                TabTransform = button.transform;
+                TabButton = button.GetComponent<Button>();
+                TabText = button.transform.Find("Text").GetComponent<Text>();
+                TabContent = UnityEngine.Object.Instantiate(window.Find("TabContent").gameObject, window.Find("Content"));
+                TabContent.name = tabName;
             }
             catch (Exception ex)
             {
@@ -476,15 +641,34 @@ namespace PlanBuild.Blueprints
     {
         public BlueprintLocation TabType { get; set; } = BlueprintLocation.Local;
 
-        private GameObject BlueprintDetailPrefab { get; set; }
+        private GameObject BlueprintCategoryPrefab { get; set; }
+        private GameObject BlueprintEntryPrefab { get; set; }
 
         // Parent for the Content Holder - Where we push new things.
         public Transform ScrollContentParent { get; set; }
 
         public UIConfirmationOverlay ConfirmationOverlay { get; set; } = new UIConfirmationOverlay();
 
+        // All the categories that exist in this tab's list.
+        public List<GameObject> Categories { get; set; } = new List<GameObject>();
+
         // All the blueprints that exist in this tab's list.
         public List<BlueprintDetailContent> Blueprints { get; set; } = new List<BlueprintDetailContent>();
+
+        public void AddCategory(string name)
+        {
+            try
+            {
+                GameObject cat = UnityEngine.Object.Instantiate(BlueprintCategoryPrefab, ScrollContentParent);
+                cat.SetActive(true);
+                cat.GetComponent<Text>().text = name;
+                Categories.Add(cat);
+            }
+            catch (Exception ex)
+            {
+                Jotunn.Logger.LogDebug($"Failed to create new category: {ex}");
+            }
+        }
 
         public BlueprintDetailContent AddBlueprint(string id, Blueprint bp)
         {
@@ -497,22 +681,23 @@ namespace PlanBuild.Blueprints
             BlueprintDetailContent newBp = new BlueprintDetailContent();
             try
             {
-                newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintDetailPrefab, ScrollContentParent);
-                newBp.IconButton = newBp.ContentHolder.GetComponent<Button>();
-                newBp.Icon = newBp.ContentHolder.transform.Find("IconButton/BPImage").GetComponent<Image>();
+                newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintEntryPrefab, ScrollContentParent);
+                newBp.ContentHolder.SetActive(true);
+                newBp.Button = newBp.ContentHolder.GetComponent<Button>();
                 newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
 
                 newBp.ID = bp.ID;
                 newBp.Name = bp.Name;
                 newBp.Category = bp.Category;
                 newBp.Creator = bp.Creator;
+                newBp.Count = bp.GetPieceCount().ToString();
                 newBp.Description = bp.Description;
                 newBp.Text.text = bp.ToGUIString();
                 if (bp.Thumbnail != null)
                 {
-                    newBp.Icon.sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
+                    newBp.Icon = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                 }
-                newBp.IconButton.onClick.AddListener(() =>
+                newBp.Button.onClick.AddListener(() =>
                 {
                     BlueprintGUI.Instance.ShowBlueprint(newBp, TabType);
                 });
@@ -531,22 +716,22 @@ namespace PlanBuild.Blueprints
             if (blueprintToRemove != null)
             {
                 Blueprints.Remove(blueprintToRemove);
-                // I said see-yah later.
                 UnityEngine.Object.Destroy(blueprintToRemove.ContentHolder);
                 return blueprintToRemove;
             }
             return null;
         }
 
-        public void Register(Transform tabTrans, GameObject uiBlueprintDetailPrefab, BlueprintLocation tabType)
+        public void Register(Transform contentTransform, BlueprintLocation tabType)
         {
             TabType = tabType;
             try
             {
-                BlueprintDetailPrefab = uiBlueprintDetailPrefab;
-                ScrollContentParent = tabTrans.Find("BlueprintScrollView/Viewport/Content");
+                BlueprintCategoryPrefab = contentTransform.Find("List/ListCategory").gameObject;
+                BlueprintEntryPrefab = contentTransform.Find("List/ListEntry").gameObject;
+                ScrollContentParent = contentTransform.Find("List/Viewport/Content");
                 ConfirmationOverlay = new UIConfirmationOverlay();
-                Transform overlayParent = tabTrans.Find("BlueprintConfirmationOverlay");
+                Transform overlayParent = contentTransform.Find("ConfirmationOverlay");
                 ConfirmationOverlay.Register(overlayParent);
             }
             catch (Exception ex)
@@ -562,16 +747,16 @@ namespace PlanBuild.Blueprints
 
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
-        // Inputs Fields.
         public Text ID { get; set; }
-
         public Text Creator { get; set; }
+        public Text Count { get; set; }
+        public Image Icon { get; set; }
         public InputField Name { get; set; }
         public InputField Category { get; set; }
         public InputField Description { get; set; }
 
         // Main Action Buttons
-        public Button RefreshButton { get; set; }
+        public Button ReloadButton { get; set; }
 
         public Button SaveButton { get; set; }
         public Button TransferButton { get; set; }
@@ -595,6 +780,17 @@ namespace PlanBuild.Blueprints
 
             ID.text = blueprint.ID;
             Creator.text = blueprint.Creator;
+            Count.text = blueprint.Count;
+            if (blueprint.Icon == null)
+            {
+                Icon.gameObject.SetActive(false);
+                Icon.sprite = null;
+            }
+            else
+            {
+                Icon.gameObject.SetActive(true);
+                Icon.sprite = blueprint.Icon;
+            }
             Name.text = blueprint.Name;
             Category.text = blueprint.Category;
             Description.text = blueprint.Description;
@@ -609,10 +805,6 @@ namespace PlanBuild.Blueprints
 
             SaveButton.onClick.AddListener(() =>
             {
-                /*ConfirmationOverlay.Show($"Saving blueprint {Name.text}", () =>
-                {
-                    BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
-                });*/
                 ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_savebp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.SaveBlueprint(blueprint, TabType);
@@ -621,10 +813,6 @@ namespace PlanBuild.Blueprints
 
             TransferButton.onClick.AddListener(() =>
             {
-                /*ConfirmationOverlay.Show($"Transfer {TabType} blueprint {Name.text}", () =>
-                {
-                    BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
-                });*/
                 ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_transferbp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.TransferBlueprint(blueprint, TabType);
@@ -633,10 +821,6 @@ namespace PlanBuild.Blueprints
 
             DeleteButton.onClick.AddListener(() =>
             {
-                /*ConfirmationOverlay.Show($"Delete {TabType} blueprint {Name.text}", () =>
-                {
-                    BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
-                });*/
                 ConfirmationOverlay.Show(Localization.instance.Localize("$gui_bpmarket_deletebp", TabType.ToString(), Name.text), () =>
                 {
                     BlueprintGUI.Instance.DeleteBlueprint(blueprint, TabType);
@@ -652,42 +836,64 @@ namespace PlanBuild.Blueprints
 
             ID.text = "ID";
             Creator.text = null;
+            Count.text = null;
+            Icon.sprite = null;
+            Icon.gameObject.SetActive(false);
             Name.text = null;
             Category.text = null;
             Description.text = null;
         }
 
-        public void Register(Transform tabTrans, BlueprintLocation tabType)
+        public void Register(Transform contentTransform, BlueprintLocation tabType)
         {
             TabType = tabType;
             try
             {
                 // Registering confirmation overlay.
                 ConfirmationOverlay = new UIConfirmationOverlay();
-                Transform overlayParent = tabTrans.Find("ConfirmationOverlay");
+                Transform overlayParent = contentTransform.Find("ConfirmationOverlay");
                 ConfirmationOverlay.Register(overlayParent);
 
-                ID = tabTrans.Find("ID").GetComponent<Text>();
-                Creator = tabTrans.Find("Creator").GetComponent<Text>();
-                Name = tabTrans.Find("Name").GetComponent<InputField>();
-                Category = tabTrans.Find("Category").GetComponent<InputField>();
-                Description = tabTrans.Find("Description").GetComponent<InputField>();
+                Transform detail = contentTransform.Find("Detail");
+                ID = detail.Find("ID").GetComponent<Text>();
+                Creator = detail.Find("Creator").GetComponent<Text>();
+                Count = detail.Find("Count").GetComponent<Text>();
+                Icon = detail.Find("Thumbnail").GetComponent<Image>();
+                Icon.gameObject.SetActive(false);
+                Name = detail.Find("Name").GetComponent<InputField>();
+                Category = detail.Find("Category").GetComponent<InputField>();
+                Description = detail.Find("Description").GetComponent<InputField>();
 
-                RefreshButton = tabTrans.Find("RefreshButton").GetComponent<Button>();
-                SaveButton = tabTrans.Find("SaveButton").GetComponent<Button>();
-                TransferButton = tabTrans.Find("TransferButton").GetComponent<Button>();
-                DeleteButton = tabTrans.Find("DeleteButton").GetComponent<Button>();
+                ReloadButton = detail.Find("RefreshButton").GetComponent<Button>();
+                SaveButton = detail.Find("SaveButton").GetComponent<Button>();
+                TransferButton = detail.Find("TransferButton").GetComponent<Button>();
+                DeleteButton = detail.Find("DeleteButton").GetComponent<Button>();
+
+                // Type dependend actions
+                if (tabType == BlueprintLocation.Local)
+                {
+                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_upload";
+                }
+                if (tabType == BlueprintLocation.Temporary)
+                {
+                    ReloadButton.gameObject.SetActive(false);
+                    TransferButton.gameObject.SetActive(false);
+                }
+                if (tabType == BlueprintLocation.Server)
+                {
+                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_download";
+                }
 
                 // Add valheim refresh icon
-                var img = RefreshButton.transform.Find("Image").GetComponent<Image>();
+                var img = ReloadButton.transform.Find("Image").GetComponent<Image>();
                 img.sprite = GUIManager.Instance.GetSprite("refresh_icon");
                 var outline = img.gameObject.AddComponent<Outline>();
                 outline.effectColor = Color.black;
 
                 // Refresh button is global
-                RefreshButton.onClick.AddListener(() =>
+                ReloadButton.onClick.AddListener(() =>
                 {
-                    BlueprintGUI.Instance.RefreshBlueprints(TabType);
+                    BlueprintGUI.Instance.ReloadBlueprints(TabType);
                 });
             }
             catch (Exception ex)
@@ -704,10 +910,11 @@ namespace PlanBuild.Blueprints
         public string Name { get; set; }
         public string Category { get; set; }
         public string Creator { get; set; }
+        public string Count { get; set; }
         public string Description { get; set; }
         public Text Text { get; set; }
-        public Image Icon { get; set; }
-        public Button IconButton { get; set; }
+        public Sprite Icon { get; set; }
+        public Button Button { get; set; }
     }
 
     internal class UIConfirmationOverlay

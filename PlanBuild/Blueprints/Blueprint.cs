@@ -450,6 +450,24 @@ namespace PlanBuild.Blueprints
         {
             return Localization.instance.Localize($"<b>{Name}</b>\n ($gui_bpmarket_pieces)", GetPieceCount().ToString());
         }
+        
+        /// <summary>
+        ///     Creates the ID string of this blueprint
+        /// </summary>
+        /// <returns></returns>
+        public string CreateIDString()
+        {
+            var playerName = Player.m_localPlayer.GetPlayerName();
+            var fileName = string.Concat(Name.Split(Path.GetInvalidFileNameChars()));
+            var id = fileName.Replace(' ', '_').Trim();
+            
+            if (Config.AddPlayerNameConfig.Value)
+            {
+                id = $"{playerName}_{id}";
+            }
+
+            return id;
+        }
 
         /// <summary>
         ///     Number of pieces currently stored in this blueprint
@@ -476,7 +494,7 @@ namespace PlanBuild.Blueprints
             }
             return Bounds;
         }
-
+        
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>

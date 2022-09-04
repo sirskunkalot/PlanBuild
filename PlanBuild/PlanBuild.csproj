@@ -199,7 +199,6 @@
     <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
     <None Include="assets\Translations\English\PlanBuild.English.json" />
     <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
-    <EmbeddedResource Include="EmbeddedAssets\blueprintmenuui" />
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="assets\Translations\Russian\PlanBuild.russian.json" />

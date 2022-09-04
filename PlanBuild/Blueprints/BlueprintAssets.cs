@@ -13,6 +13,8 @@ namespace PlanBuild.Blueprints
         public const string BlueprintTooltipName = "BlueprintTooltip";
         public static GameObject BlueprintTooltip;
 
+        public const string BlueprintGUIName = "BlueprintGUI";
+
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
 
@@ -46,15 +48,18 @@ namespace PlanBuild.Blueprints
                 prefabs.Add(prefabArray[i].name, prefabArray[i]);
             }
 
+            // Blueprint GUI
+            BlueprintGUI.Init(prefabs[BlueprintGUIName]);
+
             // Blueprint Tooltip
             BlueprintTooltip = prefabs[BlueprintTooltipName];
-            void GUIManagerOnOnCustomGUIAvailable()
+            void InitTooltipGUI()
             {
                 global::Utils.FindChild(BlueprintTooltip.transform, "Text").GetComponent<Text>().font =
                     GUIManager.Instance.AveriaSerif;
-                GUIManager.OnCustomGUIAvailable -= GUIManagerOnOnCustomGUIAvailable;
+                GUIManager.OnCustomGUIAvailable -= InitTooltipGUI;
             }
-            GUIManager.OnCustomGUIAvailable += GUIManagerOnOnCustomGUIAvailable;
+            GUIManager.OnCustomGUIAvailable += InitTooltipGUI;
 
             // Blueprint KeyHints
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;

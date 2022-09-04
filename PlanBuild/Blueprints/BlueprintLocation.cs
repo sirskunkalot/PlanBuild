@@ -5,6 +5,6 @@
     /// </summary>
     internal enum BlueprintLocation
     {
-        Local, Server, Both
+        Local, Temporary, Server, All
     }
 }

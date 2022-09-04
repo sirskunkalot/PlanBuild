@@ -6,6 +6,7 @@ using System.Linq;
 using Jotunn;
 using Jotunn.Entities;
 using Jotunn.Managers;
+using static Mono.Security.X509.X520;
 
 namespace PlanBuild.Blueprints
 {
@@ -68,7 +69,7 @@ namespace PlanBuild.Blueprints
 
             // Reload blueprints and GUI, if available
             BlueprintManager.RegisterKnownBlueprints();
-            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
         }
 
         /// <summary>
@@ -137,7 +138,7 @@ namespace PlanBuild.Blueprints
                 {
                     BlueprintManager.ServerBlueprints.Clear();
                     BlueprintManager.ServerBlueprints = BlueprintDictionary.FromZPackage(pkg);
-                    BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                    BlueprintGUI.RefreshBlueprints(BlueprintLocation.Server);
                 }
                 catch (Exception ex)
                 {
@@ -173,8 +174,47 @@ namespace PlanBuild.Blueprints
             blueprint.DestroyBlueprint();
             blueprint.ToFile();
             BlueprintManager.RegisterKnownBlueprints();
-            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
 
+            return true;
+        }
+        
+        /// <summary>
+        ///     Write the temporary blueprint to disk and add it to the local blueprints
+        /// </summary>
+        /// <param name="id">ID of the blueprint</param>
+        /// <returns>true if the blueprint could be written to disk</returns>
+        internal static bool SaveTempBlueprint(string id)
+        {
+            if (BlueprintManager.TemporaryBlueprints == null)
+            {
+                return false;
+            }
+            if (!BlueprintManager.TemporaryBlueprints.TryGetValue(id, out var oldbp))
+            {
+                return false;
+            }
+
+            Logger.LogMessage($"Saving temporary blueprint {id}");
+            
+            var newID = oldbp.CreateIDString();
+            var bp = Blueprint.FromBlob(newID, oldbp.ToBlob());
+            bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
+            bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
+
+            if (BlueprintManager.LocalBlueprints.ContainsKey(newID))
+            {
+                BlueprintManager.LocalBlueprints[newID].DestroyBlueprint();
+                BlueprintManager.LocalBlueprints.Remove(newID);
+            }
+
+            bp.ToFile();
+            bp.CreatePiece();
+            
+            BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
+            BlueprintManager.RegisterKnownBlueprints();
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+            
             return true;
         }
 
@@ -209,7 +249,7 @@ namespace PlanBuild.Blueprints
             bp.ToFile();
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintManager.RegisterKnownBlueprints();
-            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
 
             return true;
         }
@@ -241,7 +281,7 @@ namespace PlanBuild.Blueprints
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
             }
         }
-
+        
         /// <summary>
         ///     When connected to a server, register a callback and invoke the RPC for uploading
         ///     a local blueprint to the server directory.
@@ -349,7 +389,7 @@ namespace PlanBuild.Blueprints
                     {
                         BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp);
                         BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
-                        BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                        BlueprintGUI.RefreshBlueprints(BlueprintLocation.Server);
                     }
                 }
             }
@@ -381,7 +421,33 @@ namespace PlanBuild.Blueprints
             bp.DestroyBlueprint();
             BlueprintManager.LocalBlueprints.Remove(id);
             BlueprintManager.RegisterKnownBlueprints();
-            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+
+            return true;
+        }
+        
+        /// <summary>
+        ///     Delete a temp blueprint from the game
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        internal static bool RemoveTempBlueprint(string id)
+        {
+            if (BlueprintManager.TemporaryBlueprints == null)
+            {
+                return false;
+            }
+            if (!BlueprintManager.TemporaryBlueprints.TryGetValue(id, out var bp))
+            {
+                return false;
+            }
+
+            Logger.LogDebug($"Removing temporary blueprint {id}");
+
+            bp.DestroyBlueprint();
+            BlueprintManager.TemporaryBlueprints.Remove(id);
+            BlueprintManager.RegisterKnownBlueprints();
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
 
             return true;
         }
@@ -488,7 +554,7 @@ namespace PlanBuild.Blueprints
                     if (BlueprintManager.ServerBlueprints.ContainsKey(message))
                     {
                         BlueprintManager.ServerBlueprints.Remove(message);
-                        BlueprintGUI.ReloadBlueprints(BlueprintLocation.Server);
+                        BlueprintGUI.RefreshBlueprints(BlueprintLocation.Server);
                     }
                 }
             }

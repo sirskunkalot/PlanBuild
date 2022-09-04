@@ -35,6 +35,7 @@ namespace PlanBuild.Blueprints
             Player.m_localPlayer.m_buildPieces.m_selectedCategory = (Piece.PieceCategory)cat;
             Player.m_localPlayer.m_buildPieces.SetSelected(new Vector2Int(0, 0));
             Player.m_localPlayer.SetupPlacementGhost();
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
         }
 
         public static void Cut(Selection selection, bool captureVanillaSnapPoints)
@@ -75,17 +76,9 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-
-            var playerName = Player.m_localPlayer.GetPlayerName();
-            var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
-            var id = fileName.Replace(' ', '_').Trim();
-            if (Config.AddPlayerNameConfig.Value)
-            {
-                id = $"{playerName}_{id}";
-            }
-
-            bp.ID = id;
-            bp.Creator = playerName;
+            
+            bp.ID = bp.CreateIDString();
+            bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Name = name;
             bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
             bp.Description = description;
@@ -111,7 +104,7 @@ namespace PlanBuild.Blueprints
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             bp.CreateThumbnail();
             BlueprintManager.RegisterKnownBlueprints();
-            BlueprintGUI.ReloadBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
         }
 
         public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints)
