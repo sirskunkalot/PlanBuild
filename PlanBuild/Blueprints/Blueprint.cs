@@ -274,6 +274,10 @@ namespace PlanBuild.Blueprints
                 if (line.StartsWith(HeaderCategory))
                 {
                     ret.Category = line.Substring(HeaderCategory.Length);
+                    if (string.IsNullOrEmpty(ret.Category))
+                    {
+                        ret.Category = BlueprintAssets.CategoryBlueprints;
+                    }
                     continue;
                 }
                 if (line == HeaderSnapPoints)
