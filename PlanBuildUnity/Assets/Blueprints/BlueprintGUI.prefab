@@ -372,6 +372,7 @@ GameObject:
   - component: {fileID: 6915800107670477866}
   - component: {fileID: 1495777183193216401}
   - component: {fileID: 4821439713233685092}
+  - component: {fileID: 6252791386799445852}
   m_Layer: 5
   m_Name: lblName
   m_TagString: Untagged
@@ -440,6 +441,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: $gui_bpmarket_name
+--- !u!114 &6252791386799445852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 715457471672268427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &720354613571554234
 GameObject:
   m_ObjectHideFlags: 0
@@ -530,6 +546,7 @@ GameObject:
   - component: {fileID: 7203877614219342584}
   - component: {fileID: 5205038335849615349}
   - component: {fileID: 6003110680305816760}
+  - component: {fileID: 6657613004860825199}
   m_Layer: 5
   m_Name: Count
   m_TagString: Untagged
@@ -598,6 +615,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
+--- !u!114 &6657613004860825199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1031268966533562730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1099837176059066180
 GameObject:
   m_ObjectHideFlags: 0
@@ -964,6 +996,7 @@ GameObject:
   - component: {fileID: 7950124835481018109}
   - component: {fileID: 3988107137489750595}
   - component: {fileID: 214889606051523297}
+  - component: {fileID: 1292805658762417140}
   m_Layer: 5
   m_Name: lblDescription
   m_TagString: Untagged
@@ -1032,6 +1065,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: $gui_bpmarket_description
+--- !u!114 &1292805658762417140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1505952806070859600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1668198187176558808
 GameObject:
   m_ObjectHideFlags: 0
@@ -1122,6 +1170,7 @@ GameObject:
   - component: {fileID: 5185188096289416829}
   - component: {fileID: 4814957122467817277}
   - component: {fileID: 1233933779785733548}
+  - component: {fileID: 5712609877371444881}
   m_Layer: 5
   m_Name: lblCount
   m_TagString: Untagged
@@ -1190,6 +1239,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: $gui_bpmarket_count
+--- !u!114 &5712609877371444881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762820713836293455}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2370652882476707772
 GameObject:
   m_ObjectHideFlags: 0
@@ -2218,6 +2282,7 @@ GameObject:
   - component: {fileID: 2209568113963618216}
   - component: {fileID: 2803217807886188570}
   - component: {fileID: 5967282708457726076}
+  - component: {fileID: 4895813385694724313}
   m_Layer: 5
   m_Name: ID
   m_TagString: Untagged
@@ -2286,6 +2351,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: ID
+--- !u!114 &4895813385694724313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4172175071257582258}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4175441931356661931
 GameObject:
   m_ObjectHideFlags: 0
@@ -2431,6 +2511,7 @@ GameObject:
   - component: {fileID: 8371945016103430441}
   - component: {fileID: 1804331998095420103}
   - component: {fileID: 8613125497143192825}
+  - component: {fileID: 7718577692339413011}
   m_Layer: 5
   m_Name: lblCategory
   m_TagString: Untagged
@@ -2499,6 +2580,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: $gui_bpmarket_category
+--- !u!114 &7718577692339413011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4723267559376531020}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4733308269952554295
 GameObject:
   m_ObjectHideFlags: 0
@@ -2510,6 +2606,7 @@ GameObject:
   - component: {fileID: 5229350336381799618}
   - component: {fileID: 8636798547479046181}
   - component: {fileID: 3513852420898849198}
+  - component: {fileID: 8960471194428159415}
   m_Layer: 5
   m_Name: Creator
   m_TagString: Untagged
@@ -2578,6 +2675,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 
+--- !u!114 &8960471194428159415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4733308269952554295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4824322519485383765
 GameObject:
   m_ObjectHideFlags: 0
@@ -4129,6 +4241,7 @@ GameObject:
   - component: {fileID: 1022007341517620365}
   - component: {fileID: 6911045586380864812}
   - component: {fileID: 5415255059559069580}
+  - component: {fileID: 6770500246100021125}
   m_Layer: 5
   m_Name: lblCreator
   m_TagString: Untagged
@@ -4197,6 +4310,21 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: $gui_bpmarket_creator
+--- !u!114 &6770500246100021125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8750585959205758878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 1, y: -1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8863380608633187939
 GameObject:
   m_ObjectHideFlags: 0

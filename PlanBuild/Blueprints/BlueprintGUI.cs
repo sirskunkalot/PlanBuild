@@ -417,11 +417,6 @@ namespace PlanBuild.Blueprints
                 foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
                     txt.font = GUIManager.Instance.AveriaSerifBold;
-                    if (txt.GetComponentsInParent<InputField>(true) == null)
-                    {
-                        var outline = txt.gameObject.AddComponent<Outline>();
-                        outline.effectColor = Color.black;
-                    }
                 }
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
