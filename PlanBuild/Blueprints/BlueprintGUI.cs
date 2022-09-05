@@ -421,7 +421,7 @@ namespace PlanBuild.Blueprints
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
                 {
-                    GUIManager.Instance.ApplyInputFieldStyle(fld);
+                    GUIManager.Instance.ApplyInputFieldStyle(fld, 16);
                 }
 
                 foreach (Button btn in Window.GetComponentsInChildren<Button>(true))
