@@ -83,6 +83,19 @@ namespace PlanBuild.Blueprints
             Instance.LocalTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Local);
             Instance.ClipboardTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Temporary);
             Instance.ServerTab.TabElements.TabContent.SetActive(location == BlueprintLocation.Server);
+
+            switch (location)
+            {
+                case BlueprintLocation.Local:
+                    Instance.CurrentTab = Instance.LocalTab;
+                    break;
+                case BlueprintLocation.Temporary:
+                    Instance.CurrentTab = Instance.ClipboardTab;
+                    break;
+                case BlueprintLocation.Server:
+                    Instance.CurrentTab = Instance.ServerTab;
+                    break;
+            }
         }
 
         /// <summary>
@@ -429,7 +442,7 @@ namespace PlanBuild.Blueprints
                 {
                     GUIManager.Instance.ApplyScrollRectStyle(scrl);
                 }
-
+                
                 // Global overlay
                 try
                 {
@@ -450,7 +463,6 @@ namespace PlanBuild.Blueprints
                     LocalTab.TabElements.TabButton.onClick.AddListener(() =>
                     {
                         ShowTab(BlueprintLocation.Local);
-                        CurrentTab = LocalTab;
                     });
                 }
                 catch (Exception ex)
@@ -466,7 +478,6 @@ namespace PlanBuild.Blueprints
                     ClipboardTab.TabElements.TabButton.onClick.AddListener(() =>
                     {
                         ShowTab(BlueprintLocation.Temporary);
-                        CurrentTab = ClipboardTab;
                     });
                 }
                 catch (Exception ex)
@@ -482,7 +493,6 @@ namespace PlanBuild.Blueprints
                     ServerTab.TabElements.TabButton.onClick.AddListener(() =>
                     {
                         ShowTab(BlueprintLocation.Server);
-                        CurrentTab = ServerTab;
                     });
                 }
                 catch (Exception ex)
@@ -498,7 +508,6 @@ namespace PlanBuild.Blueprints
 
                 // Show initial tab
                 ShowTab(BlueprintLocation.Local);
-                CurrentTab = LocalTab;
 
                 // Init blueprint lists
                 RefreshBlueprints(BlueprintLocation.All);
