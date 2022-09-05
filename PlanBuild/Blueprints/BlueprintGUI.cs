@@ -17,7 +17,7 @@ namespace PlanBuild.Blueprints
         public GameObject Window { get; set; }
 
         public ActionAppliedOverlay ActionAppliedOverlay { get; set; }
-        
+
         public BlueprintTab CurrentTab { get; set; }
 
         public BlueprintTab LocalTab { get; set; } = new BlueprintTab();
@@ -109,7 +109,7 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Local)
+            if (location == BlueprintLocation.Local || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.LocalTab.ListDisplay.Categories)
                 {
@@ -123,7 +123,7 @@ namespace PlanBuild.Blueprints
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
                 Instance.LocalTab.DetailDisplay.Clear();
             }
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Temporary)
+            if (location == BlueprintLocation.Temporary || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ClipboardTab.ListDisplay.Categories)
                 {
@@ -137,7 +137,7 @@ namespace PlanBuild.Blueprints
                 Instance.ClipboardTab.ListDisplay.Blueprints.Clear();
                 Instance.ClipboardTab.DetailDisplay.Clear();
             }
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Server)
+            if (location == BlueprintLocation.Server || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ServerTab.ListDisplay.Categories)
                 {
@@ -166,7 +166,7 @@ namespace PlanBuild.Blueprints
 
             ClearBlueprints(location);
 
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Local)
+            if (location == BlueprintLocation.Local || location == BlueprintLocation.All)
             {
                 foreach (var cat in BlueprintManager.LocalBlueprints.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
                 {
@@ -177,14 +177,14 @@ namespace PlanBuild.Blueprints
                     }
                 }
             }
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Temporary)
+            if (location == BlueprintLocation.Temporary || location == BlueprintLocation.All)
             {
                 foreach (var entry in BlueprintManager.TemporaryBlueprints.OrderBy(x => x.Value.Name))
                 {
                     Instance.ClipboardTab.ListDisplay.AddBlueprint(entry.Key, entry.Value);
                 }
             }
-            if (location == BlueprintLocation.All || location == BlueprintLocation.Server)
+            if (location == BlueprintLocation.Server || location == BlueprintLocation.All)
             {
                 foreach (var cat in BlueprintManager.ServerBlueprints.GroupBy(x => x.Value.Category).OrderBy(x => x.Key))
                 {
@@ -442,7 +442,7 @@ namespace PlanBuild.Blueprints
                 {
                     GUIManager.Instance.ApplyScrollRectStyle(scrl);
                 }
-                
+
                 // Global overlay
                 try
                 {
@@ -511,12 +511,12 @@ namespace PlanBuild.Blueprints
 
                 // Init blueprint lists
                 RefreshBlueprints(BlueprintLocation.All);
-                
+
                 // Dont display directly
                 Window.SetActive(false);
             }
         }
-        
+
         private class CloseGUIBehaviour : MonoBehaviour
         {
             private void Update()
@@ -529,7 +529,7 @@ namespace PlanBuild.Blueprints
             }
         }
     }
-    
+
     internal class BlueprintTab
     {
         // Moved things out to seperate classes to make it easier to understand the flow.
@@ -822,7 +822,7 @@ namespace PlanBuild.Blueprints
                 var outline = img.gameObject.AddComponent<Outline>();
                 outline.effectColor = Color.black;
 
-                // Refresh button is global
+                // Reload button is global
                 ReloadButton.onClick.AddListener(() =>
                 {
                     BlueprintGUI.Instance.ReloadBlueprints(TabType);
