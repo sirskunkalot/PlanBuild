@@ -141,8 +141,8 @@ namespace PlanBuild.Blueprints
                     anchorMin: new Vector2(0.5f, 0.5f),
                     anchorMax: new Vector2(0.5f, 0.5f),
                     position: new Vector2(0f, 0f),
-                    width: 600,
-                    height: 500,
+                    width: 420f,
+                    height: 500f,
                     draggable: false);
                 Panel.SetActive(false);
                 Panel.AddComponent<SaveGUIBehaviour>();
@@ -153,26 +153,7 @@ namespace PlanBuild.Blueprints
                 layout.childForceExpandHeight = false;
                 layout.padding = new RectOffset(15, 15, 15, 15);
                 layout.spacing = 20f;
-
-                // Label
-
-                var saveLabel = GUIManager.Instance.CreateText(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_saveblueprint"),
-                    parent: Panel.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0f, 0f),
-                    font: GUIManager.Instance.AveriaSerifBold,
-                    fontSize: 30,
-                    color: GUIManager.Instance.ValheimOrange,
-                    outline: true,
-                    outlineColor: Color.black,
-                    width: 500f,
-                    height: 50f,
-                    addContentSizeFitter: false);
-                saveLabel.GetComponent<Text>().alignment = TextAnchor.UpperCenter;
-                saveLabel.AddComponent<LayoutElement>().preferredHeight = 80f;
-
+                
                 // Name
 
                 var name = new GameObject("Name");
@@ -182,15 +163,15 @@ namespace PlanBuild.Blueprints
                 GUIManager.Instance.CreateText(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name"),
                     parent: name.transform,
-                    anchorMin: new Vector2(0f, 1f),
-                    anchorMax: new Vector2(0f, 1f),
-                    position: new Vector2(100f, 0f),
+                    anchorMin: new Vector2(0.5f, 1f),
+                    anchorMax: new Vector2(0.5f, 1f),
+                    position: new Vector2(0f, 0f),
                     font: GUIManager.Instance.AveriaSerif,
                     fontSize: 20,
                     color: GUIManager.Instance.ValheimOrange,
                     outline: true,
                     outlineColor: Color.black,
-                    width: 150f,
+                    width: 380f,
                     height: 40f,
                     addContentSizeFitter: false);
 
@@ -202,7 +183,7 @@ namespace PlanBuild.Blueprints
                     contentType: InputField.ContentType.Standard,
                     placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name_placeholder"),
                     fontSize: 20,
-                    width: 400f,
+                    width: 380f,
                     height: 40f);
 
                 Name = nameInput.GetComponent<InputField>();
@@ -217,15 +198,15 @@ namespace PlanBuild.Blueprints
                 GUIManager.Instance.CreateText(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category"),
                     parent: cat.transform,
-                    anchorMin: new Vector2(0f, 1f),
-                    anchorMax: new Vector2(0f, 1f),
-                    position: new Vector2(100f, 0f),
+                    anchorMin: new Vector2(0.5f, 1f),
+                    anchorMax: new Vector2(0.5f, 1f),
+                    position: new Vector2(0f, 0f),
                     font: GUIManager.Instance.AveriaSerif,
                     fontSize: 20,
                     color: GUIManager.Instance.ValheimOrange,
                     outline: true,
                     outlineColor: Color.black,
-                    width: 150f,
+                    width: 380f,
                     height: 40f,
                     addContentSizeFitter: false);
 
@@ -237,7 +218,7 @@ namespace PlanBuild.Blueprints
                     contentType: InputField.ContentType.Alphanumeric,
                     placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category_placeholder"),
                     fontSize: 20,
-                    width: 400f,
+                    width: 380f,
                     height: 40f);
 
                 Category = catInput.GetComponent<InputField>();
@@ -252,15 +233,15 @@ namespace PlanBuild.Blueprints
                 GUIManager.Instance.CreateText(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description"),
                     parent: desc.transform,
-                    anchorMin: new Vector2(0f, 1f),
-                    anchorMax: new Vector2(0f, 1f),
-                    position: new Vector2(100f, 0f),
+                    anchorMin: new Vector2(0.5f, 1f),
+                    anchorMax: new Vector2(0.5f, 1f),
+                    position: new Vector2(0f, 0f),
                     font: GUIManager.Instance.AveriaSerif,
                     fontSize: 20,
                     color: GUIManager.Instance.ValheimOrange,
                     outline: true,
                     outlineColor: Color.black,
-                    width: 150f,
+                    width: 380f,
                     height: 40f,
                     addContentSizeFitter: false);
 
@@ -272,8 +253,8 @@ namespace PlanBuild.Blueprints
                     contentType: InputField.ContentType.Standard,
                     placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description_placeholder"),
                     fontSize: 20,
-                    width: 400f,
-                    height: 120f);
+                    width: 380f,
+                    height: 140f);
 
                 Description = descInput.GetComponent<InputField>();
                 Description.lineType = InputField.LineType.MultiLineNewline;
@@ -282,7 +263,7 @@ namespace PlanBuild.Blueprints
 
                 var buttons = new GameObject("Buttons");
                 buttons.transform.SetParent(Panel.transform);
-                buttons.AddComponent<LayoutElement>().preferredHeight = 80f;
+                buttons.AddComponent<LayoutElement>().preferredHeight = 50f;
 
                 var cancelButton = GUIManager.Instance.CreateButton(
                     text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
@@ -295,7 +276,7 @@ namespace PlanBuild.Blueprints
                 cancelButton.GetComponent<Button>().onClick.AddListener(OnCancel);
 
                 var okButton = GUIManager.Instance.CreateButton(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_confirm"),
+                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_save"),
                     parent: buttons.transform,
                     anchorMin: new Vector2(0f, 0.5f),
                     anchorMax: new Vector2(0f, 0.5f),
