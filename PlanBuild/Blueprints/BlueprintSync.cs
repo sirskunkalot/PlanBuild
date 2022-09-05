@@ -383,10 +383,12 @@ namespace PlanBuild.Blueprints
             {
                 if (success)
                 {
-                    // TODO: this needs a flag if it was a local or server push
-                    if (!BlueprintManager.ServerBlueprints.ContainsKey(message))
+                    if (BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp))
                     {
-                        BlueprintManager.LocalBlueprints.TryGetValue(message, out var bp);
+                        if (BlueprintManager.ServerBlueprints.ContainsKey(message))
+                        {
+                            BlueprintManager.ServerBlueprints.Remove(message);
+                        }
                         BlueprintManager.ServerBlueprints.Add(bp.ID, bp);
                         BlueprintGUI.RefreshBlueprints(BlueprintLocation.Server);
                     }
