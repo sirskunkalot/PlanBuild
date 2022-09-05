@@ -12,14 +12,12 @@ namespace PlanBuild.Blueprints
     {
         public static BlueprintGUI Instance;
 
-        private GameObject WindowPrefab;
+        private GameObject Prefab;
 
         public GameObject Window { get; set; }
 
         public ActionAppliedOverlay ActionAppliedOverlay { get; set; }
-
-        public BlueprintMenuElements MenuElements { get; set; }
-
+        
         public BlueprintTab CurrentTab { get; set; }
 
         public BlueprintTab LocalTab { get; set; } = new BlueprintTab();
@@ -36,10 +34,9 @@ namespace PlanBuild.Blueprints
             }
 
             Instance = new BlueprintGUI();
-            Instance.WindowPrefab = prefab;
+            Instance.Prefab = prefab;
 
             GUIManager.OnCustomGUIAvailable += Instance.Register;
-            GUIManager.OnCustomGUIAvailable += Instance.Localize;
         }
 
         /// <summary>
@@ -395,7 +392,7 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogDebug("Recreating BlueprintGUI");
 
                 // Assigning the main window, so we can disable/enable it as we please.
-                Window = UnityEngine.Object.Instantiate(WindowPrefab, GUIManager.CustomGUIFront.transform);
+                Window = UnityEngine.Object.Instantiate(Prefab, GUIManager.CustomGUIFront.transform);
                 Window.AddComponent<DragWindowCntrl>();
 
                 // Setting some vanilla styles
@@ -493,6 +490,12 @@ namespace PlanBuild.Blueprints
                     Jotunn.Logger.LogDebug($"Failed in ServerTab: {ex}");
                 }
 
+                // Localize
+                Localization.instance.Localize(Instance.Window.transform);
+
+                // Close Behaviour
+                Instance.Window.AddComponent<CloseGUIBehaviour>();
+
                 // Show initial tab
                 ShowTab(BlueprintLocation.Local);
                 CurrentTab = LocalTab;
@@ -504,21 +507,20 @@ namespace PlanBuild.Blueprints
                 Window.SetActive(false);
             }
         }
-
-        public void Localize()
+        
+        private class CloseGUIBehaviour : MonoBehaviour
         {
-            if (Window)
+            private void Update()
             {
-                Localization.instance.Localize(Instance.Window.transform);
+                if (IsVisible() && Input.GetKeyUp(KeyCode.Escape))
+                {
+                    Instance.Window.SetActive(false);
+                    GUIManager.BlockInput(false);
+                }
             }
         }
     }
-
-    internal class BlueprintMenuElements
-    {
-        public Button CloseButton { get; set; }
-    }
-
+    
     internal class BlueprintTab
     {
         // Moved things out to seperate classes to make it easier to understand the flow.
