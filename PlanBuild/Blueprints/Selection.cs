@@ -15,11 +15,12 @@ namespace PlanBuild.Blueprints
 
         private static Selection _instance;
         public static Selection Instance => _instance ??= new Selection();
+        
+        public int SnapPoints { get; internal set; }
+        public int CenterMarkers { get; internal set; }
 
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
-        private int SnapPoints;
-        private int CenterMarkers;
         private Coroutine UnhighlightCoroutine;
 
         public static void Init()

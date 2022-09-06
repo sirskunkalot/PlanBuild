@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\SelectionSaveGUI.cs" />
     <Compile Include="Blueprints\SelectionCommands.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
     <Compile Include="Blueprints\BlueprintDictionary.cs" />

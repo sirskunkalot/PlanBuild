@@ -14,6 +14,7 @@ namespace PlanBuild.Blueprints
         public static GameObject BlueprintTooltip;
 
         public const string BlueprintGUIName = "BlueprintGUI";
+        public const string SaveGUIName = "SaveGUI";
 
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
@@ -50,6 +51,9 @@ namespace PlanBuild.Blueprints
 
             // Blueprint GUI
             BlueprintGUI.Init(prefabs[BlueprintGUIName]);
+
+            // SaveGUIName GUI
+            SelectionSaveGUI.Init(prefabs[SaveGUIName]);
 
             // Blueprint Tooltip
             BlueprintTooltip = prefabs[BlueprintTooltipName];

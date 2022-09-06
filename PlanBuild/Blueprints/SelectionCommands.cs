@@ -186,7 +186,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.SaveWithGUI(Selection.Instance, false);
+                SelectionTools.SaveWithGUI(Selection.Instance, false, false);
             }
         }
         
@@ -206,7 +206,7 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.SaveWithGUI(Selection.Instance, true);
+                SelectionTools.SaveWithGUI(Selection.Instance, true, false);
             }
         }
 

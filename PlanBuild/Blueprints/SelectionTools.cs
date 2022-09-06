@@ -1,11 +1,8 @@
 ﻿using Jotunn.Managers;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -76,7 +73,7 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            
+
             bp.ID = Blueprint.CreateIDString(name);
             bp.Name = name;
             bp.Creator = Player.m_localPlayer.GetPlayerName();
@@ -107,229 +104,23 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
         }
 
-        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints)
+        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints, bool clearSelectionOnCancel)
         {
             var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
-            SaveGUI.ShowSaveGUI(bpname, (name, category, description) =>
-            {
-                Save(selection, name, category, description, captureVanillaSnapPoints);
-                selection.Clear();
-            }, () =>
-            {
-                selection.Clear();
-            });
-        }
-
-        private static class SaveGUI
-        {
-            private static Action<string, string, string> OkAction;
-            private static Action CancelAction;
-            private static GameObject Panel;
-            private static InputField Name;
-            private static InputField Category;
-            private static InputField Description;
-
-            public static void ShowSaveGUI(string bpname, Action<string, string, string> okAction, Action cancelAction)
-            {
-                OkAction = okAction;
-                CancelAction = cancelAction;
-
-                // Panel
-
-                Panel = GUIManager.Instance.CreateWoodpanel(
-                    parent: GUIManager.CustomGUIFront.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0f, 0f),
-                    width: 420f,
-                    height: 500f,
-                    draggable: false);
-                Panel.SetActive(false);
-                Panel.AddComponent<SaveGUIBehaviour>();
-
-                var layout = Panel.AddComponent<VerticalLayoutGroup>();
-                layout.childAlignment = TextAnchor.MiddleCenter;
-                layout.childForceExpandWidth = true;
-                layout.childForceExpandHeight = false;
-                layout.padding = new RectOffset(15, 15, 15, 15);
-                layout.spacing = 20f;
-                
-                // Name
-
-                var name = new GameObject("Name");
-                name.transform.SetParent(Panel.transform);
-                name.AddComponent<LayoutElement>().preferredHeight = 70f;
-
-                GUIManager.Instance.CreateText(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name"),
-                    parent: name.transform,
-                    anchorMin: new Vector2(0.5f, 1f),
-                    anchorMax: new Vector2(0.5f, 1f),
-                    position: new Vector2(0f, 0f),
-                    font: GUIManager.Instance.AveriaSerif,
-                    fontSize: 20,
-                    color: GUIManager.Instance.ValheimOrange,
-                    outline: true,
-                    outlineColor: Color.black,
-                    width: 380f,
-                    height: 40f,
-                    addContentSizeFitter: false);
-
-                var nameInput = GUIManager.Instance.CreateInputField(
-                    parent: name.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0f, 0f),
-                    contentType: InputField.ContentType.Standard,
-                    placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_name_placeholder"),
-                    fontSize: 20,
-                    width: 380f,
-                    height: 40f);
-
-                Name = nameInput.GetComponent<InputField>();
-                Name.text = bpname;
-
-                // Category
-
-                var cat = new GameObject("Category");
-                cat.transform.SetParent(Panel.transform);
-                cat.AddComponent<LayoutElement>().preferredHeight = 70f;
-
-                GUIManager.Instance.CreateText(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category"),
-                    parent: cat.transform,
-                    anchorMin: new Vector2(0.5f, 1f),
-                    anchorMax: new Vector2(0.5f, 1f),
-                    position: new Vector2(0f, 0f),
-                    font: GUIManager.Instance.AveriaSerif,
-                    fontSize: 20,
-                    color: GUIManager.Instance.ValheimOrange,
-                    outline: true,
-                    outlineColor: Color.black,
-                    width: 380f,
-                    height: 40f,
-                    addContentSizeFitter: false);
-
-                var catInput = GUIManager.Instance.CreateInputField(
-                    parent: cat.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0f, 0f),
-                    contentType: InputField.ContentType.Alphanumeric,
-                    placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_category_placeholder"),
-                    fontSize: 20,
-                    width: 380f,
-                    height: 40f);
-
-                Category = catInput.GetComponent<InputField>();
-                Category.text = BlueprintAssets.CategoryBlueprints;
-
-                // Description
-
-                var desc = new GameObject("Description");
-                desc.transform.SetParent(Panel.transform);
-                desc.AddComponent<LayoutElement>().preferredHeight = 170f;
-
-                GUIManager.Instance.CreateText(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description"),
-                    parent: desc.transform,
-                    anchorMin: new Vector2(0.5f, 1f),
-                    anchorMax: new Vector2(0.5f, 1f),
-                    position: new Vector2(0f, 0f),
-                    font: GUIManager.Instance.AveriaSerif,
-                    fontSize: 20,
-                    color: GUIManager.Instance.ValheimOrange,
-                    outline: true,
-                    outlineColor: Color.black,
-                    width: 380f,
-                    height: 40f,
-                    addContentSizeFitter: false);
-
-                var descInput = GUIManager.Instance.CreateInputField(
-                    parent: desc.transform,
-                    anchorMin: new Vector2(0.5f, 0.5f),
-                    anchorMax: new Vector2(0.5f, 0.5f),
-                    position: new Vector2(0f, 0f),
-                    contentType: InputField.ContentType.Standard,
-                    placeholderText: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_description_placeholder"),
-                    fontSize: 20,
-                    width: 380f,
-                    height: 140f);
-
-                Description = descInput.GetComponent<InputField>();
-                Description.lineType = InputField.LineType.MultiLineNewline;
-
-                // Buttons
-
-                var buttons = new GameObject("Buttons");
-                buttons.transform.SetParent(Panel.transform);
-                buttons.AddComponent<LayoutElement>().preferredHeight = 50f;
-
-                var cancelButton = GUIManager.Instance.CreateButton(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_cancel"),
-                    parent: buttons.transform,
-                    anchorMin: new Vector2(1f, 0.5f),
-                    anchorMax: new Vector2(1f, 0.5f),
-                    position: new Vector2(-100f, 0f),
-                    width: 100f,
-                    height: 40f);
-                cancelButton.GetComponent<Button>().onClick.AddListener(OnCancel);
-
-                var okButton = GUIManager.Instance.CreateButton(
-                    text: LocalizationManager.Instance.TryTranslate("$gui_bpmarket_save"),
-                    parent: buttons.transform,
-                    anchorMin: new Vector2(0f, 0.5f),
-                    anchorMax: new Vector2(0f, 0.5f),
-                    position: new Vector2(100f, 0f),
-                    width: 100f,
-                    height: 40f);
-                okButton.GetComponent<Button>().onClick.AddListener(OnOk);
-
-                Panel.SetActive(true);
-                Name.Select();
-                GUIManager.BlockInput(true);
-            }
-
-            private static void OnOk()
-            {
-                OkAction.Invoke(Name.text.Trim(), Category.text.Trim(), Description.text.Trim());
-                Panel.SetActive(false);
-                Object.Destroy(Panel);
-                GUIManager.BlockInput(false);
-            }
-
-            private static void OnCancel()
-            {
-                CancelAction.Invoke();
-                Panel.SetActive(false);
-                Object.Destroy(Panel);
-                GUIManager.BlockInput(false);
-            }
-
-            private class SaveGUIBehaviour : MonoBehaviour
-            {
-                private void Update()
+            SelectionSaveGUI.Instance.Show(selection, bpname,
+                (name, category, description) =>
                 {
-                    if (Input.GetKeyUp(KeyCode.Return) && !Description.isFocused)
-                    {
-                        OnOk();
-                    }
-                    if (Input.GetKeyUp(KeyCode.Escape))
-                    {
-                        OnCancel();
-                    }
 
-                    // jees, what a horrible way to do that. need to implement generic code someday
-                    if (Input.GetKeyDown(KeyCode.Tab) && Name.isFocused)
+                    Save(selection, name, category, description, captureVanillaSnapPoints);
+                    selection.Clear();
+                },
+                () =>
+                {
+                    if (clearSelectionOnCancel)
                     {
-                        Category.Select();
+                        selection.Clear();
                     }
-                    if (Input.GetKeyDown(KeyCode.Tab) && Category.isFocused)
-                    {
-                        Description.Select();
-                    }
-                }
-            }
+                });
         }
     }
 }
