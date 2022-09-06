@@ -1,11 +1,12 @@
 # Version 0.10.7
+* Completely reworked the Marketplace GUI to manage blueprints in game
 * Added door state to blueprints (only interpreted on "direct" build)
 * Added ward state (active/inactive) to blueprints (only interpreted on "direct" build)
 * Added container contents to blueprints (only interpreted on "direct" build)
 * Added config value for the smoothing option of the terrain tools
 * Added cut option for selections (copy and delete the selection) to the GUI and as a command
 * Added possibility to save blueprints including the vanilla snap points to the GUI and as a command
-* Completely reworked the Marketplace GUI to manage blueprints in game
+* Added possibility to capture vanilla snap points when using quick select
 
 # Version 0.10.6
 * Fixed undo not removing pieces from blueprint selections

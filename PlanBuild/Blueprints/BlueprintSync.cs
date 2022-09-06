@@ -179,11 +179,11 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Write the temporary blueprint to disk and add it to the local blueprints
+        ///     Create a new local blueprint from the temporary blueprint
         /// </summary>
-        /// <param name="id">ID of the blueprint</param>
+        /// <param name="id">ID of the temporary blueprint</param>
         /// <returns>true if the blueprint could be written to disk</returns>
-        internal static bool SaveTempBlueprint(string id)
+        internal static bool SaveTempBlueprint(string id, string name, string category, string description)
         {
             if (BlueprintManager.TemporaryBlueprints == null)
             {
@@ -196,15 +196,19 @@ namespace PlanBuild.Blueprints
 
             Logger.LogMessage($"Saving temporary blueprint {id}");
 
-            var newID = oldbp.CreateIDString();
-            var bp = Blueprint.FromBlob(newID, oldbp.ToBlob());
+            var newid = Blueprint.CreateIDString(name);
+            var bp = Blueprint.FromBlob(newid, oldbp.ToBlob());
+            bp.Name = name;
+            bp.Creator = Player.m_localPlayer.GetPlayerName();
+            bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
+            bp.Description = description;
             bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");
             bp.ThumbnailLocation = bp.FileLocation.Replace(".blueprint", ".png");
 
-            if (BlueprintManager.LocalBlueprints.ContainsKey(newID))
+            if (BlueprintManager.LocalBlueprints.ContainsKey(newid))
             {
-                BlueprintManager.LocalBlueprints[newID].DestroyBlueprint();
-                BlueprintManager.LocalBlueprints.Remove(newID);
+                BlueprintManager.LocalBlueprints[newid].DestroyBlueprint();
+                BlueprintManager.LocalBlueprints.Remove(newid);
             }
 
             bp.ToFile();
@@ -213,6 +217,7 @@ namespace PlanBuild.Blueprints
             BlueprintManager.LocalBlueprints.Add(bp.ID, bp);
             BlueprintManager.RegisterKnownBlueprints();
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+            BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
 
             return true;
         }

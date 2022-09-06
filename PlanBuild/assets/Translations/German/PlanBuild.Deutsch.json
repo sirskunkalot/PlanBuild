@@ -78,6 +78,7 @@
     "msg_blueprint_select_inactive": "Selektion nicht aktiv",
     "msg_blueprint_select_empty": "Nichts selektiert",
     "hud_bpcapture": "Blaupause erstellen",
+    "hud_bpcapture_vanilla": "Originale Fangpunkte speichern",
     "hud_bpcapture_highlight": "Selektion hervorheben",
     "hud_blueprint_select_add": "Zur Selektion hinzufügen",
     "hud_blueprint_select_add_switch": "Zum Entfernen wechseln",

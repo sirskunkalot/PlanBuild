@@ -76,10 +76,10 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-
-            bp.ID = bp.CreateIDString();
-            bp.Creator = Player.m_localPlayer.GetPlayerName();
+            
+            bp.ID = Blueprint.CreateIDString(name);
             bp.Name = name;
+            bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
             bp.Description = description;
             bp.FileLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, bp.ID + ".blueprint");

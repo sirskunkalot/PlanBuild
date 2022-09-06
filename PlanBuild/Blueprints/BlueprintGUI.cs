@@ -300,14 +300,18 @@ namespace PlanBuild.Blueprints
                     break;
 
                 case BlueprintLocation.Temporary:
-                    // Move the temp blueprint to the local blueprints
+                    // Create a new local blueprint from the temp blueprint
                     if (detail != null && BlueprintManager.TemporaryBlueprints.TryGetValue(detail.ID, out var bptemp))
                     {
-                        bptemp.Name = string.IsNullOrEmpty(detail.Name) ? bptemp.Name : detail.Name;
-                        bptemp.Category = string.IsNullOrEmpty(detail.Category) ? BlueprintAssets.CategoryBlueprints : detail.Category;
-                        bptemp.Description = detail.Description;
+                        var name = string.IsNullOrEmpty(detail.Name) ? bptemp.Name : detail.Name;
+                        var category =
+                            string.IsNullOrEmpty(detail.Category) ||
+                            detail.Category.Equals(BlueprintAssets.CategoryClipboard)
+                                ? BlueprintAssets.CategoryBlueprints
+                                : detail.Category;
+                        var description = detail.Description;
 
-                        BlueprintSync.SaveTempBlueprint(bptemp.ID);
+                        BlueprintSync.SaveTempBlueprint(bptemp.ID, name, category, description);
                     }
                     break;
 

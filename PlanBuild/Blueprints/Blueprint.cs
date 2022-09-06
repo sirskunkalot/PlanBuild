@@ -137,6 +137,23 @@ namespace PlanBuild.Blueprints
         ///     TTL timer for the ghost prefab
         /// </summary>
         internal float GhostActiveTime;
+        
+        /// <summary>
+        ///     Creates the ID string of this blueprint from a name value
+        /// </summary>
+        /// <returns></returns>
+        public static string CreateIDString(string name)
+        {
+            var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
+            var id = fileName.Replace(' ', '_').Trim();
+
+            if (Config.AddPlayerNameConfig.Value)
+            {
+                id = $"{Player.m_localPlayer.GetPlayerName()}_{id}";
+            }
+
+            return id;
+        }
 
         /// <summary>
         ///     Create a blueprint instance from a file in the filesystem. Reads VBuild and Blueprint files.
@@ -453,24 +470,6 @@ namespace PlanBuild.Blueprints
         public string ToGUIString()
         {
             return Localization.instance.Localize($"<b>{Name}</b>\n ($gui_bpmarket_pieces)", GetPieceCount().ToString());
-        }
-
-        /// <summary>
-        ///     Creates the ID string of this blueprint
-        /// </summary>
-        /// <returns></returns>
-        public string CreateIDString()
-        {
-            var playerName = Player.m_localPlayer.GetPlayerName();
-            var fileName = string.Concat(Name.Split(Path.GetInvalidFileNameChars()));
-            var id = fileName.Replace(' ', '_').Trim();
-
-            if (Config.AddPlayerNameConfig.Value)
-            {
-                id = $"{playerName}_{id}";
-            }
-
-            return id;
         }
 
         /// <summary>

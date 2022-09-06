@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Linq;
+using UnityEngine;
 
 namespace PlanBuild.Blueprints.Components
 {
@@ -48,7 +49,11 @@ namespace PlanBuild.Blueprints.Components
             Vector3 capturePosition = self.m_placementMarkerInstance.transform.position;
             Selection selection = new Selection();
             selection.AddPiecesInRadius(capturePosition, SelectionRadius);
-            SelectionTools.SaveWithGUI(selection, false);
+            if (selection.Any())
+            {
+                var includingVanilla = ZInput.GetButton(Config.AltModifierButton.Name);
+                SelectionTools.SaveWithGUI(selection, includingVanilla);
+            }
         }
     }
 }
