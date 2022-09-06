@@ -7,6 +7,7 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 [*]You can copy+paste blueprints directly without having to save them (clipboard).
 [*]Most actions can be reversed and replayed using the [b]bp.undo[/b] and [b]bp.redo[/b] console commands.
 [*]New save dialogue which lets you enter a category and description directly
+[*]Completely reworked the Marketplace GUI, including categories and clipboard
 [*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 [/list]
 
