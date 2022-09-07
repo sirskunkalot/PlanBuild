@@ -4,10 +4,10 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 [list]
 [*]Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the [b]Plan Hammer[/b] and the [b]Blueprint Rune[/b].
 [*]Lots of improvements to the [b]Selection tools[/b]. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
-[*]You can copy+paste blueprints directly without having to save them (clipboard).
+[*]You can [b]copy+paste[/b] blueprints directly without having to save them (clipboard).
 [*]Most actions can be reversed and replayed using the [b]bp.undo[/b] and [b]bp.redo[/b] console commands.
-[*]New save dialogue which lets you enter a category and description directly
-[*]Completely reworked the Marketplace and blueprint saving GUI
+[*]New [b]save dialogue[/b] which lets you enter a category and description directly
+[*]Completely reworked the [b]Marketplace GUI[/b], including categories and clipboard
 [*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 [/list]
 
@@ -65,6 +65,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*][b]Create new blueprint[/b]: Directly create a blueprint from a selection indicated by the circle marker.
 [list]
 [*]Hold [b]Ctrl[/b] to highlight all pieces which will be saved into the blueprint
+[*]Hold [b]Alt[/b] and click to include vanilla snap points in your blueprint (without it only snap point markers are converted to snap points)
 [*]Use the [b]Scroll Wheel[/b] to change the selection radius
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Add to selection[/b]: Add pieces to the current selection. Currently selected pieces will be highlighted in green. Per default only the hovered piece will be added to the selection. You can use various modifiers to change that behaviour.

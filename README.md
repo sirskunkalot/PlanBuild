@@ -7,7 +7,7 @@ Version 0.10.0 of PlanBuild comes with a big internal code refactor and many cha
 - You can copy+paste blueprints directly without having to save them (clipboard).
 - Most actions can be reversed and replayed using the __bp.undo__ and __bp.redo__ console commands.
 - New save dialogue which lets you enter a category and description directly
-- Completely reworked the Marketplace and blueprint saving GUI
+- Completely reworked the Marketplace GUI, including categories and clipboard
 - The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
 
 # PlanBuild
@@ -68,6 +68,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 
 * __Create new Blueprint__: Directly create a blueprint from a selection indicated by the circle marker.
   * Hold __Ctrl__ to highlight all pieces which will be saved into the blueprint
+  * Hold __Alt__ and click to include vanilla snap points in your blueprint (without it only snap point markers are converted to snap points)
   * Use the __Scroll Wheel__ to change the selection radius
   * Use __Shift + Scroll__ to adjust the camera distance.
 
