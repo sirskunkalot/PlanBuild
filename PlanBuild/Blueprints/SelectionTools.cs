@@ -104,7 +104,7 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
         }
 
-        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints, bool clearSelectionOnCancel)
+        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints)
         {
             var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
             SelectionSaveGUI.Instance.Show(selection, bpname,
@@ -116,10 +116,7 @@ namespace PlanBuild.Blueprints
                 },
                 () =>
                 {
-                    if (clearSelectionOnCancel)
-                    {
-                        selection.Clear();
-                    }
+                    selection.Clear();
                 });
         }
     }

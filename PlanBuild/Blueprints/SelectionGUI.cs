@@ -142,12 +142,12 @@ namespace PlanBuild.Blueprints
         
         private static void SaveGUI()
         {
-            SelectionTools.SaveWithGUI(Selection.Instance, false, false);
+            SelectionTools.SaveWithGUI(Selection.Instance, false);
         }
         
         private static void SaveGUIWithSnapPoints()
         {
-            SelectionTools.SaveWithGUI(Selection.Instance, true, false);
+            SelectionTools.SaveWithGUI(Selection.Instance, true);
         }
 
         private static void Delete()

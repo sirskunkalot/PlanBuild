@@ -52,7 +52,7 @@ namespace PlanBuild.Blueprints.Components
             if (selection.Any())
             {
                 var includingVanilla = ZInput.GetButton(Config.AltModifierButton.Name);
-                SelectionTools.SaveWithGUI(selection, includingVanilla, true);
+                SelectionTools.SaveWithGUI(selection, includingVanilla);
             }
         }
     }
