@@ -480,6 +480,15 @@ namespace PlanBuild.Blueprints
         {
             return PieceEntries.Length;
         }
+        
+        /// <summary>
+        ///     Number of snap points currently stored in this blueprint
+        /// </summary>
+        /// <returns></returns>
+        public int GetSnapPointCount()
+        {
+            return SnapPoints.Length;
+        }
 
         /// <summary>
         ///     Get the bounds of this blueprint

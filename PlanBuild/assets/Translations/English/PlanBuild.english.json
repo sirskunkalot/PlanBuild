@@ -118,6 +118,7 @@
     "gui_bpmarket_serverblueprints": "Server",
     "gui_bpmarket_creator": "Creator:",
     "gui_bpmarket_count": "Pieces:",
+    "gui_bpmarket_snappoints": "Snap Points:",
     "gui_bpmarket_name": "Name",
     "gui_bpmarket_name_placeholder": "Enter Name...",
     "gui_bpmarket_category": "Category",
