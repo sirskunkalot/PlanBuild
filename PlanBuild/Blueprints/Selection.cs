@@ -448,14 +448,8 @@ namespace PlanBuild.Blueprints
         {
             string result = string.Empty;
             result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());
-            if (SnapPoints > 0)
-            {
-                result += Localization.instance.Localize(" ($piece_blueprint_select_snappoints_desc)", SnapPoints.ToString());
-            }
-            if (CenterMarkers > 0)
-            {
-                result += Localization.instance.Localize(" ($piece_blueprint_select_center_desc)");
-            }
+            result += Localization.instance.Localize("\n$piece_blueprint_select_snappoints_desc", SnapPoints.ToString());
+            result += Localization.instance.Localize("\n$piece_blueprint_select_center_desc", CenterMarkers.ToString());
             return result;
         }
     }
