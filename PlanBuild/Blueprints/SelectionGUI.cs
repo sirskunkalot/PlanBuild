@@ -130,6 +130,12 @@ namespace PlanBuild.Blueprints
 
         private static void Cut()
         {
+            if (!SynchronizationManager.Instance.PlayerIsAdmin)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_select_cut_disabled");
+                return;
+            }
+
             SelectionTools.Cut(Selection.Instance, false);
             Selection.Instance.Clear();
         }

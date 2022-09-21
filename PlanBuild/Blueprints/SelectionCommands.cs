@@ -143,6 +143,12 @@ namespace PlanBuild.Blueprints
                 {
                     return;
                 }
+                
+                if (!SynchronizationManager.Instance.PlayerIsAdmin)
+                {
+                    Console.instance.Print(Localization.instance.Localize("$msg_select_cut_disabled"));
+                    return;
+                }
 
                 SelectionTools.Cut(Selection.Instance, false);
                 Selection.Instance.Clear();

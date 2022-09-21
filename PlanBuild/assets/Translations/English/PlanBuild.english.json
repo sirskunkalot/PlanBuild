@@ -47,6 +47,7 @@
     "piece_blueprint_select_edit": "Edit selection",
     "piece_blueprint_select_edit_desc": "Copy, save or delete your current selection",
     "msg_select_delete_disabled": "Deletion not allowed",
+    "msg_select_cut_disabled": "Cutout not allowed",
     "piece_blueprint_snappoint": "Snap point marker",
     "piece_blueprint_snappoint_desc": "These markers are consumed when creating a blueprint, and are saved in the blueprint as Snap Points instead of normal pieces.",
     "piece_blueprint_centerpoint": "Center point marker",
