@@ -1,3 +1,6 @@
+# Version 0.10.8
+* Fixed selection cutting to respect admin state
+
 # Version 0.10.7
 * Completely reworked the Marketplace GUI to manage blueprints in game
 * Added door state to blueprints (only interpreted on "direct" build)
