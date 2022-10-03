@@ -94,7 +94,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*][b]Save with vanilla snap points[/b]: Save the current selection as a new blueprint into the file system including all vanilla snap points.
 [*][b]Delete[/b]: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
 [*][b]Cancel[/b]: Exit the menu without any action.
-[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/299]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/1504]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
 [list]
 [*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
