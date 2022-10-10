@@ -32,6 +32,7 @@
     "piece_world_blueprint_rune_open": "Open Blueprint Marketplace",
     "item_blueprintrune": "Blueprint Rune",
     "item_blueprintrune_desc": "Save structures and rebuild exact copies of them somewhere else.",
+    "msg_blueprintrune_disabled": "Blueprint Rune disabled",
     "piece_blueprint": "Blueprint",
     "piece_blueprint_desc": "Creates the structure attached to this blueprint.",
     "piece_blueprint_capture": "Create new blueprint",

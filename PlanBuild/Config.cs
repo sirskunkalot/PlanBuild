@@ -22,6 +22,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> AllowDirectBuildConfig;
         public static ConfigEntry<bool> AllowTerrainmodConfig;
         public static ConfigEntry<bool> AllowServerBlueprints;
+        public static ConfigEntry<bool> AllowBlueprintRune;
         public static ConfigEntry<bool> AllowMarketHotkey;
         public static ConfigEntry<string> PlanBlacklistConfig;
 
@@ -78,6 +79,11 @@ namespace PlanBuild
             int order = 0;
             
             // Server Section
+            
+            AllowBlueprintRune = PlanBuildPlugin.Instance.Config.Bind(
+                ServerSection, "Allow blueprint rune", true,
+                new ConfigDescription($"Allow usage of blueprint rune for clients connecting to the server.{Environment.NewLine}Admins are always allowed to use it.", null,
+                    new ConfigurationManagerAttributes { IsAdminOnly = true, Order = --order }));
 
             AllowDirectBuildConfig = PlanBuildPlugin.Instance.Config.Bind(
                 ServerSection, "Allow direct build", false,
@@ -93,7 +99,7 @@ namespace PlanBuild
                 ServerSection, "Allow serverside blueprints", false,
                 new ConfigDescription($"Allow sharing of blueprints on this server.", null,
                     new ConfigurationManagerAttributes { IsAdminOnly = true, Order = --order }));
-
+            
             AllowMarketHotkey = PlanBuildPlugin.Instance.Config.Bind(
                 ServerSection, "Allow clients to use the GUI toggle key", true,
                 new ConfigDescription($"Allow clients to use the Hotkey to access server blueprints.{Environment.NewLine}Admins are always allowed to use it.", null,

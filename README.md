@@ -202,6 +202,7 @@ The Hammer's PieceTable is scanned automatically, mods that add Pieces should be
 
 A lot aspects of this mod are configurable either through the config file found in your game folder (```<Valheim>\BepInEx\configs\marcopogo.PlanBuild.cfg```) or using the [BepInEx ConfigurationManager](https://github.com/BepInEx/BepInEx.ConfigurationManager):
 * __Server Settings__ (enforced on all clients connecting to a server)
+  * __Allow blueprint rune__: Allow usage of blueprint rune for clients connecting to the server. Admins are always allowed to use it. (default __true__)
   * __Allow direct build__: Allow placement of blueprints without materials on this server. Admins are always allowed to use it. (default __false__)
   * __Allow terrain tools__: Allow usage of the terrain modification tools on this server. Admins are always allowed to use them. (default __false__)
   * __Allow serverside blueprints__: Allow sharing of blueprints on this server. (default __false__)

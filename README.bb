@@ -204,6 +204,7 @@ A lot aspects of this mod are configurable either through the config file found 
 [list]
 [*][b]Server Settings[/b] (enforced on all clients connecting to a server)
 [list]
+[*][b]Allow blueprint rune[/b]: Allow usage of blueprint rune for clients connecting to the server. Admins are always allowed to use it. (default [b]true[/b])
 [*][b]Allow direct build[/b]: Allow placement of blueprints without materials on this server. Admins are always allowed to use it. (default [b]false[/b])
 [*][b]Allow terrain tools[/b]: Allow usage of the terrain modification tools on this server. Admins are always allowed to use them. (default [b]false[/b])
 [*][b]Allow serverside blueprints[/b]: Allow sharing of blueprints on this server. (default [b]false[/b])

@@ -35,6 +35,7 @@
     "piece_world_blueprint_rune_open": "Öffne Marktplatz",
     "item_blueprintrune": "Rune des Kopierens",
     "item_blueprintrune_desc": "Kopiert Strukturen und baut sie an anderer Stelle wieder auf",
+    "msg_blueprintrune_disabled": "Rune nicht erlaubt",
     "piece_blueprint": "Blueprint",
     "piece_blueprint_desc": "Erstellt die Struktur dieser Blaupause",
     "piece_blueprint_capture": "Blaupause erstellen",

@@ -1,4 +1,5 @@
 # Version 0.10.9
+* Added server enforced config option to disable all blueprint rune operations for clients (admins are still allowed to use it)
 * Changed blueprint piece description to include piece count
 * Fixed saving of null values to the TextReceiver ZDO
 
