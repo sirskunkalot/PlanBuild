@@ -221,7 +221,7 @@ namespace PlanBuild.Blueprints.Components
                     {
                         zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
                     }
-                    textReceiver.SetText(entry.additionalInfo);
+                    textReceiver.SetText(string.IsNullOrEmpty(entry.additionalInfo) ? string.Empty : entry.additionalInfo);
                 }
                 ItemStand itemStand = gameObject.GetComponent<ItemStand>();
                 if (itemStand != null)

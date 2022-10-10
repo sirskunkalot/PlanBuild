@@ -1,5 +1,6 @@
 # Version 0.10.9
 * Changed blueprint piece description to include piece count
+* Fixed saving of null values to the TextReceiver ZDO
 
 # Version 0.10.8
 * Fixed selection cutting to respect admin state
