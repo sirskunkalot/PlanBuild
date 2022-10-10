@@ -736,18 +736,14 @@ namespace PlanBuild.Blueprints
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;
             piece.m_enabled = true;
-            piece.m_description = "";
-            if (!string.IsNullOrEmpty(FileLocation))
+            piece.m_description = $"{LocalizationManager.Instance.TryTranslate("$gui_desc_id")} {ID}";
+            if (PieceEntries != null)
             {
-                piece.m_description += $"File name: {Path.GetFileName(FileLocation)}";
-            }
-            if (!string.IsNullOrEmpty(Creator))
-            {
-                piece.m_description += $"{Environment.NewLine}Creator: {Creator}";
+                piece.m_description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_pieces")} {PieceEntries.Length}";
             }
             if (!string.IsNullOrEmpty(Description))
             {
-                piece.m_description += $"{Environment.NewLine}Description: {Description}";
+                piece.m_description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_description")}{Environment.NewLine}{Description}";
             }
             if (Thumbnail != null)
             {

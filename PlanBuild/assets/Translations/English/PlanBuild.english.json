@@ -142,5 +142,8 @@
     "msg_bpmarket_server_disabled": "Server blueprints disabled",
     "msg_bpmarket_notconnected": "Not connected",
     "msg_bpmarket_admin_restricted": "Only admins can edit server blueprints",
-    "msg_bpmarket_save_failed": "Could not save blueprint"
+    "msg_bpmarket_save_failed": "Could not save blueprint",
+    "gui_desc_id": "ID:",
+    "gui_desc_pieces": "Pieces:",
+    "gui_desc_description": "Description:"
 }

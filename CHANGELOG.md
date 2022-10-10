@@ -1,3 +1,6 @@
+# Version 0.10.9
+* Changed blueprint piece description to include piece count
+
 # Version 0.10.8
 * Fixed selection cutting to respect admin state
 

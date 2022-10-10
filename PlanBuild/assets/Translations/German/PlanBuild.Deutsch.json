@@ -144,5 +144,8 @@
     "msg_bpmarket_server_disabled": "Server-Blaupausen deaktiviert",
     "msg_bpmarket_notconnected": "Nicht verbunden",
     "msg_bpmarket_admin_restricted": "Nur Admins dürfen Server-Blaupausen ändern",
-    "msg_bpmarket_save_failed": "Blaupause konnte nicht gespeichert werden"
+    "msg_bpmarket_save_failed": "Blaupause konnte nicht gespeichert werden",
+    "gui_desc_id": "ID:",
+    "gui_desc_pieces": "Objekte:",
+    "gui_desc_description": "Beschreibung:"
 }
