@@ -55,6 +55,7 @@ namespace PlanBuild.Blueprints
                 On.Player.PieceRayTest += Player_PieceRayTest;
                 On.Humanoid.EquipItem += Humanoid_EquipItem;
                 On.Humanoid.UnequipItem += Humanoid_UnequipItem;
+                On.Hud.TogglePieceSelection += Hud_TogglePieceSelection;
                 On.Piece.Awake += Piece_Awake;
                 On.Piece.OnDestroy += Piece_OnDestroy;
 
@@ -237,6 +238,12 @@ namespace PlanBuild.Blueprints
             if (self == Player.m_localPlayer)
             {
                 RegisterKnownBlueprints();
+
+                if (!Config.AllowBlueprintRune.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
+                {
+                    Player.m_localPlayer.SetBuildCategory(0);
+                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
+                }
             }
         }
 
@@ -331,8 +338,7 @@ namespace PlanBuild.Blueprints
         private static bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
         {
             bool result = orig(self, item, triggerEquipEffects);
-            if (Player.m_localPlayer && result &&
-                item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
+            if (result && Player.m_localPlayer?.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
@@ -343,6 +349,16 @@ namespace PlanBuild.Blueprints
                     rect.pivot = new Vector2(0.5f, 1f);
                     rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, -30f);
                     rect.sizeDelta = new Vector2(rect.sizeDelta.x, 110f);
+                }
+
+                if (!Config.AllowBlueprintRune.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
+                {
+                    if (Hud.IsPieceSelectionVisible())
+                    {
+                        Hud.HidePieceSelection();
+                    }
+                    Player.m_localPlayer.SetBuildCategory(0);
+                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
                 }
             }
             return result;
@@ -366,6 +382,24 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
+        
+        /// <summary>
+        ///     Prevent opening the build menu when the rune is selected and globally disabled
+        /// </summary>
+        private static void Hud_TogglePieceSelection(On.Hud.orig_TogglePieceSelection orig, Hud self)
+        {
+            if (Player.m_localPlayer.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName &&
+                !Hud.IsPieceSelectionVisible() &&
+                !Config.AllowBlueprintRune.Value &&
+                !SynchronizationManager.Instance.PlayerIsAdmin)
+            {
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_blueprintrune_disabled");
+                Player.m_localPlayer.SetBuildCategory(0);
+                Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
+                return;
+            }
+            orig(self);
+        }
 
         private static void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
         {
@@ -378,7 +412,7 @@ namespace PlanBuild.Blueprints
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
-
+        
         // Get all prefabs for this GUI session
         private static void GUIManager_OnCustomGUIAvailable()
         {

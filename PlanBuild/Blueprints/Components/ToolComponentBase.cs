@@ -284,11 +284,6 @@ namespace PlanBuild.Blueprints.Components
         /// </summary>
         private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
         {
-            if (!Config.AllowBlueprintRune.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
-            {
-                MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_blueprintrune_disabled");
-                return false;
-            }
             OnPlacePiece(self, piece);
             return false;
         }
