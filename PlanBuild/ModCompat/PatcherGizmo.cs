@@ -35,9 +35,21 @@ namespace PlanBuild.ModCompat
             return true;
         }
 
-        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "HandleAxisInput")]
+        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "Rotate")]
         [HarmonyPrefix]
-        private static bool ComfyGizmo_HandleAxisInput_Prefix()
+        private static bool ComfyGizmo_Rotate_Prefix()
+        {
+            return CheckPlanBuildTool();
+        }
+
+        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "RotateLocalFrame")]
+        [HarmonyPrefix]
+        private static bool ComfyGizmo_RotateLocalFrame_Prefix()
+        {
+            return CheckPlanBuildTool();
+        }
+
+        private static bool CheckPlanBuildTool()
         {
             if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
                 Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName, StringComparison.Ordinal) &&

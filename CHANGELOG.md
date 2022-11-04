@@ -1,3 +1,6 @@
+# Version 0.11.1
+* Fixed compat with ComfyGizmo 1.5.0
+
 # Version 0.11.0
 * Added server enforced config option to disable all blueprint rune operations for clients (admins are still allowed to use it)
 * Changed blueprint piece description to include piece count
