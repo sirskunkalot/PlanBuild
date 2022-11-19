@@ -1,3 +1,7 @@
+# Version 0.12.0
+* Fixed terrain mod deletion for reset terrain
+* Fixed terrain bleeding on heightmap edges
+
 # Version 0.11.1
 * Fixed compat with ComfyGizmo 1.5.0
 
