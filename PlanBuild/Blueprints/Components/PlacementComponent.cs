@@ -106,6 +106,35 @@ namespace PlanBuild.Blueprints.Components
                 return;
             }
 
+            for (int i = 0; i < bp.TerrainMods.Length; i++)
+            {
+                TerrainModEntry entry = bp.TerrainMods[i];
+                
+                // Final position
+                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
+                
+                // Final rotation
+                Quaternion entryQuat = transform.rotation; // * entry.GetRotation();
+
+                Dictionary<TerrainComp, Indices> indices = null;
+                if (entry.shape.Equals("circle", StringComparison.OrdinalIgnoreCase))
+                {
+                    indices = TerrainTools.GetCompilerIndicesWithCircle(entryPosition, entry.radius * 2,
+                        BlockCheck.Off);
+                }
+                if (entry.shape.Equals("square", StringComparison.OrdinalIgnoreCase))
+                {
+                    indices = TerrainTools.GetCompilerIndicesWithRect(entryPosition, entry.radius * 2, entry.radius * 2,
+                        entryQuat.eulerAngles.x * Mathf.PI / 180f, BlockCheck.Off);
+                }
+                TerrainTools.LevelTerrain(indices, entryPosition, entry.radius, entry.smooth, entryPosition.y);
+                if (!string.IsNullOrEmpty(entry.paint))
+                {
+                    TerrainTools.PaintTerrain(indices, entryPosition, entry.radius,
+                        (TerrainModifier.PaintType) Enum.Parse(typeof(TerrainModifier.PaintType), entry.paint));
+                }
+            }
+            
             uint cntEffects = 0u;
             uint maxEffects = 10u;
 
@@ -149,12 +178,12 @@ namespace PlanBuild.Blueprints.Components
                 }
 
                 // No Terrain stuff unless allowed
-                if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
-                    && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
-                {
-                    Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
-                    continue;
-                }
+                // if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
+                //     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
+                // {
+                //     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
+                //     continue;
+                // }
 
                 // Instantiate a new object with the prefab
                 GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);

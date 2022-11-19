@@ -3,14 +3,14 @@ using UnityEngine;
 
 namespace PlanBuild.Blueprints
 {
-    public class SnapPoint
+    public class SnapPointEntry
     {
         public string line;
         public float posX;
         public float posY;
         public float posZ;
 
-        public SnapPoint(string line)
+        public SnapPointEntry(string line)
         {
             this.line = line;
             string[] parts = line.Split(';');
@@ -19,7 +19,7 @@ namespace PlanBuild.Blueprints
             posZ = InvariantFloat(parts[2]);
         }
 
-        public SnapPoint(Vector3 pos)
+        public SnapPointEntry(Vector3 pos)
         {
             line = string.Join(";", InvariantString(pos.x), InvariantString(pos.y), InvariantString(pos.z));
             posX = pos.x;

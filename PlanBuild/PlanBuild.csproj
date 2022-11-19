@@ -144,6 +144,7 @@
     <Compile Include="Blueprints\BlueprintSync.cs" />
     <Compile Include="Blueprints\SelectionGUI.cs" />
     <Compile Include="Blueprints\SelectionTools.cs" />
+    <Compile Include="Blueprints\TerrainModEntry.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\Components\CaptureComponent.cs" />
     <Compile Include="Blueprints\Components\DeletePlansComponent.cs" />
@@ -169,7 +170,7 @@
     <Compile Include="Utils\SquareProjector.cs" />
     <Compile Include="Blueprints\BlueprintLocation.cs" />
     <Compile Include="Blueprints\PieceEntry.cs" />
-    <Compile Include="Blueprints\SnapPoint.cs" />
+    <Compile Include="Blueprints\SnapPointEntry.cs" />
     <Compile Include="Blueprints\UIDragDrop.cs" />
     <Compile Include="Blueprints\BlueprintGUI.cs" />
     <Compile Include="Blueprints\WorldBlueprintRune.cs" />

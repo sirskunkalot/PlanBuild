@@ -27,6 +27,7 @@ namespace PlanBuild.Blueprints
         private const string HeaderDescription = "#Description:";
         private const string HeaderCategory = "#Category:";
         private const string HeaderSnapPoints = "#SnapPoints";
+        private const string HeaderTerrain = "#Terrain";
         private const string HeaderPieces = "#Pieces";
         private const int ThumbnailSize = 256;
 
@@ -39,6 +40,7 @@ namespace PlanBuild.Blueprints
         private enum ParserState
         {
             SnapPoints,
+            Terrain,
             Pieces
         }
 
@@ -88,9 +90,14 @@ namespace PlanBuild.Blueprints
         public PieceEntry[] PieceEntries;
 
         /// <summary>
-        ///     Array of the <see cref="SnapPoint"/>s of this blueprint
+        ///     Array of the <see cref="SnapPointEntry"/>s of this blueprint
         /// </summary>
-        public SnapPoint[] SnapPoints;
+        public SnapPointEntry[] SnapPoints;
+        
+        /// <summary>
+        ///     Array of the <see cref="TerrainModEntry"/>s of this blueprint
+        /// </summary>
+        public TerrainModEntry[] TerrainMods;
 
         /// <summary>
         ///     Thumbnail of this blueprint as a <see cref="Texture2D"/>
@@ -259,7 +266,8 @@ namespace PlanBuild.Blueprints
             ret.ThumbnailLocation = Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.png");
 
             List<PieceEntry> pieceEntries = new List<PieceEntry>();
-            List<SnapPoint> snapPoints = new List<SnapPoint>();
+            List<SnapPointEntry> snapPoints = new List<SnapPointEntry>();
+            List<TerrainModEntry> terrainMods = new List<TerrainModEntry>();
 
             ParserState state = ParserState.Pieces;
 
@@ -302,6 +310,11 @@ namespace PlanBuild.Blueprints
                     state = ParserState.SnapPoints;
                     continue;
                 }
+                if (line == HeaderTerrain)
+                {
+                    state = ParserState.Terrain;
+                    continue;
+                }
                 if (line == HeaderPieces)
                 {
                     state = ParserState.Pieces;
@@ -314,7 +327,10 @@ namespace PlanBuild.Blueprints
                 switch (state)
                 {
                     case ParserState.SnapPoints:
-                        snapPoints.Add(new SnapPoint(line));
+                        snapPoints.Add(new SnapPointEntry(line));
+                        continue;
+                    case ParserState.Terrain:
+                        terrainMods.Add(new TerrainModEntry(line));
                         continue;
                     case ParserState.Pieces:
                         switch (format)
@@ -338,6 +354,7 @@ namespace PlanBuild.Blueprints
 
             ret.PieceEntries = pieceEntries.ToArray();
             ret.SnapPoints = snapPoints.ToArray();
+            ret.TerrainMods = terrainMods.ToArray();
 
             return ret;
         }
@@ -362,9 +379,17 @@ namespace PlanBuild.Blueprints
             if (SnapPoints.Any())
             {
                 ret.Add(HeaderSnapPoints);
-                foreach (SnapPoint snapPoint in SnapPoints)
+                foreach (SnapPointEntry snapPoint in SnapPoints)
                 {
                     ret.Add(snapPoint.line);
+                }
+            }
+            if (TerrainMods.Any())
+            {
+                ret.Add(HeaderTerrain);
+                foreach (TerrainModEntry terrainMod in TerrainMods)
+                {
+                    ret.Add(terrainMod.line);
                 }
             }
             ret.Add(HeaderPieces);
@@ -682,7 +707,7 @@ namespace PlanBuild.Blueprints
 
             if (SnapPoints == null)
             {
-                SnapPoints = new SnapPoint[group.Count];
+                SnapPoints = new SnapPointEntry[group.Count];
             }
             else if (SnapPoints.Length > 0)
             {
@@ -692,7 +717,7 @@ namespace PlanBuild.Blueprints
 
             for (int j = 0; j < group.Count; j++)
             {
-                SnapPoints[j] = new SnapPoint(group[j] - center);
+                SnapPoints[j] = new SnapPointEntry(group[j] - center);
             }
 
             return true;
@@ -875,7 +900,7 @@ namespace PlanBuild.Blueprints
             {
                 var pieces = new List<PieceEntry>(PieceEntries);
 
-                foreach (SnapPoint snapPoint in SnapPoints)
+                foreach (SnapPointEntry snapPoint in SnapPoints)
                 {
                     GameObject snapPointObject = new GameObject
                     {
