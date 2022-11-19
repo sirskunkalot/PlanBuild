@@ -183,6 +183,18 @@ namespace PlanBuild.Blueprints
 
         public static void ResetTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius)
         {
+            List<TerrainModifier> modifiers = new List<TerrainModifier>();
+            TerrainModifier.GetModifiers(pos, radius + 1f, modifiers);
+            foreach (TerrainModifier modifier in modifiers)
+            {
+                if (modifier.m_nview == null)
+                {
+                    continue;
+                }
+                modifier.m_nview.ClaimOwnership();
+                ZNetScene.instance.Destroy(modifier.gameObject);
+            }
+
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
             {
                 var index = heightIndex.Index;
