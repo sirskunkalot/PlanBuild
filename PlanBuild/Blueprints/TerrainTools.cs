@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints
         private static IEnumerable<TerrainComp> GetTerrainCompilersWithCircle(Vector3 position, float radius)
         {
             List<Heightmap> heightMaps = new List<Heightmap>();
-            Heightmap.FindHeightmap(position, radius, heightMaps);
+            Heightmap.FindHeightmap(position, radius + 1f, heightMaps);
             var pos = ZNet.instance.GetReferencePosition();
             var zs = ZoneSystem.instance;
             var ns = ZNetScene.instance;
@@ -77,7 +77,7 @@ namespace PlanBuild.Blueprints
             // Rotating increases the square dimensions.
             var dimensionMultiplier = Mathf.Abs(Mathf.Sin(angle)) + Mathf.Abs(Mathf.Cos(angle));
             var size = maxDimension * dimensionMultiplier / 2f;
-            Heightmap.FindHeightmap(position, size, heightMaps);
+            Heightmap.FindHeightmap(position, size + 1f, heightMaps);
             var pos = ZNet.instance.GetReferencePosition();
             var zs = ZoneSystem.instance;
             var ns = ZNetScene.instance;
