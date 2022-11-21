@@ -5,8 +5,6 @@ namespace PlanBuild.Utils
 {
     internal class ShapedProjector : MonoBehaviour
     {
-        internal static bool ShowProjectors = true;
-
         private static GameObject _segment;
 
         private static GameObject SelectionSegment
@@ -35,19 +33,7 @@ namespace PlanBuild.Utils
 
         private CircleProjector Circle;
         private SquareProjector Square;
-
-        private void Update()
-        {
-            if (ShowProjectors)
-            {
-                Enable();
-            }
-            if (!ShowProjectors)
-            {
-                Disable();
-            }
-        }
-
+        
         protected void OnDestroy()
         {
             Disable();
@@ -55,11 +41,6 @@ namespace PlanBuild.Utils
 
         public void Enable()
         {
-            if (!ShowProjectors)
-            {
-                return;
-            }
-
             if (Shape == ProjectorShape.Circle && Circle == null)
             {
                 Circle = gameObject.AddComponent<CircleProjector>();
@@ -93,6 +74,33 @@ namespace PlanBuild.Utils
             {
                 Square.StopProjecting();
                 DestroyImmediate(Square);
+            }
+        }
+
+        public bool IsEnabled()
+        {
+            if (Shape == ProjectorShape.Circle && Circle != null)
+            {
+                return true;
+            }
+
+            if (Shape == ProjectorShape.Square && Square != null)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public void ToggleEnabled()
+        {
+            if (IsEnabled())
+            {
+                Disable();
+            }
+            else
+            {
+                Enable();
             }
         }
 
