@@ -1,5 +1,4 @@
-﻿using Jotunn.Managers;
-using PlanBuild.ModCompat;
+﻿using PlanBuild.ModCompat;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -22,7 +21,7 @@ namespace PlanBuild.Blueprints.Components
         private void Start()
         {
             OnStart();
-            
+
             if (ResetPlacementOffset)
             {
                 PlacementOffset = Vector3.zero;
@@ -32,7 +31,7 @@ namespace PlanBuild.Blueprints.Components
             {
                 MarkerOffset = Vector3.zero;
             }
-            
+
             On.Player.UpdatePlacement += Player_UpdatePlacement;
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
             On.Player.PlacePiece += Player_PlacePiece;
@@ -101,7 +100,7 @@ namespace PlanBuild.Blueprints.Components
             CameraOffset = 0f;
             DisableSelectionProjector();
         }
-        
+
         /// <summary>
         ///     Dont highlight pieces while capturing when enabled
         /// </summary>
@@ -166,7 +165,7 @@ namespace PlanBuild.Blueprints.Components
             SelectionRadius = Mathf.Clamp(SelectionRadius, 2f, 100f);
             SelectionProjector.SetRadius(SelectionRadius);
         }
-        
+
         public void UpdateSelectionRotation(float scrollWheel)
         {
             if (SelectionProjector == null)
@@ -196,6 +195,7 @@ namespace PlanBuild.Blueprints.Components
             if (SelectionProjector == null)
             {
                 SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
+                SelectionProjector.Enable();
                 SelectionProjector.SetRadius(SelectionRadius);
                 SelectionProjector.SetRotation(SelectionRotation);
             }
@@ -213,6 +213,7 @@ namespace PlanBuild.Blueprints.Components
         {
             if (SelectionProjector != null)
             {
+                SelectionProjector.Disable();
                 DestroyImmediate(SelectionProjector);
             }
         }
@@ -259,7 +260,7 @@ namespace PlanBuild.Blueprints.Components
                 }
             }
         }
-        
+
         /// <summary>
         ///     Apply the MarkerOffset and react on piece hover
         /// </summary>
@@ -273,7 +274,7 @@ namespace PlanBuild.Blueprints.Components
             OnPieceHovered(piece);
             return result;
         }
-        
+
         public virtual void OnPieceHovered(Piece hoveredPiece)
         {
         }
@@ -291,7 +292,7 @@ namespace PlanBuild.Blueprints.Components
         public virtual void OnPlacePiece(Player self, Piece piece)
         {
         }
-        
+
         /// <summary>
         ///     Adjust camera height
         /// </summary>
@@ -302,7 +303,7 @@ namespace PlanBuild.Blueprints.Components
             if (PatcherBuildCamera.UpdateCamera
                 && Player.m_localPlayer
                 && Player.m_localPlayer.InPlaceMode()
-                && Player.m_localPlayer.m_placementGhost){}
+                && Player.m_localPlayer.m_placementGhost) { }
             {
                 self.transform.position += new Vector3(0, CameraOffset, 0);
             }
@@ -322,7 +323,7 @@ namespace PlanBuild.Blueprints.Components
 
         public virtual void UpdateDescription()
         {
-            
+
         }
     }
 }

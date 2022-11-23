@@ -6,6 +6,7 @@ using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -93,7 +94,7 @@ namespace PlanBuild.Blueprints
         ///     Array of the <see cref="SnapPointEntry"/>s of this blueprint
         /// </summary>
         public SnapPointEntry[] SnapPoints;
-        
+
         /// <summary>
         ///     Array of the <see cref="TerrainModEntry"/>s of this blueprint
         /// </summary>
@@ -144,7 +145,7 @@ namespace PlanBuild.Blueprints
         ///     TTL timer for the ghost prefab
         /// </summary>
         internal float GhostActiveTime;
-        
+
         /// <summary>
         ///     Creates the ID string of this blueprint from a name value
         /// </summary>
@@ -505,7 +506,7 @@ namespace PlanBuild.Blueprints
         {
             return PieceEntries.Length;
         }
-        
+
         /// <summary>
         ///     Number of snap points currently stored in this blueprint
         /// </summary>
@@ -543,7 +544,9 @@ namespace PlanBuild.Blueprints
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
             Transform centerPiece = null;
+            var terrainMods = new List<TerrainModEntry>();
 
+            // Parse selection
             foreach (var zdoid in selection)
             {
                 GameObject selected = BlueprintManager.GetGameObject(zdoid, true);
@@ -564,6 +567,16 @@ namespace PlanBuild.Blueprints
                     {
                         Logger.LogWarning($"Multiple center points! Ignoring @ {selected.transform.position}");
                     }
+                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
+                    wearNTear.Remove();
+                    continue;
+                }
+                if (selected.name.StartsWith(BlueprintAssets.PieceTerrainModName))
+                {
+                    ZDO zdo = selected.GetComponent<ZNetView>().GetZDO();
+                    terrainMods.Add(new TerrainModEntry(zdo.GetString("shape"), selected.transform.position,
+                        float.Parse(zdo.GetString("radius"), CultureInfo.InvariantCulture), int.Parse(zdo.GetString("rotation")),
+                        float.Parse(zdo.GetString("smooth"), CultureInfo.InvariantCulture), zdo.GetString("paint")));
                     WearNTear wearNTear = selected.GetComponent<WearNTear>();
                     wearNTear.Remove();
                     continue;
@@ -594,11 +607,11 @@ namespace PlanBuild.Blueprints
             }
 
             Logger.LogDebug($"Found {numPieces} pieces");
-
+            
+            // (Re)locate center
             Vector3 center;
             if (centerPiece == null)
             {
-                // Relocate Z
                 var minZ = 9999999.9f;
                 var minX = 9999999.9f;
                 var minY = 9999999.9f;
@@ -655,7 +668,7 @@ namespace PlanBuild.Blueprints
                 if (itemStand != null && itemStand.HaveAttachment() && itemStand.m_nview)
                 {
                     additionalInfo =
-                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}";
+                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}";
                 }
                 ArmorStand armorStand = piece.GetComponent<ArmorStand>();
                 if (armorStand != null && armorStand.m_nview)
@@ -718,6 +731,25 @@ namespace PlanBuild.Blueprints
             for (int j = 0; j < group.Count; j++)
             {
                 SnapPoints[j] = new SnapPointEntry(group[j] - center);
+            }
+
+            // Create instance terrain mods
+            if (TerrainMods == null)
+            {
+                TerrainMods = new TerrainModEntry[terrainMods.Count];
+            }
+            else if (TerrainMods.Length > 0)
+            {
+                Array.Clear(TerrainMods, 0, TerrainMods.Length - 1);
+                Array.Resize(ref TerrainMods, terrainMods.Count);
+            }
+
+            uint k = 0;
+            foreach (var entry in terrainMods)
+            {
+                TerrainMods[k++] = new TerrainModEntry(
+                    entry.shape, entry.GetPosition() - center, entry.radius,
+                    entry.rotation, entry.smooth, entry.paint);
             }
 
             return true;

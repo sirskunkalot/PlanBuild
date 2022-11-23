@@ -34,11 +34,6 @@ namespace PlanBuild.Utils
         private CircleProjector Circle;
         private SquareProjector Square;
         
-        protected void OnDestroy()
-        {
-            Disable();
-        }
-
         public void Enable()
         {
             if (Shape == ProjectorShape.Circle && Circle == null)

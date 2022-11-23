@@ -38,7 +38,8 @@ namespace PlanBuild.Blueprints.Components
             {
                 var hover = BlueprintManager.LastHoveredPiece;
                 if (hover && (hover.name.StartsWith(BlueprintAssets.PieceSnapPointName, StringComparison.Ordinal) ||
-                              hover.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal)))
+                              hover.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal) ||
+                              hover.name.StartsWith(BlueprintAssets.PieceTerrainModName, StringComparison.Ordinal)))
                 {
                     hover.GetComponent<WearNTear>().Destroy();
                 }

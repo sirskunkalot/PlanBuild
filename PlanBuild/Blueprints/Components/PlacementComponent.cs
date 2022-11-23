@@ -125,7 +125,7 @@ namespace PlanBuild.Blueprints.Components
                 if (entry.shape.Equals("square", StringComparison.OrdinalIgnoreCase))
                 {
                     indices = TerrainTools.GetCompilerIndicesWithRect(entryPosition, entry.radius * 2, entry.radius * 2,
-                        entryQuat.eulerAngles.x * Mathf.PI / 180f, BlockCheck.Off);
+                        entry.rotation * Mathf.PI / 180f, BlockCheck.Off);
                 }
                 TerrainTools.LevelTerrain(indices, entryPosition, entry.radius, entry.smooth, entryPosition.y);
                 if (!string.IsNullOrEmpty(entry.paint))
@@ -265,9 +265,15 @@ namespace PlanBuild.Blueprints.Components
                         }
                         var item = fields[0];
                         var variant = int.Parse(fields[1]);
+                        var quality = 1;
+                        if (fields.Length > 2)
+                        {
+                            quality = int.Parse(fields[2]);
+                        }
                         zNetView.m_zdo.Set("item", item);
                         zNetView.m_zdo.Set("variant", variant);
-                        itemStand.SetVisualItem(item, variant);
+                        zNetView.m_zdo.Set("quality", quality);
+                        itemStand.SetVisualItem(item, variant, quality);
                     }
                 }
                 ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();

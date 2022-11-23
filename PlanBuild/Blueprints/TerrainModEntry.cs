@@ -11,6 +11,7 @@ namespace PlanBuild.Blueprints
         public float posY;
         public float posZ;
         public float radius;
+        public int rotation;
         public float smooth;
         public string paint;
 
@@ -23,22 +24,23 @@ namespace PlanBuild.Blueprints
             posY = InvariantFloat(parts[2]);
             posZ = InvariantFloat(parts[3]);
             radius = InvariantFloat(parts[4]);
-            smooth = InvariantFloat(parts[5]);
+            rotation = int.Parse(parts[5]);
+            smooth = InvariantFloat(parts[6]);
             paint = parts[6];
         }
 
-        public TerrainModEntry(string shape, Vector3 pos, float radius, float smooth, TerrainModifier.PaintType paint)
+        public TerrainModEntry(string shape, Vector3 pos, float radius, int rotation, float smooth, string paint)
         {
             line = string.Join(";",
                 shape.ToLowerInvariant(), InvariantString(pos.x), InvariantString(pos.y), InvariantString(pos.z),
-                InvariantString(radius), InvariantString(smooth), paint.ToString());
+                InvariantString(radius), rotation.ToString(), InvariantString(smooth), paint);
             posX = pos.x;
             posY = pos.y;
             posZ = pos.z;
             this.shape = shape;
             this.radius = radius;
             this.smooth = smooth;
-            this.paint = paint.ToString();
+            this.paint = paint;
         }
 
         public Vector3 GetPosition()

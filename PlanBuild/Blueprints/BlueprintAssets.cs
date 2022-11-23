@@ -3,6 +3,7 @@ using Jotunn.Entities;
 using Jotunn.Managers;
 using System.Collections.Generic;
 using PlanBuild.Blueprints.Components;
+using PlanBuild.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,6 +16,7 @@ namespace PlanBuild.Blueprints
 
         public const string BlueprintGUIName = "BlueprintGUI";
         public const string SaveGUIName = "SaveGUI";
+        public const string TerrainModGUIName = "TerrainModGUI";
 
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
         public const string BlueprintRuneStackName = "piece_world_blueprint_rune_stack";
@@ -30,6 +32,8 @@ namespace PlanBuild.Blueprints
         public const string PieceSnapPointInstanceName = "piece_bpsnappointinstance";
         public const string PieceCenterPointName = "piece_bpcenterpoint";
         public const string PieceCenterPointInstanceName = "piece_bpcenterpointinstance";
+        public const string PieceTerrainModName = "piece_bpterrainmod";
+        public const string PieceTerrainModInstanceName = "piece_bpterrainmodinstance";
         public const string PieceCaptureName = "piece_bpcapture";
         public const string PieceSelectAddName = "piece_bpselectadd";
         public const string PieceSelectRemoveName = "piece_bpselectremove";
@@ -54,6 +58,9 @@ namespace PlanBuild.Blueprints
 
             // SaveGUIName GUI
             SelectionSaveGUI.Init(prefabs[SaveGUIName]);
+
+            // TerrainModGUI
+            TerrainModGUI.Init(prefabs[TerrainModGUIName]);
 
             // Blueprint Tooltip
             BlueprintTooltip = prefabs[BlueprintTooltipName];
@@ -125,8 +132,8 @@ namespace PlanBuild.Blueprints
             {
                 PieceCaptureName, PieceSelectAddName, PieceSelectRemoveName,
                 PieceSelectEditName, PieceSnapPointName, PieceCenterPointName,
-                PieceDeletePlansName, PieceTerrainName, PieceDeleteObjectsName,
-                PiecePaintName
+                PieceTerrainModName, PieceDeletePlansName, PieceTerrainName,
+                PieceDeleteObjectsName, PiecePaintName
             })
             {
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
@@ -167,6 +174,15 @@ namespace PlanBuild.Blueprints
                         center.PieceInstanceName = PieceCenterPointInstanceName;
                         var centerfab = new CustomPrefab(prefabs[PieceCenterPointInstanceName], false);
                         PrefabManager.Instance.AddPrefab(centerfab);
+                        break;
+                        
+                    case PieceTerrainModName:
+                        var terrain = prefabs[pieceName].AddComponent<MarkerComponent>();
+                        terrain.PieceInstanceName = PieceTerrainModInstanceName;
+                        var terrainfab = new CustomPrefab(prefabs[PieceTerrainModInstanceName], false);
+                        PrefabManager.Instance.AddPrefab(terrainfab);
+                        prefabs[PieceTerrainModInstanceName].AddComponent<TerrainModMarker>();
+                        prefabs[PieceTerrainModInstanceName].AddComponent<ShapedProjector>();
                         break;
 
                     case PieceDeletePlansName:
@@ -290,6 +306,21 @@ namespace PlanBuild.Blueprints
             {
                 Item = BlueprintRuneName,
                 Piece = PieceCenterPointName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrainmod" },
+                    new ButtonConfig { Name = "Remove", HintToken = "$hud_bpremovemarker" },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
+                }
+            });
+            
+            // Terrain mod
+
+            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceTerrainModName,
                 ButtonConfigs = new[]
                 {
                     new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },

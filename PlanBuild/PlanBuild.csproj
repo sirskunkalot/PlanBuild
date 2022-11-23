@@ -135,6 +135,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Blueprints\Blueprint.cs" />
+    <Compile Include="Blueprints\TerrainModGUI.cs" />
     <Compile Include="Blueprints\SelectionSaveGUI.cs" />
     <Compile Include="Blueprints\SelectionCommands.cs" />
     <Compile Include="Blueprints\BlueprintCommands.cs" />
@@ -144,6 +145,7 @@
     <Compile Include="Blueprints\BlueprintSync.cs" />
     <Compile Include="Blueprints\SelectionGUI.cs" />
     <Compile Include="Blueprints\SelectionTools.cs" />
+    <Compile Include="Blueprints\TerrainModMarker.cs" />
     <Compile Include="Blueprints\TerrainModEntry.cs" />
     <Compile Include="Blueprints\TerrainTools.cs" />
     <Compile Include="Blueprints\Components\CaptureComponent.cs" />
