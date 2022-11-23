@@ -515,6 +515,15 @@ namespace PlanBuild.Blueprints
         {
             return SnapPoints.Length;
         }
+        
+        /// <summary>
+        ///     Number of terrain mods currently stored in this blueprint
+        /// </summary>
+        /// <returns></returns>
+        public int GetTerrainModCount()
+        {
+            return TerrainMods.Length;
+        }
 
         /// <summary>
         ///     Get the bounds of this blueprint

@@ -18,6 +18,7 @@ namespace PlanBuild.Blueprints
         
         public int SnapPoints { get; internal set; }
         public int CenterMarkers { get; internal set; }
+        public int TerrainMods { get; internal set; }
 
         private readonly ZDOIDSet SelectedZDOIDs = new ZDOIDSet();
         private readonly ZDOIDSet HighlightedZDOIDs = new ZDOIDSet();
@@ -69,6 +70,10 @@ namespace PlanBuild.Blueprints
                 else if (piece.name.StartsWith(BlueprintAssets.PieceCenterPointName, StringComparison.Ordinal))
                 {
                     CenterMarkers++;
+                }
+                else if (piece.name.StartsWith(BlueprintAssets.PieceTerrainModName, StringComparison.Ordinal))
+                {
+                    TerrainMods++;
                 }
                 return true;
             }
@@ -142,6 +147,10 @@ namespace PlanBuild.Blueprints
                 {
                     CenterMarkers--;
                 }
+                else if (piece.name.StartsWith(BlueprintAssets.PieceTerrainModName, StringComparison.Ordinal))
+                {
+                    TerrainMods--;
+                }
                 return true;
             }
             return false;
@@ -170,6 +179,7 @@ namespace PlanBuild.Blueprints
             }
             SnapPoints = 0;
             CenterMarkers = 0;
+            TerrainMods = 0;
             SelectedZDOIDs.Clear();
         }
 
@@ -442,6 +452,10 @@ namespace PlanBuild.Blueprints
             {
                 CenterMarkers--;
             }
+            else if (wearNTear.name.StartsWith(BlueprintAssets.PieceTerrainModName, StringComparison.Ordinal))
+            {
+                TerrainMods--;
+            }
         }
 
         public override string ToString()
@@ -450,6 +464,7 @@ namespace PlanBuild.Blueprints
             result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());
             result += Localization.instance.Localize("\n$piece_blueprint_select_snappoints_desc", SnapPoints.ToString());
             result += Localization.instance.Localize("\n$piece_blueprint_select_center_desc", CenterMarkers.ToString());
+            result += Localization.instance.Localize("\n$piece_blueprint_select_terrainmod_desc", TerrainMods.ToString());
             return result;
         }
     }

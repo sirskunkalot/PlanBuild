@@ -16,6 +16,7 @@ namespace PlanBuild.Blueprints
         private Text Pieces;
         private Text SnapPoints;
         private Text CenterMarkers;
+        private Text TerrainMods;
         private InputField Name;
         private InputField Category;
         private InputField Description;
@@ -71,6 +72,7 @@ namespace PlanBuild.Blueprints
             SnapPoints.text = Localization.instance.Localize("$gui_bpsave_snappoints", selection.SnapPoints.ToString());
             CenterMarkers.text =
                 Localization.instance.Localize("$gui_bpsave_centermarkers", selection.CenterMarkers.ToString());
+            TerrainMods.text = Localization.instance.Localize("$gui_bpsave_terrainmods", selection.TerrainMods.ToString());
             Name.text = bpname;
             Category.text = BlueprintAssets.CategoryBlueprints;
             Description.text = null;
@@ -115,6 +117,7 @@ namespace PlanBuild.Blueprints
                 Pieces = Window.transform.Find("Details/Pieces").GetComponent<Text>();
                 CenterMarkers = Window.transform.Find("Details/CenterMarkers").GetComponent<Text>();
                 SnapPoints = Window.transform.Find("Details/SnapPoints").GetComponent<Text>();
+                TerrainMods = Window.transform.Find("Details/TerrainMods").GetComponent<Text>();
                 Name = Window.transform.Find("Name/InputField").GetComponent<InputField>();
                 Name.textComponent.alignment = TextAnchor.MiddleLeft;
                 Category = Window.transform.Find("Category/InputField").GetComponent<InputField>();

@@ -623,6 +623,7 @@ namespace PlanBuild.Blueprints
                 newBp.Creator = bp.Creator;
                 newBp.Count = bp.GetPieceCount().ToString();
                 newBp.SnapPoints = bp.GetSnapPointCount().ToString();
+                newBp.TerrainMods = bp.GetTerrainModCount().ToString();
                 newBp.Description = bp.Description;
                 newBp.Text.text = bp.ToGUIString();
                 if (bp.Thumbnail != null)
@@ -683,6 +684,7 @@ namespace PlanBuild.Blueprints
         public Text Creator { get; set; }
         public Text Count { get; set; }
         public Text SnapPoints { get; set; }
+        public Text TerrainMods { get; set; }
         public Image Icon { get; set; }
         public InputField Name { get; set; }
         public InputField Category { get; set; }
@@ -715,6 +717,7 @@ namespace PlanBuild.Blueprints
             Creator.text = blueprint.Creator;
             Count.text = blueprint.Count;
             SnapPoints.text = blueprint.SnapPoints;
+            TerrainMods.text = blueprint.TerrainMods;
             if (blueprint.Icon == null)
             {
                 Icon.gameObject.SetActive(false);
@@ -771,6 +774,8 @@ namespace PlanBuild.Blueprints
             ID.text = "ID";
             Creator.text = null;
             Count.text = null;
+            SnapPoints.text = null;
+            TerrainMods.text = null;
             Icon.sprite = null;
             Icon.gameObject.SetActive(false);
             Name.text = null;
@@ -793,6 +798,7 @@ namespace PlanBuild.Blueprints
                 Creator = detail.Find("Creator").GetComponent<Text>();
                 Count = detail.Find("Count").GetComponent<Text>();
                 SnapPoints = detail.Find("SnapPoints").GetComponent<Text>();
+                TerrainMods = detail.Find("TerrainMods").GetComponent<Text>();
                 Icon = detail.Find("Thumbnail").GetComponent<Image>();
                 Icon.gameObject.SetActive(false);
                 Name = detail.Find("Name").GetComponent<InputField>();
@@ -847,6 +853,7 @@ namespace PlanBuild.Blueprints
         public string Creator { get; set; }
         public string Count { get; set; }
         public string SnapPoints { get; set; }
+        public string TerrainMods { get; set; }
         public string Description { get; set; }
         public Text Text { get; set; }
         public Sprite Icon { get; set; }
