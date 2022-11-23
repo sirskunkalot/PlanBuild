@@ -26,7 +26,7 @@ namespace PlanBuild.Blueprints
             radius = InvariantFloat(parts[4]);
             rotation = int.Parse(parts[5]);
             smooth = InvariantFloat(parts[6]);
-            paint = parts[6];
+            paint = parts[7];
         }
 
         public TerrainModEntry(string shape, Vector3 pos, float radius, int rotation, float smooth, string paint)
@@ -46,6 +46,11 @@ namespace PlanBuild.Blueprints
         public Vector3 GetPosition()
         {
             return new Vector3(posX, posY, posZ);
+        }
+
+        public Quaternion GetRotation()
+        {
+            return Quaternion.Euler(0f, rotation, 0f);
         }
 
         internal static string InvariantString(float f)

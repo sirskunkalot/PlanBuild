@@ -36,7 +36,7 @@ namespace PlanBuild.Blueprints
 
             if (string.IsNullOrEmpty(GetProperty(ShapeProperty)))
             {
-                SetProperty(ShapeProperty, "circle");
+                SetProperty(ShapeProperty, "Circle");
             }
             if (string.IsNullOrEmpty(GetProperty(RadiusProperty)))
             {
@@ -77,12 +77,12 @@ namespace PlanBuild.Blueprints
 
             if (property.Equals(ShapeProperty, StringComparison.Ordinal))
             {
-                if (value.Equals("circle", StringComparison.Ordinal))
+                if (value.Equals("Circle", StringComparison.OrdinalIgnoreCase))
                 {
                     Projector.SetShape(ShapedProjector.ProjectorShape.Circle);
                 }
 
-                if (value.Equals("square", StringComparison.Ordinal))
+                if (value.Equals("Square", StringComparison.OrdinalIgnoreCase))
                 {
                     Projector.SetShape(ShapedProjector.ProjectorShape.Square);
                 }
@@ -161,7 +161,7 @@ namespace PlanBuild.Blueprints
                     }
                     if (!string.IsNullOrEmpty(paint))
                     {
-                        if (paint.ToLowerInvariant().Equals("none"))
+                        if (paint.Equals("None", StringComparison.OrdinalIgnoreCase))
                         {
                             SetProperty(PaintProperty, string.Empty);
                         }

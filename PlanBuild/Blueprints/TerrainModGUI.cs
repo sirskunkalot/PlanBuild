@@ -64,16 +64,8 @@ namespace PlanBuild.Blueprints
         {
             OkAction = okAction;
             CancelAction = cancelAction;
-
-            if (shape.Equals("circle", StringComparison.Ordinal))
-            {
-                Shape.SetValueWithoutNotify(0);
-            }
-            if (shape.Equals("square", StringComparison.Ordinal))
-            {
-                Shape.SetValueWithoutNotify(1);
-            }
-
+            
+            Shape.value = Shape.options.FindIndex(x => x.text.Equals(shape));
             Radius.text = radius;
             Rotation.text = rotation;
             Smooth.text = smooth;

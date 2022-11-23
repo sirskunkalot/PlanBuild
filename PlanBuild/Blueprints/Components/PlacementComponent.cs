@@ -114,18 +114,18 @@ namespace PlanBuild.Blueprints.Components
                 Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
                 
                 // Final rotation
-                Quaternion entryQuat = transform.rotation; // * entry.GetRotation();
+                Quaternion entryQuat = transform.rotation * entry.GetRotation();
 
                 Dictionary<TerrainComp, Indices> indices = null;
-                if (entry.shape.Equals("circle", StringComparison.OrdinalIgnoreCase))
+                if (entry.shape.Equals("Circle", StringComparison.OrdinalIgnoreCase))
                 {
                     indices = TerrainTools.GetCompilerIndicesWithCircle(entryPosition, entry.radius * 2,
                         BlockCheck.Off);
                 }
-                if (entry.shape.Equals("square", StringComparison.OrdinalIgnoreCase))
+                if (entry.shape.Equals("Square", StringComparison.OrdinalIgnoreCase))
                 {
                     indices = TerrainTools.GetCompilerIndicesWithRect(entryPosition, entry.radius * 2, entry.radius * 2,
-                        entry.rotation * Mathf.PI / 180f, BlockCheck.Off);
+                        entryQuat.eulerAngles.y * Mathf.PI / 180f, BlockCheck.Off);
                 }
                 TerrainTools.LevelTerrain(indices, entryPosition, entry.radius, entry.smooth, entryPosition.y);
                 if (!string.IsNullOrEmpty(entry.paint))
