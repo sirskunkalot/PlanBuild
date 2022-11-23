@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Text;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -106,8 +107,14 @@ namespace PlanBuild.Blueprints
 
         public string GetHoverText()
         {
-            return Localization.instance.Localize(
-                $"[<color=yellow>$KEY_Use</color>] Interact\nShape: {GetProperty(ShapeProperty)}\nRadius: {GetProperty(RadiusProperty)}");
+            StringBuilder sb = new StringBuilder();
+            sb.Append("[<color=yellow>$KEY_Use</color>] $hud_terrainmod_interact\n");
+            sb.Append($"$gui_terrainmod_shape: {GetProperty(ShapeProperty)} \n");
+            sb.Append($"$gui_terrainmod_radius: {GetProperty(RadiusProperty)}\n");
+            sb.Append($"$gui_terrainmod_rotation: {GetProperty(RotationProperty)}\n");
+            sb.Append($"$gui_terrainmod_smooth: {GetProperty(SmoothProperty)}\n");
+            sb.Append($"$gui_terrainmod_paint: {GetProperty(PaintProperty)}\n");
+            return Localization.instance.Localize(sb.ToString());
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)

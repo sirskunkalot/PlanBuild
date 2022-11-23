@@ -150,6 +150,7 @@
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "Pieces:",
     "gui_desc_description": "Description:",
+    "hud_terrainmod_interact": "Change values",
     "gui_terrainmod_shape": "Shape",
     "gui_terrainmod_radius": "Radius",
     "gui_terrainmod_radius_placeholder": "Enter radius...",

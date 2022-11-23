@@ -152,6 +152,7 @@
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "Objekte:",
     "gui_desc_description": "Beschreibung:",
+    "hud_terrainmod_interact": "Werte anpassen",
     "gui_terrainmod_shape": "Shape",
     "gui_terrainmod_radius": "Radius",
     "gui_terrainmod_radius_placeholder": "Radius eingeben...",
