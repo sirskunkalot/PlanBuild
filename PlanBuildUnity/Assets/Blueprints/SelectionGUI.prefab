@@ -78,7 +78,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Delete
+  m_Text: $gui_selection_delete
 --- !u!1 &580927997983938163
 GameObject:
   m_ObjectHideFlags: 0
@@ -278,7 +278,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save
+  m_Text: $gui_selection_save
 --- !u!1 &2153211885937910789
 GameObject:
   m_ObjectHideFlags: 0
@@ -807,7 +807,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Keep markers
+  m_Text: $gui_selection_markers
 --- !u!114 &2981932292841016806
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1180,7 +1180,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Clear
+  m_Text: $gui_selection_clear
 --- !u!1 &5418896436181395233
 GameObject:
   m_ObjectHideFlags: 0
@@ -1572,7 +1572,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Copy
+  m_Text: $gui_selection_copy
 --- !u!1 &8356227601038837472
 GameObject:
   m_ObjectHideFlags: 0
@@ -1651,7 +1651,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cancel
+  m_Text: $gui_selection_cancel
 --- !u!1 &8418995464788175833
 GameObject:
   m_ObjectHideFlags: 0
@@ -1852,7 +1852,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Save current snap points
+  m_Text: $gui_selection_snappoints
 --- !u!114 &4287821949302096059
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1946,4 +1946,4 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Cut
+  m_Text: $gui_selection_cut

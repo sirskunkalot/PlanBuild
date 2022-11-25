@@ -163,5 +163,13 @@
     "gui_terrainmod_smooth_placeholder": "Enter smooth...",
     "gui_terrainmod_paint": "Paint",
     "gui_terrainmod_cancel": "Cancel",
-    "gui_terrainmod_save": "Save"
+    "gui_terrainmod_save": "Save",
+    "gui_selection_copy": "Copy",
+    "gui_selection_cut": "Cut",
+    "gui_selection_save": "Save",
+    "gui_selection_snappoints": "Save current snap points",
+    "gui_selection_markers": "Keep markers",
+    "gui_selection_delete": "Delete",
+    "gui_selection_clear": "Clear",
+    "gui_selection_cancel": "Cancel"
 }

@@ -165,5 +165,13 @@
     "gui_terrainmod_smooth_placeholder": "Smooth eingeben...",
     "gui_terrainmod_paint": "Paint",
     "gui_terrainmod_cancel": "Abbrechen",
-    "gui_terrainmod_save": "Speichern"
+    "gui_terrainmod_save": "Speichern",
+    "gui_selection_copy": "Kopieren",
+    "gui_selection_cut": "Ausschneiden",
+    "gui_selection_save": "Speichern",
+    "gui_selection_snappoints": "Momentane Fangpunkte behalten",
+    "gui_selection_markers": "Markierungen nicht löschen",
+    "gui_selection_delete": "Objekte löschen",
+    "gui_selection_clear": "Selektion entfernen",
+    "gui_selection_cancel": "Abbrechen"
 }
