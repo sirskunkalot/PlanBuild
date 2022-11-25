@@ -1316,7 +1316,7 @@ GameObject:
   - component: {fileID: 6404920055969778738}
   - component: {fileID: 8897672147988644310}
   m_Layer: 5
-  m_Name: SaveGUI
+  m_Name: SelectionSaveGUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

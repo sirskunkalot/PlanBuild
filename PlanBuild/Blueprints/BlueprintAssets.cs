@@ -15,7 +15,8 @@ namespace PlanBuild.Blueprints
         public static GameObject BlueprintTooltip;
 
         public const string BlueprintGUIName = "BlueprintGUI";
-        public const string SaveGUIName = "SaveGUI";
+        public const string SelectionGUIName = "SelectionGUI";
+        public const string SelectionSaveGUIName = "SelectionSaveGUI";
         public const string TerrainModGUIName = "TerrainModGUI";
 
         public const string StandingBlueprintRuneName = "piece_world_standing_blueprint_rune";
@@ -57,7 +58,7 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.Init(prefabs[BlueprintGUIName]);
 
             // SaveGUIName GUI
-            SelectionSaveGUI.Init(prefabs[SaveGUIName]);
+            SelectionSaveGUI.Init(prefabs[SelectionSaveGUIName]);
 
             // TerrainModGUI
             TerrainModGUI.Init(prefabs[TerrainModGUIName]);
