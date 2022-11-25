@@ -206,7 +206,7 @@
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="assets\Translations\Russian\PlanBuild.russian.json" />
-    <None Include="assets\Translations\Schinese\PlanBuild.schinese.json" />
+    <None Include="assets\Translations\Chinese\PlanBuild.Chinese.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
