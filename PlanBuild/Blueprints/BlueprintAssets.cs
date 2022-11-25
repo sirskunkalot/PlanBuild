@@ -57,7 +57,10 @@ namespace PlanBuild.Blueprints
             // Blueprint GUI
             BlueprintGUI.Init(prefabs[BlueprintGUIName]);
 
-            // SaveGUIName GUI
+            // SelectionGUI
+            SelectionGUI.Init(prefabs[SelectionGUIName]);
+
+            // SelectionSaveGUI
             SelectionSaveGUI.Init(prefabs[SelectionSaveGUIName]);
 
             // TerrainModGUI

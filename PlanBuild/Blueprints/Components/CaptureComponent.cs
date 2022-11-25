@@ -51,8 +51,8 @@ namespace PlanBuild.Blueprints.Components
             selection.AddPiecesInRadius(capturePosition, SelectionRadius);
             if (selection.Any())
             {
-                var includingVanilla = ZInput.GetButton(Config.AltModifierButton.Name);
-                SelectionTools.SaveWithGUI(selection, includingVanilla);
+                var saveCurrentSnapPoints = ZInput.GetButton(Config.AltModifierButton.Name);
+                SelectionTools.SaveWithGUI(selection, saveCurrentSnapPoints, false);
             }
         }
     }

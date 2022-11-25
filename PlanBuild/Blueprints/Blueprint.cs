@@ -545,7 +545,7 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Capture all pieces in the selection
         /// </summary>
-        public bool Capture(Selection selection, bool captureVanillaSnapPoints = false)
+        public bool Capture(Selection selection, bool captureCurrentSnapPoints = false, bool keepMarkers = false)
         {
             Logger.LogDebug("Collecting piece information");
 
@@ -562,8 +562,11 @@ namespace PlanBuild.Blueprints
                 if (selected.name.StartsWith(BlueprintAssets.PieceSnapPointName))
                 {
                     snapPoints.Add(selected.transform.position);
-                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
-                    wearNTear.Remove();
+                    if (!keepMarkers)
+                    {
+                        WearNTear wearNTear = selected.GetComponent<WearNTear>();
+                        wearNTear.Remove();
+                    }
                     continue;
                 }
                 if (selected.name.StartsWith(BlueprintAssets.PieceCenterPointName))
@@ -576,8 +579,11 @@ namespace PlanBuild.Blueprints
                     {
                         Logger.LogWarning($"Multiple center points! Ignoring @ {selected.transform.position}");
                     }
-                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
-                    wearNTear.Remove();
+                    if (!keepMarkers)
+                    {
+                        WearNTear wearNTear = selected.GetComponent<WearNTear>();
+                        wearNTear.Remove();
+                    }
                     continue;
                 }
                 if (selected.name.StartsWith(BlueprintAssets.PieceTerrainModName))
@@ -586,8 +592,12 @@ namespace PlanBuild.Blueprints
                     terrainMods.Add(new TerrainModEntry(zdo.GetString("shape"), selected.transform.position,
                         float.Parse(zdo.GetString("radius"), CultureInfo.InvariantCulture), int.Parse(zdo.GetString("rotation")),
                         float.Parse(zdo.GetString("smooth"), CultureInfo.InvariantCulture), zdo.GetString("paint")));
-                    WearNTear wearNTear = selected.GetComponent<WearNTear>();
-                    wearNTear.Remove();
+                    
+                    if (!keepMarkers)
+                    {
+                        WearNTear wearNTear = selected.GetComponent<WearNTear>();
+                        wearNTear.Remove();
+                    }
                     continue;
                 }
                 Piece piece = selected.GetComponent<Piece>();
@@ -596,7 +606,7 @@ namespace PlanBuild.Blueprints
                     Logger.LogWarning($"Ignoring piece {piece}, not able to make blueprint");
                     continue;
                 }
-                if (captureVanillaSnapPoints)
+                if (captureCurrentSnapPoints)
                 {
                     foreach (var tf in selected.GetComponentsInChildren<Transform>(true))
                     {

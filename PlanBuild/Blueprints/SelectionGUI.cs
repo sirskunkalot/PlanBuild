@@ -1,134 +1,173 @@
-﻿using Jotunn.Managers;
+﻿using Jotunn.GUI;
+using Jotunn.Managers;
 using System;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
-    internal static class SelectionGUI
+    internal class SelectionGUI
     {
-        public static void ShowGUI()
+        public static SelectionGUI Instance;
+
+        private GameObject Prefab;
+        private GameObject Window;
+        private Button CopyButton;
+        private Button CutButton;
+        private Button SaveButton;
+        private Toggle SnapPointsToggle;
+        private Toggle MarkersToggle;
+        private Button DeleteButton;
+        private Button ClearButton;
+        private Button CancelButton;
+
+        /// <summary>
+        ///     Init
+        /// </summary>
+        /// <param name="prefab"></param>
+        public static void Init(GameObject prefab)
+        {
+            if (GUIManager.IsHeadless())
+            {
+                return;
+            }
+
+            Instance = new SelectionGUI();
+            Instance.Prefab = prefab;
+
+            GUIManager.OnCustomGUIAvailable += Instance.Register;
+        }
+
+        /// <summary>
+        ///     Check availability
+        /// </summary>
+        /// <returns>true if the <see cref="Instance"/> is not null</returns>
+        public static bool IsAvailable()
+        {
+            return Instance != null;
+        }
+
+        /// <summary>
+        ///     Check visibility
+        /// </summary>
+        /// <returns>true if the GUI is available and visible</returns>
+        public static bool IsVisible()
+        {
+            return IsAvailable() && Instance.Window != null && Instance.Window.activeSelf;
+        }
+
+        /// <summary>
+        ///     Show selection GUI
+        /// </summary>
+        public void Show()
         {
             if (!Player.m_localPlayer)
             {
                 return;
             }
 
-            var panel = GUIManager.Instance.CreateWoodpanel(
-                parent: GUIManager.CustomGUIFront.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0, 0),
-                width: 400,
-                height: 400,
-                draggable: false);
-            panel.SetActive(false);
-
-            var layout = panel.AddComponent<VerticalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.childForceExpandWidth = true;
-            layout.childForceExpandHeight = false;
-            layout.padding = new RectOffset(15, 15, 15, 15);
-            layout.spacing = 5f;
-
-            var copyButton = GUIManager.Instance.CreateButton(
-                text: "Copy",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            copyButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            copyButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Copy));
-
-            var cutButton = GUIManager.Instance.CreateButton(
-                text: "Cut",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            cutButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            cutButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Cut));
-
-            var saveButton = GUIManager.Instance.CreateButton(
-                text: "Save",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            saveButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUI));
-            
-            var copySnapButton = GUIManager.Instance.CreateButton(
-                text: "Copy with vanilla snap points",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            copySnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            copySnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CopyWithSnapPoints));
-            
-            var cutSnapButton = GUIManager.Instance.CreateButton(
-                text: "Cut with vanilla snap points",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            cutSnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            cutSnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(CutWithSnapPoints));
-
-            var saveSnapButton = GUIManager.Instance.CreateButton(
-                text: "Save with vanilla snap points",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            saveSnapButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            saveSnapButton.GetComponent<Button>().onClick.AddListener(() => OnClick(SaveGUIWithSnapPoints));
-
-            var deleteButton = GUIManager.Instance.CreateButton(
-                text: "Delete",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            deleteButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            deleteButton.GetComponent<Button>().onClick.AddListener(() => OnClick(Delete));
-
-            var cancelButton = GUIManager.Instance.CreateButton(
-                text: "Cancel",
-                parent: panel.transform,
-                anchorMin: new Vector2(0.5f, 0.5f),
-                anchorMax: new Vector2(0.5f, 0.5f),
-                position: new Vector2(0f, 0f));
-            cancelButton.AddComponent<LayoutElement>().preferredHeight = 40f;
-            cancelButton.GetComponent<Button>().onClick.AddListener(() => OnClick(null));
-
-            void OnClick(Action action)
-            {
-                action?.Invoke();
-                panel.SetActive(false);
-                Object.Destroy(panel);
-                GUIManager.BlockInput(false);
-            }
-
-            panel.SetActive(true);
+            SnapPointsToggle.SetIsOnWithoutNotify(false);
+            MarkersToggle.SetIsOnWithoutNotify(false);
+            Window.SetActive(true);
             GUIManager.BlockInput(true);
         }
 
-        private static void Copy()
+        private void Register()
         {
-            SelectionTools.Copy(Selection.Instance, false);
-            Selection.Instance.Clear();
+            if (!Window)
+            {
+                Jotunn.Logger.LogDebug("Recreating SaveGUI");
+
+                // Assigning the main window, so we can disable/enable it as we please.
+                Window = UnityEngine.Object.Instantiate(Prefab, GUIManager.CustomGUIFront.transform);
+                Window.AddComponent<DragWindowCntrl>();
+
+                // Setting some vanilla styles
+                var panel = Window.GetComponent<Image>();
+                panel.sprite = GUIManager.Instance.GetSprite("woodpanel_settings");
+                panel.type = Image.Type.Sliced;
+                panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
+                
+                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
+                {
+                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                }
+
+                foreach (Button btn in Window.GetComponentsInChildren<Button>(true))
+                {
+                    GUIManager.Instance.ApplyButtonStyle(btn);
+                }
+                
+                foreach (Toggle tgl in Window.GetComponentsInChildren<Toggle>(true))
+                {
+                    GUIManager.Instance.ApplyToogleStyle(tgl);
+                }
+
+                // Register Components
+                CopyButton = Window.transform.Find("CopyButton").GetComponent<Button>();
+                CopyButton.onClick.AddListener(() => OnClick(Copy));
+                CutButton = Window.transform.Find("CutButton").GetComponent<Button>();
+                CutButton.onClick.AddListener(() => OnClick(Cut));
+                SaveButton = Window.transform.Find("SaveButton").GetComponent<Button>();
+                SaveButton.onClick.AddListener(() => OnClick(SaveGUI));
+                SnapPointsToggle = Window.transform.Find("SnapPointsToggle").GetComponent<Toggle>();
+                MarkersToggle = Window.transform.Find("MarkersToggle").GetComponent<Toggle>();
+                DeleteButton = Window.transform.Find("DeleteButton").GetComponent<Button>();
+                DeleteButton.onClick.AddListener(() => OnClick(Delete));
+                ClearButton = Window.transform.Find("ClearButton").GetComponent<Button>();
+                ClearButton.onClick.AddListener(() => OnClick(Clear));
+                CancelButton = Window.transform.Find("CancelButton").GetComponent<Button>();
+                CancelButton.onClick.AddListener(() => OnClick(Cancel));
+                
+                void OnClick(Action action)
+                {
+                    action?.Invoke();
+                    Window.SetActive(false);
+                    GUIManager.BlockInput(false);
+                }
+                
+                // Localize
+                Localization.instance.Localize(Instance.Window.transform);
+
+                // Input Behaviour
+                Instance.Window.AddComponent<SelectionGUIBehaviour>();
+
+                // Dont display directly
+                Window.SetActive(false);
+            }
+        }
+        
+        private void Cancel()
+        {
+            Window.SetActive(false);
+            GUIManager.BlockInput(false);
         }
 
-        private static void CopyWithSnapPoints()
+        private class SelectionGUIBehaviour : MonoBehaviour
         {
-            SelectionTools.Copy(Selection.Instance, true);
+            private void Update()
+            {
+                if (!IsVisible())
+                {
+                    return;
+                }
+                
+                if (Input.GetKeyUp(KeyCode.Escape))
+                {
+                    Instance.Cancel();
+                }
+            }
+        }
+        
+        private void Copy()
+        {
+            SelectionTools.Copy(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
             Selection.Instance.Clear();
         }
-
-        private static void Cut()
+        
+        private void Cut()
         {
             if (!SynchronizationManager.Instance.PlayerIsAdmin)
             {
@@ -136,27 +175,16 @@ namespace PlanBuild.Blueprints
                 return;
             }
 
-            SelectionTools.Cut(Selection.Instance, false);
-            Selection.Instance.Clear();
-        }
-
-        private static void CutWithSnapPoints()
-        {
-            SelectionTools.Cut(Selection.Instance, true);
+            SelectionTools.Cut(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
             Selection.Instance.Clear();
         }
         
-        private static void SaveGUI()
+        private void SaveGUI()
         {
-            SelectionTools.SaveWithGUI(Selection.Instance, false);
+            SelectionTools.SaveWithGUI(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
         }
         
-        private static void SaveGUIWithSnapPoints()
-        {
-            SelectionTools.SaveWithGUI(Selection.Instance, true);
-        }
-
-        private static void Delete()
+        private void Delete()
         {
             if (!SynchronizationManager.Instance.PlayerIsAdmin)
             {
@@ -165,6 +193,11 @@ namespace PlanBuild.Blueprints
             }
 
             SelectionTools.Delete(Selection.Instance);
+            Selection.Instance.Clear();
+        }
+
+        private void Clear()
+        {
             Selection.Instance.Clear();
         }
     }

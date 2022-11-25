@@ -140,7 +140,7 @@ namespace PlanBuild.Blueprints
                 Localization.instance.Localize(Instance.Window.transform);
 
                 // Input Behaviour
-                Instance.Window.AddComponent<SaveGUIBehaviour>();
+                Instance.Window.AddComponent<SelectionSaveGUIBehaviour>();
 
                 // Dont display directly
                 Window.SetActive(false);
@@ -161,7 +161,7 @@ namespace PlanBuild.Blueprints
             GUIManager.BlockInput(false);
         }
 
-        private class SaveGUIBehaviour : MonoBehaviour
+        private class SelectionSaveGUIBehaviour : MonoBehaviour
         {
             private void Update()
             {

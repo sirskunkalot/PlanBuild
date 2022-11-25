@@ -34,7 +34,7 @@ namespace PlanBuild.Blueprints.Components
                 return;
             }
 
-            SelectionGUI.ShowGUI();
+            SelectionGUI.Instance.Show();
         }
     }
 }

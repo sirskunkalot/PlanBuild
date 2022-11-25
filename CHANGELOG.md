@@ -1,6 +1,7 @@
 # Version 0.12.0
 * Compatible with Valheim 0.212.6
 * Added terrain markers for terrain modifications in blueprints
+* Added option to keep markers after capturing a selection
 * Fixed terrain mod deletion for reset terrain
 * Fixed terrain bleeding on heightmap edges
 

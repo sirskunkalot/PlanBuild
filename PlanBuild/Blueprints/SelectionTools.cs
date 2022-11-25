@@ -8,14 +8,14 @@ namespace PlanBuild.Blueprints
 {
     internal class SelectionTools
     {
-        public static void Copy(Selection selection, bool captureVanillaSnapPoints)
+        public static void Copy(Selection selection, bool captureCurrentSnapPoints, bool keepMarkers)
         {
             var bp = new Blueprint();
             bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
             bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
-            if (!bp.Capture(selection, captureVanillaSnapPoints))
+            if (!bp.Capture(selection, captureCurrentSnapPoints, keepMarkers))
             {
                 Jotunn.Logger.LogWarning($"Could not capture blueprint {bp.ID}");
                 selection.Clear();
@@ -35,9 +35,9 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
         }
 
-        public static void Cut(Selection selection, bool captureVanillaSnapPoints)
+        public static void Cut(Selection selection, bool captureCurrentSnapPoints, bool keepMarkers)
         {
-            Copy(selection, captureVanillaSnapPoints);
+            Copy(selection, captureCurrentSnapPoints, keepMarkers);
             Delete(selection);
         }
 
@@ -60,7 +60,7 @@ namespace PlanBuild.Blueprints
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
         }
 
-        public static void Save(Selection selection, string name, string category, string description, bool captureVanillaSnapPoints)
+        public static void Save(Selection selection, string name, string category, string description, bool captureCurrentSnapPoints, bool keepMarkers)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -69,7 +69,7 @@ namespace PlanBuild.Blueprints
 
             var bp = new Blueprint();
 
-            if (!bp.Capture(selection, captureVanillaSnapPoints))
+            if (!bp.Capture(selection, captureCurrentSnapPoints, keepMarkers))
             {
                 return;
             }
@@ -104,14 +104,14 @@ namespace PlanBuild.Blueprints
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
         }
 
-        public static void SaveWithGUI(Selection selection, bool captureVanillaSnapPoints)
+        public static void SaveWithGUI(Selection selection, bool captureCurrentSnapPoints, bool keepMarkers)
         {
             var bpname = $"blueprint{BlueprintManager.LocalBlueprints.Count + 1:000}";
             SelectionSaveGUI.Instance.Show(selection, bpname,
                 (name, category, description) =>
                 {
 
-                    Save(selection, name, category, description, captureVanillaSnapPoints);
+                    Save(selection, name, category, description, captureCurrentSnapPoints, keepMarkers);
                     selection.Clear();
                 },
                 () =>

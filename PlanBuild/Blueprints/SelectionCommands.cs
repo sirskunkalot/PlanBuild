@@ -1,4 +1,5 @@
-﻿using Jotunn.Entities;
+﻿using System.Collections.Generic;
+using Jotunn.Entities;
 using Jotunn.Managers;
 using System.Linq;
 
@@ -6,6 +7,9 @@ namespace PlanBuild.Blueprints
 {
     internal class SelectionCommands
     {
+        private const string SnapPointsParam = "saveCurrentSnapPoints";
+        private const string MarkersParam = "keepMarkers";
+
         public static void Init()
         {
             if (GUIManager.IsHeadless())
@@ -16,11 +20,8 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new SelectionGUICommand());
             CommandManager.Instance.AddConsoleCommand(new ClearSelectionCommand());
             CommandManager.Instance.AddConsoleCommand(new CopySelectionCommand());
-            CommandManager.Instance.AddConsoleCommand(new CopySelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new CutSelectionCommand());
-            CommandManager.Instance.AddConsoleCommand(new CutSelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new SaveSelectionCommand());
-            CommandManager.Instance.AddConsoleCommand(new SaveSelectionWithSnapPointsCommand());
             CommandManager.Instance.AddConsoleCommand(new DeleteSelectionCommand());
         }
 
@@ -62,7 +63,7 @@ namespace PlanBuild.Blueprints
                     Console.instance.m_chatWindow.gameObject.SetActive(false);
                 }
 
-                SelectionGUI.ShowGUI();
+                SelectionGUI.Instance.Show();
             }
         }
 
@@ -102,29 +103,16 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Copy(Selection.Instance, false);
+                SelectionTools.Copy(Selection.Instance, args.Contains(SnapPointsParam), args.Contains(MarkersParam));
                 Selection.Instance.Clear();
             }
-        }
 
-        /// <summary>
-        ///     Console command to copy the current selection with snap points
-        /// </summary>
-        private class CopySelectionWithSnapPointsCommand : ConsoleCommand
-        {
-            public override string Name => "selection.copywithsnappoints";
-
-            public override string Help => "Copy the current selection as a temporary blueprint including the vanilla snap points";
-
-            public override void Run(string[] args)
+            public override List<string> CommandOptionList()
             {
-                if (!CheckSelection())
+                return new List<string>
                 {
-                    return;
-                }
-
-                SelectionTools.Copy(Selection.Instance, true);
-                Selection.Instance.Clear();
+                    SnapPointsParam, MarkersParam
+                };
             }
         }
         
@@ -150,32 +138,19 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.Cut(Selection.Instance, false);
+                SelectionTools.Cut(Selection.Instance, args.Contains(SnapPointsParam), args.Contains(MarkersParam));
                 Selection.Instance.Clear();
             }
-        }
 
-        /// <summary>
-        ///     Console command to cut the current selection with snap points
-        /// </summary>
-        private class CutSelectionWithSnapPointsCommand : ConsoleCommand
-        {
-            public override string Name => "selection.cutwithsnappoints";
-
-            public override string Help => "Cut out the current selection as a temporary blueprint including the vanilla snap points";
-
-            public override void Run(string[] args)
+            public override List<string> CommandOptionList()
             {
-                if (!CheckSelection())
+                return new List<string>
                 {
-                    return;
-                }
-
-                SelectionTools.Cut(Selection.Instance, true);
-                Selection.Instance.Clear();
+                    SnapPointsParam, MarkersParam
+                };
             }
         }
-
+        
         /// <summary>
         ///     Console command to save the current selection as a blueprint
         /// </summary>
@@ -192,30 +167,18 @@ namespace PlanBuild.Blueprints
                     return;
                 }
 
-                SelectionTools.SaveWithGUI(Selection.Instance, false);
+                SelectionTools.SaveWithGUI(Selection.Instance, args.Contains(SnapPointsParam), args.Contains(MarkersParam));
+            }
+
+            public override List<string> CommandOptionList()
+            {
+                return new List<string>
+                {
+                    SnapPointsParam, MarkersParam
+                };
             }
         }
         
-        /// <summary>
-        ///     Console command to save the current selection as a blueprint
-        /// </summary>
-        private class SaveSelectionWithSnapPointsCommand : ConsoleCommand
-        {
-            public override string Name => "selection.savewithsnappoints";
-
-            public override string Help => "Save the current selection as a blueprint including the vanilla snap points";
-
-            public override void Run(string[] args)
-            {
-                if (!CheckSelection())
-                {
-                    return;
-                }
-
-                SelectionTools.SaveWithGUI(Selection.Instance, true);
-            }
-        }
-
         /// <summary>
         ///     Console command to delete the current selection
         /// </summary>

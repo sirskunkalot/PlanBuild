@@ -103,6 +103,14 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list]
+[*][b]Terrain modification marker:[/b] Add terrain mod markers to your blueprint. When the blueprint is built, the terrain is leveled to the position of that marker. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection. You can interact with those markers to set various options of the terrain modification:
+[list]
+[*][b]Shape[/b]: Set a circle or square shape.
+[*][b]Radius[/b]: Radius of the terrain mod operation.
+[*][b]Rotation[/b]: Rotation of the marker (only makes sense on the square marker).
+[*][b]Smooth[/b]: Add smoothing to the edges of the terrain modification.
+[*][b]Paint[/b]: Optionally set a new "paint" (Grass, Dirt, etc) to the ground when modifying the terrain.
+[/list]
 [*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Ctrl[/b] to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
@@ -273,11 +281,8 @@ PlanBuild adds some new console commands to the game:
 [*][b]selection.gui[/b] - Show the selection GUI
 [*][b]selection.clear[/b] - Clears the current selection
 [*][b]selection.copy[/b] - Copy the current selection as a temporary blueprint
-[*][b]selection.copywithsnappoints[/b] - Copy the current selection as a temporary blueprint including the vanilla snap points
 [*][b]selection.cut[/b] - Cut out (copy and delete) the current selection as a temporary blueprint
-[*][b]selection.cutwithsnappoints[/b] - Cut out (copy and delete) the current selection as a temporary blueprint including the vanilla snap points
 [*][b]selection.save[/b] - Save the current selection as a blueprint
-[*][b]selection.savewithsnappoints[/b] - Save the current selection as a blueprint including the vanilla snap points
 [*][b]selection.delete[/b] - Delete all prefabs in the current selection
 [/list]
 
