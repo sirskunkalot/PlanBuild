@@ -458,10 +458,15 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public int GetPieceCount()
+        {
+            return Instance.Count() - SnapPoints - CenterMarkers - TerrainMods;
+        }
+
         public override string ToString()
         {
             string result = string.Empty;
-            result += Localization.instance.Localize("$piece_blueprint_select_desc", Instance.Count().ToString());
+            result += Localization.instance.Localize("$piece_blueprint_select_desc", GetPieceCount().ToString());
             result += Localization.instance.Localize("\n$piece_blueprint_select_snappoints_desc", SnapPoints.ToString());
             result += Localization.instance.Localize("\n$piece_blueprint_select_center_desc", CenterMarkers.ToString());
             result += Localization.instance.Localize("\n$piece_blueprint_select_terrainmod_desc", TerrainMods.ToString());
