@@ -127,6 +127,7 @@
     "gui_bpmarket_count": "Pieces:",
     "gui_bpmarket_snappoints": "Snap Points:",
     "gui_bpmarket_terrainmods": "Terrain Mods:",
+    "gui_bpmarket_thumbnail":  "Create Thumbnail",
     "gui_bpmarket_name": "Name",
     "gui_bpmarket_name_placeholder": "Enter Name...",
     "gui_bpmarket_category": "Category",

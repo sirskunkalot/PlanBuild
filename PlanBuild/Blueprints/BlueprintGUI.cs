@@ -1,6 +1,7 @@
 ﻿using Jotunn.GUI;
 using Jotunn.Managers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -402,6 +403,50 @@ namespace PlanBuild.Blueprints
             }
         }
 
+        public void CreateThumbnail(BlueprintDetailContent detail, BlueprintLocation originTab)
+        {
+            IEnumerator CreateRoutine(Blueprint bp)
+            {
+                yield return null;
+                bp.CreatePiece();
+                yield return null;
+                bp.InstantiateGhost();
+                yield return null;
+                bp.CreateThumbnail(detail.AdditionalRotation, false);
+                detail.Icon = Sprite.Create(bp.Thumbnail,
+                    new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height),
+                    Vector2.zero);
+                ShowBlueprint(detail, originTab);
+            }
+
+            switch (originTab)
+            {
+                case BlueprintLocation.Local:
+                    if (detail != null && BlueprintManager.LocalBlueprints.TryGetValue(detail.ID, out var localBlueprint))
+                    {
+                        PlanBuildPlugin.Instance.StartCoroutine(CreateRoutine(localBlueprint));
+                    }
+                    break;
+
+                case BlueprintLocation.Temporary:
+                    if (detail != null && BlueprintManager.TemporaryBlueprints.TryGetValue(detail.ID, out var tempBlueprint))
+                    {
+                        PlanBuildPlugin.Instance.StartCoroutine(CreateRoutine(tempBlueprint));
+                    }
+                    break;
+                    
+                case BlueprintLocation.Server:
+                    if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var serverBlueprint))
+                    {
+                        PlanBuildPlugin.Instance.StartCoroutine(CreateRoutine(serverBlueprint));
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+
         public void Register()
         {
             if (!Window)
@@ -435,6 +480,10 @@ namespace PlanBuild.Blueprints
                         continue;
                     }
                     GUIManager.Instance.ApplyButtonStyle(btn);
+                    if (btn.name.Equals("CreateThumbnail", StringComparison.Ordinal))
+                    {
+                        btn.GetComponentInChildren<Text>(true).fontSize = 13;
+                    }
                 }
 
                 foreach (ScrollRect scrl in Window.GetComponentsInChildren<ScrollRect>(true))
@@ -634,6 +683,7 @@ namespace PlanBuild.Blueprints
                 {
                     BlueprintGUI.Instance.ShowBlueprint(newBp, TabType);
                 });
+                newBp.AdditionalRotation = 0;
                 Blueprints.Add(newBp);
             }
             catch (Exception ex)
@@ -690,6 +740,11 @@ namespace PlanBuild.Blueprints
         public InputField Category { get; set; }
         public InputField Description { get; set; }
 
+        // Thumbnail Buttons
+        public Button CreateThumbnailButton;
+        public Button RotateLeftButton;
+        public Button RotateRightButton;
+
         // Main Action Buttons
         public Button ReloadButton { get; set; }
 
@@ -735,7 +790,41 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.AddListener((text) => { blueprint.Name = text; });
             Category.onEndEdit.AddListener((text) => { blueprint.Category = text; });
             Description.onEndEdit.AddListener((text) => { blueprint.Description = text; });
+            
+            CreateThumbnailButton.onClick.RemoveAllListeners();
+            RotateLeftButton.onClick.RemoveAllListeners();
+            RotateRightButton.onClick.RemoveAllListeners();
+                
+            if (blueprint.Icon == null)
+            {
+                CreateThumbnailButton.gameObject.SetActive(true);
+                RotateLeftButton.gameObject.SetActive(false);
+                RotateRightButton.gameObject.SetActive(false);
 
+                CreateThumbnailButton.onClick.AddListener(() =>
+                {
+                    BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
+                });
+            }
+            else
+            {
+                CreateThumbnailButton.gameObject.SetActive(false);
+                RotateLeftButton.gameObject.SetActive(true);
+                RotateRightButton.gameObject.SetActive(true);
+
+                RotateLeftButton.onClick.AddListener(() =>
+                {
+                    blueprint.AdditionalRotation -= 45;
+                    BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
+                });
+                
+                RotateRightButton.onClick.AddListener(() =>
+                {
+                    blueprint.AdditionalRotation += 45;
+                    BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
+                });
+            }
+            
             SaveButton.onClick.RemoveAllListeners();
             TransferButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
@@ -770,6 +859,14 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.RemoveAllListeners();
             Category.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
+            
+            CreateThumbnailButton.onClick.RemoveAllListeners();
+            RotateLeftButton.onClick.RemoveAllListeners();
+            RotateRightButton.onClick.RemoveAllListeners();
+
+            SaveButton.onClick.RemoveAllListeners();
+            TransferButton.onClick.RemoveAllListeners();
+            DeleteButton.onClick.RemoveAllListeners();
 
             ID.text = "ID";
             Creator.text = null;
@@ -778,6 +875,9 @@ namespace PlanBuild.Blueprints
             TerrainMods.text = null;
             Icon.sprite = null;
             Icon.gameObject.SetActive(false);
+            CreateThumbnailButton.gameObject.SetActive(false);
+            RotateLeftButton.gameObject.SetActive(false);
+            RotateRightButton.gameObject.SetActive(false);
             Name.text = null;
             Category.text = null;
             Description.text = null;
@@ -804,6 +904,10 @@ namespace PlanBuild.Blueprints
                 Name = detail.Find("Name").GetComponent<InputField>();
                 Category = detail.Find("Category").GetComponent<InputField>();
                 Description = detail.Find("Description").GetComponent<InputField>();
+
+                CreateThumbnailButton = detail.Find("CreateThumbnail").GetComponent<Button>();
+                RotateLeftButton = detail.Find("RotateLeft").GetComponent<Button>();
+                RotateRightButton = detail.Find("RotateRight").GetComponent<Button>();
 
                 ReloadButton = detail.Find("RefreshButton").GetComponent<Button>();
                 SaveButton = detail.Find("SaveButton").GetComponent<Button>();
@@ -858,6 +962,7 @@ namespace PlanBuild.Blueprints
         public Text Text { get; set; }
         public Sprite Icon { get; set; }
         public Button Button { get; set; }
+        public int AdditionalRotation { get; set; }
     }
 
     internal class UIConfirmationOverlay
