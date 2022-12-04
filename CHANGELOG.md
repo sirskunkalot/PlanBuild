@@ -3,6 +3,7 @@
 * Added terrain markers for terrain modifications in blueprints
 * Added option to keep markers after capturing a selection
 * Added thumbnail creation and rotation to the marketplace
+* Added a "placeholder" piece to every blueprint category to make category switching much faster
 * Fixed terrain mod deletion for reset terrain
 * Fixed terrain bleeding on heightmap edges
 

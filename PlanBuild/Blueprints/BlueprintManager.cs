@@ -242,13 +242,14 @@ namespace PlanBuild.Blueprints
                 if (!Config.AllowBlueprintRune.Value && !SynchronizationManager.Instance.PlayerIsAdmin)
                 {
                     Player.m_localPlayer.SetBuildCategory(0);
-                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
+                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9, 9));
                 }
             }
         }
 
         /// <summary>
-        ///     Reorder pieces in local blueprint categories by name
+        ///     Reorder pieces in local blueprint categories by name.
+        ///     Remove "placeholder pieces" from blueprint categories
         /// </summary>
         private static void PieceTable_UpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
         {
@@ -261,7 +262,12 @@ namespace PlanBuild.Blueprints
                     Piece.PieceCategory? cat = PieceManager.Instance.GetPieceCategory(cats.Key);
                     if (cat.HasValue)
                     {
-                        List<Piece> reorder = self.m_availablePieces[(int)cat].OrderBy(x => x.m_name).ToList();
+                        List<Piece> reorder = new List<Piece>();
+                        reorder.Add(BlueprintAssets.PlaceholderObject.GetComponent<Piece>());
+                        reorder.AddRange(self.m_availablePieces[(int)cat]
+                            .OrderBy(x => x.m_name)
+                            .Where(x => !x.name.Equals(BlueprintAssets.PiecePlaceholderName))
+                            .ToList());
                         self.m_availablePieces[(int)cat] = reorder;
                     }
                 }
@@ -358,7 +364,7 @@ namespace PlanBuild.Blueprints
                         Hud.HidePieceSelection();
                     }
                     Player.m_localPlayer.SetBuildCategory(0);
-                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
+                    Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9, 9));
                 }
             }
             return result;
@@ -382,7 +388,7 @@ namespace PlanBuild.Blueprints
                 }
             }
         }
-        
+
         /// <summary>
         ///     Prevent opening the build menu when the rune is selected and globally disabled
         /// </summary>
@@ -395,7 +401,7 @@ namespace PlanBuild.Blueprints
             {
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_blueprintrune_disabled");
                 Player.m_localPlayer.SetBuildCategory(0);
-                Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9,9));
+                Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9, 9));
                 return;
             }
             orig(self);
@@ -412,7 +418,7 @@ namespace PlanBuild.Blueprints
             orig(self);
             Selection.Instance.OnPieceUnload(self);
         }
-        
+
         // Get all prefabs for this GUI session
         private static void GUIManager_OnCustomGUIAvailable()
         {

@@ -69,6 +69,8 @@
     "piece_blueprint_terrain_desc": "Die Landschaft begradigen oder zurücksetzen",
     "piece_blueprint_paint": "Textur-Werkzeuge",
     "piece_blueprint_paint_desc": "Landschafts-Textur ändern order zurücksetzen",
+    "piece_bpplaceholder": "Nichts selektiert",
+    "piece_bpplaceholder_desc": "Bitte wähle eine Blaupause aus der Liste um diese zu bauen. Dieser Eintrag dient nur dazu, schneller durch die Kategorien zu wechseln.",
     "hud_bpedit": "Blaupause editieren",
     "hud_bpcamera": "und Mausrad für Kameraabstand",
     "msg_bpcapture_save": "Blaupause speichern ($1 Teile erfasst)",
@@ -129,7 +131,7 @@
     "gui_bpmarket_count": "Objekte:",
     "gui_bpmarket_snappoints": "Fangpunkte:",
     "gui_bpmarket_terrainmods": "Geländemods:",
-    "gui_bpmarket_thumbnail": "Thumbnail erst."
+    "gui_bpmarket_thumbnail": "Thumbnail erst.",
     "gui_bpmarket_name": "Name",
     "gui_bpmarket_name_placeholder": "Name eingeben...",
     "gui_bpmarket_category": "Kategorie",

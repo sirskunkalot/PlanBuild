@@ -1,11 +1,12 @@
 ﻿using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using System.Collections.Generic;
 using PlanBuild.Blueprints.Components;
 using PlanBuild.Utils;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -28,6 +29,9 @@ namespace PlanBuild.Blueprints
         public const string CategoryTools = "Tools";
         public const string CategoryClipboard = "Clipboard";
         public const string CategoryBlueprints = "Blueprints";
+
+        public const string PiecePlaceholderName = "piece_bpplaceholder";
+        public static GameObject PlaceholderObject;
 
         public const string PieceSnapPointName = "piece_bpsnappoint";
         public const string PieceSnapPointInstanceName = "piece_bpsnappointinstance";
@@ -131,6 +135,18 @@ namespace PlanBuild.Blueprints
             var stub = prefabs[Blueprint.PieceBlueprintName];
             PrefabManager.Instance.AddPrefab(stub);
 
+            // Placeholder Piece
+            ZNetView.m_forceDisableInit = true;
+            PlaceholderObject = Object.Instantiate(stub);
+            ZNetView.m_forceDisableInit = false;
+            PlaceholderObject.name = PiecePlaceholderName;
+            PrefabManager.Instance.AddPrefab(PlaceholderObject);
+            var pieceplaceholder = PlaceholderObject.GetComponent<Piece>();
+            pieceplaceholder.m_name = "$piece_bpplaceholder";
+            pieceplaceholder.m_enabled = true;
+            pieceplaceholder.m_description = "$piece_bpplaceholder_desc";
+            pieceplaceholder.m_icon = Sprite.Create(new Texture2D(1, 1), Rect.zero, Vector2.zero);
+
             // Tool pieces
             foreach (string pieceName in new[]
             {
@@ -165,21 +181,21 @@ namespace PlanBuild.Blueprints
                     case PieceSelectEditName:
                         prefabs[pieceName].AddComponent<SelectEditComponent>();
                         break;
-                        
+
                     case PieceSnapPointName:
                         var snap = prefabs[pieceName].AddComponent<MarkerComponent>();
                         snap.PieceInstanceName = PieceSnapPointInstanceName;
                         var snapfab = new CustomPrefab(prefabs[PieceSnapPointInstanceName], false);
                         PrefabManager.Instance.AddPrefab(snapfab);
                         break;
-                        
+
                     case PieceCenterPointName:
                         var center = prefabs[pieceName].AddComponent<MarkerComponent>();
                         center.PieceInstanceName = PieceCenterPointInstanceName;
                         var centerfab = new CustomPrefab(prefabs[PieceCenterPointInstanceName], false);
                         PrefabManager.Instance.AddPrefab(centerfab);
                         break;
-                        
+
                     case PieceTerrainModName:
                         var terrain = prefabs[pieceName].AddComponent<MarkerComponent>();
                         terrain.PieceInstanceName = PieceTerrainModInstanceName;
@@ -226,7 +242,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "BuildMenu", HintToken = "$hud_buildmenu" }
                 }
             });
-            
+
             // Capture
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
@@ -318,7 +334,7 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
                 }
             });
-            
+
             // Terrain mod
 
             KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
