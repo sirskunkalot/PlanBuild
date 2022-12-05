@@ -1,3 +1,6 @@
+# Version 0.13.0
+* Mistlands compatiblity
+
 # Version 0.12.0
 * Added terrain markers for terrain modifications in blueprints
 * Added option to keep markers after capturing a selection
