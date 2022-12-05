@@ -273,7 +273,7 @@ namespace PlanBuild.Blueprints.Components
                         zNetView.m_zdo.Set("item", item);
                         zNetView.m_zdo.Set("variant", variant);
                         zNetView.m_zdo.Set("quality", quality);
-                        itemStand.SetVisualItem(item, variant, quality);
+                        itemStand.SetVisualItem(item, variant);
                     }
                 }
                 ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
