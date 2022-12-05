@@ -1,16 +1,3 @@
-[size=6][b]BIG REVAMP[/b][/size]
-Version 0.10.0 of PlanBuild comes with a big internal code refactor and many changes to the handling of plans and blueprints. Please make sure to check out the documentation below. The biggest changes in a nutshell:
-
-[list]
-[*]Instead of switching plan and blueprint mode on the rune, you now have two distinct tools, the [b]Plan Hammer[/b] and the [b]Blueprint Rune[/b].
-[*]Lots of improvements to the [b]Selection tools[/b]. You can add and remove parts of your buildings to a selection and need to use the [b]Edit Selection[/b] tool or the [b]selection.gui[/b] console command to save or copy your blueprint.
-[*]You can [b]copy+paste[/b] blueprints directly without having to save them (clipboard).
-[*]Most actions can be reversed and replayed using the [b]bp.undo[/b] and [b]bp.redo[/b] console commands.
-[*]New [b]save dialogue[/b] which lets you enter a category and description directly
-[*]Completely reworked the [b]Marketplace GUI[/b], including categories and clipboard
-[*]The configuration was redesigned for more clarity. Please revise your configuration once after installing this version.
-[/list]
-
 [size=6][b]PlanBuild[/b][/size]
 PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. The mod adds two new tools to the game. The [b]Plan Hammer[/b] is used to plan your creations before actually gathering all the materials. When you are happy with your build, you can add the required building materials one by one or use a custom totem to automatically build the pieces for you. The [b]Blueprint Rune[/b] lets you copy, save or delete your creations as a single building piece which can also be shared with other players using the mod and also includes terrain modification tools for quick and more precise terraforming without using the Hoe or Cultivator.
 
@@ -102,16 +89,14 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [list]
 [*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
-[/list]
-[*][b]Terrain modification marker:[/b] Add terrain mod markers to your blueprint. When the blueprint is built, the terrain is leveled to the position of that marker. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection. You can interact with those markers to set various options of the terrain modification:
+[/list][*][b]Terrain modification marker:[/b] Add terrain mod markers to your blueprint. When the blueprint is built, the terrain is leveled to the position of that marker. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection. You can interact with those markers to set various options of the terrain modification:
 [list]
 [*][b]Shape[/b]: Set a circle or square shape.
 [*][b]Radius[/b]: Radius of the terrain mod operation.
 [*][b]Rotation[/b]: Rotation of the marker (only makes sense on the square marker).
 [*][b]Smooth[/b]: Add smoothing to the edges of the terrain modification.
 [*][b]Paint[/b]: Optionally set a new "paint" (Grass, Dirt, etc) to the ground when modifying the terrain.
-[/list]
-[*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
+[/list][*][b]Remove planned pieces:[/b] Delete planned pieces again. Per default only the hovered piece will be deleted. But you can use various modifiers to change that behaviour.
 [list]
 [*]Press [b]Ctrl[/b] to delete plans in a radius, can be used to clean up after using it to measure distances, or as a general cleanup tool. Resources that were already added to the unfinished plans will be refunded.
 [*]Use the [b]Scroll Wheel[/b] while holding [b]Ctrl[/b] to change the deletion radius.
@@ -162,10 +147,9 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 
 [b][size=4]Undo/Redo[/size][/b]
 
-The Blueprint Rune features an undo/redo mechanic for most of its actions. Placed blueprints, terrain/paint modifications and object deletions can be reversed using the __bp.undo__ console command. A reversed action can also be replayed using the __bp.redo__ console command. For easy access we recommend binding those commands to a key of your liking. To bind those commands to your mouse's "back" and "forth" keys for example type this into the game's console:
+The Blueprint Rune features an undo/redo mechanic for most of its actions. Placed blueprints, terrain/paint modifications and object deletions can be reversed using the [b]bp.undo[/b] console command. A reversed action can also be replayed using the [b]bp.redo[/b] console command. For easy access we recommend binding those commands to a key of your liking. To bind those commands to your mouse's "back" and "forth" keys for example type this into the game's console:
 
-[code]
-bind mouse3 bp.undo
+[code]bind mouse3 bp.undo
 bind mouse4 bp.redo
 [/code]
 
@@ -288,6 +272,9 @@ PlanBuild adds some new console commands to the game:
 
 [b][size=5]Building Community[/size][/b]
 Head over to the [url=https://www.valheimians.com]Valheimians[/url] page to find a community of builders and share your own creations. PlanBuild blueprints are supported.
+
+[b][size=5]Changelog[/size][/b]
+Check [url=https://github.com/sirskunkalot/PlanBuild/blob/master/CHANGELOG.md]the Changelog on github[/url] to see what's new
 
 [b][size=5]Credits[/size][/b]
 The original PlanBuild mod was created by [b][url=https://github.com/MathiasDecrock]MarcoPogo[/url][/b]
