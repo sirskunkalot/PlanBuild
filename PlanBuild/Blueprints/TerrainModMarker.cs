@@ -8,10 +8,6 @@ namespace PlanBuild.Blueprints
 {
     internal class TerrainModMarker : MonoBehaviour, Interactable, Hoverable
     {
-
-        private float LastLookedTime = -9999f;
-        private float LastUseTime = -9999f;
-
         private const string ShapeProperty = "shape";
         private const string RadiusProperty = "radius";
         private const string RotationProperty = "rotation";
