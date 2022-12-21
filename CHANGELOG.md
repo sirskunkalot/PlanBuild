@@ -1,5 +1,6 @@
 # Version 0.13.1
 * Fixed shape and paint on the terrain marker GUI
+* Fixed rotation of square terrain markers
 
 # Version 0.13.0
 * Mistlands compatiblity
