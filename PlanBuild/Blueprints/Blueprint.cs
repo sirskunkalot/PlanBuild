@@ -589,9 +589,14 @@ namespace PlanBuild.Blueprints
                 if (selected.name.StartsWith(BlueprintAssets.PieceTerrainModName))
                 {
                     ZDO zdo = selected.GetComponent<ZNetView>().GetZDO();
-                    terrainMods.Add(new TerrainModEntry(zdo.GetString("shape"), selected.transform.position,
-                        float.Parse(zdo.GetString("radius"), CultureInfo.InvariantCulture), int.Parse(zdo.GetString("rotation")),
-                        float.Parse(zdo.GetString("smooth"), CultureInfo.InvariantCulture), zdo.GetString("paint")));
+                    TerrainModEntry entry = new TerrainModEntry(
+                        zdo.GetString("shape"), 
+                        selected.transform.position,
+                        float.Parse(zdo.GetString("radius"), CultureInfo.InvariantCulture),
+                        int.Parse(zdo.GetString("rotation"), CultureInfo.InvariantCulture),
+                        float.Parse(zdo.GetString("smooth"), CultureInfo.InvariantCulture),
+                        zdo.GetString("paint"));
+                    terrainMods.Add(entry);
                     
                     if (!keepMarkers)
                     {

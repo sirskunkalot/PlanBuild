@@ -39,6 +39,7 @@ namespace PlanBuild.Blueprints
             posZ = pos.z;
             this.shape = shape;
             this.radius = radius;
+            this.rotation = rotation;
             this.smooth = smooth;
             this.paint = paint;
         }
