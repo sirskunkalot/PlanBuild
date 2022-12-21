@@ -1,3 +1,6 @@
+# Version 0.13.1
+* Fixed shape and paint on the terrain marker GUI
+
 # Version 0.13.0
 * Mistlands compatiblity
 

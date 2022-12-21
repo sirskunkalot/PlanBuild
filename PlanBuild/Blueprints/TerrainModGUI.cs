@@ -65,11 +65,11 @@ namespace PlanBuild.Blueprints
             OkAction = okAction;
             CancelAction = cancelAction;
             
-            Shape.value = Shape.options.FindIndex(x => x.text.Equals(shape));
+            Shape.value = Shape.options.FindIndex(x => x.text.Equals(shape, StringComparison.OrdinalIgnoreCase));
             Radius.text = radius;
             Rotation.text = rotation;
             Smooth.text = smooth;
-            Paint.value = Paint.options.FindIndex(x => x.text.Equals(paint));
+            Paint.value = Paint.options.FindIndex(x => x.text.Equals(paint, StringComparison.OrdinalIgnoreCase));
 
             Window.SetActive(true);
             Shape.Select();
