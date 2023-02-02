@@ -1,3 +1,7 @@
+# Version 0.13.2
+* Added korean translation (thx An9e)
+* Fixed center and snap point key hint
+
 # Version 0.13.1
 * Fixed shape and paint on the terrain marker GUI
 * Fixed rotation of square terrain markers
