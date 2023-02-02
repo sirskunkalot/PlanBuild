@@ -328,7 +328,7 @@ namespace PlanBuild.Blueprints
                 Piece = PieceCenterPointName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrainmod" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
                     new ButtonConfig { Name = "Remove", HintToken = "$hud_bpremovemarker" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
@@ -343,7 +343,7 @@ namespace PlanBuild.Blueprints
                 Piece = PieceTerrainModName,
                 ButtonConfigs = new[]
                 {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpcenterpoint" },
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrainmod" },
                     new ButtonConfig { Name = "Remove", HintToken = "$hud_bpremovemarker" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bprotate" }
