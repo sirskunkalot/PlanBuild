@@ -62,7 +62,7 @@
     "piece_blueprint_edit": "Blaupausen editieren",
     "piece_blueprint_edit_desc": "Ändere oder lösche bereits gebaute Blaupausen",
     "piece_blueprint_delete": "Pläne löschen",
-    "piece_blueprint_delete_desc": "Entfert ein oder alle Pläne aus einer Blaupause oder entfernt alle Pläne in einem Radius",
+    "piece_blueprint_delete_desc": "Entfert einen Plan oder alle Pläne in einem Radius",
     "piece_blueprint_objects": "Lösch-Werkzeuge",
     "piece_blueprint_objects_desc": "Vegetation und Objekte entfernen",
     "piece_blueprint_terrain": "Landschafts-Werkzeuge",

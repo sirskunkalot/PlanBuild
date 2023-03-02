@@ -59,7 +59,7 @@
     "piece_blueprint_edit": "Edit blueprint",
     "piece_blueprint_edit_desc": "Edit or delete placed blueprints",
     "piece_blueprint_delete": "Remove planned pieces",
-    "piece_blueprint_delete_desc": "Remove one or all planned pieces from a blueprint or remove all planned pieces in a radius",
+    "piece_blueprint_delete_desc": "Remove planned pieces or remove all planned pieces in a radius",
     "piece_blueprint_objects": "Deletion tools",
     "piece_blueprint_objects_desc": "Remove vegetation and objects",
     "piece_blueprint_terrain": "Terrain tools",
