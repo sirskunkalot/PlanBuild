@@ -147,6 +147,7 @@ if($Target.Equals("Release")) {
 
     # Copy mandatory thunder files to tmp directory
     Copy-Item "$SolutionPath\README.md" "$tsio_tmp_directory"
+    Copy-Item "$SolutionPath\CHANGELOG.md" "$tsio_tmp_directory"
     #Add-Content "$tsio_tmp_directory\README.md" -value "`r`n"
  
     Copy-Item "$SolutionPath\icon.png" "$tsio_tmp_directory"
