@@ -332,6 +332,34 @@ namespace PlanBuild.Blueprints
             }
 
             return indices;
+
+            /*
+             *
+            List<HeightIndex> indices = new List<HeightIndex>();
+            var max = compiler.m_width + 1;
+            for (int x = 0; x < max; x++)
+            {
+                for (int z = 0; z < max; z++)
+                {
+                    var nodePos = VertexToWorld(compiler.m_hmap, x, z);
+                    var dx = nodePos.x - centerPos.x;
+                    var dz = nodePos.z - centerPos.z;
+                    var distance = Vector2.Distance(centerPos, nodePos);
+                    if (distance > max) continue;
+                    indices.Add(new HeightIndex()
+                    {
+                        Index = x * max + z,
+                        Position = nodePos,
+                        DistanceWidth = dx / diameter,
+                        DistanceDepth = dz / diameter,
+                        Distance = distance / diameter
+                    });
+                }
+            }
+            return indices;
+
+             *
+             */
         }
 
         private static float GetX(int x, int y, float angle) => Mathf.Cos(angle) * x - Mathf.Sin(angle) * y;
