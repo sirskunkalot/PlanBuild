@@ -1,3 +1,6 @@
+# Version 0.13.3
+* Compiled against Valheim v0.214.2
+
 # Version 0.13.2
 * Added korean translation (thx An9e)
 * Fixed center and snap point key hint
