@@ -1,3 +1,6 @@
+# Version 0.13.4
+* Compiled against Valheim v0.214.300
+
 # Version 0.13.3
 * Compiled against Valheim v0.214.2
 * Needs Jötunn v2.11.0
