@@ -63,8 +63,7 @@ namespace PlanBuild.Blueprints
             Heightmap.FindHeightmap(position, radius + 1f, heightMaps);
             var pos = position;
             var zs = ZoneSystem.instance;
-            var ns = ZNetScene.instance;
-            return heightMaps.Where(hmap => ns.InActiveArea(zs.GetZone(hmap.transform.position), pos))
+            return heightMaps.Where(hmap => ZNetScene.InActiveArea(zs.GetZone(hmap.transform.position), pos))
                 .Select(hmap => hmap.GetAndCreateTerrainCompiler());
         }
 
@@ -81,7 +80,7 @@ namespace PlanBuild.Blueprints
             var pos = position;
             var zs = ZoneSystem.instance;
             var ns = ZNetScene.instance;
-            return heightMaps.Where(hmap => ns.InActiveArea(zs.GetZone(hmap.transform.position), pos))
+            return heightMaps.Where(hmap => ZNetScene.InActiveArea(zs.GetZone(hmap.transform.position), pos))
                 .Select(hmap => hmap.GetAndCreateTerrainCompiler());
         }
 

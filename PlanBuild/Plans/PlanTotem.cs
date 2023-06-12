@@ -100,7 +100,7 @@ namespace PlanBuild.Plans
         private List<PlanPiece> FindPlanPiecesInRange()
         {
             Dictionary<PlanPiece, float> result = new Dictionary<PlanPiece, float>();
-            foreach (var piece in Piece.m_allPieces)
+            foreach (var piece in Piece.s_allPieces)
             {
                 try
                 {

@@ -677,9 +677,9 @@ namespace PlanBuild.Blueprints
             uint i = 0;
             foreach (var piece in pieces)
             {
-                var pos = piece.m_nview.GetZDO().m_position - center;
+                var pos = piece.m_nview.GetZDO().GetPosition() - center;
 
-                var quat = piece.m_nview.GetZDO().m_rotation;
+                var quat = piece.m_nview.GetZDO().GetRotation();
                 quat.eulerAngles = piece.transform.eulerAngles;
 
                 var additionalInfo = string.Empty;

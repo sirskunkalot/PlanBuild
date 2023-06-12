@@ -84,7 +84,7 @@ namespace PlanBuild.Blueprints
         public void AddPiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
-            foreach (var piece in Piece.m_allPieces)
+            foreach (var piece in Piece.s_allPieces)
             {
                 Vector3 piecePos = piece.transform.position;
                 if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
@@ -102,7 +102,7 @@ namespace PlanBuild.Blueprints
                 Vector3.Min(startPiece.GetCenter(), endPiece.GetCenter()),
                 Vector3.Max(startPiece.GetCenter(), endPiece.GetCenter()));
 
-            foreach (var piece in Piece.m_allPieces
+            foreach (var piece in Piece.s_allPieces
                          .Where(x => x.GetComponentInChildren<Collider>() is Collider col && bounds.Intersects(col.bounds)))
             {
                 AddPiece(piece);
@@ -159,7 +159,7 @@ namespace PlanBuild.Blueprints
         public void RemovePiecesInRadius(Vector3 worldPos, float radius, bool onlyPlanned = false)
         {
             Vector2 pos2d = new Vector2(worldPos.x, worldPos.z);
-            foreach (var piece in Piece.m_allPieces)
+            foreach (var piece in Piece.s_allPieces)
             {
                 Vector3 piecePos = piece.transform.position;
                 if (Vector2.Distance(pos2d, new Vector2(piecePos.x, piecePos.z)) <= radius
@@ -257,10 +257,10 @@ namespace PlanBuild.Blueprints
                 }
                 foreach (WearNTear.BoundData bound in wearNTear.m_bounds)
                 {
-                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size + shellDistance, WearNTear.m_tempColliders, bound.m_rot, GrowMask);
+                    int num = Physics.OverlapBoxNonAlloc(bound.m_pos, bound.m_size + shellDistance, WearNTear.s_tempColliders, bound.m_rot, GrowMask);
                     for (int i = 0; i < num; i++)
                     {
-                        Collider collider = WearNTear.m_tempColliders[i];
+                        Collider collider = WearNTear.s_tempColliders[i];
                         if (wearNTear.m_colliders.Contains(collider) || collider.attachedRigidbody != null || collider.isTrigger)
                         {
                             continue;

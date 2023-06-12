@@ -123,7 +123,7 @@ namespace PlanBuild.Blueprints
         public static List<Piece> GetPiecesInRadius(Vector3 position, float radius, bool onlyPlanned = false)
         {
             List<Piece> result = new List<Piece>();
-            foreach (var piece in Piece.m_allPieces)
+            foreach (var piece in Piece.s_allPieces)
             {
                 Vector3 piecePos = piece.transform.position;
                 if (Vector2.Distance(new Vector2(position.x, position.z), new Vector2(piecePos.x, piecePos.z)) <= radius
