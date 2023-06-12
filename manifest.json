@@ -4,7 +4,7 @@
   "version_number": "0.13.4",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.2102",
-    "ValheimModding-Jotunn-2.11.0",
+    "ValheimModding-Jotunn-2.12.0",
     "ValheimModding-HookGenPatcher-0.0.4"
   ],
   "website_url": "https://github.com/sirskunkalot/PlanBuild"
