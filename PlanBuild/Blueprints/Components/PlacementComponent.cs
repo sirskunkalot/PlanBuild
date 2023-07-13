@@ -220,7 +220,7 @@ namespace PlanBuild.Blueprints.Components
 
                     if (placeDirect)
                     {
-                        Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
+                        Game.instance.GetPlayerProfile().m_playerStats.m_stats[PlayerStatType.Builds]++;
                     }
                 }
                 CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();

@@ -645,7 +645,7 @@ namespace PlanBuild.Plans
                 }
 
                 // Count up player builds
-                Game.instance.GetPlayerProfile().m_playerStats.m_builds++;
+                Game.instance.GetPlayerProfile().m_playerStats.m_stats[PlayerStatType.Builds]++;
             }
             WearNTear wearntear = actualPiece.GetComponent<WearNTear>();
             if (wearntear)
