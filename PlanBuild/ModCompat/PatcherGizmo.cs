@@ -8,12 +8,12 @@ namespace PlanBuild.ModCompat
 {
     internal class PatcherGizmo
     {
-        [HarmonyPatch(typeof(Gizmo.ComfyGizmo.PlayerPatch), "UpdatePlacementPostfix")]
+        [HarmonyPatch(typeof(Gizmo.Patches.PlayerPatch), "UpdatePlacementPostfix")]
         [HarmonyPrefix]
         private static bool ComfyGizmo_UpdatePlacementPostfix_Prefix()
         {
             if (!(Player.m_localPlayer && Player.m_localPlayer.m_buildPieces&&
-                  Player.m_localPlayer.m_placementGhost && Gizmo.ComfyGizmo._gizmoRoot))
+                  Player.m_localPlayer.m_placementGhost && Gizmo.ComfyGizmo.GizmoRoot))
             {
                 return true;
             }
@@ -21,14 +21,14 @@ namespace PlanBuild.ModCompat
             if (Player.m_localPlayer.m_placementGhost.TryGetComponent<ToolComponentBase>(out var tool) &&
                 tool.SuppressGizmo)
             {
-                Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
+                Gizmo.ComfyGizmo.GizmoRoot.gameObject.SetActive(false);
                 return false;
             }
 
             if (Player.m_localPlayer.m_buildPieces.name.StartsWith(PlanHammerPrefab.PieceTableName, StringComparison.Ordinal) &&
                 Player.m_localPlayer.m_placementGhost.name.StartsWith(PlanHammerPrefab.PieceDeletePlansName, StringComparison.Ordinal))
             {
-                Gizmo.ComfyGizmo._gizmoRoot.gameObject.SetActive(false);
+                Gizmo.ComfyGizmo.GizmoRoot.gameObject.SetActive(false);
                 return false;
             }
 
