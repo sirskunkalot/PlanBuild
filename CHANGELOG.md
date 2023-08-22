@@ -1,3 +1,6 @@
+# Version 0.14.2
+* Compatible with Valheim v0.217.14 (Hildir)
+
 # Version 0.14.1
 * Fix ComfyGizmo compat
 
