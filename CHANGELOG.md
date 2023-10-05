@@ -1,3 +1,7 @@
+# Version 0.14.3
+* Fixed Blueprint preview tooltip
+* Compatible with Valheim v0.217.22
+
 # Version 0.14.2
 * Compatible with Valheim v0.217.14 (Hildir)
 
