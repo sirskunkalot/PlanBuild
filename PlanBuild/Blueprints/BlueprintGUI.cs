@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace PlanBuild.Blueprints
 {
@@ -434,7 +435,7 @@ namespace PlanBuild.Blueprints
                         PlanBuildPlugin.Instance.StartCoroutine(CreateRoutine(tempBlueprint));
                     }
                     break;
-                    
+
                 case BlueprintLocation.Server:
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var serverBlueprint))
                     {
@@ -463,9 +464,9 @@ namespace PlanBuild.Blueprints
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
 
-                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
+                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
                 {
-                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
                 }
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
@@ -482,7 +483,7 @@ namespace PlanBuild.Blueprints
                     GUIManager.Instance.ApplyButtonStyle(btn);
                     if (btn.name.Equals("CreateThumbnail", StringComparison.Ordinal))
                     {
-                        btn.GetComponentInChildren<Text>(true).fontSize = 13;
+                        btn.GetComponentInChildren<TMP_Text>(true).fontSize = 13;
                     }
                 }
 
@@ -594,7 +595,7 @@ namespace PlanBuild.Blueprints
     {
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
-        public Text TabText { get; set; }
+        public TMP_Text TabText { get; set; }
         public GameObject TabContent { get; set; }
 
         public void Register(Transform window, string tabName, string tabText)
@@ -606,7 +607,7 @@ namespace PlanBuild.Blueprints
                 button.name = tabName;
                 TabTransform = button.transform;
                 TabButton = button.GetComponent<Button>();
-                TabText = button.transform.Find("Text").GetComponent<Text>();
+                TabText = button.transform.Find("Text").GetComponent<TMP_Text>();
                 TabContent = UnityEngine.Object.Instantiate(window.Find("TabContent").gameObject, window.Find("Content"));
                 TabContent.name = tabName;
             }
@@ -641,7 +642,7 @@ namespace PlanBuild.Blueprints
             {
                 GameObject cat = UnityEngine.Object.Instantiate(BlueprintCategoryPrefab, ScrollContentParent);
                 cat.SetActive(true);
-                cat.GetComponent<Text>().text = name;
+                cat.GetComponent<TMP_Text>().text = name;
                 Categories.Add(cat);
             }
             catch (Exception ex)
@@ -664,7 +665,7 @@ namespace PlanBuild.Blueprints
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintEntryPrefab, ScrollContentParent);
                 newBp.ContentHolder.SetActive(true);
                 newBp.Button = newBp.ContentHolder.GetComponent<Button>();
-                newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
+                newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<TMP_Text>();
 
                 newBp.ID = bp.ID;
                 newBp.Name = bp.Name;
@@ -730,11 +731,11 @@ namespace PlanBuild.Blueprints
 
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
-        public Text ID { get; set; }
-        public Text Creator { get; set; }
-        public Text Count { get; set; }
-        public Text SnapPoints { get; set; }
-        public Text TerrainMods { get; set; }
+        public TMP_Text ID { get; set; }
+        public TMP_Text Creator { get; set; }
+        public TMP_Text Count { get; set; }
+        public TMP_Text SnapPoints { get; set; }
+        public TMP_Text TerrainMods { get; set; }
         public Image Icon { get; set; }
         public InputField Name { get; set; }
         public InputField Category { get; set; }
@@ -790,11 +791,11 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.AddListener((text) => { blueprint.Name = text; });
             Category.onEndEdit.AddListener((text) => { blueprint.Category = text; });
             Description.onEndEdit.AddListener((text) => { blueprint.Description = text; });
-            
+
             CreateThumbnailButton.onClick.RemoveAllListeners();
             RotateLeftButton.onClick.RemoveAllListeners();
             RotateRightButton.onClick.RemoveAllListeners();
-                
+
             if (blueprint.Icon == null)
             {
                 CreateThumbnailButton.gameObject.SetActive(true);
@@ -817,14 +818,14 @@ namespace PlanBuild.Blueprints
                     blueprint.AdditionalRotation -= 45;
                     BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
                 });
-                
+
                 RotateRightButton.onClick.AddListener(() =>
                 {
                     blueprint.AdditionalRotation += 45;
                     BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
                 });
             }
-            
+
             SaveButton.onClick.RemoveAllListeners();
             TransferButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
@@ -859,7 +860,7 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.RemoveAllListeners();
             Category.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
-            
+
             CreateThumbnailButton.onClick.RemoveAllListeners();
             RotateLeftButton.onClick.RemoveAllListeners();
             RotateRightButton.onClick.RemoveAllListeners();
@@ -894,11 +895,11 @@ namespace PlanBuild.Blueprints
                 ConfirmationOverlay.Register(overlayParent);
 
                 Transform detail = contentTransform.Find("Detail");
-                ID = detail.Find("ID").GetComponent<Text>();
-                Creator = detail.Find("Creator").GetComponent<Text>();
-                Count = detail.Find("Count").GetComponent<Text>();
-                SnapPoints = detail.Find("SnapPoints").GetComponent<Text>();
-                TerrainMods = detail.Find("TerrainMods").GetComponent<Text>();
+                ID = detail.Find("ID").GetComponent<TMP_Text>();
+                Creator = detail.Find("Creator").GetComponent<TMP_Text>();
+                Count = detail.Find("Count").GetComponent<TMP_Text>();
+                SnapPoints = detail.Find("SnapPoints").GetComponent<TMP_Text>();
+                TerrainMods = detail.Find("TerrainMods").GetComponent<TMP_Text>();
                 Icon = detail.Find("Thumbnail").GetComponent<Image>();
                 Icon.gameObject.SetActive(false);
                 Name = detail.Find("Name").GetComponent<InputField>();
@@ -917,7 +918,7 @@ namespace PlanBuild.Blueprints
                 // Type dependend actions
                 if (tabType == BlueprintLocation.Local)
                 {
-                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_upload";
+                    TransferButton.GetComponentInChildren<TMP_Text>().text = "$gui_bpmarket_upload";
                 }
                 if (tabType == BlueprintLocation.Temporary)
                 {
@@ -926,7 +927,7 @@ namespace PlanBuild.Blueprints
                 }
                 if (tabType == BlueprintLocation.Server)
                 {
-                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_download";
+                    TransferButton.GetComponentInChildren<TMP_Text>().text = "$gui_bpmarket_download";
                 }
 
                 // Add valheim refresh icon
@@ -959,7 +960,7 @@ namespace PlanBuild.Blueprints
         public string SnapPoints { get; set; }
         public string TerrainMods { get; set; }
         public string Description { get; set; }
-        public Text Text { get; set; }
+        public TMP_Text Text { get; set; }
         public Sprite Icon { get; set; }
         public Button Button { get; set; }
         public int AdditionalRotation { get; set; }
@@ -968,7 +969,7 @@ namespace PlanBuild.Blueprints
     internal class UIConfirmationOverlay
     {
         public Transform ContentHolder { get; set; }
-        public Text ConfirmationDisplayText { get; set; }
+        public TMP_Text ConfirmationDisplayText { get; set; }
         public Button CancelButton { get; set; }
         public Button ConfirmButton { get; set; }
 
@@ -997,7 +998,7 @@ namespace PlanBuild.Blueprints
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
-            ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
+            ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<TMP_Text>();
             ConfirmButton = overlayTransform.Find("ConfirmationButton").GetComponent<Button>();
             CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
             CancelButton.onClick.AddListener(Close);
@@ -1007,7 +1008,7 @@ namespace PlanBuild.Blueprints
     internal class ActionAppliedOverlay
     {
         public Transform ContentHolder { get; set; }
-        public Text DisplayText { get; set; }
+        public TMP_Text DisplayText { get; set; }
         public Button OKButton { get; set; }
 
         public void Show()
@@ -1038,7 +1039,7 @@ namespace PlanBuild.Blueprints
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
-            DisplayText = overlayTransform.Find("DisplayText").GetComponent<Text>();
+            DisplayText = overlayTransform.Find("DisplayText").GetComponent<TMP_Text>();
             OKButton = overlayTransform.Find("OKButton").GetComponent<Button>();
             OKButton.onClick.AddListener(Close);
         }

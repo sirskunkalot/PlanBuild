@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
@@ -443,13 +444,13 @@ namespace PlanBuild.Blueprints
                     bp.Thumbnail != null)
                 {
                     self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
-                    orig(self,go);
+                    orig(self, go);
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "Background")
                         .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "BPImage")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "BPText")
-                        .GetComponent<Text>().text = bp.Name;
+                        .GetComponent<TMP_Text>().text = bp.Name;
                 }
                 else
                 {

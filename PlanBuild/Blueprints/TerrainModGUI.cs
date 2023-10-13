@@ -3,6 +3,7 @@ using Jotunn.Managers;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace PlanBuild.Blueprints
 {
@@ -64,7 +65,7 @@ namespace PlanBuild.Blueprints
         {
             OkAction = okAction;
             CancelAction = cancelAction;
-            
+
             Shape.value = Shape.options.FindIndex(x => x.text.Equals(shape, StringComparison.OrdinalIgnoreCase));
             Radius.text = radius;
             Rotation.text = rotation;
@@ -92,9 +93,9 @@ namespace PlanBuild.Blueprints
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
 
-                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
+                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
                 {
-                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
                 }
 
                 foreach (Dropdown dwn in Window.GetComponentsInChildren<Dropdown>(true))

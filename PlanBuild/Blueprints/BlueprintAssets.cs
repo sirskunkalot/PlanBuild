@@ -6,6 +6,7 @@ using PlanBuild.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
@@ -74,8 +75,8 @@ namespace PlanBuild.Blueprints
             BlueprintTooltip = prefabs[BlueprintTooltipName];
             void InitTooltipGUI()
             {
-                global::Utils.FindChild(BlueprintTooltip.transform, "BPText").GetComponent<Text>().font =
-                    GUIManager.Instance.AveriaSerif;
+
+                global::Utils.FindChild(BlueprintTooltip.transform, "BPText").GetComponent<TMP_Text>().font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
                 GUIManager.OnCustomGUIAvailable -= InitTooltipGUI;
             }
             GUIManager.OnCustomGUIAvailable += InitTooltipGUI;
