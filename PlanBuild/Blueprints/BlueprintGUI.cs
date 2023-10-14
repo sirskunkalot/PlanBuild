@@ -117,14 +117,17 @@ namespace PlanBuild.Blueprints
                 {
                     UnityEngine.Object.DestroyImmediate(cat);
                 }
+
                 foreach (var detail in Instance.LocalTab.ListDisplay.Blueprints)
                 {
                     UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
+
                 Instance.LocalTab.ListDisplay.Categories.Clear();
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
                 Instance.LocalTab.DetailDisplay.Clear();
             }
+
             if (location == BlueprintLocation.Temporary || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ClipboardTab.ListDisplay.Categories)
@@ -139,6 +142,7 @@ namespace PlanBuild.Blueprints
                 Instance.ClipboardTab.ListDisplay.Blueprints.Clear();
                 Instance.ClipboardTab.DetailDisplay.Clear();
             }
+
             if (location == BlueprintLocation.Server || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ServerTab.ListDisplay.Categories)
@@ -165,7 +169,6 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-
             ClearBlueprints(location);
 
             if (location == BlueprintLocation.Local || location == BlueprintLocation.All)
@@ -463,10 +466,9 @@ namespace PlanBuild.Blueprints
                 panel.sprite = GUIManager.Instance.GetSprite("woodpanel_settings");
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
-
-                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
+                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
-                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
+                    txt.font = GUIManager.Instance.AveriaSerif;
                 }
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
@@ -483,7 +485,7 @@ namespace PlanBuild.Blueprints
                     GUIManager.Instance.ApplyButtonStyle(btn);
                     if (btn.name.Equals("CreateThumbnail", StringComparison.Ordinal))
                     {
-                        btn.GetComponentInChildren<TMP_Text>(true).fontSize = 13;
+                        btn.GetComponentInChildren<Text>(true).fontSize = 13;
                     }
                 }
 
@@ -731,11 +733,11 @@ namespace PlanBuild.Blueprints
 
         public BlueprintDetailContent SelectedBlueprintDetail { get; set; }
 
-        public TMP_Text ID { get; set; }
-        public TMP_Text Creator { get; set; }
-        public TMP_Text Count { get; set; }
-        public TMP_Text SnapPoints { get; set; }
-        public TMP_Text TerrainMods { get; set; }
+        public Text ID { get; set; }
+        public Text Creator { get; set; }
+        public Text Count { get; set; }
+        public Text SnapPoints { get; set; }
+        public Text TerrainMods { get; set; }
         public Image Icon { get; set; }
         public InputField Name { get; set; }
         public InputField Category { get; set; }
@@ -895,11 +897,11 @@ namespace PlanBuild.Blueprints
                 ConfirmationOverlay.Register(overlayParent);
 
                 Transform detail = contentTransform.Find("Detail");
-                ID = detail.Find("ID").GetComponent<TMP_Text>();
-                Creator = detail.Find("Creator").GetComponent<TMP_Text>();
-                Count = detail.Find("Count").GetComponent<TMP_Text>();
-                SnapPoints = detail.Find("SnapPoints").GetComponent<TMP_Text>();
-                TerrainMods = detail.Find("TerrainMods").GetComponent<TMP_Text>();
+                ID = detail.Find("ID").GetComponent<Text>();
+                Creator = detail.Find("Creator").GetComponent<Text>();
+                Count = detail.Find("Count").GetComponent<Text>();
+                SnapPoints = detail.Find("SnapPoints").GetComponent<Text>();
+                TerrainMods = detail.Find("TerrainMods").GetComponent<Text>();
                 Icon = detail.Find("Thumbnail").GetComponent<Image>();
                 Icon.gameObject.SetActive(false);
                 Name = detail.Find("Name").GetComponent<InputField>();
