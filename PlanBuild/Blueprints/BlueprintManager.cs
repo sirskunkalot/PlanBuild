@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
+
 using Logger = Jotunn.Logger;
 
 namespace PlanBuild.Blueprints
@@ -450,7 +450,7 @@ namespace PlanBuild.Blueprints
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "BPImage")
                         .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
                     global::Utils.FindChild(UITooltip.m_tooltip.transform, "BPText")
-                        .GetComponent<TMP_Text>().text = bp.Name;
+                        .GetComponent<Text>().text = bp.Name;
                 }
                 else
                 {

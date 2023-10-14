@@ -597,7 +597,7 @@ namespace PlanBuild.Blueprints
     {
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
-        public TMP_Text TabText { get; set; }
+        public Text TabText { get; set; }
         public GameObject TabContent { get; set; }
 
         public void Register(Transform window, string tabName, string tabText)
@@ -609,7 +609,7 @@ namespace PlanBuild.Blueprints
                 button.name = tabName;
                 TabTransform = button.transform;
                 TabButton = button.GetComponent<Button>();
-                TabText = button.transform.Find("Text").GetComponent<TMP_Text>();
+                TabText = button.transform.Find("Text").GetComponent<Text>();
                 TabContent = UnityEngine.Object.Instantiate(window.Find("TabContent").gameObject, window.Find("Content"));
                 TabContent.name = tabName;
             }
@@ -644,7 +644,7 @@ namespace PlanBuild.Blueprints
             {
                 GameObject cat = UnityEngine.Object.Instantiate(BlueprintCategoryPrefab, ScrollContentParent);
                 cat.SetActive(true);
-                cat.GetComponent<TMP_Text>().text = name;
+                cat.GetComponent<Text>().text = name;
                 Categories.Add(cat);
             }
             catch (Exception ex)
@@ -667,7 +667,7 @@ namespace PlanBuild.Blueprints
                 newBp.ContentHolder = UnityEngine.Object.Instantiate(BlueprintEntryPrefab, ScrollContentParent);
                 newBp.ContentHolder.SetActive(true);
                 newBp.Button = newBp.ContentHolder.GetComponent<Button>();
-                newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<TMP_Text>();
+                newBp.Text = newBp.ContentHolder.transform.Find("Text").GetComponent<Text>();
 
                 newBp.ID = bp.ID;
                 newBp.Name = bp.Name;
@@ -920,7 +920,7 @@ namespace PlanBuild.Blueprints
                 // Type dependend actions
                 if (tabType == BlueprintLocation.Local)
                 {
-                    TransferButton.GetComponentInChildren<TMP_Text>().text = "$gui_bpmarket_upload";
+                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_upload";
                 }
                 if (tabType == BlueprintLocation.Temporary)
                 {
@@ -929,7 +929,7 @@ namespace PlanBuild.Blueprints
                 }
                 if (tabType == BlueprintLocation.Server)
                 {
-                    TransferButton.GetComponentInChildren<TMP_Text>().text = "$gui_bpmarket_download";
+                    TransferButton.GetComponentInChildren<Text>().text = "$gui_bpmarket_download";
                 }
 
                 // Add valheim refresh icon
@@ -962,7 +962,7 @@ namespace PlanBuild.Blueprints
         public string SnapPoints { get; set; }
         public string TerrainMods { get; set; }
         public string Description { get; set; }
-        public TMP_Text Text { get; set; }
+        public Text Text { get; set; }
         public Sprite Icon { get; set; }
         public Button Button { get; set; }
         public int AdditionalRotation { get; set; }
@@ -971,7 +971,7 @@ namespace PlanBuild.Blueprints
     internal class UIConfirmationOverlay
     {
         public Transform ContentHolder { get; set; }
-        public TMP_Text ConfirmationDisplayText { get; set; }
+        public Text ConfirmationDisplayText { get; set; }
         public Button CancelButton { get; set; }
         public Button ConfirmButton { get; set; }
 
@@ -1000,7 +1000,7 @@ namespace PlanBuild.Blueprints
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
-            ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<TMP_Text>();
+            ConfirmationDisplayText = overlayTransform.Find("ConfirmText").GetComponent<Text>();
             ConfirmButton = overlayTransform.Find("ConfirmationButton").GetComponent<Button>();
             CancelButton = overlayTransform.Find("CancelButton").GetComponent<Button>();
             CancelButton.onClick.AddListener(Close);
@@ -1010,7 +1010,7 @@ namespace PlanBuild.Blueprints
     internal class ActionAppliedOverlay
     {
         public Transform ContentHolder { get; set; }
-        public TMP_Text DisplayText { get; set; }
+        public Text DisplayText { get; set; }
         public Button OKButton { get; set; }
 
         public void Show()
@@ -1041,7 +1041,7 @@ namespace PlanBuild.Blueprints
         public void Register(Transform overlayTransform)
         {
             ContentHolder = overlayTransform;
-            DisplayText = overlayTransform.Find("DisplayText").GetComponent<TMP_Text>();
+            DisplayText = overlayTransform.Find("DisplayText").GetComponent<Text>();
             OKButton = overlayTransform.Find("OKButton").GetComponent<Button>();
             OKButton.onClick.AddListener(Close);
         }
