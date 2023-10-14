@@ -1,3 +1,6 @@
+# Version 0.14.4
+* Fixed NREs in PlanPiece UI components (thx searica)
+
 # Version 0.14.3
 * Fixed Blueprint preview tooltip
 * Compatible with Valheim v0.217.22
