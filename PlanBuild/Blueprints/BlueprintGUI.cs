@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 namespace PlanBuild.Blueprints
 {
@@ -116,14 +117,17 @@ namespace PlanBuild.Blueprints
                 {
                     UnityEngine.Object.DestroyImmediate(cat);
                 }
+
                 foreach (var detail in Instance.LocalTab.ListDisplay.Blueprints)
                 {
                     UnityEngine.Object.DestroyImmediate(detail.ContentHolder);
                 }
+
                 Instance.LocalTab.ListDisplay.Categories.Clear();
                 Instance.LocalTab.ListDisplay.Blueprints.Clear();
                 Instance.LocalTab.DetailDisplay.Clear();
             }
+
             if (location == BlueprintLocation.Temporary || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ClipboardTab.ListDisplay.Categories)
@@ -138,6 +142,7 @@ namespace PlanBuild.Blueprints
                 Instance.ClipboardTab.ListDisplay.Blueprints.Clear();
                 Instance.ClipboardTab.DetailDisplay.Clear();
             }
+
             if (location == BlueprintLocation.Server || location == BlueprintLocation.All)
             {
                 foreach (var cat in Instance.ServerTab.ListDisplay.Categories)
@@ -164,7 +169,6 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-
             ClearBlueprints(location);
 
             if (location == BlueprintLocation.Local || location == BlueprintLocation.All)
@@ -434,7 +438,7 @@ namespace PlanBuild.Blueprints
                         PlanBuildPlugin.Instance.StartCoroutine(CreateRoutine(tempBlueprint));
                     }
                     break;
-                    
+
                 case BlueprintLocation.Server:
                     if (detail != null && BlueprintManager.ServerBlueprints.TryGetValue(detail.ID, out var serverBlueprint))
                     {
@@ -462,10 +466,9 @@ namespace PlanBuild.Blueprints
                 panel.sprite = GUIManager.Instance.GetSprite("woodpanel_settings");
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
-
                 foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
-                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                    txt.font = GUIManager.Instance.AveriaSerif;
                 }
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
@@ -790,11 +793,11 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.AddListener((text) => { blueprint.Name = text; });
             Category.onEndEdit.AddListener((text) => { blueprint.Category = text; });
             Description.onEndEdit.AddListener((text) => { blueprint.Description = text; });
-            
+
             CreateThumbnailButton.onClick.RemoveAllListeners();
             RotateLeftButton.onClick.RemoveAllListeners();
             RotateRightButton.onClick.RemoveAllListeners();
-                
+
             if (blueprint.Icon == null)
             {
                 CreateThumbnailButton.gameObject.SetActive(true);
@@ -817,14 +820,14 @@ namespace PlanBuild.Blueprints
                     blueprint.AdditionalRotation -= 45;
                     BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
                 });
-                
+
                 RotateRightButton.onClick.AddListener(() =>
                 {
                     blueprint.AdditionalRotation += 45;
                     BlueprintGUI.Instance.CreateThumbnail(blueprint, TabType);
                 });
             }
-            
+
             SaveButton.onClick.RemoveAllListeners();
             TransferButton.onClick.RemoveAllListeners();
             DeleteButton.onClick.RemoveAllListeners();
@@ -859,7 +862,7 @@ namespace PlanBuild.Blueprints
             Name.onEndEdit.RemoveAllListeners();
             Category.onEndEdit.RemoveAllListeners();
             Description.onEndEdit.RemoveAllListeners();
-            
+
             CreateThumbnailButton.onClick.RemoveAllListeners();
             RotateLeftButton.onClick.RemoveAllListeners();
             RotateRightButton.onClick.RemoveAllListeners();

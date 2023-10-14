@@ -1,10 +1,9 @@
 ﻿using Jotunn.GUI;
 using Jotunn.Managers;
 using System;
-using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace PlanBuild.Blueprints
 {
@@ -89,17 +88,17 @@ namespace PlanBuild.Blueprints
                 panel.sprite = GUIManager.Instance.GetSprite("woodpanel_settings");
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
-                
-                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
+
+                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
                 {
-                    txt.font = GUIManager.Instance.AveriaSerifBold;
+                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
                 }
 
                 foreach (Button btn in Window.GetComponentsInChildren<Button>(true))
                 {
                     GUIManager.Instance.ApplyButtonStyle(btn);
                 }
-                
+
                 foreach (Toggle tgl in Window.GetComponentsInChildren<Toggle>(true))
                 {
                     GUIManager.Instance.ApplyToogleStyle(tgl);
@@ -120,14 +119,14 @@ namespace PlanBuild.Blueprints
                 ClearButton.onClick.AddListener(() => OnClick(Clear));
                 CancelButton = Window.transform.Find("CancelButton").GetComponent<Button>();
                 CancelButton.onClick.AddListener(() => OnClick(Cancel));
-                
+
                 void OnClick(Action action)
                 {
                     action?.Invoke();
                     Window.SetActive(false);
                     GUIManager.BlockInput(false);
                 }
-                
+
                 // Localize
                 Localization.instance.Localize(Instance.Window.transform);
 
@@ -138,7 +137,7 @@ namespace PlanBuild.Blueprints
                 Window.SetActive(false);
             }
         }
-        
+
         private void Cancel()
         {
             Window.SetActive(false);
@@ -153,20 +152,20 @@ namespace PlanBuild.Blueprints
                 {
                     return;
                 }
-                
+
                 if (Input.GetKeyUp(KeyCode.Escape))
                 {
                     Instance.Cancel();
                 }
             }
         }
-        
+
         private void Copy()
         {
             SelectionTools.Copy(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
             Selection.Instance.Clear();
         }
-        
+
         private void Cut()
         {
             if (!SynchronizationManager.Instance.PlayerIsAdmin)
@@ -178,12 +177,12 @@ namespace PlanBuild.Blueprints
             SelectionTools.Cut(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
             Selection.Instance.Clear();
         }
-        
+
         private void SaveGUI()
         {
             SelectionTools.SaveWithGUI(Selection.Instance, SnapPointsToggle.isOn, MarkersToggle.isOn);
         }
-        
+
         private void Delete()
         {
             if (!SynchronizationManager.Instance.PlayerIsAdmin)

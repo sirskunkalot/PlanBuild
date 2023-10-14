@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using static Piece;
 
 namespace PlanBuild.Plans
@@ -281,8 +282,8 @@ namespace PlanBuild.Plans
                 GameObject obj = uiRequirementPanels[piece.m_resources.Length];
                 obj.SetActive(value: true);
                 Image component = obj.transform.Find("res_icon").GetComponent<Image>();
-                Text component2 = obj.transform.Find("res_name").GetComponent<Text>();
-                Text component3 = obj.transform.Find("res_amount").GetComponent<Text>();
+                TMP_Text component2 = obj.transform.Find("res_name").GetComponent<TMP_Text>();
+                TMP_Text component3 = obj.transform.Find("res_amount").GetComponent<TMP_Text>();
                 UITooltip component4 = obj.GetComponent<UITooltip>();
                 component.sprite = piece.m_craftingStation.m_icon;
                 component2.text = Localization.instance.Localize(piece.m_craftingStation.m_name);
@@ -306,8 +307,8 @@ namespace PlanBuild.Plans
         public bool SetupRequirement(Transform elementRoot, Requirement req, int currentAmount)
         {
             Image imageResIcon = elementRoot.transform.Find("res_icon").GetComponent<Image>();
-            Text textResName = elementRoot.transform.Find("res_name").GetComponent<Text>();
-            Text textResAmount = elementRoot.transform.Find("res_amount").GetComponent<Text>();
+            TMP_Text textResName = elementRoot.transform.Find("res_name").GetComponent<TMP_Text>();
+            TMP_Text textResAmount = elementRoot.transform.Find("res_amount").GetComponent<TMP_Text>();
             UITooltip uiTooltip = elementRoot.GetComponent<UITooltip>();
             if (req.m_resItem != null)
             {
@@ -377,7 +378,7 @@ namespace PlanBuild.Plans
                 Build(player.GetPlayerID());
                 return false;
             }
-            
+
             if (hold)
             {
                 if (Time.time - m_lastUseTime < m_holdRepeatInterval)
@@ -443,7 +444,7 @@ namespace PlanBuild.Plans
         {
             return hasSupport;
         }
-        
+
         public void Build(long playerID)
         {
             m_nView.InvokeRPC("Refund", false);
