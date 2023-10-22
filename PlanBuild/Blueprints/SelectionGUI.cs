@@ -1,7 +1,6 @@
 ﻿using Jotunn.GUI;
 using Jotunn.Managers;
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -89,9 +88,9 @@ namespace PlanBuild.Blueprints
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
 
-                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
+                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
-                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
+                    txt.font = GUIManager.Instance.AveriaSerif;
                 }
 
                 foreach (Button btn in Window.GetComponentsInChildren<Button>(true))

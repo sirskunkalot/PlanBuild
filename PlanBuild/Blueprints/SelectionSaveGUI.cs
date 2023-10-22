@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro;
 
 namespace PlanBuild.Blueprints
 {
@@ -14,10 +13,10 @@ namespace PlanBuild.Blueprints
 
         private GameObject Prefab;
         private GameObject Window;
-        private TMP_Text Pieces;
-        private TMP_Text SnapPoints;
-        private TMP_Text CenterMarkers;
-        private TMP_Text TerrainMods;
+        private Text Pieces;
+        private Text SnapPoints;
+        private Text CenterMarkers;
+        private Text TerrainMods;
         private InputField Name;
         private InputField Category;
         private InputField Description;
@@ -99,9 +98,9 @@ namespace PlanBuild.Blueprints
                 panel.type = Image.Type.Sliced;
                 panel.material = PrefabManager.Cache.GetPrefab<Material>("litpanel");
 
-                foreach (TMP_Text txt in Window.GetComponentsInChildren<TMP_Text>(true))
+                foreach (Text txt in Window.GetComponentsInChildren<Text>(true))
                 {
-                    txt.font = TMP_FontAsset.CreateFontAsset(GUIManager.Instance.AveriaSerif);
+                    txt.font = GUIManager.Instance.AveriaSerif;
                 }
 
                 foreach (InputField fld in Window.GetComponentsInChildren<InputField>(true))
@@ -115,10 +114,10 @@ namespace PlanBuild.Blueprints
                 }
 
                 // Register Components
-                Pieces = Window.transform.Find("Details/Pieces").GetComponent<TMP_Text>();
-                CenterMarkers = Window.transform.Find("Details/CenterMarkers").GetComponent<TMP_Text>();
-                SnapPoints = Window.transform.Find("Details/SnapPoints").GetComponent<TMP_Text>();
-                TerrainMods = Window.transform.Find("Details/TerrainMods").GetComponent<TMP_Text>();
+                Pieces = Window.transform.Find("Details/Pieces").GetComponent<Text>();
+                CenterMarkers = Window.transform.Find("Details/CenterMarkers").GetComponent<Text>();
+                SnapPoints = Window.transform.Find("Details/SnapPoints").GetComponent<Text>();
+                TerrainMods = Window.transform.Find("Details/TerrainMods").GetComponent<Text>();
                 Name = Window.transform.Find("Name/InputField").GetComponent<InputField>();
                 Name.textComponent.alignment = TextAnchor.MiddleLeft;
                 Category = Window.transform.Find("Category/InputField").GetComponent<InputField>();
