@@ -1,3 +1,6 @@
+# Version 0.14.5
+* Fixed PlanBuild internal Text components
+
 # Version 0.14.4
 * Fixed NREs in PlanPiece UI components (thx searica)
 
