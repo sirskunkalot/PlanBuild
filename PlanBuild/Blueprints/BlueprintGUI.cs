@@ -60,9 +60,9 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Check if any visible fiels have focus
+        ///     Check if any visible fields have focus
         /// </summary>
-        /// <returns>true if any visible fiels have focus</returns>
+        /// <returns>true if any visible fields have focus</returns>
         public static bool TextFieldHasFocus()
         {
             if (Instance.CurrentTab == null)
