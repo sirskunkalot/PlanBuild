@@ -75,8 +75,7 @@ namespace PlanBuild.Blueprints
             BlueprintTooltip = prefabs[BlueprintTooltipName];
             void InitTooltipGUI()
             {
-
-                global::Utils.FindChild(BlueprintTooltip.transform, "BPText").GetComponent<Text>().font = GUIManager.Instance.AveriaSerif;
+                BlueprintTooltip.transform.Find("Background").Find("BPText").GetComponent<Text>().font = GUIManager.Instance.AveriaSerif;
                 GUIManager.OnCustomGUIAvailable -= InitTooltipGUI;
             }
             GUIManager.OnCustomGUIAvailable += InitTooltipGUI;
