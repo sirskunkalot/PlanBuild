@@ -77,3 +77,5 @@ crashlytics-build.properties
 /[Aa]ssetBundles*
 
 /[Aa]ssets/Plugins*
+
+/[Aa]ssets/TextMesh*
