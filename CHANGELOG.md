@@ -1,3 +1,7 @@
+# Version 0.14.6
+* Fixed BlueprintGUI not being initialised properly
+* Fixed tooltips
+
 # Version 0.14.5
 * Fixed PlanBuild internal Text components
 
