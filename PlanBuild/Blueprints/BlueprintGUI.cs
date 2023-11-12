@@ -509,6 +509,10 @@ namespace PlanBuild.Blueprints
                 try
                 {
                     LocalTab.TabElements.Register(Window.transform, "Local", "$gui_bpmarket_localblueprints");
+                    if (LocalTab.TabElements.TabContent.transform == null)
+                    {
+                        Jotunn.Logger.LogFatal("Tabcontent is null");
+                    }
                     LocalTab.ListDisplay.Register(LocalTab.TabElements.TabContent.transform, BlueprintLocation.Local);
                     LocalTab.DetailDisplay.Register(LocalTab.TabElements.TabContent.transform, BlueprintLocation.Local);
                     LocalTab.TabElements.TabButton.onClick.AddListener(() =>
@@ -597,7 +601,7 @@ namespace PlanBuild.Blueprints
     {
         public Transform TabTransform { get; set; }
         public Button TabButton { get; set; }
-        public Text TabText { get; set; }
+        public TMP_Text TabText { get; set; }
         public GameObject TabContent { get; set; }
 
         public void Register(Transform window, string tabName, string tabText)
@@ -609,7 +613,7 @@ namespace PlanBuild.Blueprints
                 button.name = tabName;
                 TabTransform = button.transform;
                 TabButton = button.GetComponent<Button>();
-                TabText = button.transform.Find("Text").GetComponent<Text>();
+                TabText = button.transform.GetComponentInChildren<TMP_Text>();
                 TabContent = UnityEngine.Object.Instantiate(window.Find("TabContent").gameObject, window.Find("Content"));
                 TabContent.name = tabName;
             }
