@@ -1,3 +1,6 @@
+# Version 0.14.7
+* Disabled Pieces are now loaded as disabled PlanPieces, allowing seasonal items to be blueprinted
+
 # Version 0.14.6
 * Fixed BlueprintGUI not being initialised properly
 * Fixed tooltips

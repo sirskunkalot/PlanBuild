@@ -29,6 +29,7 @@ namespace PlanBuild.Plans
             Piece.m_canBeRemoved = true;
             Piece.m_randomTarget = false;
             Piece.m_primaryTarget = false;
+            Piece.m_enabled = OriginalPiece.m_enabled;
 
             Piece.m_category = OriginalPiece.m_category == Piece.PieceCategory.Max ? Piece.PieceCategory.Misc : OriginalPiece.m_category;
             Piece.m_groundOnly = OriginalPiece.m_groundOnly;

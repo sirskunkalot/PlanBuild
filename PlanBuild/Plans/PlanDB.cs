@@ -266,8 +266,7 @@ namespace PlanBuild.Plans
 
         public bool CanCreatePlan(Piece piece)
         {
-            return piece.m_enabled
-                   && piece.GetComponent<Plant>() == null
+            return piece.GetComponent<Plant>() == null
                    && piece.GetComponent<TerrainOp>() == null
                    && piece.GetComponent<TerrainModifier>() == null
                    && piece.GetComponent<Ship>() == null
