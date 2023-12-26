@@ -107,8 +107,8 @@ namespace PlanBuild.Plans
                 }
             }
 
-            // Update plan pieces to match original pieces
-            // Add/remove plan pieces that have been added/removed
+            // Handle which plan pieces are shown in the PlanHammer piece table and update
+            // existing plan pieces to reflect changes in original pieces
             foreach (string pieceName in PlanPiecePrefabs.Keys)
             {
                 try
@@ -118,6 +118,8 @@ namespace PlanBuild.Plans
                     {
                         planPiece.Piece.m_enabled = orgPiece.m_enabled;
                         planPiece.Piece.m_icon = orgPiece.m_icon;
+                        // update Icon for MVBP and WackyDB, or other mods
+                        // that create icons when adding/creating pieces at runtime
 
                         if (orgPiece.m_enabled)
                         {
