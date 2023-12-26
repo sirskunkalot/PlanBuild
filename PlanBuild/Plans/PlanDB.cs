@@ -22,6 +22,16 @@ namespace PlanBuild.Plans
             }
         }
 
+        /// <summary>
+        ///     Checks if a piece table is valid for creating plan pieces from
+        /// </summary>
+        /// <param name="pieceTable"></param>
+        /// <returns></returns>
+        private static bool IsValidPieceTable(PieceTable pieceTable)
+        {
+            return pieceTable && !pieceTable.name.Equals(PlanHammerPrefab.PieceTableName) && !pieceTable.name.Equals(BlueprintAssets.PieceTableName);
+        }
+
         public readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
         public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
 
