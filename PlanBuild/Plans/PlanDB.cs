@@ -45,28 +45,31 @@ namespace PlanBuild.Plans
         {
             Logger.LogDebug("Scanning PieceTables for Pieces");
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
-            foreach (GameObject item in ObjectDB.instance.m_items)
+
+            var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(x => IsValidPieceTable(x));
+            var piecesDict = new Dictionary<string, Piece>(); // cache valid pieces names from PieceTables
+
+            // create plan pieces
+            foreach (PieceTable pieceTable in pieceTables)
             {
-                PieceTable pieceTable = item.GetComponent<ItemDrop>()?.m_itemData?.m_shared?.m_buildPieces;
-                if (pieceTable == null ||
-                    pieceTable.name.Equals(PlanHammerPrefab.PieceTableName) ||
-                    pieceTable.name.Equals(BlueprintAssets.PieceTableName))
-                {
-                    continue;
-                }
                 foreach (GameObject piecePrefab in pieceTable.m_pieces)
                 {
                     if (!piecePrefab)
                     {
-                        Logger.LogWarning($"Invalid prefab in {item.name} PieceTable");
+                        Logger.LogWarning($"Invalid prefab in {pieceTable.name} PieceTable");
                         continue;
                     }
                     Piece piece = piecePrefab.GetComponent<Piece>();
                     if (!piece)
                     {
-                        Logger.LogWarning($"Recipe in {item.name} has no Piece?! {piecePrefab.name}");
+                        Logger.LogWarning($"Prefab {piecePrefab.name} has no Piece?!");
                         continue;
                     }
+                    else
+                    {
+                        piecesDict.Add(piece.name, piece);
+                    }
+
                     try
                     {
                         if (piece.name == "piece_repair")
@@ -86,10 +89,8 @@ namespace PlanBuild.Plans
                             continue;
                         }
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
-
-                        PlanToOriginalMap.Add(planPiece.PiecePrefab.name, planPiece.OriginalPiece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
-                        PieceManager.Instance.AddPiece(planPiece);
+                        PlanToOriginalMap.Add(planPiece.PiecePrefab.name, planPiece.OriginalPiece);
                         PlanPiecePrefabs.Add(piece.name, planPiece);
 
                         if (!NamePiecePrefabMapping.TryGetValue(piece.m_name, out List<Piece> nameList))
@@ -98,11 +99,6 @@ namespace PlanBuild.Plans
                             NamePiecePrefabMapping.Add(piece.m_name, nameList);
                         }
                         nameList.Add(piece);
-
-                        if (!planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
-                        {
-                            planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
-                        }
                     }
                     catch (Exception e)
                     {
@@ -110,6 +106,41 @@ namespace PlanBuild.Plans
                     }
                 }
             }
+
+            // Update plan pieces to match original pieces
+            // Add/remove plan pieces that have been added/removed
+            foreach (string pieceName in PlanPiecePrefabs.Keys)
+            {
+                try
+                {
+                    var planPiece = PlanPiecePrefabs[pieceName];
+                    if (piecesDict.TryGetValue(pieceName, out Piece orgPiece))
+                    {
+                        planPiece.Piece.m_enabled = orgPiece.m_enabled;
+                        planPiece.Piece.m_icon = orgPiece.m_icon;
+
+                        if (orgPiece.m_enabled)
+                        {
+                            PieceManager.Instance.AddPiece(planPiece);
+                            PieceManager.Instance.RegisterPieceInPieceTable(
+                                planPiece.PiecePrefab,
+                                planPiece.PieceTable,
+                                planPiece.Category
+                            );
+                            continue;
+                        }
+                    }
+
+                    planPiece.Piece.m_enabled = false;
+                    planPieceTable.m_pieces.Remove(planPiece.PiecePrefab);
+                    PieceManager.Instance.RemovePiece(planPiece);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogWarning($"Error while updating plan of {pieceName}: {e}");
+                }
+            }
+
             WarnDuplicatesWithDifferentResources();
         }
 
