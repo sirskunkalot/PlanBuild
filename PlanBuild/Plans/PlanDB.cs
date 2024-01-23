@@ -134,8 +134,11 @@ namespace PlanBuild.Plans
                     }
 
                     planPiece.Piece.m_enabled = false;
-                    planPieceTable.m_pieces.Remove(planPiece.PiecePrefab);
-                    PieceManager.Instance.RemovePiece(planPiece);
+                    if (planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
+                    {
+                        planPieceTable.m_pieces.Remove(planPiece.PiecePrefab);
+                        PieceManager.Instance.RemovePiece(planPiece);
+                    }
                 }
                 catch (Exception e)
                 {
