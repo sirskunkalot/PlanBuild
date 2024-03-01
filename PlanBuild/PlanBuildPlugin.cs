@@ -30,12 +30,12 @@ namespace PlanBuild
         public const string PluginVersion = "0.14.7";
 
         public static PlanBuildPlugin Instance;
-        
+
         public void Awake()
         {
             Instance = this;
             Assembly assembly = typeof(PlanBuildPlugin).Assembly;
-            
+
             // Init config
             PlanBuild.Config.Init();
 
@@ -59,7 +59,7 @@ namespace PlanBuild
             // Harmony patching
             Patches.Apply();
         }
-        
+
         public void Update()
         {
             // No keys without ZInput
@@ -75,7 +75,7 @@ namespace PlanBuild
             }
 
             // BP Market GUI is OK in the main menu
-            if (BlueprintGUI.IsAvailable() && 
+            if (BlueprintGUI.IsAvailable() &&
                 !SelectionSaveGUI.IsVisible() && !TerrainModGUI.IsVisible() && !SelectionGUI.IsVisible() &&
                 (PlanBuild.Config.AllowMarketHotkey.Value || SynchronizationManager.Instance.PlayerIsAdmin) &&
                 ZInput.GetButtonDown(PlanBuild.Config.MarketHotkeyButton.Name))
@@ -89,6 +89,15 @@ namespace PlanBuild
                 BlueprintGUI.Instance.Toggle(shutWindow: true);
                 ZInput.ResetButtonStatus("Use");
             }
+        }
+
+        /// <summary>
+        ///     Public API method so mods that add/remove pieces in-game can 
+        ///     trigger PlanBuild to update the PlanHammer piece table. 
+        /// </summary>
+        public void UpdateScanPieces()
+        {
+            PlanDB.Instance.ScanPieceTables();
         }
     }
 }
