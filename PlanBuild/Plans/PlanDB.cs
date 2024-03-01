@@ -46,7 +46,7 @@ namespace PlanBuild.Plans
             Logger.LogDebug("Scanning PieceTables for Pieces");
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
 
-            var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(x => IsValidPieceTable(x));
+            var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(IsValidPieceTable);
             var piecesDict = new Dictionary<string, Piece>(); // cache valid pieces names from PieceTables
 
             // create plan pieces
@@ -65,10 +65,7 @@ namespace PlanBuild.Plans
                         Logger.LogWarning($"Prefab {piecePrefab.name} has no Piece?!");
                         continue;
                     }
-                    else
-                    {
-                        piecesDict.Add(piece.name, piece);
-                    }
+                    piecesDict.Add(piece.name, piece);
 
                     try
                     {

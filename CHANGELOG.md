@@ -1,3 +1,6 @@
+# Version 0.14.8
+* Public API to re-scan pieces and create/update plans of the pieces, called via PlanBuildPlugin.UpdatescanPieces() (thanks searica)
+
 # Version 0.14.7
 * Disabled Pieces are now loaded as disabled PlanPieces, allowing seasonal items to be blueprinted
 
