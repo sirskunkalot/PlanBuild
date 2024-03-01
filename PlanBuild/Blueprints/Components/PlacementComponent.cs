@@ -79,7 +79,19 @@ namespace PlanBuild.Blueprints.Components
                 Jotunn.Logger.LogWarning($"Exception caught while placing {piece.gameObject.name}: {ex}\n{ex.StackTrace}");
             }
         }
-
+        
+        private static readonly int HashFields = "HasFields".GetStableHashCode();
+        private static readonly int HashFieldsDestructible = "HasFieldsDestructible".GetStableHashCode();
+        private static readonly int HashFieldsMineRock5 = "HasFieldsMineRock5".GetStableHashCode();
+        private static readonly int HashFieldsTreeBase = "HasFieldsTreeBase".GetStableHashCode();
+        private static readonly int HashFieldsTreeLog = "HasFieldsTreeLog".GetStableHashCode();
+        private static readonly int HashToolTierDestructible = "Destructible.m_minToolTier".GetStableHashCode();
+        private static readonly int HashToolTierMineRock5 = "MineRock5.m_minToolTier".GetStableHashCode();
+        private static readonly int HashToolTierTreeBase = "TreeBase.m_minToolTier".GetStableHashCode();
+        private static readonly int HashToolTierTreeLog = "TreeLog.m_minToolTier".GetStableHashCode();
+        private static readonly int HashFieldsWearNTear = "HasFieldsWearNTear".GetStableHashCode();
+        private static readonly int HashMaxHealth = "WearNTear.m_health".GetStableHashCode();
+        
         private void PlaceBlueprint(Player player, Piece piece)
         {
             string id = piece.gameObject.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
@@ -319,10 +331,41 @@ namespace PlanBuild.Blueprints.Components
                 }
                 if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
                 {
-                    if (zNetView.GetComponent<WearNTear>() || zNetView.GetComponent<TreeBase>() ||
-                        zNetView.GetComponent<TreeLog>() || zNetView.GetComponent<Destructible>())
+                    if (zNetView.GetComponent<WearNTear>())
                     {
-                        zNetView.m_zdo.Set("health", float.MaxValue);
+                        zNetView.m_zdo.Set(ZDOVars.s_health, -1f);
+                        zNetView.m_zdo.Set(HashFields, true);
+                        zNetView.m_zdo.Set(HashFieldsWearNTear, true);
+                        zNetView.m_zdo.Set(HashMaxHealth, -1f);
+                        zNetView.LoadFields();
+                    }
+                    if (zNetView.GetComponent<MineRock5>())
+                    {
+                        zNetView.m_zdo.Set(HashFields, true);
+                        zNetView.m_zdo.Set(HashFieldsMineRock5, true);
+                        zNetView.m_zdo.Set(HashToolTierMineRock5, int.MaxValue / 2);
+                        zNetView.LoadFields();
+                    }
+                    if (zNetView.GetComponent<TreeBase>())
+                    {
+                        zNetView.m_zdo.Set(HashFields, true);
+                        zNetView.m_zdo.Set(HashFieldsTreeBase, true);
+                        zNetView.m_zdo.Set(HashToolTierTreeBase, int.MaxValue / 2);
+                        zNetView.LoadFields();
+                    }
+                    if (zNetView.GetComponent<TreeLog>())
+                    {
+                        zNetView.m_zdo.Set(HashFields, true);
+                        zNetView.m_zdo.Set(HashFieldsTreeLog, true);
+                        zNetView.m_zdo.Set(HashToolTierTreeLog, int.MaxValue / 2);
+                        zNetView.LoadFields();
+                    }
+                    if (zNetView.GetComponent<Destructible>())
+                    {
+                        zNetView.m_zdo.Set(HashFields, true);
+                        zNetView.m_zdo.Set(HashFieldsDestructible, true);
+                        zNetView.m_zdo.Set(HashToolTierDestructible, int.MaxValue / 2);
+                        zNetView.LoadFields();
                     }
                 }
             }
