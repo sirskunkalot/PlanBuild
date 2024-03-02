@@ -73,11 +73,6 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
-                        if (currentPieces.ContainsKey(piece.name))
-                        {
-                            Logger.LogWarning($"Prefab {piece.name} is not unique?!");
-                            continue;
-                        }
                         if (PlanPiecePrefabs.ContainsKey(piece.name))
                         {
                             continue;
