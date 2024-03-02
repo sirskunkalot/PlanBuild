@@ -65,14 +65,22 @@ namespace PlanBuild.Plans
                         Logger.LogWarning($"Prefab {piecePrefab.name} has no Piece?!");
                         continue;
                     }
-                    piecesDict.Add(piece.name, piece);
+                    if (piece.name == "piece_repair")
+                    {
+                        continue;
+                    }
+                    if (piecesDict.ContainsKey(piece.name))
+                    {
+                        Logger.LogWarning($"Prefab {piece.name} is not unique?!")
+                    }
+                    else
+                    {
+                        piecesDict.Add(piece.name, piece);
+                    }
+
 
                     try
                     {
-                        if (piece.name == "piece_repair")
-                        {
-                            continue;
-                        }
                         if (PlanPiecePrefabs.ContainsKey(piece.name))
                         {
                             continue;
