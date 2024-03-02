@@ -71,7 +71,8 @@ namespace PlanBuild.Plans
                     }
                     if (piecesDict.ContainsKey(piece.name))
                     {
-                        Logger.LogWarning($"Prefab {piece.name} is not unique?!")
+                        Logger.LogWarning($"Prefab {piece.name} is not unique?!");
+                        continue;
                     }
                     else
                     {
