@@ -47,7 +47,7 @@ namespace PlanBuild.Plans
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
 
             var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(IsValidPieceTable);
-            var piecesDict = new Dictionary<string, Piece>(); // cache valid pieces names from PieceTables
+            var currentPieces = new Dictionary<string, Piece>(); // cache valid pieces names from PieceTables
 
             // create plan pieces
             foreach (PieceTable pieceTable in pieceTables)
@@ -59,29 +59,25 @@ namespace PlanBuild.Plans
                         Logger.LogWarning($"Invalid prefab in {pieceTable.name} PieceTable");
                         continue;
                     }
+
                     Piece piece = piecePrefab.GetComponent<Piece>();
                     if (!piece)
                     {
                         Logger.LogWarning($"Prefab {piecePrefab.name} has no Piece?!");
                         continue;
                     }
-                    if (piece.name == "piece_repair")
-                    {
-                        continue;
-                    }
-                    if (piecesDict.ContainsKey(piece.name))
-                    {
-                        Logger.LogWarning($"Prefab {piece.name} is not unique?!");
-                        continue;
-                    }
-                    else
-                    {
-                        piecesDict.Add(piece.name, piece);
-                    }
-
 
                     try
                     {
+                        if (piece.name == "piece_repair")
+                        {
+                            continue;
+                        }
+                        if (currentPieces.ContainsKey(piece.name))
+                        {
+                            Logger.LogWarning($"Prefab {piece.name} is not unique?!");
+                            continue;
+                        }
                         if (PlanPiecePrefabs.ContainsKey(piece.name))
                         {
                             continue;
@@ -94,6 +90,8 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
+                        currentPieces.Add(piece.name, piece);
+
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
                         PlanToOriginalMap.Add(planPiece.PiecePrefab.name, planPiece.OriginalPiece);
@@ -120,7 +118,7 @@ namespace PlanBuild.Plans
                 try
                 {
                     var planPiece = PlanPiecePrefabs[pieceName];
-                    if (piecesDict.TryGetValue(pieceName, out Piece orgPiece))
+                    if (currentPieces.TryGetValue(pieceName, out Piece orgPiece))
                     {
                         planPiece.Piece.m_enabled = orgPiece.m_enabled;
                         planPiece.Piece.m_icon = orgPiece.m_icon;
