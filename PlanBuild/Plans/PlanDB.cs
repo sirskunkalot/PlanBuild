@@ -47,6 +47,7 @@ namespace PlanBuild.Plans
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
 
             var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(IsValidPieceTable);
+            var currentPieces = new HashSet<string>();
 
             // create or update plan pieces
             foreach (PieceTable pieceTable in pieceTables)
@@ -66,12 +67,17 @@ namespace PlanBuild.Plans
                         continue;
                     }
 
+                    if (piece.name == "piece_repair")
+                    {
+                        continue;
+                    }
+
+                    // Track which pieces are currently in a piece table as sometimes
+                    // a Vanilla prefab can have a piece but not be in a piecee table
+                    currentPieces.Add(piece.name);
+
                     try
                     {
-                        if (piece.name == "piece_repair")
-                        {
-                            continue;
-                        }
                         if (OriginalToPlanMap.TryGetValue(piece.name, out PlanPiecePrefab existingPlan))
                         {
                             existingPlan.Piece.m_enabled = piece.m_enabled;
@@ -109,21 +115,27 @@ namespace PlanBuild.Plans
 
             // (re)create plan table
             planPieceTable.m_pieces.Clear();
-            foreach (var planPiece in OriginalToPlanMap.Values)
+            foreach (var planPieceName in OriginalToPlanMap.Keys)
             {
                 try
                 {
-                    if (planPiece.Piece.m_enabled)
+                    // do not re-add pieces that are not in a piece table
+                    if (!currentPieces.Contains(planPieceName))
+                    {
+                        continue;
+                    }
+
+                    if (OriginalToPlanMap.TryGetValue(planPieceName, out PlanPiecePrefab planPiece))
                     {
                         planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogWarning($"Error while adding plan {planPiece.PiecePrefab.name} to table: {e}");
+                    Logger.LogWarning($"Error while adding plan {planPieceName} to table: {e}");
                 }
             }
-            
+
             WarnDuplicatesWithDifferentResources();
         }
 
