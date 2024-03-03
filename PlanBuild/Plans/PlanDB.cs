@@ -33,7 +33,7 @@ namespace PlanBuild.Plans
         }
 
         public readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();
-        public readonly Dictionary<string, PlanPiecePrefab> PlanPiecePrefabs = new Dictionary<string, PlanPiecePrefab>();
+        public readonly Dictionary<string, PlanPiecePrefab> OriginalToPlanMap = new Dictionary<string, PlanPiecePrefab>();
 
         /// <summary>
         ///     Different pieces can have the same m_name (also across different mods), but m_knownRecipes is a HashSet, so can not handle duplicates well
@@ -47,9 +47,8 @@ namespace PlanBuild.Plans
             PieceTable planPieceTable = PieceManager.Instance.GetPieceTable(PlanHammerPrefab.PieceTableName);
 
             var pieceTables = Resources.FindObjectsOfTypeAll<PieceTable>().Where(IsValidPieceTable);
-            var currentPieces = new Dictionary<string, Piece>(); // cache valid pieces names from PieceTables
 
-            // create plan pieces
+            // create or update plan pieces
             foreach (PieceTable pieceTable in pieceTables)
             {
                 foreach (GameObject piecePrefab in pieceTable.m_pieces)
@@ -73,6 +72,12 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
+                        if (OriginalToPlanMap.TryGetValue(piece.name, out PlanPiecePrefab existingPlan))
+                        {
+                            existingPlan.Piece.m_enabled = piece.m_enabled;
+                            existingPlan.Piece.m_icon = piece.m_icon;
+                            continue;
+                        }
                         if (!CanCreatePlan(piece))
                         {
                             continue;
@@ -82,17 +87,11 @@ namespace PlanBuild.Plans
                             continue;
                         }
 
-                        currentPieces.Add(piece.name, piece);
-
-                        if (PlanPiecePrefabs.ContainsKey(piece.name))
-                        {
-                            continue;
-                        }
-
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
+                        PieceManager.Instance.AddPiece(planPiece);
                         PlanToOriginalMap.Add(planPiece.PiecePrefab.name, planPiece.OriginalPiece);
-                        PlanPiecePrefabs.Add(piece.name, planPiece);
+                        OriginalToPlanMap.Add(piece.name, planPiece);
 
                         if (!NamePiecePrefabMapping.TryGetValue(piece.m_name, out List<Piece> nameList))
                         {
@@ -108,45 +107,23 @@ namespace PlanBuild.Plans
                 }
             }
 
-            // Handle which plan pieces are shown in the PlanHammer piece table and update
-            // existing plan pieces to reflect changes in original pieces
-            foreach (string pieceName in PlanPiecePrefabs.Keys)
+            // (re)create plan table
+            planPieceTable.m_pieces.Clear();
+            foreach (var planPiece in OriginalToPlanMap.Values)
             {
                 try
                 {
-                    var planPiece = PlanPiecePrefabs[pieceName];
-                    if (currentPieces.TryGetValue(pieceName, out Piece orgPiece))
+                    if (planPiece.Piece.m_enabled)
                     {
-                        planPiece.Piece.m_enabled = orgPiece.m_enabled;
-                        planPiece.Piece.m_icon = orgPiece.m_icon;
-                        // update Icon for MVBP and WackyDB, or other mods
-                        // that create icons when adding/creating pieces at runtime
-
-                        if (orgPiece.m_enabled)
-                        {
-                            PieceManager.Instance.AddPiece(planPiece);
-                            PieceManager.Instance.RegisterPieceInPieceTable(
-                                planPiece.PiecePrefab,
-                                planPiece.PieceTable,
-                                planPiece.Category
-                            );
-                            continue;
-                        }
-                    }
-
-                    planPiece.Piece.m_enabled = false;
-                    if (planPieceTable.m_pieces.Contains(planPiece.PiecePrefab))
-                    {
-                        planPieceTable.m_pieces.Remove(planPiece.PiecePrefab);
-                        PieceManager.Instance.RemovePiece(planPiece);
+                        planPieceTable.m_pieces.Add(planPiece.PiecePrefab);
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogWarning($"Error while updating plan of {pieceName}: {e}");
+                    Logger.LogWarning($"Error while adding plan {planPiece.PiecePrefab.name} to table: {e}");
                 }
             }
-
+            
             WarnDuplicatesWithDifferentResources();
         }
 
@@ -237,7 +214,7 @@ namespace PlanBuild.Plans
 
         internal IEnumerable<PlanPiecePrefab> GetPlanPiecePrefabs()
         {
-            return PlanPiecePrefabs.Values;
+            return OriginalToPlanMap.Values;
         }
 
         private bool EnsurePrefabRegistered(Piece piece)
@@ -308,7 +285,7 @@ namespace PlanBuild.Plans
             {
                 name = name.Substring(0, index);
             }
-            return PlanPiecePrefabs.TryGetValue(name, out planPiecePrefab);
+            return OriginalToPlanMap.TryGetValue(name, out planPiecePrefab);
         }
 
         public bool CanCreatePlan(Piece piece)
