@@ -73,8 +73,16 @@ namespace PlanBuild.Plans
                     }
 
                     // Track which pieces are currently in a piece table as sometimes
-                    // a Vanilla prefab can have a piece but not be in a piecee table
-                    currentPieces.Add(piece.name);
+                    // a Vanilla prefab can have a piece but not be in a piece table
+                    if (currentPieces.Contains(piece.name))
+                    {
+                        Logger.LogDebug($"Multiple prefabs with name: {piece.name}");
+                    }
+                    else
+                    {
+                        currentPieces.Add(piece.name);
+                    }
+
 
                     try
                     {
