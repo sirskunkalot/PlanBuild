@@ -73,10 +73,6 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
-                        if (PlanPiecePrefabs.ContainsKey(piece.name))
-                        {
-                            continue;
-                        }
                         if (!CanCreatePlan(piece))
                         {
                             continue;
@@ -85,7 +81,13 @@ namespace PlanBuild.Plans
                         {
                             continue;
                         }
+
                         currentPieces.Add(piece.name, piece);
+
+                        if (PlanPiecePrefabs.ContainsKey(piece.name))
+                        {
+                            continue;
+                        }
 
                         PlanPiecePrefab planPiece = new PlanPiecePrefab(piece);
                         PrefabManager.Instance.RegisterToZNetScene(planPiece.PiecePrefab);
