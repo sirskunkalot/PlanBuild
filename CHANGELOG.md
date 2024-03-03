@@ -1,3 +1,6 @@
+# Version 0.14.9
+* Fixed re-scan of piece tables
+
 # Version 0.14.8
 * Public API to re-scan pieces and create/update plans of the pieces, called via PlanBuildPlugin.UpdatescanPieces() (thx searica)
 * Implemented the new style of unlimited health like in Infinity Hammer (thx AlanDrake)
