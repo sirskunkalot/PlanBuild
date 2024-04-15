@@ -1,7 +1,8 @@
-# Version 0.14.9
+# Version 0.15.0
+* Compatible with Valheim v0.217.46
 * Fixed re-scan of piece tables (thx searica)
 * Fixed Plan Shader 
-* Excluded thumbnails while getting the server BP list to preserve bandwidth
+* Excluded thumbnails while moving blueprints to and from the server to preserve bandwidth
 
 # Version 0.14.8
 * Public API to re-scan pieces and create/update plans of the pieces, called via PlanBuildPlugin.UpdatescanPieces() (thx searica)

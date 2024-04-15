@@ -27,7 +27,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.14.9";
+        public const string PluginVersion = "0.15.0";
 
         public static PlanBuildPlugin Instance;
 
@@ -52,10 +52,7 @@ namespace PlanBuild
             PlanHammerPrefab.Create(planbuildBundle);
             planbuildBundle.Unload(false);
             PlanManager.Init();
-
-            // Init Shader
-            //ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");
-
+            
             // Harmony patching
             Patches.Apply();
         }
