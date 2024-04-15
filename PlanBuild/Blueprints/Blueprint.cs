@@ -406,7 +406,7 @@ namespace PlanBuild.Blueprints
         ///     Creates a compressed BLOB of this blueprint instance as <see cref="Format.Blueprint"/>.
         /// </summary>
         /// <returns>A byte array representation of this blueprint including the thumbnail</returns>
-        public byte[] ToBlob()
+        public byte[] ToBlob(bool includeThumbnail = false)
         {
             string[] lines = ToArray();
             if (lines == null || lines.Length == 0)
@@ -423,7 +423,7 @@ namespace PlanBuild.Blueprints
                     writer.Write(line);
                 }
 
-                if (Thumbnail == null)
+                if (!includeThumbnail || Thumbnail == null)
                 {
                     writer.Write(0);
                 }

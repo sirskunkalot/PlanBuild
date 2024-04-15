@@ -197,7 +197,7 @@ namespace PlanBuild.Blueprints
             Logger.LogMessage($"Saving temporary blueprint {id}");
 
             var newid = Blueprint.CreateIDString(name);
-            var bp = Blueprint.FromBlob(newid, oldbp.ToBlob());
+            var bp = Blueprint.FromBlob(newid, oldbp.ToBlob(true));
             bp.Name = name;
             bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Category = string.IsNullOrEmpty(category) ? BlueprintAssets.CategoryBlueprints : category;
