@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -18,7 +19,14 @@ namespace PlanBuild.Utils
         private static readonly Dictionary<string, Material> SupportedMaterialDict = new Dictionary<string, Material>();
         private static readonly Dictionary<string, Material> UnsupportedMaterialDict = new Dictionary<string, Material>();
 
-        public static Shader PlanShader;
+        private static Shader _planShader;
+        public static Shader PlanShader
+        {
+            get
+            {
+                return _planShader ??= PrefabManager.Cache.GetPrefab<Shader>("Lux Lit Particles/ Bumped");;
+            }
+        }
 
         public static void ClearCache()
         {

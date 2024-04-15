@@ -1,5 +1,6 @@
 # Version 0.14.9
-* Fixed re-scan of piece tables
+* Fixed re-scan of piece tables (thx searica)
+* Fixed Plan Shader 
 
 # Version 0.14.8
 * Public API to re-scan pieces and create/update plans of the pieces, called via PlanBuildPlugin.UpdatescanPieces() (thx searica)

@@ -54,7 +54,7 @@ namespace PlanBuild
             PlanManager.Init();
 
             // Init Shader
-            ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");
+            //ShaderHelper.PlanShader = Shader.Find("Lux Lit Particles/ Bumped");
 
             // Harmony patching
             Patches.Apply();
