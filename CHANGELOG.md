@@ -1,6 +1,7 @@
 # Version 0.14.9
 * Fixed re-scan of piece tables (thx searica)
 * Fixed Plan Shader 
+* Excluded thumbnails while getting the server BP list to preserve bandwidth
 
 # Version 0.14.8
 * Public API to re-scan pieces and create/update plans of the pieces, called via PlanBuildPlugin.UpdatescanPieces() (thx searica)
