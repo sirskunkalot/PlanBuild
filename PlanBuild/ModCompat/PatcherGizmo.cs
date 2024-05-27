@@ -8,41 +8,47 @@ namespace PlanBuild.ModCompat
 {
     internal class PatcherGizmo
     {
-        [HarmonyPatch(typeof(Gizmo.Patches.PlayerPatch), "UpdatePlacementPostfix")]
+        [HarmonyPatch(typeof(ComfyGizmo.Patches.PlayerPatch), "UpdatePlacementPostfix")]
         [HarmonyPrefix]
         private static bool ComfyGizmo_UpdatePlacementPostfix_Prefix()
         {
             if (!(Player.m_localPlayer && Player.m_localPlayer.m_buildPieces&&
-                  Player.m_localPlayer.m_placementGhost && Gizmo.ComfyGizmo.GizmoRoot))
+                  Player.m_localPlayer.m_placementGhost && ComfyGizmo.Gizmos._gizmoInstances.Count > 0))
             {
                 return true;
             }
-
+            
             if (Player.m_localPlayer.m_placementGhost.TryGetComponent<ToolComponentBase>(out var tool) &&
                 tool.SuppressGizmo)
             {
-                Gizmo.ComfyGizmo.GizmoRoot.gameObject.SetActive(false);
+                foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
+                {
+                    gizmoInstance.Hide();
+                }
                 return false;
             }
 
             if (Player.m_localPlayer.m_buildPieces.name.StartsWith(PlanHammerPrefab.PieceTableName, StringComparison.Ordinal) &&
                 Player.m_localPlayer.m_placementGhost.name.StartsWith(PlanHammerPrefab.PieceDeletePlansName, StringComparison.Ordinal))
             {
-                Gizmo.ComfyGizmo.GizmoRoot.gameObject.SetActive(false);
+                foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
+                {
+                    gizmoInstance.Hide();
+                }
                 return false;
             }
 
             return true;
         }
 
-        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "Rotate")]
+        /*[HarmonyPatch(typeof(ComfyGizmo.ComfyGizmo), "Rotate")]
         [HarmonyPrefix]
         private static bool ComfyGizmo_Rotate_Prefix()
         {
             return CheckPlanBuildTool();
         }
 
-        [HarmonyPatch(typeof(Gizmo.ComfyGizmo), "RotateLocalFrame")]
+        [HarmonyPatch(typeof(ComfyGizmo.ComfyGizmo), "RotateLocalFrame")]
         [HarmonyPrefix]
         private static bool ComfyGizmo_RotateLocalFrame_Prefix()
         {
@@ -60,6 +66,6 @@ namespace PlanBuild.ModCompat
                 return false;
             }
             return true;
-        }
+        }*/
     }
 }
