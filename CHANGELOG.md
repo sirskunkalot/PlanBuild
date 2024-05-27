@@ -1,3 +1,8 @@
+# Version 0.16.0
+* Compatible with Valheim v0.218.15
+* Fixed unsupported PlanPieces disappearing
+* Fixed compatibility with ComfyGizmo
+
 # Version 0.15.0
 * Compatible with Valheim v0.217.46
 * Fixed re-scan of piece tables (thx searica)
