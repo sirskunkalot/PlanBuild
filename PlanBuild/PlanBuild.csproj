@@ -88,10 +88,6 @@
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_simplemeshcombine.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="MMHOOK_assembly_steamworks">
-      <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_steamworks.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="MMHOOK_assembly_sunshafts">
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\plugins\MMHOOK\MMHOOK_assembly_sunshafts.dll</HintPath>
       <Private>False</Private>
