@@ -217,7 +217,7 @@ namespace PlanBuild.Plans
             orig(self);
         }
         
-        private static void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear)
+        private static void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear, HitData hitData)
         {
             // Check if actually destoyed, not removed by middle clicking with Hammer
             if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
@@ -238,7 +238,7 @@ namespace PlanBuild.Plans
                     }
                 }
             }
-            orig(wearNTear);
+            orig(wearNTear, hitData);
         }
     }
 }
