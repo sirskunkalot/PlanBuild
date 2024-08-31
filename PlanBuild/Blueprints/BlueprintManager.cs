@@ -233,9 +233,9 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create blueprint pieces on player spawn
         /// </summary>
-        private static void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self)
+        private static void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self, bool spawnValkrie)
         {
-            orig(self);
+            orig(self, spawnValkrie);
             if (self == Player.m_localPlayer)
             {
                 RegisterKnownBlueprints();
