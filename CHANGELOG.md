@@ -1,3 +1,7 @@
+# Version 0.17.0
+* Compatible with Valheim v0.218.21
+* Fixed OnPlayer Spawn for blueprint loading.
+
 # Version 0.16.0
 * Compatible with Valheim v0.218.15
 * Fixed unsupported PlanPieces disappearing
