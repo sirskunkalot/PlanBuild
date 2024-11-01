@@ -77,7 +77,6 @@ namespace PlanBuild.Blueprints
             var size = maxDimension * dimensionMultiplier / 2f;
             Heightmap.FindHeightmap(position, size + 1f, heightMaps);
             var pos = position;
-            var ns = ZNetScene.instance;
             return heightMaps.Where(hmap => ZNetScene.InActiveArea(ZoneSystem.GetZone(hmap.transform.position), pos))
                 .Select(hmap => hmap.GetAndCreateTerrainCompiler());
         }
