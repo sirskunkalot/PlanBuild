@@ -34,7 +34,7 @@ namespace PlanBuild.Blueprints.Components
 
             On.Player.UpdatePlacement += Player_UpdatePlacement;
             On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
-            On.Player.PlacePiece += Player_PlacePiece;
+            On.Player.TryPlacePiece += Player_TryPlacePiece;
 
             On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
             On.Player.PieceRayTest += Player_PieceRayTest;
@@ -62,7 +62,7 @@ namespace PlanBuild.Blueprints.Components
 
             On.Player.UpdatePlacement -= Player_UpdatePlacement;
             On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
-            On.Player.PlacePiece -= Player_PlacePiece;
+            On.Player.TryPlacePiece -= Player_TryPlacePiece;
 
             On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
             On.Player.PieceRayTest -= Player_PieceRayTest;
@@ -283,7 +283,7 @@ namespace PlanBuild.Blueprints.Components
         ///     Incept placing of the meta pieces.
         ///     Cancels the real placement of the placeholder pieces.
         /// </summary>
-        private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+        private bool Player_TryPlacePiece(On.Player.orig_TryPlacePiece orig, Player self, Piece piece)
         {
             OnPlacePiece(self, piece);
             return false;
