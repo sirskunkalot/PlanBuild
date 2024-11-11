@@ -1,5 +1,5 @@
 # Version 0.18.0
-* Compatible with Valheim 0.219.14 (Bog Witch)
+* Compatible with Valheim 0.219.14 (Bog Witch) (ths sea212)
 
 # Version 0.17.0
 * Compatible with Valheim v0.218.21
