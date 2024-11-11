@@ -173,6 +173,7 @@ namespace PlanBuild.Plans
                 {
                     planPiece.m_wearNTear.Remove();
                 }
+                return false;
             }
         }
     }

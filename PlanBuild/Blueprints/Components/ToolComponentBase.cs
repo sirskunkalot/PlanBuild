@@ -286,6 +286,7 @@ namespace PlanBuild.Blueprints.Components
         private bool Player_TryPlacePiece(On.Player.orig_TryPlacePiece orig, Player self, Piece piece)
         {
             OnPlacePiece(self, piece);
+            return false;
         }
 
         public virtual void OnPlacePiece(Player self, Piece piece)
