@@ -149,13 +149,13 @@ namespace PlanBuild.Plans
             private void Start()
             {
                 On.Player.PieceRayTest += Player_PieceRayTest;
-                On.Player.PlacePiece += Player_PlacePiece;
+                On.Player.TryPlacePiece += Player_TryPlacePiece;
                 Logger.LogDebug($"{gameObject.name} started");
             }
             
             private void OnDestroy()
             {
-                On.Player.PlacePiece -= Player_PlacePiece;
+                On.Player.TryPlacePiece -= Player_TryPlacePiece;
                 On.Player.PieceRayTest -= Player_PieceRayTest;
                 Logger.LogDebug($"{gameObject.name} destroyed");
             }
@@ -167,7 +167,7 @@ namespace PlanBuild.Plans
                 return result;
             }
 
-            private bool Player_PlacePiece(On.Player.orig_PlacePiece orig, Player self, Piece piece)
+            private bool Player_TryPlacePiece(On.Player.orig_TryPlacePiece orig, Player self, Piece piece)
             {
                 if (LastHoveredPiece && LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
                 {
