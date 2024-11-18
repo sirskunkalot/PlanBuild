@@ -202,13 +202,13 @@ namespace PlanBuild.Plans
 
         internal void UpdateTextures()
         {
-            bool selected = Selection.Instance.Contains(m_piece);
-            if (selected)
+            bool highlighted = Selection.Instance.IsHighlighted(m_piece);
+            if (highlighted)
             {
                 Selection.Instance.Unhighlight(m_piece.GetZDOID().Value, gameObject);
             }
             ShaderHelper.UpdateTextures(gameObject, GetShaderState());
-            if (selected)
+            if (highlighted)
             {
                 Selection.Instance.Highlight(m_piece.GetZDOID().Value, gameObject);
             }
