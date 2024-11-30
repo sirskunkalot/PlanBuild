@@ -147,6 +147,8 @@ namespace PlanBuild.Plans
                 m_connectedPieces.Clear();
                 m_missingCraftingStations.Clear();
 
+                PlanPiece.IInventory inventory_wrapper = new PlanPiece.StandardInventory(m_inventory);
+
                 List<PlanPiece> planPieces = FindPlanPiecesInRange();
                 foreach (var planPiece in planPieces)
                 {
@@ -159,7 +161,7 @@ namespace PlanBuild.Plans
                     {
                         if (m_inventory.m_inventory.Count != 0)
                         {
-                            planPiece.AddAllMaterials(m_inventory);
+                            planPiece.AddAllMaterials(inventory_wrapper);
                         }
                         if (planPiece.HasAllResources())
                         {
