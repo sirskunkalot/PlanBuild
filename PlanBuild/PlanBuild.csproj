@@ -55,6 +55,11 @@
       <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="AzuCraftyBoxes">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\pub\AzuCraftyBoxes-publicized.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="ComfyGizmo">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\ComfyGizmo.dll</HintPath>
@@ -178,6 +183,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
+    <Compile Include="ModCompat\PatcherAzuCraftyBoxes.cs" />
     <Compile Include="ModCompat\PatcherValheimRaft.cs" />
     <Compile Include="ModCompat\PatcherGizmo.cs" />
     <Compile Include="Patches.cs" />
