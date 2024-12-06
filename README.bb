@@ -184,6 +184,7 @@ Fully compatible with:
 [list]
 [*][url=https://www.nexusmods.com/valheim/mods/226]Build Camera[/url]
 [*][url=https://www.nexusmods.com/valheim/mods/40]Craft from Containers[/url]
+[*][url=https://thunderstore.io/c/valheim/p/Azumatt/AzuCraftyBoxes/]AzuCraftyBoxes[/url]
 [*][url=https://www.nexusmods.com/valheim/mods/1136]ValheimRAFT[/url] (partial compat, blueprinting does not work)
 [*][url=https://github.com/redseiko/ValheimMods/releases/tag/ComfyGizmo-v1.3.0]ComfyGizmo[/url]
 [/list]

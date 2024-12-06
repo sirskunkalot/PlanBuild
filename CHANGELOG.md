@@ -1,3 +1,10 @@
+# Version 0.18.1
+* Fixed highlighting materials after equipping blueprint rune
+* Fixed unhighlighting material after deselecting it / unequipping blueprint rune
+* Fixed incorrect selection highlighting after (un)equpping Skuld Crystal
+* Fixed unintentional overwriting of original material data
+* Added support for AzuCraftyBoxes
+
 # Version 0.18.0
 * Compatible with Valheim 0.219.14 (Bog Witch) (ths sea212)
 

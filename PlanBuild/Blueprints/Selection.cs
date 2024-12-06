@@ -289,8 +289,6 @@ namespace PlanBuild.Blueprints
 #endif
                     PlanBuildPlugin.Instance.StopCoroutine(UnhighlightCoroutine);
                     UnhighlightCoroutine = null;
-                    //Selection is still highlighted
-                    yield break;
                 }
 #if DEBUG
                 Logger.LogInfo($"{Time.frameCount} Starting highlight coroutine");
@@ -298,10 +296,10 @@ namespace PlanBuild.Blueprints
                 int n = 0;
                 foreach (ZDOID zdoid in new List<ZDOID>(this))
                 {
-                    //Iterating over a copy of the list to avoid ConcurrentModificationEcveption
+                    // Iterating over a copy of the list to avoid ConcurrentModificationException
                     if (!SelectedZDOIDs.Contains(zdoid))
                     {
-                        //Piece was unselected while still highlighting
+                        // Piece was unselected while still highlighting
                         continue;
                     }
                     GameObject selected = BlueprintManager.GetGameObject(zdoid);
@@ -385,7 +383,7 @@ namespace PlanBuild.Blueprints
             }
             if (gameObject && gameObject.TryGetComponent(out WearNTear wearNTear))
             {
-                wearNTear.ResetHighlight();
+                Extensions.ResetHighlight(wearNTear);
             }
             HighlightedZDOIDs.Remove(zdoid);
         }

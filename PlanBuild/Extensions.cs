@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using static WearNTear;
 
@@ -11,12 +12,14 @@ namespace PlanBuild
             if (self.m_oldMaterials == null)
             {
                 self.m_oldMaterials = new List<OldMeshData>();
+
                 foreach (Renderer highlightRenderer in self.GetHighlightRenderers())
                 {
                     OldMeshData item = default;
                     item.m_materials = highlightRenderer.sharedMaterials;
                     item.m_color = new Color[item.m_materials.Length];
                     item.m_emissiveColor = new Color[item.m_materials.Length];
+
                     for (int i = 0; i < item.m_materials.Length; i++)
                     {
                         if (item.m_materials[i].HasProperty("_Color"))
@@ -28,27 +31,69 @@ namespace PlanBuild
                             item.m_emissiveColor[i] = item.m_materials[i].GetColor("_EmissionColor");
                         }
                     }
+
                     item.m_renderer = highlightRenderer;
                     self.m_oldMaterials.Add(item);
                 }
             }
-            foreach (OldMeshData oldMaterial in self.m_oldMaterials)
+
+            IEnumerable<OldMeshData> oldMaterialsWithRenderer =
+                self.m_oldMaterials.Where(mat => (bool)mat.m_renderer);
+
+            foreach (OldMeshData oldMaterial in oldMaterialsWithRenderer)
             {
-                if ((bool)oldMaterial.m_renderer)
+                Material[] materials = oldMaterial.m_renderer.materials;
+                var colored_materials = materials.Where(material =>
+                    material.HasProperty("_EmissionColor")
+                    && material.HasProperty("_Color")
+                );
+
+                foreach (Material material in colored_materials)
                 {
-                    Material[] materials = oldMaterial.m_renderer.materials;
-                    foreach (Material obj in materials)
-                    {
-                        obj.SetColor("_EmissionColor", color * 0.3f);
-                        obj.color = color;
-                    }
+                    material.SetColor("_EmissionColor", color * 0.3f);
+                    material.color = color;
                 }
             }
+
             self.CancelInvoke("ResetHighlight");
             if (highlightTime > 0)
             {
                 self.Invoke("ResetHighlight", highlightTime);
             }
+        }
+
+        public static void ResetHighlight(this WearNTear self)
+        {
+            if (self.m_oldMaterials == null)
+            {
+                self.ResetHighlight();
+                return;
+            }
+
+            IEnumerable<OldMeshData> oldMaterialsWithRenderer =
+                self.m_oldMaterials.Where(mat => (bool)mat.m_renderer);
+
+            foreach (OldMeshData oldMaterial in oldMaterialsWithRenderer)
+            {
+                Material[] materials = oldMaterial.m_renderer.materials;
+
+                var materials_with_color_info = materials.Select((mat, idx) => new
+                    {
+                        Material = mat,
+                        OriginalColor = oldMaterial.m_color[idx],
+                        OriginalEmissionColor = oldMaterial.m_emissiveColor[idx]
+                    }
+                );
+
+                foreach (var material in materials_with_color_info)
+                {
+                    material.Material.SetColor("_EmissionColor", material.OriginalEmissionColor);
+                    material.Material.color = material.OriginalColor;
+                }
+            }
+
+            self.m_oldMaterials = null;
+            self.ResetHighlight();
         }
 
         public static ZDOID? GetZDOID(this Piece piece)

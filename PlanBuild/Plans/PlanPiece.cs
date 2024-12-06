@@ -1,4 +1,4 @@
-﻿using HarmonyLib;
+using HarmonyLib;
 using PlanBuild.Blueprints;
 using PlanBuild.Utils;
 using System;
@@ -202,13 +202,13 @@ namespace PlanBuild.Plans
 
         internal void UpdateTextures()
         {
-            bool selected = Selection.Instance.Contains(m_piece);
-            if (selected)
+            bool highlighted = Selection.Instance.IsHighlighted(m_piece);
+            if (highlighted)
             {
                 Selection.Instance.Unhighlight(m_piece.GetZDOID().Value, gameObject);
             }
             ShaderHelper.UpdateTextures(gameObject, GetShaderState());
-            if (selected)
+            if (highlighted)
             {
                 Selection.Instance.Highlight(m_piece.GetZDOID().Value, gameObject);
             }
@@ -323,11 +323,12 @@ namespace PlanBuild.Plans
 
                 int requiredAmount = req.GetAmount(0);
 
-                int playerAmount = PlayerGetResourceCount(Player.m_localPlayer, req.m_resItem.m_itemData.m_shared.m_name);
+                string resourceName = GetResourceName(req);
+                bool someAvailable = GetInventories(Player.m_localPlayer).Exists(inv => inv.HaveItem(resourceName));;
                 int remaining = requiredAmount - currentAmount;
 
                 textResAmount.text = currentAmount + "/" + requiredAmount;
-                if (remaining > 0 && playerAmount == 0)
+                if (remaining > 0 && !someAvailable)
                 {
                     imageResIcon.color = Color.gray;
                     textResAmount.color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
@@ -341,29 +342,41 @@ namespace PlanBuild.Plans
             return true;
         }
 
-        //Hooks for Harmony patches
-        public List<Inventory> GetInventories(Humanoid player)
+        // Inventory-like interface to support mod inventories
+        public interface IInventory
         {
-            //List to support extended inventory from Equipment & Quick Slots
-            return new List<Inventory> { player.GetInventory() };
+            int CountItems(string resourceName);
+            void RemoveItem(string resourceName, int amount);
+            bool HaveItem(string resourceName);
+        }
+        // Interface wrapper for the vanilla Inventory
+        internal class StandardInventory : IInventory
+        {
+            private Inventory inventory;
+            public StandardInventory(Inventory inventory) {
+                this.inventory = inventory;
+            }
+            public int CountItems(string resourceName)
+            {
+                return inventory.CountItems(resourceName);
+            }
+
+            public bool HaveItem(string resourceName)
+            {
+                return inventory.HaveItem(resourceName);
+            }
+
+            public void RemoveItem(string resourceName, int amount)
+            {
+                inventory.RemoveItem(resourceName, amount);
+            }
         }
 
-        [Obsolete]
-        public bool PlayerHaveResource(Humanoid player, string resourceName)
+        // Hooks for Harmony patches
+        public List<IInventory> GetInventories(Humanoid player)
         {
-            return player.GetInventory().HaveItem(resourceName);
-        }
-
-        [Obsolete]
-        public int PlayerGetResourceCount(Humanoid player, string resourceName)
-        {
-            return player.GetInventory().CountItems(resourceName);
-        }
-
-        [Obsolete]
-        public void PlayerRemoveResource(Humanoid player, string resourceName, int amount)
-        {
-            player.GetInventory().RemoveItem(resourceName, amount);
+            // List to support extended inventory from other mods (see Patches.cs, and above)
+            return new List<IInventory> { new StandardInventory(player.GetInventory()) };
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
@@ -388,7 +401,7 @@ namespace PlanBuild.Plans
                 m_lastUseTime = Time.time;
 
                 bool added = false;
-                foreach (Inventory inventory in GetInventories(user))
+                foreach (IInventory inventory in GetInventories(user))
                 {
                     added |= AddAllMaterials(inventory);
                 }
@@ -396,19 +409,25 @@ namespace PlanBuild.Plans
                 return added;
             }
 
+            List<IInventory> inventories = GetInventories(user);
             foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
+                int currentCount = GetResourceCount(resourceName);
 
-                if (!PlayerHaveResource(user, resourceName))
+                if (currentCount >= req.m_amount)
                 {
                     continue;
                 }
-                int currentCount = GetResourceCount(resourceName);
-                if (currentCount < req.m_amount)
+
+                foreach (IInventory inventory in inventories)
                 {
+                    if (!inventory.HaveItem(resourceName))
+                    {
+                        continue;
+                    }
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
-                    user.GetInventory().RemoveItem(resourceName, 1);
+                    inventory.RemoveItem(resourceName, 1);
                     return true;
                 }
             }
@@ -451,18 +470,15 @@ namespace PlanBuild.Plans
             m_nView.InvokeRPC("SpawnPieceAndDestroy", playerID);
         }
 
-        public bool AddAllMaterials(Inventory inventory)
+        public bool AddAllMaterials(IInventory inventory)
         {
             bool added = false;
-            bool finished = true;
             foreach (Requirement req in originalPiece.m_resources)
             {
-                bool reqFinished = true;
                 string resourceName = GetResourceName(req);
                 int remaining = GetRemaining(req);
-                reqFinished &= remaining == 0;
 
-                if (inventory.HaveItem(resourceName))
+                if (remaining > 0 && inventory.HaveItem(resourceName))
                 {
                     int amountToAdd = Math.Min(remaining, inventory.CountItems(resourceName));
 
@@ -471,10 +487,7 @@ namespace PlanBuild.Plans
                         m_nView.InvokeRPC("AddResource", resourceName, amountToAdd);
                         inventory.RemoveItem(resourceName, amountToAdd);
                         added = true;
-                        reqFinished = remaining == amountToAdd;
                     }
-
-                    finished &= reqFinished;
                 }
             }
             return added;
@@ -511,12 +524,8 @@ namespace PlanBuild.Plans
         {
             foreach (Requirement req in originalPiece.m_resources)
             {
-                if (req.m_resItem.m_itemData.m_shared.m_name != item.m_shared.m_name)
-                {
-                    continue;
-                }
                 string resourceName = GetResourceName(req);
-                if (!PlayerHaveResource(user, resourceName))
+                if (resourceName != item.m_shared.m_name)
                 {
                     continue;
                 }
@@ -525,7 +534,7 @@ namespace PlanBuild.Plans
                 if (remaining > 0)
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
-                    PlayerRemoveResource(user, resourceName, 1);
+                    user.GetInventory().RemoveOneItem(item);
                     return true;
                 }
             }

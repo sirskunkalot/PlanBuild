@@ -1,74 +1,22 @@
 ﻿using HarmonyLib;
 using PlanBuild.Plans;
 using System;
+using System.Collections.Generic;
 
 namespace PlanBuild.ModCompat
 {
     internal class PatcherCraftFromContainers
     {
-        [HarmonyPatch(typeof(PlanPiece), "PlayerHaveResource")]
+        [HarmonyPatch(typeof(PlanPiece), "GetInventories")]
         [HarmonyPostfix]
-        private static void PlanPiece_PlayerHaveResource_Postfix(Humanoid player, string resourceName, ref bool __result)
+        private static void PlanPiece_GetInventories_Postfix(Humanoid player, ref List<PlanPiece.IInventory> __result)
         {
-            if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
-            {
-                return;
-            }
-            if (__result == false)
-            {
-                foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
-                {
-                    if (container.GetInventory().HaveItem(resourceName))
-                    {
-                        __result = true;
-                        return;
-                    }
+            // Check if the plugin is active, and append any nearby container inventories to the list
+            if (CraftFromContainers.BepInExPlugin.modEnabled.Value) {
+                foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position)) {
+                    __result.Add(new PlanPiece.StandardInventory(container.GetInventory()));
                 }
             }
-        }
-
-        [HarmonyPatch(typeof(PlanPiece), "PlayerGetResourceCount")]
-        [HarmonyPostfix]
-        private static void PlanPiece_PlayerGetResourceCount_Postfix(Humanoid player, string resourceName, ref int __result)
-        {
-            if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
-            {
-                return;
-            }
-
-            foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
-            {
-                __result += container.GetInventory().CountItems(resourceName);
-            }
-        }
-
-        [HarmonyPatch(typeof(PlanPiece), "PlayerRemoveResource")]
-        [HarmonyPrefix]
-        private static bool PlanPiece_PlayerRemoveResource_Prefix(Humanoid player, string resourceName, int amount)
-        {
-            if (!CraftFromContainers.BepInExPlugin.modEnabled.Value)
-            {
-                return true;
-            }
-            int playerResourceCount = player.GetInventory().CountItems(resourceName);
-            int amountToRemove = Math.Min(amount, playerResourceCount);
-            player.GetInventory().RemoveItem(resourceName, amountToRemove);
-            int remaining = amount - amountToRemove;
-            if (remaining > 0)
-            {
-                foreach (Container container in CraftFromContainers.BepInExPlugin.GetNearbyContainers(player.transform.position))
-                {
-                    int containerResourceCount = container.GetInventory().CountItems(resourceName);
-                    amountToRemove = Math.Min(remaining, containerResourceCount);
-                    container.GetInventory().RemoveItem(resourceName, amountToRemove);
-                    remaining -= amountToRemove;
-                    if (remaining < 0)
-                    {
-                        break;
-                    }
-                }
-            }
-            return false;
         }
     }
 }

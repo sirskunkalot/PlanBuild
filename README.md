@@ -188,6 +188,7 @@ It is possible for clients not using PlanBuild to connect to a server using it. 
 Fully compatible with:
 * [Build Camera](https://www.nexusmods.com/valheim/mods/226)﻿
 * [Craft from Containers](https://www.nexusmods.com/valheim/mods/40)﻿
+* [AzuCraftyBoxes](https://thunderstore.io/c/valheim/p/Azumatt/AzuCraftyBoxes/)
 * [ValheimRAFT](https://www.nexusmods.com/valheim/mods/1136) (partial compat, blueprinting does not work)
 * [ComfyGizmo](https://github.com/redseiko/ValheimMods/releases/tag/ComfyGizmo-v1.3.0)
 

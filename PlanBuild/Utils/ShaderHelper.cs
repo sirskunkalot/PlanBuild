@@ -101,7 +101,7 @@ namespace PlanBuild.Utils
         {
             if (gameObject.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_oldMaterials != null)
             {
-                wearNTear.ResetHighlight();
+                Extensions.ResetHighlight(wearNTear);
             }
 
             foreach (Renderer renderer in GetRenderers(gameObject))
@@ -117,6 +117,11 @@ namespace PlanBuild.Utils
             }
         }
 
+        private static String AdjustMaterialName(String name)
+        {
+            return name.Split(' ')[0];
+        }
+
         private static void UpdateMaterials(ShaderState shaderState, Material[] sharedMaterials)
         {
             for (int j = 0; j < sharedMaterials.Length; j++)
@@ -126,9 +131,10 @@ namespace PlanBuild.Utils
                 {
                     continue;
                 }
-                if (!OriginalMaterialDict.ContainsKey(originalMaterial.name))
+                String adjustedMaterialName = AdjustMaterialName(originalMaterial.name);
+                if (!OriginalMaterialDict.ContainsKey(adjustedMaterialName))
                 {
-                    OriginalMaterialDict[originalMaterial.name] = originalMaterial;
+                    OriginalMaterialDict[adjustedMaterialName] = originalMaterial;
                 }
                 sharedMaterials[j] = GetMaterial(shaderState, originalMaterial);
             }
@@ -141,7 +147,7 @@ namespace PlanBuild.Utils
             switch (shaderState)
             {
                 case ShaderState.Skuld:
-                    return OriginalMaterialDict[originalMaterial.name];
+                    return OriginalMaterialDict[AdjustMaterialName(originalMaterial.name)];
 
                 case ShaderState.Supported:
                     if (!SupportedMaterialDict.TryGetValue(originalMaterial.name, out Material supportedMaterial))

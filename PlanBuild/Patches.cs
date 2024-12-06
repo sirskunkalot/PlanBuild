@@ -8,6 +8,7 @@ namespace PlanBuild
     {
         public const string BuildCameraGUID = "org.gittywithexcitement.plugins.valheim.buildCamera";
         public const string CraftFromContainersGUID = "aedenthorn.CraftFromContainers";
+        public const string AzuCraftyBoxesGUID = "Azumatt.AzuCraftyBoxes";
         public const string GizmoGUID = "bruce.valheim.comfymods.gizmo";
         public const string ValheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         public const string ItemDrawersGUID = "mkz.itemdrawers";
@@ -29,6 +30,11 @@ namespace PlanBuild
             {
                 Jotunn.Logger.LogInfo("Applying CraftFromContainers patches");
                 Harmony.PatchAll(typeof(ModCompat.PatcherCraftFromContainers));
+            }
+            else if (Chainloader.PluginInfos.ContainsKey(AzuCraftyBoxesGUID))
+            {
+                Jotunn.Logger.LogInfo("Applying AzuCraftyBoxes patches");
+                Harmony.PatchAll(typeof(ModCompat.PatcherAzuCraftyBoxes));
             }
 
             if (Chainloader.PluginInfos.ContainsKey(GizmoGUID))
