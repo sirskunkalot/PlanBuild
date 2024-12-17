@@ -1,3 +1,6 @@
+# Version 0.18.2
+* Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo)
+
 # Version 0.18.1
 * Fixed highlighting materials after equipping blueprint rune (thx sea212)
 * Fixed unhighlighting material after deselecting it / unequipping blueprint rune (thx sea212)
