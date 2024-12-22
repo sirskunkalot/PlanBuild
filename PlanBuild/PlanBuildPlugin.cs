@@ -11,7 +11,6 @@ using PlanBuild.Blueprints;
 using PlanBuild.Plans;
 using System.Reflection;
 using UnityEngine;
-using ShaderHelper = PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild
 {

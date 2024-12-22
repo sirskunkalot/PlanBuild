@@ -79,10 +79,10 @@ namespace PlanBuild.Plans
                 Logger.LogDebug("Creating PlanHammer piece table");
 
                 // Create plan piece table for the plan mode
-                var categories = PieceManager.Instance.GetPieceCategories().Where(x =>
-                    x != BlueprintAssets.CategoryBlueprints &&
-                    x != BlueprintAssets.CategoryClipboard &&
-                    x != BlueprintAssets.CategoryTools);
+                var categories = PieceManager.Instance.GetPieceCategoriesMap().Where(x =>
+                    x.Value != BlueprintAssets.CategoryBlueprints &&
+                    x.Value != BlueprintAssets.CategoryClipboard &&
+                    x.Value != BlueprintAssets.CategoryTools).Select(x => x.Value).ToList();
 
                 CustomPieceTable planPieceTable = new CustomPieceTable(
                     PieceTableName,
