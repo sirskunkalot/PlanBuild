@@ -101,7 +101,7 @@ namespace PlanBuild.Utils
         {
             if (gameObject.TryGetComponent(out WearNTear wearNTear) && wearNTear.m_oldMaterials != null)
             {
-                Extensions.ResetHighlight(wearNTear);
+                wearNTear.ResetHighlight();
             }
 
             foreach (Renderer renderer in GetRenderers(gameObject))

@@ -1,4 +1,5 @@
 # Version 0.18.2
+* Fixed material highlighting not resetting
 * Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo)
 
 # Version 0.18.1

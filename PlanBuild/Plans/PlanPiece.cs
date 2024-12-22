@@ -7,6 +7,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using static Piece;
+using static WearNTear;
+using System.Linq;
 
 namespace PlanBuild.Plans
 {
@@ -676,7 +678,7 @@ namespace PlanBuild.Plans
 
         }
 
-        [HarmonyPatch(typeof(WearNTear), "Damage")]
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.Damage))]
         [HarmonyPrefix]
         private static bool WearNTear_Damage_Prefix(WearNTear __instance)
         {
@@ -687,7 +689,7 @@ namespace PlanBuild.Plans
             return true;
         }
 
-        [HarmonyPatch(typeof(WearNTear), "GetSupport")]
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.GetSupport))]
         [HarmonyPrefix]
         private static bool WearNTear_GetSupport_Prefix(WearNTear __instance, ref float __result)
         {
@@ -699,7 +701,7 @@ namespace PlanBuild.Plans
             return true;
         }
 
-        [HarmonyPatch(typeof(WearNTear), "HaveSupport")]
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.HaveSupport))]
         [HarmonyPrefix]
         private static bool WearNTear_HaveSupport_Prefix(WearNTear __instance, ref bool __result)
         {
@@ -710,5 +712,42 @@ namespace PlanBuild.Plans
             }
             return true;
         }
+
+        // Remove coloring caused by Extensions.Highlight
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.ResetHighlight))]
+        [HarmonyPrefix]
+        static bool WearNTear_ResetHighlight_Prefix(WearNTear __instance)
+        {
+            if (__instance.m_oldMaterials == null)
+            {
+                return true;
+            }
+
+            IEnumerable<OldMeshData> oldMaterialsWithRenderer =
+                __instance.m_oldMaterials.Where(mat => (bool)mat.m_renderer);
+
+            foreach (OldMeshData oldMaterial in oldMaterialsWithRenderer)
+            {
+                Material[] materials = oldMaterial.m_renderer.materials;
+
+                var materials_with_color_info = materials.Select((mat, idx) => new
+                {
+                    Material = mat,
+                    OriginalColor = oldMaterial.m_color[idx],
+                    OriginalEmissionColor = oldMaterial.m_emissiveColor[idx]
+                }
+                );
+
+                foreach (var material in materials_with_color_info)
+                {
+                    material.Material.SetColor("_EmissionColor", material.OriginalEmissionColor);
+                    material.Material.color = material.OriginalColor;
+                }
+            }
+
+            __instance.m_oldMaterials = null;
+            return true;
+        }
+
     }
 }
