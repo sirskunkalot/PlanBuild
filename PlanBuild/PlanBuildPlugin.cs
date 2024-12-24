@@ -12,6 +12,7 @@ using PlanBuild.Plans;
 using System.Reflection;
 using UnityEngine;
 using ShaderHelper = PlanBuild.Utils.ShaderHelper;
+using PlanBuild.ModCompat;
 
 namespace PlanBuild
 {
@@ -20,7 +21,7 @@ namespace PlanBuild
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.AzuCraftyBoxesGUID, BepInDependency.DependencyFlags.SoftDependency)]
-    [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency(PatcherGizmo.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ValheimRaftGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.ItemDrawersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [NetworkCompatibility(CompatibilityLevel.ServerMustHaveMod, VersionStrictness.Minor)]
