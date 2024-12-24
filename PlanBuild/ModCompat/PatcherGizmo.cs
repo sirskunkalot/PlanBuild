@@ -52,7 +52,13 @@ namespace PlanBuild.ModCompat
                         }
                     }
                 }
-                return _ComfyGizmoInstalled.Value && GizmosType is not null && GizmosHideMethod is not null && GizmosField is not null;
+
+                bool canPatchGizmo = GizmosType is not null && GizmosHideMethod is not null && GizmosField is not null;
+                if (_ComfyGizmoInstalled.Value && !canPatchGizmo)
+                {
+                    Jotunn.Logger.LogWarning("Found ComfyGizmo installed but cannot patch it!");
+                }
+                return _ComfyGizmoInstalled.Value && canPatchGizmo;
             }
         }
 
