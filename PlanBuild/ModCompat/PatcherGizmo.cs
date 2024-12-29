@@ -6,7 +6,7 @@ using PlanBuild.Plans;
 
 namespace PlanBuild.ModCompat
 {
-    internal class PatcherGizmo
+    internal static class PatcherGizmo
     {
         [HarmonyPatch(typeof(ComfyGizmo.PlayerPatch), "UpdatePlacementPostfix")]
         [HarmonyPrefix]
@@ -59,6 +59,18 @@ namespace PlanBuild.ModCompat
             if (isBuildPieces && hasBlueprint && offsetButtonPressed) return false;
 
             return true;
+        }
+
+        [HarmonyPatch(typeof(ToolComponentBase), nameof(ToolComponentBase.Player_UpdatePlacementGhost))]
+        [HarmonyPostfix]
+        private static void PlanBuild_Player_UpdatePlacementGhost_Postfix(Player self)
+        {
+            if (!self.m_placementGhost) return;
+
+            foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
+            {
+                gizmoInstance.SetPosition(self.m_placementGhost.transform.position);
+            }
         }
     }
 }

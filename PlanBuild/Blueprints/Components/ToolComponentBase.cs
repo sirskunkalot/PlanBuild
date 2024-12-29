@@ -241,30 +241,36 @@ namespace PlanBuild.Blueprints.Components
         /// <summary>
         ///     Flatten placement marker and apply the PlacementOffset
         /// </summary>
-        private void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        internal void Player_UpdatePlacementGhost(
+            On.Player.orig_UpdatePlacementGhost orig,
+            Player self,
+            bool flashGuardStone
+        )
         {
             orig(self, flashGuardStone);
+            if (!self.m_placementMarkerInstance) return;
+            self.m_placementMarkerInstance.transform.up = Vector3.back;
+            if (!(self.m_placementGhost && PlacementOffset != Vector3.zero)) return;
 
-            if (self.m_placementMarkerInstance)
-            {
-                self.m_placementMarkerInstance.transform.up = Vector3.back;
-
-                if (self.m_placementGhost && PlacementOffset != Vector3.zero)
-                {
-                    var pos = self.m_placementGhost.transform.position;
-                    var rot = self.m_placementGhost.transform.rotation;
-                    pos += rot * Vector3.right * PlacementOffset.x;
-                    pos += rot * Vector3.up * PlacementOffset.y;
-                    pos += rot * Vector3.forward * PlacementOffset.z;
-                    self.m_placementGhost.transform.position = pos;
-                }
-            }
+            var rot = self.m_placementGhost.transform.rotation;
+            self.m_placementGhost.transform.Rotate(Quaternion.Inverse(rot).eulerAngles);
+            self.m_placementGhost.transform.Translate(PlacementOffset);
+            self.m_placementGhost.transform.Rotate(rot.eulerAngles);
         }
 
         /// <summary>
         ///     Apply the MarkerOffset and react on piece hover
         /// </summary>
-        private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        private bool Player_PieceRayTest(
+            On.Player.orig_PieceRayTest orig,
+            Player self,
+            out Vector3 point,
+            out Vector3 normal,
+            out Piece piece,
+            out Heightmap heightmap,
+            out Collider waterSurface,
+            bool water
+        )
         {
             bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
             if (result && self.m_placementGhost && MarkerOffset != Vector3.zero)

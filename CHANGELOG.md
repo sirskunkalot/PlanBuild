@@ -1,4 +1,5 @@
 # Version 0.18.2
+* Aligned rotation to placement ghost offset
 * Updated dependencies, resolved warnings and removed unused imports
 * Fixed material highlighting not resetting
 * Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo)
