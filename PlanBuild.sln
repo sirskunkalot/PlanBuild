@@ -15,11 +15,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
+		libraries\pub\AzuCraftyBoxes-publicized.dll = libraries\pub\AzuCraftyBoxes-publicized.dll
+		libraries\pub\Build Camera.dll = libraries\pub\Build Camera.dll
 		CHANGELOG.md = CHANGELOG.md
+		libraries\pub\CraftFromContainers.dll = libraries\pub\CraftFromContainers.dll
 		manifest.json = manifest.json
 		publish.ps1 = publish.ps1
 		README.bb = README.bb
 		README.md = README.md
+		libraries\pub\ValheimRAFT.dll = libraries\pub\ValheimRAFT.dll
 	EndProjectSection
 EndProject
 Global
