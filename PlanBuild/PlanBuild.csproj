@@ -19,6 +19,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
+
   <ItemGroup>
     <Reference Include="Build Camera">
       <SpecificVersion>False</SpecificVersion>
@@ -33,11 +34,6 @@
     <Reference Include="AzuCraftyBoxes">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\AzuCraftyBoxes-publicized.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="ComfyGizmo">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\ComfyGizmo.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="ValheimRAFT">
