@@ -72,6 +72,11 @@ namespace PlanBuild.Plans
                         continue;
                     }
 
+                    if (piece.name == "piece_remove_feaster")
+                    {
+                        continue;
+                    }
+
                     // Track which pieces are currently in a piece table as sometimes
                     // a Vanilla prefab can have a piece but not be in a piece table
                     if (currentPieces.Contains(piece.name))
