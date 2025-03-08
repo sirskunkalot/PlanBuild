@@ -383,7 +383,7 @@ namespace PlanBuild.Blueprints
             }
             if (gameObject && gameObject.TryGetComponent(out WearNTear wearNTear))
             {
-                Extensions.ResetHighlight(wearNTear);
+                wearNTear.ResetHighlight();
             }
             HighlightedZDOIDs.Remove(zdoid);
         }

@@ -6,66 +6,71 @@ using PlanBuild.Plans;
 
 namespace PlanBuild.ModCompat
 {
-    internal class PatcherGizmo
+    internal static class PatcherGizmo
     {
-        [HarmonyPatch(typeof(ComfyGizmo.Patches.PlayerPatch), "UpdatePlacementPostfix")]
+        [HarmonyPatch(typeof(ComfyGizmo.PlayerPatch), "UpdatePlacementPostfix")]
         [HarmonyPrefix]
         private static bool ComfyGizmo_UpdatePlacementPostfix_Prefix()
         {
-            if (!(Player.m_localPlayer && Player.m_localPlayer.m_buildPieces&&
-                  Player.m_localPlayer.m_placementGhost && ComfyGizmo.Gizmos._gizmoInstances.Count > 0))
-            {
-                return true;
-            }
+            bool isBuildPieces = Player.m_localPlayer && Player.m_localPlayer.m_buildPieces;
+
+            if (!(isBuildPieces
+                && Player.m_localPlayer.m_placementGhost
+                && ComfyGizmo.Gizmos._gizmoInstances.Count > 0)
+            ) return true;
+
+            Action HideAllGizmos = () => {
+                foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
+                {
+                    gizmoInstance.Hide();
+                }
+            };
             
-            if (Player.m_localPlayer.m_placementGhost.TryGetComponent<ToolComponentBase>(out var tool) &&
-                tool.SuppressGizmo)
+            if (Player.m_localPlayer.m_placementGhost.TryGetComponent<ToolComponentBase>(out var tool)
+                && tool.SuppressGizmo)
             {
-                foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
-                {
-                    gizmoInstance.Hide();
-                }
+                HideAllGizmos();
                 return false;
             }
 
-            if (Player.m_localPlayer.m_buildPieces.name.StartsWith(PlanHammerPrefab.PieceTableName, StringComparison.Ordinal) &&
-                Player.m_localPlayer.m_placementGhost.name.StartsWith(PlanHammerPrefab.PieceDeletePlansName, StringComparison.Ordinal))
+            bool hasPlanhammer = Player.m_localPlayer.m_buildPieces.name.StartsWith(
+                PlanHammerPrefab.PieceTableName,
+                StringComparison.Ordinal
+            );
+            bool hasDeletePlansGhost = Player.m_localPlayer.m_placementGhost.name.StartsWith(
+                PlanHammerPrefab.PieceDeletePlansName,
+                StringComparison.Ordinal
+            );
+
+            if (hasPlanhammer && hasDeletePlansGhost)
             {
-                foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
-                {
-                    gizmoInstance.Hide();
-                }
+                HideAllGizmos();
                 return false;
             }
+
+            bool hasBlueprint = Player.m_localPlayer.m_buildPieces.name.StartsWith(
+                BlueprintAssets.PieceTableName,
+                StringComparison.Ordinal
+            );
+            bool offsetButtonPressed = ZInput.GetButton(Config.ShiftModifierButton.Name)
+                || ZInput.GetButton(Config.AltModifierButton.Name)
+                || ZInput.GetButton(Config.CtrlModifierButton.Name);
+
+            if (isBuildPieces && hasBlueprint && offsetButtonPressed) return false;
 
             return true;
         }
 
-        /*[HarmonyPatch(typeof(ComfyGizmo.ComfyGizmo), "Rotate")]
-        [HarmonyPrefix]
-        private static bool ComfyGizmo_Rotate_Prefix()
+        [HarmonyPatch(typeof(ToolComponentBase), nameof(ToolComponentBase.Player_UpdatePlacementGhost))]
+        [HarmonyPostfix]
+        private static void PlanBuild_Player_UpdatePlacementGhost_Postfix(Player self)
         {
-            return CheckPlanBuildTool();
-        }
+            if (!self.m_placementGhost) return;
 
-        [HarmonyPatch(typeof(ComfyGizmo.ComfyGizmo), "RotateLocalFrame")]
-        [HarmonyPrefix]
-        private static bool ComfyGizmo_RotateLocalFrame_Prefix()
-        {
-            return CheckPlanBuildTool();
-        }
-
-        private static bool CheckPlanBuildTool()
-        {
-            if (Player.m_localPlayer && Player.m_localPlayer.m_buildPieces &&
-                Player.m_localPlayer.m_buildPieces.name.StartsWith(BlueprintAssets.PieceTableName, StringComparison.Ordinal) &&
-                (ZInput.GetButton(Config.ShiftModifierButton.Name) ||
-                 ZInput.GetButton(Config.AltModifierButton.Name) ||
-                 ZInput.GetButton(Config.CtrlModifierButton.Name)))
+            foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
             {
-                return false;
+                gizmoInstance.SetPosition(self.m_placementGhost.transform.position);
             }
-            return true;
-        }*/
+        }
     }
 }

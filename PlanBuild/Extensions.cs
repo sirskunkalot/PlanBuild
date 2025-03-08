@@ -62,40 +62,6 @@ namespace PlanBuild
             }
         }
 
-        public static void ResetHighlight(this WearNTear self)
-        {
-            if (self.m_oldMaterials == null)
-            {
-                self.ResetHighlight();
-                return;
-            }
-
-            IEnumerable<OldMeshData> oldMaterialsWithRenderer =
-                self.m_oldMaterials.Where(mat => (bool)mat.m_renderer);
-
-            foreach (OldMeshData oldMaterial in oldMaterialsWithRenderer)
-            {
-                Material[] materials = oldMaterial.m_renderer.materials;
-
-                var materials_with_color_info = materials.Select((mat, idx) => new
-                    {
-                        Material = mat,
-                        OriginalColor = oldMaterial.m_color[idx],
-                        OriginalEmissionColor = oldMaterial.m_emissiveColor[idx]
-                    }
-                );
-
-                foreach (var material in materials_with_color_info)
-                {
-                    material.Material.SetColor("_EmissionColor", material.OriginalEmissionColor);
-                    material.Material.color = material.OriginalColor;
-                }
-            }
-
-            self.m_oldMaterials = null;
-            self.ResetHighlight();
-        }
-
         public static ZDOID? GetZDOID(this Piece piece)
         {
             return piece?.m_nview?.GetZDO()?.m_uid;

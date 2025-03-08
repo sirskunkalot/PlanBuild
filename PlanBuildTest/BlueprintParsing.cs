@@ -1,8 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using PlanBuild.Blueprints;
-using System;
-using System.Globalization;
-using System.IO;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -10,9 +6,6 @@ namespace PlanBuild.Blueprints
     [TestClass]
     public class BlueprintParsing
     {
-         
-        
-
         [TestMethod]
         public void ParsePieceEntry_VBuild_1()
         {

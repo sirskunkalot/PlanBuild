@@ -11,7 +11,6 @@ using PlanBuild.Blueprints;
 using PlanBuild.Plans;
 using System.Reflection;
 using UnityEngine;
-using ShaderHelper = PlanBuild.Utils.ShaderHelper;
 
 namespace PlanBuild
 {
@@ -28,7 +27,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.18.1";
+        public const string PluginVersion = "0.18.2";
 
         public static PlanBuildPlugin Instance;
 
