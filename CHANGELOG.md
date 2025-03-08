@@ -3,6 +3,7 @@
 * Updated dependencies, resolved warnings and removed unused imports (thx sea212)
 * Fixed material highlighting not resetting (thx sea212)
 * Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo) (thx sea212)
+* Excluded Serving Tray Pieces from Plan Hammer
 
 # Version 0.18.1
 * Fixed highlighting materials after equipping blueprint rune (thx sea212)
