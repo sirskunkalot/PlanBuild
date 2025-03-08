@@ -15,7 +15,7 @@ using UnityEngine;
 namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
-    [BepInDependency(Jotunn.Main.ModGuid, "2.21.2")]
+    [BepInDependency(Jotunn.Main.ModGuid, "2.24.2")]
     [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.AzuCraftyBoxesGUID, BepInDependency.DependencyFlags.SoftDependency)]
