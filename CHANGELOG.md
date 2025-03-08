@@ -1,8 +1,8 @@
 # Version 0.18.2
-* Aligned rotation to placement ghost offset
-* Updated dependencies, resolved warnings and removed unused imports
-* Fixed material highlighting not resetting
-* Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo)
+* Aligned rotation to placement ghost offset (thx sea212)
+* Updated dependencies, resolved warnings and removed unused imports (thx sea212)
+* Fixed material highlighting not resetting (thx sea212)
+* Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo) (thx sea212)
 
 # Version 0.18.1
 * Fixed highlighting materials after equipping blueprint rune (thx sea212)
