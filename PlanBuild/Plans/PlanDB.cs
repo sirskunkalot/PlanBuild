@@ -29,7 +29,7 @@ namespace PlanBuild.Plans
         /// <returns></returns>
         private static bool IsValidPieceTable(PieceTable pieceTable)
         {
-            return pieceTable && !(pieceTable.name.Equals(PlanHammerPrefab.PieceTableName) || pieceTable.name.Equals(BlueprintAssets.PieceTableName) || pieceTable.name.Equals("_FeasterPieceTable"));
+            return pieceTable && !(pieceTable.name.Equals(PlanHammerPrefab.PieceTableName) || pieceTable.name.Equals(BlueprintAssets.PieceTableName));
         }
 
         public readonly Dictionary<string, Piece> PlanToOriginalMap = new Dictionary<string, Piece>();

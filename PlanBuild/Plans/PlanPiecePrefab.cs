@@ -66,7 +66,8 @@ namespace PlanBuild.Plans
             typeof(Piece),
             typeof(Interactable),
             typeof(Hoverable),
-            typeof(PlanPiece)
+            typeof(PlanPiece),
+            typeof(ItemDrop)
         };
 
         public static int PlanLayer = LayerMask.NameToLayer("piece_nonsolid");

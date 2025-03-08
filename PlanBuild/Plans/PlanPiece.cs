@@ -669,6 +669,11 @@ namespace PlanBuild.Plans
             {
                 textReceiver.SetText(additionalInfo);
             }
+            ItemDrop itemdrop = actualPiece.GetComponent<ItemDrop>();
+            if (itemdrop != null)
+            {
+                itemdrop.MakePiece(true);
+            }
             actualPiece.GetComponent<Piece>().SetCreator(creatorID);
             return actualPiece;
         }

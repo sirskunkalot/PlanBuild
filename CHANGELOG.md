@@ -3,7 +3,7 @@
 * Updated dependencies, resolved warnings and removed unused imports (thx sea212)
 * Fixed material highlighting not resetting (thx sea212)
 * Fixed ComfyGizmo compatibility (note: Users have to configure other PlanBuild offset buttons to rotate blueprints using Gizmo) (thx sea212)
-* Excluded Serving Tray Pieces from Plan Hammer
+* Fixed Serving Tray Pieces plans
 * Direct building of Serving Tray Pieces makes them actual Pieces instead of Items
 
 # Version 0.18.1
