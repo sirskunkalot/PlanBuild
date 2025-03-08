@@ -202,7 +202,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="JotunnLib">
-      <Version>2.21.2</Version>
+      <Version>2.24.2</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
