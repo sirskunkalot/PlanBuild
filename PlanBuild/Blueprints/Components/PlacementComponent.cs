@@ -329,6 +329,11 @@ namespace PlanBuild.Blueprints.Components
                         zNetView.m_zdo.Set("items", entry.additionalInfo);
                     }
                 }
+                ItemDrop itemDrop = gameObject.GetComponent<ItemDrop>();
+                if (itemDrop != null)
+                {
+                    itemDrop.MakePiece(true);
+                }
                 if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
                 {
                     if (zNetView.GetComponent<WearNTear>())
