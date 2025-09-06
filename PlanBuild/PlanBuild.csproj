@@ -193,6 +193,7 @@
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="assets\Translations\Russian\PlanBuild.russian.json" />
     <None Include="assets\Translations\Chinese\PlanBuild.Chinese.json" />
+    <None Include="assets\Translations\Spanish\PlanBuild.Spanish.json" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="resources\BlueprintMarket.png" />
