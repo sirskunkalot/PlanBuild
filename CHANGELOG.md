@@ -1,4 +1,6 @@
 # Version 0.18.3
+* Compatible with Valheim 0.221.3 (Call to Arms)
+* Added support for orientation of item stand attachments
 * Spanish translation (thx Acraciel)
 
 # Version 0.18.2
