@@ -1,3 +1,6 @@
+# Version 0.18.3
+* Spanish translation (thx Acraciel)
+
 # Version 0.18.2
 * Aligned rotation to placement ghost offset (thx sea212)
 * Updated dependencies, resolved warnings and removed unused imports (thx sea212)
