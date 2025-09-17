@@ -243,7 +243,8 @@ namespace PlanBuild.Blueprints
                 {
                     byte[] thumbnailBytes = reader.ReadBytes(numBytes);
                     Texture2D tex = new Texture2D(1, 1);
-                    tex.LoadImage(thumbnailBytes);
+                    //tex.LoadImage(thumbnailBytes);
+                    tex.LoadRawTextureData(thumbnailBytes);
                     ret.Thumbnail = tex;
                 }
             }
