@@ -31,7 +31,7 @@ namespace PlanBuild.Plans
             {
                 Logger.LogDebug("Creating PlanCrystal item");
 
-                PlanCrystalItem = new CustomItem(PrefabName, "Ruby", new ItemConfig
+                PlanCrystalItem = new CustomItem(PrefabName, "GreydwarfEye", new ItemConfig
                 {
                     Name = $"$item_{LocalizationName}",
                     Description = $"$item_{LocalizationName}_description",
