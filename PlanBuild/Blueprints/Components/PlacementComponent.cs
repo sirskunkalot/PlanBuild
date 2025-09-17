@@ -282,10 +282,16 @@ namespace PlanBuild.Blueprints.Components
                         {
                             quality = int.Parse(fields[2]);
                         }
+                        var orientation = 0;
+                        if (fields.Length > 3)
+                        {
+                            orientation = int.Parse(fields[3]);
+                        }
                         zNetView.m_zdo.Set("item", item);
                         zNetView.m_zdo.Set("variant", variant);
                         zNetView.m_zdo.Set("quality", quality);
-                        itemStand.SetVisualItem(item, variant, quality);
+                        zNetView.m_zdo.Set("type", orientation);
+                        itemStand.SetVisualItem(item, variant, quality, orientation);
                     }
                 }
                 ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();

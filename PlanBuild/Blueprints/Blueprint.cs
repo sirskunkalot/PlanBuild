@@ -693,7 +693,7 @@ namespace PlanBuild.Blueprints
                 if (itemStand != null && itemStand.HaveAttachment() && itemStand.m_nview)
                 {
                     additionalInfo =
-                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}";
+                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}:{itemStand.m_nview.m_zdo.GetInt("type")}";
                 }
                 ArmorStand armorStand = piece.GetComponent<ArmorStand>();
                 if (armorStand != null && armorStand.m_nview)
