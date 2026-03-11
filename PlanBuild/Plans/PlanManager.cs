@@ -219,9 +219,8 @@ namespace PlanBuild.Plans
         
         private static void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear, HitData hitData, bool blockDrop)
         {
-            // Check if actually destroyed by damage (hitData non-null), not removed by middle clicking with Hammer
             if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
-                                  && hitData != null
+                                  && (hitData != null || wearNTear.m_support <= 0f)  // gets destroyed by a hit or by lack of support, remove works
                                   && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
             {
                 foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
