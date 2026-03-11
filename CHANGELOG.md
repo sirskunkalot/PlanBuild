@@ -1,3 +1,8 @@
+# Version 0.18.4
+* Fixed PlanTotem rebuilding plans for destroyed pieces (thx nickweedon)
+* Fixed the paint tool to calculate correct areas again
+* Fixed the paint tool in Ashlands where reset terrain created lava and the modifiers created lava stone (Ahslands uses the alpha channel of the paint to distinguish more states which are currently not supported by PlanBuild)
+
 # Version 0.18.3
 * Compatible with Valheim 0.221.3 (Call to Arms)
 * Added support for orientation of item stand attachments
