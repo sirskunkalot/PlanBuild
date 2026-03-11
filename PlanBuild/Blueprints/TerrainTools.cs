@@ -70,7 +70,7 @@ namespace PlanBuild.Blueprints
             float angle)
         {
             List<Heightmap> heightMaps = new List<Heightmap>();
-            // Turn the rectable to a square for an upper bound.
+            // Turn the rectangle to a square for an upper bound.
             var maxDimension = Mathf.Max(width, depth);
             // Rotating increases the square dimensions.
             var dimensionMultiplier = Mathf.Abs(Mathf.Sin(angle)) + Mathf.Abs(Mathf.Cos(angle));
@@ -97,7 +97,8 @@ namespace PlanBuild.Blueprints
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        public static Dictionary<TerrainComp, Indices> GetCompilerIndicesWithRect(Vector3 centerPos, float width, float depth,
+        public static Dictionary<TerrainComp, Indices> GetCompilerIndicesWithRect(Vector3 centerPos, float width,
+            float depth,
             float angle, BlockCheck blockCheck)
         {
             return GetTerrainCompilersWithRect(centerPos, width, depth, angle).ToDictionary(comp => comp, comp =>
@@ -113,7 +114,8 @@ namespace PlanBuild.Blueprints
                 .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
 
-        public static void SetTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+        public static void SetTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            float smooth,
             float delta)
         {
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
@@ -133,7 +135,8 @@ namespace PlanBuild.Blueprints
         private static float CalculateSlope(float angle, float distanceWidth, float distanceDepth) =>
             Mathf.Sin(angle) * distanceWidth + Mathf.Cos(angle) * distanceDepth;
 
-        public static void RaiseTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+        public static void RaiseTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            float smooth,
             float amount)
         {
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
@@ -147,7 +150,8 @@ namespace PlanBuild.Blueprints
             DoHeightOperation(compilerIndices, pos, radius, action);
         }
 
-        public static void LevelTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float smooth,
+        public static void LevelTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            float smooth,
             float altitude)
         {
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
@@ -161,13 +165,14 @@ namespace PlanBuild.Blueprints
             DoHeightOperation(compilerIndices, pos, radius, action);
         }
 
-        public static void SlopeTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, float angle,
+        public static void SlopeTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            float angle,
             float smooth, float altitude, float amount)
         {
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
             {
-                var multiplier = CalculateSlope(angle, heightIndex.DistanceWidth, heightIndex.DistanceDepth) *
-                                 CalculateSmooth(smooth, heightIndex.Distance);
+                var multiplier = CalculateSlope(angle, heightIndex.DistanceWidth, heightIndex.DistanceDepth)
+                                 * CalculateSmooth(smooth, heightIndex.Distance);
                 var index = heightIndex.Index;
                 compiler.m_levelDelta[index] +=
                     (altitude - compiler.m_hmap.m_heights[index]) + multiplier * amount / 2f;
@@ -187,6 +192,7 @@ namespace PlanBuild.Blueprints
                 {
                     continue;
                 }
+
                 modifier.m_nview.ClaimOwnership();
                 ZNetScene.instance.Destroy(modifier.gameObject);
             }
@@ -199,34 +205,39 @@ namespace PlanBuild.Blueprints
                 compiler.m_modifiedHeight[index] = false;
             };
             DoHeightOperation(compilerIndices, pos, radius, action);
-            PaintTerrain(compilerIndices, pos, radius, Color.black);
+            PaintTerrain(compilerIndices, pos, radius, Heightmap.m_paintMaskNothing);
         }
-        
-        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, TerrainModifier.PaintType type)
+
+        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            TerrainModifier.PaintType type)
         {
             Color color = type switch
             {
-                TerrainModifier.PaintType.Dirt => Color.red,
-                TerrainModifier.PaintType.Cultivate => Color.green,
-                TerrainModifier.PaintType.Paved => Color.blue,
-                TerrainModifier.PaintType.Reset => Color.black,
+                TerrainModifier.PaintType.Dirt => Heightmap.m_paintMaskDirt,
+                TerrainModifier.PaintType.Cultivate => Heightmap.m_paintMaskCultivated,
+                TerrainModifier.PaintType.Paved => Heightmap.m_paintMaskPaved,
+                TerrainModifier.PaintType.Reset => Heightmap.m_paintMaskNothing,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, "PaintType not supported")
             };
             PaintTerrain(compilerIndices, pos, radius, color);
         }
 
-        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius, Color color)
+        public static void PaintTerrain(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+            Color color)
         {
             Action<TerrainComp, int> action = (compiler, index) =>
             {
-                compiler.m_paintMask[index] = color;
+                Color newColor = color;
+                newColor.a = compiler.m_paintMask[index].a;
+                compiler.m_paintMask[index] = newColor;
                 compiler.m_modifiedPaint[index] = true;
             };
             DoPaintOperation(compilerIndices, pos, radius, action);
         }
 
         ///<summary>Returns terrain data of given indices</summary>
-        public static Dictionary<Vector3, UndoActions.TerrainUndoData> GetData(Dictionary<TerrainComp, Indices> compilerIndices)
+        public static Dictionary<Vector3, UndoActions.TerrainUndoData> GetData(
+            Dictionary<TerrainComp, Indices> compilerIndices)
         {
             return compilerIndices.ToDictionary(kvp => kvp.Key.transform.position, kvp =>
             {
@@ -248,7 +259,7 @@ namespace PlanBuild.Blueprints
                 };
             });
         }
-        
+
         private static Vector3 VertexToWorld(Heightmap hmap, int x, int y)
         {
             var vector = hmap.transform.position;
@@ -257,7 +268,8 @@ namespace PlanBuild.Blueprints
             return vector;
         }
 
-        private static void DoHeightOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+        private static void DoHeightOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos,
+            float radius,
             Action<TerrainComp, HeightIndex> action)
         {
             var before = GetData(compilerIndices);
@@ -268,13 +280,15 @@ namespace PlanBuild.Blueprints
                 foreach (var heightIndex in indices) action(compiler, heightIndex);
                 Save(compiler);
             }
+
             ClutterSystem.instance?.ResetGrass(pos, radius);
             var after = GetData(compilerIndices);
             var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
             UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, undo);
         }
 
-        private static void DoPaintOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos, float radius,
+        private static void DoPaintOperation(Dictionary<TerrainComp, Indices> compilerIndices, Vector3 pos,
+            float radius,
             Action<TerrainComp, int> action)
         {
             var before = GetData(compilerIndices);
@@ -285,6 +299,7 @@ namespace PlanBuild.Blueprints
                 foreach (var index in indices) action(compiler, index.Index);
                 Save(compiler);
             }
+
             ClutterSystem.instance?.ResetGrass(pos, radius);
             var after = GetData(compilerIndices);
             var undo = new UndoActions.UndoTerrain(before, after, pos, radius);
@@ -328,34 +343,6 @@ namespace PlanBuild.Blueprints
             }
 
             return indices;
-
-            /*
-             *
-            List<HeightIndex> indices = new List<HeightIndex>();
-            var max = compiler.m_width + 1;
-            for (int x = 0; x < max; x++)
-            {
-                for (int z = 0; z < max; z++)
-                {
-                    var nodePos = VertexToWorld(compiler.m_hmap, x, z);
-                    var dx = nodePos.x - centerPos.x;
-                    var dz = nodePos.z - centerPos.z;
-                    var distance = Vector2.Distance(centerPos, nodePos);
-                    if (distance > max) continue;
-                    indices.Add(new HeightIndex()
-                    {
-                        Index = x * max + z,
-                        Position = nodePos,
-                        DistanceWidth = dx / diameter,
-                        DistanceDepth = dz / diameter,
-                        Distance = distance / diameter
-                    });
-                }
-            }
-            return indices;
-
-             *
-             */
         }
 
         private static float GetX(int x, int y, float angle) => Mathf.Cos(angle) * x - Mathf.Sin(angle) * y;
@@ -398,12 +385,11 @@ namespace PlanBuild.Blueprints
         private static IEnumerable<PaintIndex> GetPaintIndicesWithRect(TerrainComp compiler, Vector3 centerPos,
             float width, float depth, float angle)
         {
-            centerPos = new Vector3(centerPos.x - 0.5f, centerPos.y, centerPos.z - 0.5f);
             List<PaintIndex> indices = new List<PaintIndex>();
-            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            compiler.m_hmap.WorldToVertexMask(centerPos, out var cx, out var cy);
             var maxWidth = width / 2f / compiler.m_hmap.m_scale;
             var maxDepth = depth / 2f / compiler.m_hmap.m_scale;
-            var max = compiler.m_width;
+            var max = compiler.m_width + 1;
             for (int x = 0; x < max; x++)
             {
                 for (int y = 0; y < max; y++)
@@ -428,11 +414,10 @@ namespace PlanBuild.Blueprints
         private static IEnumerable<PaintIndex> GetPaintIndicesWithCircle(TerrainComp compiler, Vector3 centerPos,
             float diameter)
         {
-            centerPos = new Vector3(centerPos.x - 0.5f, centerPos.y, centerPos.z - 0.5f);
             List<PaintIndex> indices = new List<PaintIndex>();
-            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
+            compiler.m_hmap.WorldToVertexMask(centerPos, out var cx, out var cy);
             var maxDistance = diameter / 2f / compiler.m_hmap.m_scale;
-            var max = compiler.m_width;
+            var max = compiler.m_width + 1;
             Vector2 center = new Vector2(cx, cy);
             for (int i = 0; i < max; i++)
             {
