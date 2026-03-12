@@ -53,6 +53,10 @@ namespace PlanBuild
             planbuildBundle.Unload(false);
             PlanManager.Init();
             
+            // Add localization for the created snappoints of blueprints, so it doesnt show gibberish
+            LocalizationManager.Instance.GetLocalization()
+                .AddTranslation("English", "$hud_snappoint", "Recreated Snappoint");
+            
             // Harmony patching
             Patches.Apply();
         }

@@ -961,12 +961,13 @@ namespace PlanBuild.Blueprints
                 {
                     GameObject snapPointObject = new GameObject
                     {
-                        name = "_snappoint",
+                        name = "$hud_snappoint",
                         layer = LayerMask.NameToLayer("piece"),
                         tag = "snappoint"
                     };
                     snapPointObject.SetActive(false);
-                    Object.Instantiate(snapPointObject, snapPoint.GetPosition(), Quaternion.identity, baseObject.transform);
+                    var newSnap = Object.Instantiate(snapPointObject, snapPoint.GetPosition(), Quaternion.identity, baseObject.transform);
+                    newSnap.name = "$hud_snappoint";
                 }
 
                 // Tiny collider for accurate placement
