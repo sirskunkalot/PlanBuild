@@ -616,7 +616,7 @@ namespace PlanBuild.Blueprints
                 {
                     foreach (var tf in selected.GetComponentsInChildren<Transform>(true))
                     {
-                        if (tf.name.StartsWith("_snappoint"))
+                        if (tf.name.StartsWith("$hud_snappoint"))
                         {
                             snapPoints.Add(tf.position);
                         }
@@ -1050,7 +1050,7 @@ namespace PlanBuild.Blueprints
             // Delete or move original snap points
             foreach (var tf in child.GetComponentsInChildren<Transform>(true))
             {
-                if (tf.name.StartsWith("_snappoint"))
+                if (tf.name.StartsWith("$hud_snappoint"))
                 {
                     Object.DestroyImmediate(tf.gameObject);
                 }
