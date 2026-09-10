@@ -53,5 +53,10 @@ namespace PlanBuild.Blueprints
         {
             return false;
         }
+
+        public float GetHoverOffset()
+        {
+            return 0f;
+        }
     }
 }

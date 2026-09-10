@@ -45,7 +45,7 @@ namespace PlanBuild.Blueprints
             compiler.m_lastOpPoint = Vector3.zero;
             compiler.m_lastOpRadius = 0f;
             compiler.Save();
-            compiler.m_hmap.Poke(false);
+            compiler.m_hmap.Poke(0, false);
         }
 
         private static Indices FilterByBlockCheck(Indices indices, BlockCheck blockCheck)
@@ -62,7 +62,7 @@ namespace PlanBuild.Blueprints
             List<Heightmap> heightMaps = new List<Heightmap>();
             Heightmap.FindHeightmap(position, radius + 1f, heightMaps);
             var pos = position;
-            return heightMaps.Where(hmap => ZNetScene.InActiveArea(ZoneSystem.GetZone(hmap.transform.position), pos))
+            return heightMaps.Where(hmap => ZNetScene.InActiveArea(pos, ZoneSystem.GetZone(hmap.transform.position)))
                 .Select(hmap => hmap.GetAndCreateTerrainCompiler());
         }
 
@@ -77,7 +77,7 @@ namespace PlanBuild.Blueprints
             var size = maxDimension * dimensionMultiplier / 2f;
             Heightmap.FindHeightmap(position, size + 1f, heightMaps);
             var pos = position;
-            return heightMaps.Where(hmap => ZNetScene.InActiveArea(ZoneSystem.GetZone(hmap.transform.position), pos))
+            return heightMaps.Where(hmap => ZNetScene.InActiveArea(pos, ZoneSystem.GetZone(hmap.transform.position)))
                 .Select(hmap => hmap.GetAndCreateTerrainCompiler());
         }
 

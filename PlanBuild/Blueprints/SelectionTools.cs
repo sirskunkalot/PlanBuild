@@ -27,8 +27,8 @@ namespace PlanBuild.Blueprints
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
             int cat = (int)PieceManager.Instance.GetPieceCategory(BlueprintAssets.CategoryClipboard);
-            List<Piece> reorder = Player.m_localPlayer.m_buildPieces.m_availablePieces[cat].OrderByDescending(x => x.name).ToList();
-            Player.m_localPlayer.m_buildPieces.m_availablePieces[cat] = reorder;
+            List<Piece> reorder = Player.m_localPlayer.m_buildPieces.m_availablePiecesByCategory[cat].OrderByDescending(x => x.name).ToList();
+            Player.m_localPlayer.m_buildPieces.m_availablePiecesByCategory[cat] = reorder;
             Player.m_localPlayer.m_buildPieces.m_selectedCategory = (Piece.PieceCategory)cat;
             Player.m_localPlayer.m_buildPieces.SetSelected(new Vector2Int(0, 0));
             Player.m_localPlayer.SetupPlacementGhost();
