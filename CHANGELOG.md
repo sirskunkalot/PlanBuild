@@ -1,3 +1,7 @@
+# Version 0.18.5
+* Compatible with Valheim 1.0.7
+* Fixed crash on player spawn (camera snapping to world origin and infinite player spawn loop) caused by `Hoverable` gaining a new `GetHoverOffset` member and `PieceTable.m_availablePieces` changing shape in Valheim 1.0.7
+
 # Version 0.18.4
 * Fixed PlanTotem rebuilding plans for destroyed pieces (thx nickweedon)
 * Fixed the paint tool to calculate correct areas again

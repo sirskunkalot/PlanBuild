@@ -23,5 +23,10 @@ namespace PlanBuild.Plans
         {
             return false;
         }
+
+        public float GetHoverOffset()
+        {
+            return 0f;
+        }
     }
 }

@@ -702,7 +702,7 @@ namespace PlanBuild.Blueprints
                     additionalInfo += $"{armorStand.m_slots.Count}:";
                     foreach (var slot in armorStand.m_slots)
                     {
-                        additionalInfo += $"{slot.m_visualName}:{slot.m_visualVariant}:";
+                        additionalInfo += $"{slot.m_currentItemName}:{slot.m_visualVariant}:";
                     }
                 }
                 Door door = piece.GetComponent<Door>();

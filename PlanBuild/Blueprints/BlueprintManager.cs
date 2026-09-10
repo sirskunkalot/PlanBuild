@@ -265,11 +265,11 @@ namespace PlanBuild.Blueprints
                     {
                         List<Piece> reorder = new List<Piece>();
                         reorder.Add(BlueprintAssets.PlaceholderObject.GetComponent<Piece>());
-                        reorder.AddRange(self.m_availablePieces[(int)cat]
+                        reorder.AddRange(self.m_availablePiecesByCategory[(int)cat]
                             .OrderBy(x => x.m_name)
                             .Where(x => !x.name.Equals(BlueprintAssets.PiecePlaceholderName))
                             .ToList());
-                        self.m_availablePieces[(int)cat] = reorder;
+                        self.m_availablePiecesByCategory[(int)cat] = reorder;
                     }
                 }
             }
