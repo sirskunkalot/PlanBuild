@@ -257,6 +257,11 @@ namespace PlanBuild.Plans
             return Localization.instance.Localize("[<color=yellow>$KEY_Use</color>] $plan_piece_hover_build");
         }
 
+        public float GetHoverOffset()
+        {
+            return 0f;
+        }
+
         private void SetupPieceInfo(Piece piece)
         {
             Player localPlayer = Player.m_localPlayer;
@@ -657,7 +662,7 @@ namespace PlanBuild.Plans
                 }
 
                 // Count up player builds
-                Game.instance.GetPlayerProfile().m_playerStats.m_stats[PlayerStatType.Builds]++;
+                Game.instance.GetPlayerProfile().IncrementStat(PlayerStatType.Builds, 1f, false);
             }
             WearNTear wearntear = actualPiece.GetComponent<WearNTear>();
             if (wearntear)
@@ -674,7 +679,7 @@ namespace PlanBuild.Plans
             {
                 itemdrop.MakePiece(true);
             }
-            actualPiece.GetComponent<Piece>().SetCreator(creatorID);
+            actualPiece.GetComponent<Piece>().SetCreator(creatorID, Splatform.PlatformUserID.None);
             return actualPiece;
         }
 

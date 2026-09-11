@@ -221,7 +221,7 @@ namespace PlanBuild.Blueprints.Components
                 Piece newpiece = gameObject.GetComponent<Piece>();
                 if (newpiece)
                 {
-                    newpiece.SetCreator(player.GetPlayerID());
+                    newpiece.SetCreator(player.GetPlayerID(), Splatform.PlatformUserID.None);
 
                     if (placeDirect && cntEffects < maxEffects)
                     {
@@ -232,7 +232,7 @@ namespace PlanBuild.Blueprints.Components
 
                     if (placeDirect)
                     {
-                        Game.instance.GetPlayerProfile().m_playerStats.m_stats[PlayerStatType.Builds]++;
+                        Game.instance.GetPlayerProfile().IncrementStat(PlayerStatType.Builds, 1f, false);
                     }
                 }
                 CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
@@ -291,7 +291,7 @@ namespace PlanBuild.Blueprints.Components
                         zNetView.m_zdo.Set("variant", variant);
                         zNetView.m_zdo.Set("quality", quality);
                         zNetView.m_zdo.Set("type", orientation);
-                        itemStand.SetVisualItem(item, variant, quality, orientation);
+                        itemStand.SetVisualItem(item.GetStableHashCode(), variant, quality, orientation);
                     }
                 }
                 ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
@@ -315,7 +315,7 @@ namespace PlanBuild.Blueprints.Components
                             var variant = int.Parse(fields[j * 2 + 3]);
                             zNetView.m_zdo.Set($"{j}_item", item);
                             zNetView.m_zdo.Set($"{j}_variant", variant);
-                            armorStand.SetVisualItem(j, item, variant);
+                            armorStand.SetVisualItem(j, item.GetStableHashCode(), variant);
                         }
                     }
                 }

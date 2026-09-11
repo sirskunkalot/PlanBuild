@@ -97,14 +97,14 @@ namespace PlanBuild.Plans
                 PieceManager.Instance.AddPieceTable(planPieceTable);
 
                 // Add empty lists up to the max categories count
-                for (int i = planPieceTable.PieceTable.m_availablePieces.Count; i < (int)Piece.PieceCategory.All; i++)
+                for (int i = planPieceTable.PieceTable.m_availablePiecesByCategory.Count; i < (int)Piece.PieceCategory.All; i++)
                 {
-                    planPieceTable.PieceTable.m_availablePieces.Add(new List<Piece>());
+                    planPieceTable.PieceTable.m_availablePiecesByCategory.Add(new List<Piece>());
                 }
 
                 // Resize selectedPiece array
                 Array.Resize(ref planPieceTable.PieceTable.m_selectedPiece,
-                    planPieceTable.PieceTable.m_availablePieces.Count);
+                    planPieceTable.PieceTable.m_availablePiecesByCategory.Count);
 
                 // Set table on the hammer
                 PlanHammerItem.ItemDrop.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
