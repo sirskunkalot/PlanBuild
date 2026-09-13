@@ -87,6 +87,12 @@ namespace PlanBuild.Plans
             // A Ghost doesn't need fancy scripts
             foreach (var component in gameObject.GetComponentsInChildren<MonoBehaviour>())
             {
+                // A missing script shows up as a null entry
+                if (component == null)
+                {
+                    continue;
+                }
+
                 if (!TypesToKeepInChildren.Any(x => x.IsSameOrSubclass(component.GetType())))
                 {
                     Object.DestroyImmediate(component);

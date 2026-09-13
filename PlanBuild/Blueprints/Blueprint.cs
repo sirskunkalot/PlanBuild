@@ -1039,6 +1039,12 @@ namespace PlanBuild.Blueprints
             // A Ghost doesn't need fancy scripts
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
             {
+                // A missing script shows up as a null entry
+                if (component == null)
+                {
+                    continue;
+                }
+
                 Object.DestroyImmediate(component);
             }
 
