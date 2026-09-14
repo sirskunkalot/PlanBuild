@@ -692,17 +692,26 @@ namespace PlanBuild.Blueprints
                 ItemStand itemStand = piece.GetComponent<ItemStand>();
                 if (itemStand != null && itemStand.HaveAttachment() && itemStand.m_nview)
                 {
+                    // ItemStand persists "item" as an int hash of the prefab name (ZDOVars.s_item).
+                    // ItemData.SharedData.m_name (and ItemStand.m_currentItemName, which mirrors it)
+                    // is not reliably the prefab name either - it can be a localization key instead
+                    // (e.g. "$item_crossbow_ripper_lightning") - so resolve the actual prefab name
+                    // from the stored hash instead, since that's what placement re-hashes against
+                    string itemName = ObjectDB.instance.GetItemPrefab(itemStand.m_nview.m_zdo.GetInt("item"))?.name ?? "";
                     additionalInfo =
-                        $"{itemStand.m_nview.m_zdo.GetString("item")}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}:{itemStand.m_nview.m_zdo.GetInt("type")}";
+                        $"{itemName}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}:{itemStand.m_nview.m_zdo.GetInt("type")}";
                 }
                 ArmorStand armorStand = piece.GetComponent<ArmorStand>();
                 if (armorStand != null && armorStand.m_nview)
                 {
                     additionalInfo = $"{armorStand.m_pose}:";
                     additionalInfo += $"{armorStand.m_slots.Count}:";
-                    foreach (var slot in armorStand.m_slots)
+                    for (int slotIndex = 0; slotIndex < armorStand.m_slots.Count; slotIndex++)
                     {
-                        additionalInfo += $"{slot.m_currentItemName}:{slot.m_visualVariant}:";
+                        // Same reasoning as ItemStand above - resolve the prefab name from the
+                        // stored per-slot item hash instead of slot.m_currentItemName
+                        string slotItemName = ObjectDB.instance.GetItemPrefab(armorStand.m_nview.m_zdo.GetInt($"{slotIndex}_item"))?.name ?? "";
+                        additionalInfo += $"{slotItemName}:{armorStand.m_slots[slotIndex].m_visualVariant}:";
                     }
                 }
                 Door door = piece.GetComponent<Door>();

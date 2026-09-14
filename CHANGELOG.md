@@ -1,6 +1,7 @@
 # Version 0.19.0
 * Fixed PlanTotem not recognizing fully supported plans as supported
 * Fixed ItemStand and ArmorStand losing attached items after a reload when placed via direct build
+* Fixed ItemStand and ArmorStand items not being captured correctly when saving a new blueprint
 * Fixed Plan Hammer no longer able to delete plans with middle-click
 
 # Version 0.18.5
