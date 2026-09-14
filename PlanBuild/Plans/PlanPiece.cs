@@ -58,6 +58,8 @@ namespace PlanBuild.Plans
             m_wearNTear.m_onDestroyed += OnDestroyed;
             if (m_nView.IsOwner())
             {
+                // Keep WearNTear's cache in sync so its next update writes the calculated support to the ZDO.
+                m_wearNTear.m_support = 0f;
                 m_nView.GetZDO().Set("support", 0f);
             }
             m_nView.Register<bool>("Refund", RPC_Refund);
