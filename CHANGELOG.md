@@ -1,3 +1,6 @@
+# Version 0.19.0
+* Fixed PlanTotem no longer recognizing fully supported plans as supported (Valheim's `WearNTear.UpdateSupport` skips writing the support value to the ZDO when it didn't change from its cached value, which was always the case for plans since `PlanPiece` resets that ZDO field on creation)
+
 # Version 0.18.5
 * Compatible with Valheim 1.0.7 (thx shelledghost)
 * Fixed crash on player spawn (camera snapping to world origin and infinite player spawn loop) caused by `Hoverable` gaining a new `GetHoverOffset` member and `PieceTable.m_availablePieces` changing shape in Valheim 1.0.7 (thx shelledghost)
