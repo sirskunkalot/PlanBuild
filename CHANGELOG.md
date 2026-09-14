@@ -3,6 +3,7 @@
 * Fixed ItemStand and ArmorStand losing attached items after a reload when placed via direct build
 * Fixed ItemStand and ArmorStand items not being captured correctly when saving a new blueprint
 * Fixed Plan Hammer no longer able to delete plans with middle-click
+* Fixed Blueprint Rune pieces not showing up in the "Recent" piece list
 
 # Version 0.18.5
 * Compatible with Valheim 1.0.7 (thx shelledghost)

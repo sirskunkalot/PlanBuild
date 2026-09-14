@@ -399,6 +399,11 @@ namespace PlanBuild.Blueprints.Components
                 UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
             }
 
+            // TryPlacePiece is hooked to always return false (see ToolComponentBase.
+            // Player_TryPlacePiece), so vanilla's own post-placement step in Player.cs that adds
+            // the piece to the "Recent" list never runs for the blueprint rune - do it ourselves
+            Hud.instance.m_buildUi.AddRecentPiece(piece);
+
             // Reset offset
             PlacementOffset = Vector3.zero;
         }
