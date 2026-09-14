@@ -189,9 +189,13 @@ namespace PlanBuild.Plans
             }
         }
         
+        // VisEquipment.m_rightItem is a hash of the equipped item's drop prefab name (int), not
+        // the name itself, so it must be compared against the hashed name, not the raw string
+        private static readonly int PlanHammerNameHash = PlanHammerPrefab.PlanHammerName.GetStableHashCode();
+
         private static bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
         {
-            var planHammer = self.m_visEquipment.m_rightItem.Equals(PlanHammerPrefab.PlanHammerName);
+            var planHammer = self.m_visEquipment.m_rightItem == PlanHammerNameHash;
             var planPiece = piece.TryGetComponent<PlanPiece>(out _);
 
             if (planHammer)
