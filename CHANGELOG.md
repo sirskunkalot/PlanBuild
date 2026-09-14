@@ -1,5 +1,7 @@
 # Version 0.19.0
 * Fixed PlanTotem no longer recognizing fully supported plans as supported (Valheim's `WearNTear.UpdateSupport` skips writing the support value to the ZDO when it didn't change from its cached value, which was always the case for plans since `PlanPiece` resets that ZDO field on creation)
+* Fixed ItemStand and ArmorStand items being lost after a reload when placed via direct build (blueprint placement stored the attached item as a string ZDO field, but Valheim reads it back as an int hash of the prefab name, so the item disappeared the next time the piece reloaded)
+* Fixed spurious "Missing item prefab" log spam for empty ArmorStand slots when placed via direct build
 
 # Version 0.18.5
 * Compatible with Valheim 1.0.7 (thx shelledghost)

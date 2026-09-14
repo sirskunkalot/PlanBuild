@@ -287,11 +287,16 @@ namespace PlanBuild.Blueprints.Components
                         {
                             orientation = int.Parse(fields[3]);
                         }
-                        zNetView.m_zdo.Set("item", item);
+                        // ItemStand persists its item as the stable hash of the prefab name
+                        // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
+                        // every reload, so storing the raw string here means the item survives
+                        // the initial SetVisualItem call but disappears again on the next reload
+                        int itemHash = item.GetStableHashCode();
+                        zNetView.m_zdo.Set("item", itemHash);
                         zNetView.m_zdo.Set("variant", variant);
                         zNetView.m_zdo.Set("quality", quality);
                         zNetView.m_zdo.Set("type", orientation);
-                        itemStand.SetVisualItem(item.GetStableHashCode(), variant, quality, orientation);
+                        itemStand.SetVisualItem(itemHash, variant, quality, orientation);
                     }
                 }
                 ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
@@ -313,9 +318,15 @@ namespace PlanBuild.Blueprints.Components
                         {
                             var item = fields[j * 2 + 2];
                             var variant = int.Parse(fields[j * 2 + 3]);
-                            zNetView.m_zdo.Set($"{j}_item", item);
+                            // Same int-vs-string persistence bug as ItemStand above, plus: empty
+                            // slots are captured too (Blueprint.cs writes every slot, not just
+                            // occupied ones), so an empty item name must map to hash 0 - the
+                            // "empty slot" sentinel ArmorStand itself uses - instead of hashing
+                            // the empty string, which produced spurious "Missing item prefab" spam
+                            int itemHash = string.IsNullOrEmpty(item) ? 0 : item.GetStableHashCode();
+                            zNetView.m_zdo.Set($"{j}_item", itemHash);
                             zNetView.m_zdo.Set($"{j}_variant", variant);
-                            armorStand.SetVisualItem(j, item.GetStableHashCode(), variant);
+                            armorStand.SetVisualItem(j, itemHash, variant);
                         }
                     }
                 }
