@@ -152,45 +152,54 @@ namespace PlanBuild.Plans
                 List<PlanPiece> planPieces = FindPlanPiecesInRange();
                 foreach (var planPiece in planPieces)
                 {
-                    if (planPiece.HasSupport())
+                    try
                     {
-                        m_supportedPieces++;
-                    }
-
-                    if (m_nview.IsOwner() && planPiece.HasSupport())
-                    {
-                        if (m_inventory.m_inventory.Count != 0)
+                        if (planPiece.HasSupport())
                         {
-                            planPiece.AddAllMaterials(inventory_wrapper);
+                            m_supportedPieces++;
                         }
-                        if (planPiece.HasAllResources())
+
+                        if (m_nview.IsOwner() && planPiece.HasSupport())
                         {
-                            if (planPiece.HasRequiredCraftingStationInRange())
+                            if (m_inventory.m_inventory.Count != 0)
                             {
-                                if (Config.ShowParticleEffects.Value)
+                                planPiece.AddAllMaterials(inventory_wrapper);
+                            }
+                            if (planPiece.HasAllResources())
+                            {
+                                if (planPiece.HasRequiredCraftingStationInRange())
                                 {
-                                    TriggerConnection(GetCenter(planPiece.gameObject));
+                                    if (Config.ShowParticleEffects.Value)
+                                    {
+                                        TriggerConnection(GetCenter(planPiece.gameObject));
+                                    }
+                                    planPiece.Build(m_piece.m_creator);
+                                    continue;
                                 }
-                                planPiece.Build(m_piece.m_creator);
-                                continue;
+                                else
+                                {
+                                    m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                                }
                             }
-                            else
+                        }
+
+                        m_connectedPieces.Add(planPiece);
+                        Dictionary<string, int> remaining = planPiece.GetRemaining();
+                        foreach (string resourceName in remaining.Keys)
+                        {
+                            int resourceCount = remaining[resourceName];
+                            if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
                             {
-                                m_missingCraftingStations.Add(planPiece.originalPiece.m_craftingStation.m_name);
+                                resourceCount += currentCount;
                             }
+                            m_remainingRequirements[resourceName] = resourceCount;
                         }
                     }
-
-                    m_connectedPieces.Add(planPiece);
-                    Dictionary<string, int> remaining = planPiece.GetRemaining();
-                    foreach (string resourceName in remaining.Keys)
+                    catch (Exception ex)
                     {
-                        int resourceCount = remaining[resourceName];
-                        if (m_remainingRequirements.TryGetValue(resourceName, out int currentCount))
-                        {
-                            resourceCount += currentCount;
-                        }
-                        m_remainingRequirements[resourceName] = resourceCount;
+                        // An exception in one plan piece must not permanently stop the totem's
+                        // update coroutine (Unity kills it on the first uncaught throw)
+                        Jotunn.Logger.LogWarning($"Exception caught while processing plan piece {planPiece}: {ex}");
                     }
                 }
                 m_sortedRequired = m_remainingRequirements

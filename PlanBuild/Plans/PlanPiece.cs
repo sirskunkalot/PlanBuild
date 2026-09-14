@@ -92,7 +92,11 @@ namespace PlanBuild.Plans
 
         internal bool CalculateSupported()
         {
-            return m_nView.GetZDO().GetFloat("support") >= m_minSupport;
+            // "support" is a session-only ZDOVars key (never persisted to disk, see
+            // ZDOVars.s_sessionHashes) - default to m_maxSupport like WearNTear.GetSupport()
+            // itself does, instead of the implicit 0f, so a freshly loaded/reactivated ZDO
+            // that hasn't run WearNTear.UpdateSupport() yet this session doesn't read as unsupported
+            return m_nView.GetZDO().GetFloat("support", m_maxSupport) >= m_minSupport;
         }
 
         public void Update()
@@ -721,6 +725,21 @@ namespace PlanBuild.Plans
                 return false;
             }
             return true;
+        }
+
+        // WearNTear.UpdateSupport() only writes m_support to the ZDO when it differs from its
+        // own cached value. Since WearNTear.Awake() already caches m_support as GetMaxSupport()
+        // before PlanPiece.Awake() resets the ZDO to 0f, a piece that turns out to be fully
+        // supported computes the same value it already had cached, so vanilla's write is skipped
+        // and the ZDO is stuck at 0 forever. Force the ZDO to match the freshly computed value.
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.UpdateSupport))]
+        [HarmonyPostfix]
+        private static void WearNTear_UpdateSupport_Postfix(WearNTear __instance)
+        {
+            if (__instance.GetComponent<PlanPiece>())
+            {
+                __instance.m_nview.GetZDO().Set("support", __instance.m_support);
+            }
         }
 
         // Remove coloring caused by Extensions.Highlight
