@@ -1,5 +1,6 @@
 # Version 0.19.0
 * Removed the HookGenPatcher dependency; all hooks now use Harmony
+* Fixed pieces with missing scripts breaking plan and ghost creation (thx voyagi)
 
 # Version 0.18.6
 * Fixed PlanTotem not recognizing fully supported plans as supported
