@@ -93,9 +93,11 @@ namespace PlanBuild.Blueprints.Components
                     return delcnt;
                 }
 
-                IEnumerable<GameObject> prefabs = FindObjectsOfType<GameObject>()
+                // The tool's own placement ghost always sits inside the radius but has no ZDO
+                IEnumerable<GameObject> prefabs = FindObjectsByType<GameObject>(FindObjectsSortMode.None)
                     .Where(obj => Vector3.Distance(startPosition, obj.transform.position) <= radius &&
                                   obj.GetComponent<ZNetView>() &&
+                                  !Player.IsPlacementGhost(obj) &&
                                   //obj.GetComponents<Component>().Select(x => x.GetType()) is Type[] comp &&
                                   (includeTypes == null || includeTypes.All(x => obj.GetComponent(x) != null)) &&
                                   (excludeTypes == null || excludeTypes.All(x => obj.GetComponent(x) == null)));
