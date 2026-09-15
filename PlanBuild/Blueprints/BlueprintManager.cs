@@ -412,6 +412,13 @@ namespace PlanBuild.Blueprints
         [HarmonyPostfix]
         private static void ZNetScene_Shutdown_Postfix()
         {
+            // Clearing the dictionary on its own leaves every clipboard piece registered in the
+            // rune's piece table, and nothing can clean them up afterwards because ClearClipboard()
+            // iterates this very dictionary. Destroy them first.
+            foreach (var tmp in TemporaryBlueprints)
+            {
+                tmp.Value.DestroyBlueprint();
+            }
             TemporaryBlueprints.Clear();
             Selection.Instance.Clear();
         }
