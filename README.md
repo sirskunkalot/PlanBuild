@@ -176,7 +176,6 @@ It is recommended to use a mod manager to install PlanBuild and all of its depen
 If you want to install it manually, load all of these mods as they are all required for PlanBuild to function and install them according to their respective install instructions:
 
 * [BepInExPack for Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim)
-* [HookGenPatcher](https://valheim.thunderstore.io/package/ValheimModding/HookGenPatcher)
 * [Jötunn, the Valheim Library](https://valheim.thunderstore.io/package/ValheimModding/Jotunn)
 
 Finally extract *all* of the contents of the PlanBuild mod archive into ```<Valheim>\BepInEx\plugins\PlanBuild```

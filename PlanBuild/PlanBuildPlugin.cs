@@ -27,7 +27,7 @@ namespace PlanBuild
     {
         public const string PluginGUID = "marcopogo.PlanBuild";
         public const string PluginName = "PlanBuild";
-        public const string PluginVersion = "0.18.6";
+        public const string PluginVersion = "0.19.0";
 
         public static PlanBuildPlugin Instance;
 
@@ -51,6 +51,7 @@ namespace PlanBuild
             PlanCrystalPrefab.Create(planbuildBundle);
             PlanHammerPrefab.Create(planbuildBundle);
             planbuildBundle.Unload(false);
+            PlanTotem.Init();
             PlanManager.Init();
             
             // Add localization for the created snappoints of blueprints, so it doesnt show gibberish

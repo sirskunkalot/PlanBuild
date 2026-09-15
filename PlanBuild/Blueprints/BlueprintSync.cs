@@ -1,4 +1,5 @@
-﻿using Jotunn;
+﻿using HarmonyLib;
+using Jotunn;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using System;
@@ -26,7 +27,7 @@ namespace PlanBuild.Blueprints
                 nameof(PushBlueprintRPC), PushBlueprintRPC_OnServerReceive, PushBlueprintRPC_OnClientReceive);
             RemoveServerBlueprintRPC = NetworkManager.Instance.AddRPC(
                 nameof(RemoveServerBlueprintRPC), RemoveServerBlueprintRPC_OnServerReceive, RemoveServerBlueprintRPC_OnClientReceive);
-            On.ZNet.OnDestroy += ResetServerBlueprints;
+            Patches.Harmony.PatchAll(typeof(BlueprintSync));
         }
 
         /// <summary>
@@ -571,10 +572,11 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        private static void ResetServerBlueprints(On.ZNet.orig_OnDestroy orig, ZNet self)
+        [HarmonyPatch(typeof(ZNet), nameof(ZNet.OnDestroy))]
+        [HarmonyPrefix]
+        private static void ZNet_OnDestroy_Prefix()
         {
             BlueprintManager.ServerBlueprints?.Clear();
-            orig(self);
         }
     }
 }

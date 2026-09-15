@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HarmonyLib;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,31 +25,36 @@ namespace PlanBuild.Plans
 
         #region Container Override
 
-        static PlanTotem()
+        internal static void Init()
         {
-            On.Container.GetHoverText += OnContainerHoverText;
-            On.Container.Interact += OnContainerInteract;
+            Patches.Harmony.PatchAll(typeof(PlanTotem));
         }
 
-        private static bool OnContainerInteract(On.Container.orig_Interact orig, Container self, Humanoid character, bool hold, bool alt)
+        [HarmonyPatch(typeof(Container), nameof(Container.Interact))]
+        [HarmonyPrefix]
+        private static bool Container_Interact_Prefix(Container __instance, bool hold, ref bool __result)
         {
-            PlanTotem planTotem = self as PlanTotem;
-            if (planTotem && !hold && ZInput.GetButton("Crouch") && !self.IsInUse())
+            PlanTotem planTotem = __instance as PlanTotem;
+            if (planTotem && !hold && ZInput.GetButton("Crouch") && !__instance.IsInUse())
             {
                 planTotem.m_nview.InvokeRPC("ToggleEnabled");
-                return true;
+                __result = true;
+                return false;
             }
-            return orig(self, character, hold, alt);
+            return true;
         }
 
-        private static string OnContainerHoverText(On.Container.orig_GetHoverText orig, Container self)
+        [HarmonyPatch(typeof(Container), nameof(Container.GetHoverText))]
+        [HarmonyPrefix]
+        private static bool Container_GetHoverText_Prefix(Container __instance, ref string __result)
         {
-            PlanTotem planTotem = self as PlanTotem;
+            PlanTotem planTotem = __instance as PlanTotem;
             if (planTotem)
             {
-                return planTotem.GetHoverText();
+                __result = planTotem.GetHoverText();
+                return false;
             }
-            return orig(self);
+            return true;
         }
 
         #endregion Container Override
