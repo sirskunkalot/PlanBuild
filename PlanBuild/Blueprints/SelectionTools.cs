@@ -26,12 +26,15 @@ namespace PlanBuild.Blueprints
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
-            int cat = (int)PieceManager.Instance.GetPieceCategory(BlueprintAssets.CategoryClipboard);
-            List<Piece> reorder = Player.m_localPlayer.m_buildPieces.m_availablePiecesByCategory[cat].OrderByDescending(x => x.name).ToList();
-            Player.m_localPlayer.m_buildPieces.m_availablePiecesByCategory[cat] = reorder;
-            Player.m_localPlayer.m_buildPieces.m_selectedCategory = (Piece.PieceCategory)cat;
-            Player.m_localPlayer.m_buildPieces.SetSelected(new Vector2Int(0, 0));
-            Player.m_localPlayer.SetupPlacementGhost();
+            // Select the new piece by reference - its grid position depends on the piece table order
+            if (bp.PiecePrefab && Player.m_localPlayer.SetSelectedPiece(bp.PiecePrefab))
+            {
+                Player.m_localPlayer.SetupPlacementGhost();
+            }
+            else
+            {
+                Jotunn.Logger.LogWarning($"Could not select blueprint {bp.ID} in the piece table");
+            }
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
         }
 

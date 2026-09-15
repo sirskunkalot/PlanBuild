@@ -27,6 +27,17 @@ namespace PlanBuild.Blueprints
         private static float OriginalPlaceDistance;
         private static GameObject OriginalTooltip;
 
+        /// <summary>
+        ///     Categories shown first in the Blueprint Rune, in this order.
+        ///     Everything else follows alphabetically.
+        /// </summary>
+        private static readonly string[] FixedCategoryOrder =
+        {
+            BlueprintAssets.CategoryTools,
+            BlueprintAssets.CategoryClipboard,
+            BlueprintAssets.CategoryBlueprints
+        };
+
         public static void Init()
         {
             Logger.LogInfo("Initializing BlueprintManager");
@@ -236,30 +247,54 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Reorder pieces in local blueprint categories by name.
-        ///     Remove "placeholder pieces" from blueprint categories
+        ///     Order the Blueprint Rune's piece table: Tools, Clipboard, Blueprints, then the
+        ///     custom categories alphabetically, blueprints inside a category by name.
+        ///     The new build UI takes both the tag order and the piece order from m_availablePieces,
+        ///     which vanilla fills from m_pieces - reordering m_availablePiecesByCategory afterwards
+        ///     has no effect on it.
         /// </summary>
         [HarmonyPatch(typeof(PieceTable), nameof(PieceTable.UpdateAvailable))]
-        [HarmonyPostfix]
-        private static void PieceTable_UpdateAvailable_Postfix(PieceTable __instance)
+        [HarmonyPrefix]
+        private static void PieceTable_UpdateAvailable_Prefix(PieceTable __instance)
         {
-            if (__instance.name.Equals(BlueprintAssets.PieceTableName))
+            if (!__instance.name.Equals(BlueprintAssets.PieceTableName))
             {
-                foreach (var cats in LocalBlueprints.Values.GroupBy(x => x.Category))
-                {
-                    Piece.PieceCategory? cat = PieceManager.Instance.GetPieceCategory(cats.Key);
-                    if (cat.HasValue)
-                    {
-                        List<Piece> reorder = new List<Piece>();
-                        reorder.Add(BlueprintAssets.PlaceholderObject.GetComponent<Piece>());
-                        reorder.AddRange(__instance.m_availablePiecesByCategory[(int)cat]
-                            .OrderBy(x => x.m_name)
-                            .Where(x => !x.name.Equals(BlueprintAssets.PiecePlaceholderName))
-                            .ToList());
-                        __instance.m_availablePiecesByCategory[(int)cat] = reorder;
-                    }
-                }
+                return;
             }
+
+            var categoryNames = PieceManager.Instance.GetPieceCategoriesMap();
+            var sorted = __instance.m_pieces
+                .OrderBy(prefab => CategorySortKey(prefab, categoryNames))
+                // Only the blueprints sort by name, the tools keep their registration order
+                .ThenBy(prefab => IsBlueprintPiece(prefab) && prefab.TryGetComponent(out Piece piece)
+                    ? piece.m_name
+                    : string.Empty)
+                .ToList();
+
+            // Keep the list instance itself, Jotunn registers new pieces into it
+            __instance.m_pieces.Clear();
+            __instance.m_pieces.AddRange(sorted);
+        }
+
+        /// <summary>
+        ///     Sort key of a piece's category: the three own categories in fixed order,
+        ///     everything else alphabetically behind them.
+        /// </summary>
+        private static (int, string) CategorySortKey(GameObject prefab, Dictionary<Piece.PieceCategory, string> categoryNames)
+        {
+            if (!prefab || !prefab.TryGetComponent(out Piece piece) ||
+                !categoryNames.TryGetValue(piece.m_category, out string name))
+            {
+                return (FixedCategoryOrder.Length + 1, string.Empty);
+            }
+
+            int rank = Array.IndexOf(FixedCategoryOrder, name);
+            return rank >= 0 ? (rank, string.Empty) : (FixedCategoryOrder.Length, name);
+        }
+
+        private static bool IsBlueprintPiece(GameObject prefab)
+        {
+            return prefab && prefab.name.StartsWith($"{Blueprint.PieceBlueprintName}:");
         }
 
         /// <summary>

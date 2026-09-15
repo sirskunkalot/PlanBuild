@@ -132,6 +132,11 @@ namespace PlanBuild.Blueprints
         private GameObject Prefab;
 
         /// <summary>
+        ///     Piece component of the generated prefab, null until <see cref="CreatePiece"/> ran
+        /// </summary>
+        internal Piece PiecePrefab => Prefab ? Prefab.GetComponent<Piece>() : null;
+
+        /// <summary>
         ///     Dynamically generated KeyHint for this blueprint
         /// </summary>
         private KeyHintConfig KeyHint;

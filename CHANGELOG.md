@@ -4,6 +4,10 @@
 * Fixed clipboard blueprints staying in the Blueprint Rune after leaving a world
 * Fixed the Delete Objects tool aborting with an error when its own placement ghost was in range
 * Replaced the deprecated FindObjectsOfType calls with the faster unsorted FindObjectsByType
+* Fixed a freshly copied blueprint not being selected in the Blueprint Rune
+* Fixed blueprints no longer being sorted by name in the new build UI
+* Blueprint Rune categories are now ordered Tools, Clipboard, Blueprints, then custom categories alphabetically
+* Removed the blueprint placeholder piece, the new build UI no longer selects the first piece of a category
 
 # Version 0.18.6
 * Fixed PlanTotem not recognizing fully supported plans as supported
