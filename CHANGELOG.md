@@ -1,3 +1,6 @@
+# Version 0.19.0
+* Removed the HookGenPatcher dependency; all hooks now use Harmony
+
 # Version 0.18.6
 * Fixed PlanTotem not recognizing fully supported plans as supported
 * Fixed ItemStand and ArmorStand losing attached items after a reload when placed via direct build

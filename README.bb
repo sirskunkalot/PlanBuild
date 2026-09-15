@@ -170,7 +170,6 @@ If you want to install it manually, load all of these mods as they are all requi
 
 [list]
 [*][url=https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim]BepInExPack for Valheim[/url]
-[*][url=https://valheim.thunderstore.io/package/ValheimModding/HookGenPatcher]HookGenPatcher[/url]
 [*][url=https://valheim.thunderstore.io/package/ValheimModding/Jotunn]Jötunn, the Valheim Library[/url]
 [/list]
 

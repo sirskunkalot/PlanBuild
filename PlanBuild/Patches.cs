@@ -13,11 +13,13 @@ namespace PlanBuild
         public const string ValheimRaftGUID = "BepIn.Sarcen.ValheimRAFT";
         public const string ItemDrawersGUID = "mkz.itemdrawers";
 
-        private static Harmony Harmony;
+        // A field initializer (not assignment inside Apply()) so other managers can safely call
+        // Patches.Harmony.PatchAll(...) from their own Init() regardless of whether that runs
+        // before or after Apply() - the CLR initializes this on first access to the type.
+        internal static readonly Harmony Harmony = new Harmony(PlanBuildPlugin.PluginGUID);
 
         internal static void Apply()
         {
-            Harmony = new Harmony(PlanBuildPlugin.PluginGUID);
             Harmony.PatchAll(typeof(PlanPiece));
 
             if (Chainloader.PluginInfos.ContainsKey(BuildCameraGUID))

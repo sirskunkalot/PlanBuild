@@ -778,5 +778,41 @@ namespace PlanBuild.Plans
             return true;
         }
 
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.Highlight))]
+        [HarmonyPrefix]
+        private static bool WearNTear_Highlight_Prefix(WearNTear __instance)
+        {
+            if (!PlanCrystalPrefab.ShowRealTextures && __instance.TryGetComponent(out PlanPiece planPiece))
+            {
+                planPiece.Highlight();
+                return false;
+            }
+            return true;
+        }
+
+        [HarmonyPatch(typeof(WearNTear), nameof(WearNTear.Destroy))]
+        [HarmonyPrefix]
+        private static bool WearNTear_Destroy_Prefix(WearNTear __instance, HitData hitData)
+        {
+            if (__instance.m_nview && __instance.m_nview.IsOwner()
+                                  && (hitData != null || __instance.m_support <= 0f)  // gets destroyed by a hit or by lack of support, remove works
+                                  && PlanDB.Instance.FindPlanByPrefabName(__instance.name, out PlanPiecePrefab planPrefab))
+            {
+                foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
+                {
+                    if (!planTotem.GetEnabled())
+                    {
+                        continue;
+                    }
+                    GameObject gameObject = __instance.gameObject;
+                    if (planTotem.InRange(gameObject))
+                    {
+                        planTotem.Replace(gameObject, planPrefab);
+                        break;
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

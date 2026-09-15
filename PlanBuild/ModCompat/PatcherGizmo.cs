@@ -61,15 +61,21 @@ namespace PlanBuild.ModCompat
             return true;
         }
 
-        [HarmonyPatch(typeof(ToolComponentBase), nameof(ToolComponentBase.Player_UpdatePlacementGhost))]
+        [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacementGhost))]
         [HarmonyPostfix]
-        private static void PlanBuild_Player_UpdatePlacementGhost_Postfix(Player self)
+        private static void Player_UpdatePlacementGhost_Postfix(Player __instance)
         {
-            if (!self.m_placementGhost) return;
+            // Only for PlanBuild tool ghosts - this used to patch ToolComponentBase's own handler,
+            // which could only run while such a tool was active.
+            if (!__instance.m_placementGhost
+                || !__instance.m_placementGhost.TryGetComponent<ToolComponentBase>(out _))
+            {
+                return;
+            }
 
             foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
             {
-                gizmoInstance.SetPosition(self.m_placementGhost.transform.position);
+                gizmoInstance.SetPosition(__instance.m_placementGhost.transform.position);
             }
         }
     }

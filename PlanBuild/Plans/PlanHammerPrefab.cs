@@ -1,4 +1,5 @@
-﻿using Jotunn.Configs;
+﻿using HarmonyLib;
+using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
 using PlanBuild.Blueprints;
@@ -29,6 +30,7 @@ namespace PlanBuild.Plans
             PrefabManager.OnVanillaPrefabsAvailable += CreatePlanHammerItem;
             PieceManager.OnPiecesRegistered += CreatePlanTable;
             GUIManager.OnCustomGUIAvailable += CreateCustomKeyHints;
+            Patches.Harmony.PatchAll(typeof(PlanHammerPrefab));
         }
 
         private static void CreatePlanHammerItem()
@@ -110,7 +112,6 @@ namespace PlanBuild.Plans
                 PlanHammerItem.ItemDrop.m_itemData.m_shared.m_buildPieces = planPieceTable.PieceTable;
 
                 // Create delete tool
-                PieceDeletePlansPrefab.AddComponent<DeletePlansComponent>();
                 CustomPiece pieceDelete = new CustomPiece(PieceDeletePlansPrefab, PieceTableName, false);
                 PieceManager.Instance.AddPiece(pieceDelete);
                 PieceManager.Instance.RegisterPieceInPieceTable(PieceDeletePlansPrefab, PieceTableName, "All");
@@ -142,39 +143,44 @@ namespace PlanBuild.Plans
             GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
         }
         
-        private class DeletePlansComponent : MonoBehaviour
+        private static Piece LastHoveredPiece;
+
+        /// <summary>
+        ///     Whether the delete-plans piece is the player's currently selected/placed ghost.
+        ///     Mirrors the ghost-name check PatcherGizmo.cs already uses for the same piece.
+        /// </summary>
+        private static bool IsDeletePlansActive(Player player)
         {
-            private Piece LastHoveredPiece;
-            
-            private void Start()
+            return player.m_placementGhost
+                && player.m_placementGhost.name.StartsWith(PieceDeletePlansName, StringComparison.Ordinal);
+        }
+
+        [HarmonyPatch(typeof(Player), nameof(Player.PieceRayTest))]
+        [HarmonyPostfix]
+        private static void Player_PieceRayTest_Postfix(Player __instance, Piece piece)
+        {
+            if (IsDeletePlansActive(__instance))
             {
-                On.Player.PieceRayTest += Player_PieceRayTest;
-                On.Player.TryPlacePiece += Player_TryPlacePiece;
-                Logger.LogDebug($"{gameObject.name} started");
-            }
-            
-            private void OnDestroy()
-            {
-                On.Player.TryPlacePiece -= Player_TryPlacePiece;
-                On.Player.PieceRayTest -= Player_PieceRayTest;
-                Logger.LogDebug($"{gameObject.name} destroyed");
-            }
-            
-            private bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
-            {
-                bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
                 LastHoveredPiece = piece;
-                return result;
+            }
+        }
+
+        [HarmonyPatch(typeof(Player), nameof(Player.TryPlacePiece))]
+        [HarmonyPrefix]
+        private static bool Player_TryPlacePiece_Prefix(Player __instance, ref bool __result)
+        {
+            if (!IsDeletePlansActive(__instance))
+            {
+                return true;
             }
 
-            private bool Player_TryPlacePiece(On.Player.orig_TryPlacePiece orig, Player self, Piece piece)
+            if (LastHoveredPiece && LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
             {
-                if (LastHoveredPiece && LastHoveredPiece.TryGetComponent(out PlanPiece planPiece))
-                {
-                    planPiece.m_wearNTear.Remove();
-                }
-                return false;
+                planPiece.m_wearNTear.Remove();
             }
+
+            __result = false;
+            return false;
         }
     }
 }

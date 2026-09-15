@@ -1,4 +1,4 @@
-﻿using PlanBuild.ModCompat;
+﻿using HarmonyLib;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -32,16 +32,6 @@ namespace PlanBuild.Blueprints.Components
                 MarkerOffset = Vector3.zero;
             }
 
-            On.Player.UpdatePlacement += Player_UpdatePlacement;
-            On.Player.UpdateWearNTearHover += Player_UpdateWearNTearHover;
-            On.Player.TryPlacePiece += Player_TryPlacePiece;
-
-            On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
-            On.Player.PieceRayTest += Player_PieceRayTest;
-
-            On.GameCamera.UpdateCamera += GameCamera_UpdateCamera;
-            On.Hud.SetupPieceInfo += Hud_SetupPieceInfo;
-
             Jotunn.Logger.LogDebug($"{gameObject.name} started");
         }
 
@@ -60,16 +50,6 @@ namespace PlanBuild.Blueprints.Components
             OnOnDestroy();
             DisableSelectionProjector();
 
-            On.Player.UpdatePlacement -= Player_UpdatePlacement;
-            On.Player.UpdateWearNTearHover -= Player_UpdateWearNTearHover;
-            On.Player.TryPlacePiece -= Player_TryPlacePiece;
-
-            On.Player.UpdatePlacementGhost -= Player_UpdatePlacementGhost;
-            On.Player.PieceRayTest -= Player_PieceRayTest;
-
-            On.GameCamera.UpdateCamera -= GameCamera_UpdateCamera;
-            On.Hud.SetupPieceInfo -= Hud_SetupPieceInfo;
-
             Jotunn.Logger.LogDebug($"{gameObject.name} destroyed");
         }
 
@@ -78,15 +58,26 @@ namespace PlanBuild.Blueprints.Components
         }
 
         /// <summary>
+        ///     Look up the ToolComponentBase on the local player's currently active placement ghost, if any.
+        /// </summary>
+        internal static bool TryGetActive(out ToolComponentBase tool)
+        {
+            tool = null;
+            return Player.m_localPlayer && Player.m_localPlayer.m_placementGhost
+                && Player.m_localPlayer.m_placementGhost.TryGetComponent(out tool);
+        }
+
+        /// <summary>
         ///     Update the tool's placement
         /// </summary>
-        private void Player_UpdatePlacement(On.Player.orig_UpdatePlacement orig, Player self, bool takeInput, float dt)
+        [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacement))]
+        [HarmonyPostfix]
+        private static void Player_UpdatePlacement_Postfix(Player __instance, bool takeInput)
         {
-            orig(self, takeInput, dt);
-
-            if (self.m_placementGhost && takeInput)
+            if (__instance.m_placementGhost && takeInput
+                && __instance.m_placementGhost.TryGetComponent(out ToolComponentBase tool))
             {
-                OnUpdatePlacement(self);
+                tool.OnUpdatePlacement(__instance);
             }
         }
 
@@ -95,21 +86,18 @@ namespace PlanBuild.Blueprints.Components
         /// </summary>
         public virtual void OnUpdatePlacement(Player self)
         {
-            PlacementOffset = Vector3.zero;
-            MarkerOffset = Vector3.zero;
-            CameraOffset = 0f;
-            DisableSelectionProjector();
         }
 
         /// <summary>
         ///     Dont highlight pieces while capturing when enabled
         /// </summary>
-        private void Player_UpdateWearNTearHover(On.Player.orig_UpdateWearNTearHover orig, Player self)
+        [HarmonyPatch(typeof(Player), nameof(Player.UpdateWearNTearHover))]
+        [HarmonyPrefix]
+        private static bool Player_UpdateWearNTearHover_Prefix(Player __instance)
         {
-            if (!SuppressPieceHighlight)
-            {
-                orig(self);
-            }
+            return !(__instance.m_placementGhost
+                && __instance.m_placementGhost.TryGetComponent(out ToolComponentBase tool)
+                && tool.SuppressPieceHighlight);
         }
 
         public float GetPlacementOffset(float scrollWheel)
@@ -241,44 +229,42 @@ namespace PlanBuild.Blueprints.Components
         /// <summary>
         ///     Flatten placement marker and apply the PlacementOffset
         /// </summary>
-        internal void Player_UpdatePlacementGhost(
-            On.Player.orig_UpdatePlacementGhost orig,
-            Player self,
-            bool flashGuardStone
-        )
+        [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacementGhost))]
+        [HarmonyPostfix]
+        private static void Player_UpdatePlacementGhost_Postfix(Player __instance)
         {
-            orig(self, flashGuardStone);
-            if (!self.m_placementMarkerInstance) return;
-            self.m_placementMarkerInstance.transform.up = Vector3.back;
-            if (!(self.m_placementGhost && PlacementOffset != Vector3.zero)) return;
+            if (!__instance.m_placementGhost || !__instance.m_placementGhost.TryGetComponent(out ToolComponentBase _))
+            {
+                return;
+            }
 
-            var rot = self.m_placementGhost.transform.rotation;
-            self.m_placementGhost.transform.Rotate(Quaternion.Inverse(rot).eulerAngles);
-            self.m_placementGhost.transform.Translate(PlacementOffset);
-            self.m_placementGhost.transform.Rotate(rot.eulerAngles);
+            if (!__instance.m_placementMarkerInstance) return;
+            __instance.m_placementMarkerInstance.transform.up = Vector3.back;
+            if (!(PlacementOffset != Vector3.zero)) return;
+
+            var rot = __instance.m_placementGhost.transform.rotation;
+            __instance.m_placementGhost.transform.Rotate(Quaternion.Inverse(rot).eulerAngles);
+            __instance.m_placementGhost.transform.Translate(PlacementOffset);
+            __instance.m_placementGhost.transform.Rotate(rot.eulerAngles);
         }
 
         /// <summary>
         ///     Apply the MarkerOffset and react on piece hover
         /// </summary>
-        private bool Player_PieceRayTest(
-            On.Player.orig_PieceRayTest orig,
-            Player self,
-            out Vector3 point,
-            out Vector3 normal,
-            out Piece piece,
-            out Heightmap heightmap,
-            out Collider waterSurface,
-            bool water
-        )
+        [HarmonyPatch(typeof(Player), nameof(Player.PieceRayTest))]
+        [HarmonyPostfix]
+        private static void Player_PieceRayTest_Postfix(Player __instance, ref Vector3 point, Piece piece, bool __result)
         {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
-            if (result && self.m_placementGhost && MarkerOffset != Vector3.zero)
+            if (!__instance.m_placementGhost || !__instance.m_placementGhost.TryGetComponent(out ToolComponentBase tool))
             {
-                point += self.m_placementGhost.transform.TransformDirection(MarkerOffset);
+                return;
             }
-            OnPieceHovered(piece);
-            return result;
+
+            if (__result && MarkerOffset != Vector3.zero)
+            {
+                point += __instance.m_placementGhost.transform.TransformDirection(MarkerOffset);
+            }
+            tool.OnPieceHovered(piece);
         }
 
         public virtual void OnPieceHovered(Piece hoveredPiece)
@@ -289,10 +275,17 @@ namespace PlanBuild.Blueprints.Components
         ///     Incept placing of the meta pieces.
         ///     Cancels the real placement of the placeholder pieces.
         /// </summary>
-        private bool Player_TryPlacePiece(On.Player.orig_TryPlacePiece orig, Player self, Piece piece)
+        [HarmonyPatch(typeof(Player), nameof(Player.TryPlacePiece))]
+        [HarmonyPrefix]
+        private static bool Player_TryPlacePiece_Prefix(Player __instance, Piece piece, ref bool __result)
         {
-            OnPlacePiece(self, piece);
-            return false;
+            if (__instance.m_placementGhost && __instance.m_placementGhost.TryGetComponent(out ToolComponentBase tool))
+            {
+                tool.OnPlacePiece(__instance, piece);
+                __result = false;
+                return false;
+            }
+            return true;
         }
 
         public virtual void OnPlacePiece(Player self, Piece piece)
@@ -302,28 +295,28 @@ namespace PlanBuild.Blueprints.Components
         /// <summary>
         ///     Adjust camera height
         /// </summary>
-        private void GameCamera_UpdateCamera(On.GameCamera.orig_UpdateCamera orig, GameCamera self, float dt)
+        [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.UpdateCamera))]
+        [HarmonyPostfix]
+        private static void GameCamera_UpdateCamera_Postfix(GameCamera __instance)
         {
-            orig(self, dt);
-
-            if (PatcherBuildCamera.UpdateCamera
-                && Player.m_localPlayer
-                && Player.m_localPlayer.InPlaceMode()
-                && Player.m_localPlayer.m_placementGhost) { }
+            if (!TryGetActive(out _))
             {
-                self.transform.position += new Vector3(0, CameraOffset, 0);
+                return;
             }
+
+            __instance.transform.position += new Vector3(0, CameraOffset, 0);
         }
 
         /// <summary>
         ///     Hook SetupPieceInfo to alter the piece description per tool.
         /// </summary>
-        private void Hud_SetupPieceInfo(On.Hud.orig_SetupPieceInfo orig, Hud self, Piece piece)
+        [HarmonyPatch(typeof(Hud), nameof(Hud.SetupPieceInfo))]
+        [HarmonyPostfix]
+        private static void Hud_SetupPieceInfo_Postfix(Hud __instance)
         {
-            orig(self, piece);
-            if (!self.m_pieceSelectionWindow.activeSelf)
+            if (!__instance.m_pieceSelectionWindow.activeSelf && TryGetActive(out var tool))
             {
-                UpdateDescription();
+                tool.UpdateDescription();
             }
         }
 

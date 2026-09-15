@@ -1,4 +1,5 @@
-﻿using Jotunn.Managers;
+﻿using HarmonyLib;
+using Jotunn.Managers;
 using PlanBuild.Blueprints;
 using PlanBuild.Utils;
 using System;
@@ -21,18 +22,8 @@ namespace PlanBuild.Plans
             // Init commands
             PlanCommands.Init();
 
-            // Hooks
-            On.DungeonDB.Start += (orig, self) =>
-            {
-                orig(self);
-                PlanDB.Instance.ScanPieceTables();
-            };
-            On.Player.AddKnownPiece += Player_AddKnownPiece;
-            On.Player.HaveRequirements_Piece_RequirementMode += Player_HaveRequirements;
-            On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
-            On.Player.CheckCanRemovePiece += Player_CheckCanRemovePiece;
-            On.WearNTear.Highlight += WearNTear_Highlight;
-            On.WearNTear.Destroy += WearNTear_Destroy;
+            // Harmony patches (see patch methods below)
+            Patches.Harmony.PatchAll(typeof(PlanManager));
         }
         
         public static void UpdateKnownRecipes()
@@ -97,7 +88,9 @@ namespace PlanBuild.Plans
             }
         }
 
-        private static void Player_AddKnownPiece(On.Player.orig_AddKnownPiece orig, Player self, Piece piece)
+        [HarmonyPatch(typeof(Player), nameof(Player.AddKnownPiece))]
+        [HarmonyPrefix]
+        private static bool Player_AddKnownPiece_Prefix(Piece piece)
         {
             if (piece.name.EndsWith(PlanPiecePrefab.PlannedSuffix))
             {
@@ -105,10 +98,10 @@ namespace PlanBuild.Plans
                 Jotunn.Logger.LogDebug($"Prevent notification for {piece.name}");
 #endif
                 Player.m_localPlayer.m_knownRecipes.Add(piece.m_name);
-                return;
+                return false;
             }
 
-            orig(self, piece);
+            return true;
         }
 
         /// <summary>
@@ -134,7 +127,9 @@ namespace PlanBuild.Plans
             return false;
         }
 
-        private static bool Player_HaveRequirements(On.Player.orig_HaveRequirements_Piece_RequirementMode orig, Player self, Piece piece, Player.RequirementMode mode)
+        [HarmonyPatch(typeof(Player), nameof(Player.HaveRequirements), new[] { typeof(Piece), typeof(Player.RequirementMode) })]
+        [HarmonyPrefix]
+        private static bool Player_HaveRequirements_Prefix(Player __instance, Piece piece, Player.RequirementMode mode, ref bool __result)
         {
             try
             {
@@ -142,106 +137,103 @@ namespace PlanBuild.Plans
                 {
                     if (PlanBlacklist.Contains(originalPiece))
                     {
+                        __result = false;
                         return false;
                     }
                     if (Config.ShowAllPieces.Value)
                     {
-                        return true;
+                        __result = true;
+                        return false;
                     }
-                    return self.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                    __result = __instance.HaveRequirements(originalPiece, Player.RequirementMode.IsKnown);
+                    return false;
                 }
             }
             catch (Exception e)
             {
                 Logger.LogWarning($"Error while executing Player.HaveRequirements({piece},{mode}): {e}");
             }
-            return orig(self, piece, mode);
+            return true;
         }
 
-        private static void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
+        [HarmonyPrefix]
+        private static void Player_SetupPlacementGhost_Prefix()
         {
-            try
+            PlanPiece.m_forceDisableInit = true;
+        }
+
+        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
+        [HarmonyPostfix]
+        private static void Player_SetupPlacementGhost_Postfix(Player __instance)
+        {
+            if (!__instance.m_placementGhost)
             {
-                PlanPiece.m_forceDisableInit = true;
-                orig(self);
-                if (self.m_placementGhost)
-                {
-                    if (PlanCrystalPrefab.ShowRealTextures)
-                    {
-                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Skuld);
-                    }
-                    else if (Config.ConfigTransparentGhostPlacement.Value
-                             && (self.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
-                                 || self.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
-                    )
-                    {
-                        ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
-                    }
-                }
+                return;
             }
-            catch (Exception ex)
+
+            if (PlanCrystalPrefab.ShowRealTextures)
             {
-                Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {ex}");
+                ShaderHelper.UpdateTextures(__instance.m_placementGhost, ShaderHelper.ShaderState.Skuld);
             }
-            finally
+            else if (Config.ConfigTransparentGhostPlacement.Value
+                     && (__instance.m_placementGhost.name.StartsWith(Blueprint.PieceBlueprintName)
+                         || __instance.m_placementGhost.name.Split('(')[0].EndsWith(PlanPiecePrefab.PlannedSuffix))
+            )
             {
-                PlanPiece.m_forceDisableInit = false;
+                ShaderHelper.UpdateTextures(__instance.m_placementGhost, ShaderHelper.ShaderState.Supported);
             }
         }
-        
+
+        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
+        [HarmonyFinalizer]
+        private static Exception Player_SetupPlacementGhost_Finalizer(Exception __exception)
+        {
+            // Must be a finalizer, not the postfix: the postfix is skipped when the original or
+            // another patch throws, and a stuck m_forceDisableInit makes every PlanPiece.Awake()
+            // destroy itself. Swallowing matches the try/catch the pre-Harmony hook wrapped
+            // around the whole call.
+            PlanPiece.m_forceDisableInit = false;
+
+            if (__exception != null)
+            {
+                Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {__exception}");
+            }
+
+            return null;
+        }
+
         // VisEquipment.m_rightItem is a hash of the equipped item's drop prefab name (int), not
         // the name itself, so it must be compared against the hashed name, not the raw string
         private static readonly int PlanHammerNameHash = PlanHammerPrefab.PlanHammerName.GetStableHashCode();
 
-        private static bool Player_CheckCanRemovePiece(On.Player.orig_CheckCanRemovePiece orig, Player self, Piece piece)
+        [HarmonyPatch(typeof(Player), nameof(Player.CheckCanRemovePiece))]
+        [HarmonyPrefix]
+        private static bool Player_CheckCanRemovePiece_Prefix(Player __instance, Piece piece, ref bool __result)
         {
-            var planHammer = self.m_visEquipment.m_rightItem == PlanHammerNameHash;
+            var planHammer = __instance.m_visEquipment.m_rightItem == PlanHammerNameHash;
             var planPiece = piece.TryGetComponent<PlanPiece>(out _);
 
             if (planHammer)
             {
-                return planPiece;
+                __result = planPiece;
+                return false;
             }
 
             if (planPiece)
             {
+                __result = false;
                 return false;
             }
 
-            return orig(self, piece);
+            return true;
         }
 
-        private static void WearNTear_Highlight(On.WearNTear.orig_Highlight orig, WearNTear self)
+        [HarmonyPatch(typeof(DungeonDB), nameof(DungeonDB.Start))]
+        [HarmonyPostfix]
+        private static void DungeonDB_Start_Postfix()
         {
-            if (!PlanCrystalPrefab.ShowRealTextures && self.TryGetComponent(out PlanPiece planPiece))
-            {
-                planPiece.Highlight();
-                return;
-            }
-            orig(self);
-        }
-        
-        private static void WearNTear_Destroy(On.WearNTear.orig_Destroy orig, WearNTear wearNTear, HitData hitData, bool blockDrop)
-        {
-            if (wearNTear.m_nview && wearNTear.m_nview.IsOwner()
-                                  && (hitData != null || wearNTear.m_support <= 0f)  // gets destroyed by a hit or by lack of support, remove works
-                                  && PlanDB.Instance.FindPlanByPrefabName(wearNTear.name, out PlanPiecePrefab planPrefab))
-            {
-                foreach (PlanTotem planTotem in PlanTotem.m_allPlanTotems)
-                {
-                    if (!planTotem.GetEnabled())
-                    {
-                        continue;
-                    }
-                    GameObject gameObject = wearNTear.gameObject;
-                    if (planTotem.InRange(gameObject))
-                    {
-                        planTotem.Replace(gameObject, planPrefab);
-                        break;
-                    }
-                }
-            }
-            orig(wearNTear, hitData, blockDrop);
+            PlanDB.Instance.ScanPieceTables();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Jotunn.Managers;
+﻿using HarmonyLib;
+using Jotunn.Managers;
 using PlanBuild.Plans;
 using System;
 using System.Collections;
@@ -42,26 +43,11 @@ namespace PlanBuild.Blueprints
                 BlueprintCommands.Init();
                 UndoManager.Instance.CreateQueue(Config.BlueprintUndoQueueNameConfig.Value);
 
-                // Hooks
-                On.ZNetScene.Shutdown += (orig, self) =>
-                {
-                    orig(self);
-                    TemporaryBlueprints.Clear();
-                    Selection.Instance.Clear();
-                };
-                On.Player.OnSpawned += Player_OnSpawned;
-                On.PieceTable.UpdateAvailable += PieceTable_UpdateAvailable;
-                On.Player.SetupPlacementGhost += Player_SetupPlacementGhost;
-                On.Player.UpdatePlacementGhost += Player_UpdatePlacementGhost;
-                On.Player.PieceRayTest += Player_PieceRayTest;
-                On.Humanoid.EquipItem += Humanoid_EquipItem;
-                On.Humanoid.UnequipItem += Humanoid_UnequipItem;
-                On.Hud.TogglePieceSelection += Hud_TogglePieceSelection;
-                On.Piece.Awake += Piece_Awake;
-                On.Piece.OnDestroy += Piece_OnDestroy;
+                // Harmony patches (see patch methods below)
+                Patches.Harmony.PatchAll(typeof(BlueprintManager));
+                Patches.Harmony.PatchAll(typeof(Components.ToolComponentBase));
 
                 GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
-                On.UITooltip.OnHoverStart += UITooltip_OnHoverStart;
 
                 // Ghost watchdog
                 IEnumerator watchdog()
@@ -233,10 +219,11 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Create blueprint pieces on player spawn
         /// </summary>
-        private static void Player_OnSpawned(On.Player.orig_OnSpawned orig, Player self, bool spawnValkrie)
+        [HarmonyPatch(typeof(Player), nameof(Player.OnSpawned))]
+        [HarmonyPostfix]
+        private static void Player_OnSpawned_Postfix(Player __instance)
         {
-            orig(self, spawnValkrie);
-            if (self == Player.m_localPlayer)
+            if (__instance == Player.m_localPlayer)
             {
                 RegisterKnownBlueprints();
 
@@ -252,11 +239,11 @@ namespace PlanBuild.Blueprints
         ///     Reorder pieces in local blueprint categories by name.
         ///     Remove "placeholder pieces" from blueprint categories
         /// </summary>
-        private static void PieceTable_UpdateAvailable(On.PieceTable.orig_UpdateAvailable orig, PieceTable self, HashSet<string> knownRecipies, Player player, bool hideUnavailable, bool noPlacementCost)
+        [HarmonyPatch(typeof(PieceTable), nameof(PieceTable.UpdateAvailable))]
+        [HarmonyPostfix]
+        private static void PieceTable_UpdateAvailable_Postfix(PieceTable __instance)
         {
-            orig(self, knownRecipies, player, hideUnavailable, noPlacementCost);
-
-            if (self.name.Equals(BlueprintAssets.PieceTableName))
+            if (__instance.name.Equals(BlueprintAssets.PieceTableName))
             {
                 foreach (var cats in LocalBlueprints.Values.GroupBy(x => x.Category))
                 {
@@ -265,11 +252,11 @@ namespace PlanBuild.Blueprints
                     {
                         List<Piece> reorder = new List<Piece>();
                         reorder.Add(BlueprintAssets.PlaceholderObject.GetComponent<Piece>());
-                        reorder.AddRange(self.m_availablePiecesByCategory[(int)cat]
+                        reorder.AddRange(__instance.m_availablePiecesByCategory[(int)cat]
                             .OrderBy(x => x.m_name)
                             .Where(x => !x.name.Equals(BlueprintAssets.PiecePlaceholderName))
                             .ToList());
-                        self.m_availablePiecesByCategory[(int)cat] = reorder;
+                        __instance.m_availablePiecesByCategory[(int)cat] = reorder;
                     }
                 }
             }
@@ -278,18 +265,18 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Lazy ghost instantiation
         /// </summary>
-        private static void Player_SetupPlacementGhost(On.Player.orig_SetupPlacementGhost orig, Player self)
+        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
+        [HarmonyPrefix]
+        private static void Player_SetupPlacementGhost_Prefix(Player __instance)
         {
-            if (self.m_buildPieces == null)
+            if (__instance.m_buildPieces == null)
             {
-                orig(self);
                 return;
             }
 
-            GameObject prefab = self.m_buildPieces.GetSelectedPrefab();
+            GameObject prefab = __instance.m_buildPieces.GetSelectedPrefab();
             if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
             {
-                orig(self);
                 return;
             }
 
@@ -298,25 +285,23 @@ namespace PlanBuild.Blueprints
             {
                 bp.InstantiateGhost();
             }
-
-            orig(self);
         }
 
         /// <summary>
         ///     Timed ghost destruction
         /// </summary>
-        private static void Player_UpdatePlacementGhost(On.Player.orig_UpdatePlacementGhost orig, Player self, bool flashGuardStone)
+        [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacementGhost))]
+        [HarmonyPrefix]
+        private static void Player_UpdatePlacementGhost_Prefix(Player __instance)
         {
-            if (self.m_buildPieces == null)
+            if (__instance.m_buildPieces == null)
             {
-                orig(self, flashGuardStone);
                 return;
             }
 
-            GameObject prefab = self.m_buildPieces.GetSelectedPrefab();
+            GameObject prefab = __instance.m_buildPieces.GetSelectedPrefab();
             if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
             {
-                orig(self, flashGuardStone);
                 return;
             }
 
@@ -325,27 +310,26 @@ namespace PlanBuild.Blueprints
             {
                 bp.GhostActiveTime = Time.time;
             }
-
-            orig(self, flashGuardStone);
         }
 
         /// <summary>
         ///     Save the reference to the last hovered piece
         /// </summary>
-        private static bool Player_PieceRayTest(On.Player.orig_PieceRayTest orig, Player self, out Vector3 point, out Vector3 normal, out Piece piece, out Heightmap heightmap, out Collider waterSurface, bool water)
+        [HarmonyPatch(typeof(Player), nameof(Player.PieceRayTest))]
+        [HarmonyPostfix]
+        private static void Player_PieceRayTest_Postfix(Piece piece)
         {
-            bool result = orig(self, out point, out normal, out piece, out heightmap, out waterSurface, water);
             LastHoveredPiece = piece;
-            return result;
         }
 
         /// <summary>
         ///     BlueprintRune equip
         /// </summary>
-        private static bool Humanoid_EquipItem(On.Humanoid.orig_EquipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.EquipItem))]
+        [HarmonyPostfix]
+        private static void Humanoid_EquipItem_Postfix(bool __result)
         {
-            bool result = orig(self, item, triggerEquipEffects);
-            if (result && Player.m_localPlayer?.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
+            if (__result && Player.m_localPlayer?.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
                 OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
                 Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
@@ -368,15 +352,15 @@ namespace PlanBuild.Blueprints
                     Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9, 9));
                 }
             }
-            return result;
         }
 
         /// <summary>
         ///     BlueprintRune uneqip
         /// </summary>
-        private static void Humanoid_UnequipItem(On.Humanoid.orig_UnequipItem orig, Humanoid self, ItemDrop.ItemData item, bool triggerEquipEffects)
+        [HarmonyPatch(typeof(Humanoid), nameof(Humanoid.UnequipItem))]
+        [HarmonyPostfix]
+        private static void Humanoid_UnequipItem_Postfix(ItemDrop.ItemData item)
         {
-            orig(self, item, triggerEquipEffects);
             if (Player.m_localPlayer &&
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
@@ -393,7 +377,9 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Prevent opening the build menu when the rune is selected and globally disabled
         /// </summary>
-        private static void Hud_TogglePieceSelection(On.Hud.orig_TogglePieceSelection orig, Hud self)
+        [HarmonyPatch(typeof(Hud), nameof(Hud.TogglePieceSelection))]
+        [HarmonyPrefix]
+        private static bool Hud_TogglePieceSelection_Prefix()
         {
             if (Player.m_localPlayer.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName &&
                 !Hud.IsPieceSelectionVisible() &&
@@ -403,21 +389,31 @@ namespace PlanBuild.Blueprints
                 MessageHud.instance.ShowMessage(MessageHud.MessageType.Center, "$msg_blueprintrune_disabled");
                 Player.m_localPlayer.SetBuildCategory(0);
                 Player.m_localPlayer.SetSelectedPiece(new Vector2Int(9, 9));
-                return;
+                return false;
             }
-            orig(self);
+            return true;
         }
 
-        private static void Piece_Awake(On.Piece.orig_Awake orig, Piece self)
+        [HarmonyPatch(typeof(Piece), nameof(Piece.Awake))]
+        [HarmonyPostfix]
+        private static void Piece_Awake_Postfix(Piece __instance)
         {
-            orig(self);
-            Selection.Instance.OnPieceAwake(self);
+            Selection.Instance.OnPieceAwake(__instance);
         }
 
-        private static void Piece_OnDestroy(On.Piece.orig_OnDestroy orig, Piece self)
+        [HarmonyPatch(typeof(Piece), nameof(Piece.OnDestroy))]
+        [HarmonyPostfix]
+        private static void Piece_OnDestroy_Postfix(Piece __instance)
         {
-            orig(self);
-            Selection.Instance.OnPieceUnload(self);
+            Selection.Instance.OnPieceUnload(__instance);
+        }
+
+        [HarmonyPatch(typeof(ZNetScene), nameof(ZNetScene.Shutdown))]
+        [HarmonyPostfix]
+        private static void ZNetScene_Shutdown_Postfix()
+        {
+            TemporaryBlueprints.Clear();
+            Selection.Instance.Clear();
         }
 
         // Get all prefabs for this GUI session
@@ -429,39 +425,52 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Display the blueprint tooltip panel when a blueprint building item is hovered
         /// </summary>
-        private static void UITooltip_OnHoverStart(On.UITooltip.orig_OnHoverStart orig, UITooltip self, GameObject go)
+        [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
+        [HarmonyPrefix]
+        private static void UITooltip_OnHoverStart_Prefix(UITooltip __instance, out Blueprint __state)
         {
-            if (BlueprintAssets.BlueprintTooltip && Hud.IsPieceSelectionVisible())
-            {
-                var piece = Hud.instance.m_hoveredPiece;
-                if (ZInput.IsGamepadActive() && !ZInput.IsMouseActive())
-                {
-                    piece = Player.m_localPlayer.GetSelectedPiece();
-                }
-                if (Config.TooltipEnabledConfig.Value && piece &&
-                    piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
-                    LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
-                    bp.Thumbnail != null)
-                {
-                    self.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
-                    orig(self, go);
-                    UITooltip.m_tooltip.transform.Find("Background")
-                        .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
-                    UITooltip.m_tooltip.transform.Find("Background/BPImage")
-                        .GetComponent<Image>().sprite = Sprite.Create(bp.Thumbnail, new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height), Vector2.zero);
-                    UITooltip.m_tooltip.transform.Find("Background/BPText")
-                        .GetComponent<Text>().text = bp.Name;
-                }
-                else
-                {
-                    self.m_tooltipPrefab = OriginalTooltip;
-                    orig(self, go);
-                }
+            __state = null;
 
+            if (!BlueprintAssets.BlueprintTooltip || !Hud.IsPieceSelectionVisible())
+            {
                 return;
             }
 
-            orig(self, go);
+            var piece = Hud.instance.m_hoveredPiece;
+            if (ZInput.IsGamepadActive() && !ZInput.IsMouseActive())
+            {
+                piece = Player.m_localPlayer.GetSelectedPiece();
+            }
+
+            if (Config.TooltipEnabledConfig.Value && piece &&
+                piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
+                LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
+                bp.Thumbnail != null)
+            {
+                __instance.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
+                __state = bp;
+            }
+            else
+            {
+                __instance.m_tooltipPrefab = OriginalTooltip;
+            }
+        }
+
+        [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
+        [HarmonyPostfix]
+        private static void UITooltip_OnHoverStart_Postfix(Blueprint __state)
+        {
+            if (__state == null)
+            {
+                return;
+            }
+
+            UITooltip.m_tooltip.transform.Find("Background")
+                .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
+            UITooltip.m_tooltip.transform.Find("Background/BPImage")
+                .GetComponent<Image>().sprite = Sprite.Create(__state.Thumbnail, new Rect(0, 0, __state.Thumbnail.width, __state.Thumbnail.height), Vector2.zero);
+            UITooltip.m_tooltip.transform.Find("Background/BPText")
+                .GetComponent<Text>().text = __state.Name;
         }
     }
 }
