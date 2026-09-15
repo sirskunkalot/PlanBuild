@@ -30,9 +30,6 @@ namespace PlanBuild.Blueprints
         public const string CategoryClipboard = "Clipboard";
         public const string CategoryBlueprints = "Blueprints";
 
-        public const string PiecePlaceholderName = "piece_bpplaceholder";
-        public static GameObject PlaceholderObject;
-
         public const string PieceSnapPointName = "piece_bpsnappoint";
         public const string PieceSnapPointInstanceName = "piece_bpsnappointinstance";
         public const string PieceCenterPointName = "piece_bpcenterpoint";
@@ -133,18 +130,6 @@ namespace PlanBuild.Blueprints
             // Stub Piece
             var stub = prefabs[Blueprint.PieceBlueprintName];
             PrefabManager.Instance.AddPrefab(stub);
-
-            // Placeholder Piece
-            ZNetView.m_forceDisableInit = true;
-            PlaceholderObject = Object.Instantiate(stub);
-            ZNetView.m_forceDisableInit = false;
-            PlaceholderObject.name = PiecePlaceholderName;
-            PrefabManager.Instance.AddPrefab(PlaceholderObject);
-            var pieceplaceholder = PlaceholderObject.GetComponent<Piece>();
-            pieceplaceholder.m_name = "$piece_bpplaceholder";
-            pieceplaceholder.m_enabled = true;
-            pieceplaceholder.m_description = "$piece_bpplaceholder_desc";
-            pieceplaceholder.m_icon = Sprite.Create(new Texture2D(1, 1), Rect.zero, Vector2.zero);
 
             // Tool pieces
             foreach (string pieceName in new[]

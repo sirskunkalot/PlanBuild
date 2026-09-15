@@ -66,8 +66,6 @@
     "piece_blueprint_terrain_desc": "지형을 평평하게 하거나 복구합니다.",
     "piece_blueprint_paint": "페인트 도구",
     "piece_blueprint_paint_desc": "도로/경작 등 지형 상태를 변경합니다.",
-    "piece_bpplaceholder": "건설 없음",
-    "piece_bpplaceholder_desc": "카테고리에서 설계도를 선택하여 건설하세요. 이 버튼은 카테고리 전환을 돕기 위해 있는 빈 버튼 입니다.",
     "hud_bpedit": "설계도 편집",
     "hud_bpcamera": "마우스휠-카메라 높이 조절",
     "msg_bpcapture_save": "설계도 저장 ($1 조각 캡처)",

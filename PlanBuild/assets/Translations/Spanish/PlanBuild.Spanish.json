@@ -66,8 +66,6 @@
   "piece_blueprint_terrain_desc": "Aplana el terreno o reinicia el terreno",
   "piece_blueprint_paint": "Herramientas de pintura",
   "piece_blueprint_paint_desc": "Reinicia la pintura de terreno o aplica nueva pintura",
-  "piece_bpplaceholder": "Nada que construir",
-  "piece_bpplaceholder_desc": "Por favor, selecciona un plano de la categoría para construirlo. Esta pieza solo está aquí para que puedas cambiar entre categorías sin retraso.",
   "hud_bpedit": "Editar plano",
   "hud_bpcamera": "y desplaza para la distancia de la cámara",
   "msg_bpcapture_save": "Guardar plano ($1 piezas capturadas)",
