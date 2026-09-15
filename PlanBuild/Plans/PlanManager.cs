@@ -73,7 +73,7 @@ namespace PlanBuild.Plans
                     ShaderHelper.UpdateTextures(self.m_placementGhost, ShaderHelper.ShaderState.Supported);
                 }
             }
-            foreach (PlanPiece planPiece in Object.FindObjectsOfType<PlanPiece>())
+            foreach (PlanPiece planPiece in Object.FindObjectsByType<PlanPiece>(FindObjectsSortMode.None))
             {
                 planPiece.UpdateTextures();
             }
