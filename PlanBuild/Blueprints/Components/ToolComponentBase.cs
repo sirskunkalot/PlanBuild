@@ -74,7 +74,8 @@ namespace PlanBuild.Blueprints.Components
         [HarmonyPostfix]
         private static void Player_UpdatePlacement_Postfix(Player __instance, bool takeInput)
         {
-            if (__instance.m_placementGhost && takeInput
+            // vanilla UpdatePlacement returns early while the build menu is open, but the postfix still runs
+            if (__instance.m_placementGhost && takeInput && !Hud.IsPieceSelectionVisible()
                 && __instance.m_placementGhost.TryGetComponent(out ToolComponentBase tool))
             {
                 tool.OnUpdatePlacement(__instance);
