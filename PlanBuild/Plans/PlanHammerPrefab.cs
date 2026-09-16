@@ -2,10 +2,8 @@
 using Jotunn.Configs;
 using Jotunn.Entities;
 using Jotunn.Managers;
-using PlanBuild.Blueprints;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using Logger = Jotunn.Logger;
 
@@ -80,20 +78,13 @@ namespace PlanBuild.Plans
             {
                 Logger.LogDebug("Creating PlanHammer piece table");
 
-                // Create plan piece table for the plan mode
-                var categories = PieceManager.Instance.GetPieceCategoriesMap().Where(x =>
-                    x.Value != BlueprintAssets.CategoryBlueprints &&
-                    x.Value != BlueprintAssets.CategoryClipboard &&
-                    x.Value != BlueprintAssets.CategoryTools).Select(x => x.Value).ToList();
-
+                // Create plan piece table for the plan mode. Categories are registered by the
+                // plan pieces, which inherit them from the piece they were created from.
                 CustomPieceTable planPieceTable = new CustomPieceTable(
                     PieceTableName,
                     new PieceTableConfig
                     {
-                        CanRemovePieces = true,
-                        UseCategories = true,
-                        UseCustomCategories = true,
-                        CustomCategories = categories.ToArray()
+                        CanRemovePieces = true
                     }
                 );
                 PieceManager.Instance.AddPieceTable(planPieceTable);

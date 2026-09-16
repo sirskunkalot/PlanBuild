@@ -106,17 +106,12 @@ namespace PlanBuild.Blueprints
             CustomPieceTable table = new CustomPieceTable(PieceTableName, new PieceTableConfig
             {
                 CanRemovePieces = false,
-                UseCategories = false,
-                UseCustomCategories = true,
                 // Blueprint pieces carry the user's blueprint name, which Jotunn's usage guessing
                 // matches against vanilla tags like "wall" or "roof". Enable once JotunnLib ships
                 // GuessUsage on NuGet (tested against a local build, needs a version bump).
                 //GuessUsage = false,
-                CustomCategories = new[]
-                {
-                    CategoryTools, CategoryClipboard, CategoryBlueprints
-                }
             });
+            // Tools, Clipboard and Blueprints are registered by the pieces using them
             PieceManager.Instance.AddPieceTable(table);
 
             // Blueprint Rune
