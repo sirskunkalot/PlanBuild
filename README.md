@@ -1,5 +1,11 @@
 # PlanBuild
 
+> ### ⚠️ Version 0.19.0 no longer needs the HookGenPatcher
+>
+> All hooks now use Harmony, so __HookGenPatcher (MMHOOK) is no longer a dependency__ and can be removed if no other mod requires it.
+>
+> This version also comes with a number of fixes, most of them for the new build UI — see the [changelog](https://github.com/sirskunkalot/PlanBuild/blob/master/CHANGELOG.md) for the full list.
+
 PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. The mod adds two new tools to the game. The __Plan Hammer__ is used to plan your creations before actually gathering all the materials. When you are happy with your build, you can add the required building materials one by one or use a custom totem to automatically build the pieces for you. The __Blueprint Rune__ lets you copy, save or delete your creations as a single building piece which can also be shared with other players using the mod and also includes terrain modification tools for quick and more precise terraforming without using the Hoe or Cultivator.
 
 ## Planning
