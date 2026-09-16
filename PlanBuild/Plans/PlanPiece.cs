@@ -24,12 +24,11 @@ namespace PlanBuild.Plans
 
         public Piece originalPiece;
 
-        //GUI
-        public static bool m_forceDisableInit;
-
         public void Awake()
         {
-            if (m_forceDisableInit)
+            // Vanilla sets this around every ghost/preview instantiation, which is exactly
+            // the window in which a PlanPiece must not initialize itself
+            if (ZNetView.m_forceDisableInit)
             {
                 Destroy(this);
                 return;
