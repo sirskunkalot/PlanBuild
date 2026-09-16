@@ -82,12 +82,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*][b]Copy[/b]: Make a temporary blueprint of your current selection. It will copy all pieces in the selection into a new building piece and automatically select that piece for you to build. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
 [*][b]Cut[/b]: Make a temporary blueprint of your current selection and delete all pieces in the current selection. The copy is also saved into the "Clipboard" category of the rune for you to access until you log out from the current world.
 [*][b]Save[/b]: Save the current selection as a new blueprint into the file system. Opens up a new GUI window where you can enter Name, Category and Description of the blueprint. These blueprints are kept between game sessions and can also be used in the marketplace and shared with other players.
-[*][b]Copy with vanilla snap points[/b]: Make a temporary blueprint of your current selection which also includes all vanilla snap points of the pieces selected.
-[*][b]Cut with vanilla snap points[/b]: Make a temporary blueprint of your current selection and delete all pieces in the current selection including all vanilla snap points of the pieces selected.
-[*][b]Save with vanilla snap points[/b]: Save the current selection as a new blueprint into the file system including all vanilla snap points.
+[*][b]Save current snap points[/b]: Checkbox, applies to Copy, Cut and Save. Also includes all vanilla snap points of the selected pieces in the blueprint, not just the snap point markers you placed yourself.
+[*][b]Keep markers[/b]: Checkbox, applies to Copy, Cut and Save. Snap point, center point and terrain modification markers are consumed when creating a blueprint - check this to leave them in the world so you can capture the same setup again.
 [*][b]Delete[/b]: Delete all pieces in the current selection. This removes all the pieces without refunding the building materials.
+[*][b]Clear[/b]: Clear the current selection. The pieces themselves are left untouched.
 [*][b]Cancel[/b]: Exit the menu without any action.
-[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. We highly suggest that you also use [url=https://www.nexusmods.com/valheim/mods/1504]Snap points made easy[/url]﻿ so you can cycle through the snap points when placing the blueprint. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
+[/list][*][b]Snap point marker:[/b] Add snap point markers to all points you want to have as snap points in your blueprint. The rotation of the markers does not matter, only the center point. [b]Note[/b]: You have to select the marker piece in order to capture it in the blueprint. Markers placed while having an active selection will automatically be added to that selection.
 [list]
 [*]Use [b]Remove[/b] to delete a placed marker again (just like you would delete a piece with the hammer).
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
@@ -194,10 +194,10 @@ Fully compatible with:
 [*][url=https://github.com/redseiko/ValheimMods/releases/tag/ComfyGizmo-v1.3.0]ComfyGizmo[/url]
 [/list]
 
-The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, please post a bug report with a link to the mod or join the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url] and ping [pre]@Jules[/pre] or [pre]@MarcoPogo[/pre].
+The Hammer's PieceTable is scanned automatically, mods that add Pieces should be compatible. If you find a mod that adds pieces to the Hammer and they don't show up, please post a bug report with a link to the mod or join the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url] and ping [pre]@Jules[/pre].
 
 [b][size=5]Configuration[/size][/b]
-A lot aspects of this mod are configurable either through the config file found in your game folder ([pre]<Valheim>\BepInEx\configs\marcopogo.PlanBuild.cfg[/pre]) or using the [url=https://github.com/BepInEx/BepInEx.ConfigurationManager]BepInEx ConfigurationManager[/url]:
+A lot aspects of this mod are configurable either through the config file found in your game folder ([pre]<Valheim>\BepInEx\config\marcopogo.PlanBuild.cfg[/pre]) or using the [url=https://thunderstore.io/c/valheim/p/Azumatt/Official_BepInEx_ConfigurationManager/]BepInEx ConfigurationManager[/url]:
 
 [list]
 [*][b]Server Settings[/b] (enforced on all clients connecting to a server)
@@ -270,11 +270,20 @@ PlanBuild adds some new console commands to the game:
 [*][b]bp.clearclipboard[/b] - Clear the clipboard category of all saved blueprints
 [*][b]selection.gui[/b] - Show the selection GUI
 [*][b]selection.clear[/b] - Clears the current selection
-[*][b]selection.copy[/b] - Copy the current selection as a temporary blueprint
-[*][b]selection.cut[/b] - Cut out (copy and delete) the current selection as a temporary blueprint
-[*][b]selection.save[/b] - Save the current selection as a blueprint
+[*][b]selection.copy[/b] - ([saveCurrentSnapPoints]) ([keepMarkers]) Copy the current selection as a temporary blueprint
+[*][b]selection.cut[/b] - ([saveCurrentSnapPoints]) ([keepMarkers]) Cut out (copy and delete) the current selection as a temporary blueprint
+[*][b]selection.save[/b] - ([saveCurrentSnapPoints]) ([keepMarkers]) Save the current selection as a blueprint
 [*][b]selection.delete[/b] - Delete all prefabs in the current selection
 [/list]
+
+All of them can be put on a key with Valheim's own [b]bind[/b] command, which is handy for the ones you use often:
+
+[code]bind f6 selection.copy
+[/code]
+
+With that, pressing the key copies your current selection into a temporary blueprint right away and selects it for placing - no need to open the Edit selection menu first.
+
+Use [b]printbinds[/b] to list your current binds, [b]unbind[/b] [keycode] to clear the binds of a key and [b]resetbinds[/b] to drop all custom binds again.
 
 [b][size=5]Building Community[/size][/b]
 Head over to the [url=https://www.valheimians.com]Valheimians[/url] page to find a community of builders and share your own creations. PlanBuild blueprints are supported.
@@ -287,8 +296,6 @@ The original PlanBuild mod was created by [b][url=https://github.com/MathiasDecr
 
 Blueprint functionality originally created by [b][url=https://github.com/Algorithman]Algorithman[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
 
-Blueprint Marketplace GUI created by [b][url=https://github.com/imcanida]Dreous[/url][/b]
-
 All further coding by [b][url=https://github.com/MathiasDecrock]MarcoPogo[/url][/b] & [b][url=https://github.com/sirskunkalot]Jules[/url][/b]
 
 Special thanks to [b][url=https://github.com/JereKuusela]Jere[/url][/b] for exchanging code and ideas
@@ -298,4 +305,4 @@ Made with Löve and [b][url=https://github.com/Valheim-Modding/Jotunn]Jötunn[/u
 [b][size=5]Contact[/size][/b]
 Source available on GitHub: [url=https://github.com/sirskunkalot/PlanBuild]https://github.com/sirskunkalot/PlanBuild[/url]﻿. All contributions welcome!
 
-You can find us at the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url] ([pre]Jules#7950[/pre] and [pre]MarcoPogo#6095[/pre]).
+You can find me at the [url=https://discord.gg/DdUt6g7gyA]Jötunn Discord[/url] ([pre]Jules[/pre]).
