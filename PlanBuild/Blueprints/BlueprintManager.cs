@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 using Logger = Jotunn.Logger;
 
@@ -25,7 +24,6 @@ namespace PlanBuild.Blueprints
 
         private static float LastHighlightTime;
         private static float OriginalPlaceDistance;
-        private static GameObject OriginalTooltip;
 
         /// <summary>
         ///     Categories shown first in the Blueprint Rune, in this order.
@@ -57,8 +55,6 @@ namespace PlanBuild.Blueprints
                 // Harmony patches (see patch methods below)
                 Patches.Harmony.PatchAll(typeof(BlueprintManager));
                 Patches.Harmony.PatchAll(typeof(Components.ToolComponentBase));
-
-                GUIManager.OnCustomGUIAvailable += GUIManager_OnCustomGUIAvailable;
 
                 // Ghost watchdog
                 IEnumerator watchdog()
@@ -458,61 +454,40 @@ namespace PlanBuild.Blueprints
             Selection.Instance.Clear();
         }
 
-        // Get all prefabs for this GUI session
-        private static void GUIManager_OnCustomGUIAvailable()
+        /// <summary>
+        ///     Get the blueprint behind a blueprint piece, local or from the clipboard
+        /// </summary>
+        public static bool TryGetBlueprint(string prefabName, out Blueprint blueprint)
         {
-            OriginalTooltip = PrefabManager.Instance.GetPrefab("Tooltip");
+            blueprint = null;
+            if (string.IsNullOrEmpty(prefabName) || !prefabName.StartsWith(Blueprint.PieceBlueprintName))
+            {
+                return false;
+            }
+
+            string id = prefabName.Substring(Blueprint.PieceBlueprintName.Length + 1);
+            var blueprints = id.StartsWith("__") ? TemporaryBlueprints : LocalBlueprints;
+            return blueprints.TryGetValue(id, out blueprint);
         }
 
         /// <summary>
-        ///     Display the blueprint tooltip panel when a blueprint building item is hovered
+        ///     Display the blueprint tooltip panel when a blueprint building item is hovered.
+        ///     Hooked on UpdateBuild instead of SetupPieceInfo because that one is skipped
+        ///     entirely when the player leaves the place mode, leaving the panel on screen.
         /// </summary>
-        [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
-        [HarmonyPrefix]
-        private static void UITooltip_OnHoverStart_Prefix(UITooltip __instance, out Blueprint __state)
-        {
-            __state = null;
-
-            if (!BlueprintAssets.BlueprintTooltip || !Hud.IsPieceSelectionVisible())
-            {
-                return;
-            }
-
-            var piece = Hud.instance.m_hoveredPiece;
-            if (ZInput.IsGamepadActive() && !ZInput.IsMouseActive())
-            {
-                piece = Player.m_localPlayer.GetSelectedPiece();
-            }
-
-            if (Config.TooltipEnabledConfig.Value && piece &&
-                piece.name.StartsWith(Blueprint.PieceBlueprintName) &&
-                LocalBlueprints.TryGetValue(piece.name.Substring(Blueprint.PieceBlueprintName.Length + 1), out var bp) &&
-                bp.Thumbnail != null)
-            {
-                __instance.m_tooltipPrefab = BlueprintAssets.BlueprintTooltip;
-                __state = bp;
-            }
-            else
-            {
-                __instance.m_tooltipPrefab = OriginalTooltip;
-            }
-        }
-
-        [HarmonyPatch(typeof(UITooltip), nameof(UITooltip.OnHoverStart))]
+        [HarmonyPatch(typeof(Hud), nameof(Hud.UpdateBuild))]
         [HarmonyPostfix]
-        private static void UITooltip_OnHoverStart_Postfix(Blueprint __state)
+        private static void Hud_UpdateBuild_Postfix(Hud __instance)
         {
-            if (__state == null)
+            var piece = __instance.m_hoveredPiece;
+            if (!Config.TooltipEnabledConfig.Value || !Hud.IsPieceSelectionVisible() || !piece
+                || !TryGetBlueprint(piece.name, out var bp) || bp.Thumbnail == null)
             {
+                BlueprintTooltipGUI.Hide();
                 return;
             }
 
-            UITooltip.m_tooltip.transform.Find("Background")
-                .GetComponent<Image>().color = Config.TooltipBackgroundConfig.Value;
-            UITooltip.m_tooltip.transform.Find("Background/BPImage")
-                .GetComponent<Image>().sprite = Sprite.Create(__state.Thumbnail, new Rect(0, 0, __state.Thumbnail.width, __state.Thumbnail.height), Vector2.zero);
-            UITooltip.m_tooltip.transform.Find("Background/BPText")
-                .GetComponent<Text>().text = __state.Name;
+            BlueprintTooltipGUI.Show(bp, piece.m_icon, __instance.m_buildUi.m_currentHoveredPieceButton);
         }
     }
 }

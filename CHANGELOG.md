@@ -9,6 +9,7 @@
 * Blueprint Rune categories are now ordered Tools, Clipboard, Blueprints, then custom categories alphabetically
 * Removed the blueprint placeholder piece, the new build UI no longer selects the first piece of a category
 * Fixed scrolling in the build menu changing tool settings like the selection radius
+* Fixed the blueprint thumbnail tooltip not showing up in the new build UI
 
 # Version 0.18.6
 * Fixed PlanTotem not recognizing fully supported plans as supported
