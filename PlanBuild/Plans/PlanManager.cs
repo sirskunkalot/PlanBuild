@@ -157,13 +157,6 @@ namespace PlanBuild.Plans
         }
 
         [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
-        [HarmonyPrefix]
-        private static void Player_SetupPlacementGhost_Prefix()
-        {
-            PlanPiece.m_forceDisableInit = true;
-        }
-
-        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
         [HarmonyPostfix]
         private static void Player_SetupPlacementGhost_Postfix(Player __instance)
         {
@@ -189,12 +182,8 @@ namespace PlanBuild.Plans
         [HarmonyFinalizer]
         private static Exception Player_SetupPlacementGhost_Finalizer(Exception __exception)
         {
-            // Must be a finalizer, not the postfix: the postfix is skipped when the original or
-            // another patch throws, and a stuck m_forceDisableInit makes every PlanPiece.Awake()
-            // destroy itself. Swallowing matches the try/catch the pre-Harmony hook wrapped
-            // around the whole call.
-            PlanPiece.m_forceDisableInit = false;
-
+            // Swallowing matches the try/catch the pre-Harmony hook wrapped around the whole
+            // call - a throwing SetupPlacementGhost would otherwise break UpdatePlacement.
             if (__exception != null)
             {
                 Logger.LogWarning($"Exception caught while executing Player.SetupPlacementGhost(): {__exception}");
