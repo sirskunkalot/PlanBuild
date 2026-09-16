@@ -157,8 +157,24 @@
     <None Include="assets\Translations\Spanish\PlanBuild.Spanish.json" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="resources\installation_and_usage\0_installandusage.bbcode" />
+    <Content Include="resources\installation_and_usage\1_download_and_extract.png" />
+    <Content Include="resources\installation_and_usage\2_open_valheim_folder.png" />
+    <Content Include="resources\installation_and_usage\3_after_bepinex.png" />
+    <Content Include="resources\installation_and_usage\4_bepinex_folder.png" />
+    <Content Include="resources\installation_and_usage\5_bepinex_console.png" />
+    <Content Include="resources\installation_and_usage\6_rune_crafting.png" />
+    <Content Include="resources\installation_and_usage\7_blueprint_tools.png" />
+    <Content Include="resources\installation_and_usage\8_capture.png" />
+    <Content Include="resources\installation_and_usage\9_blueprints.png" />
+    <Content Include="resources\installation_and_usage\10_settings_directbuild.png" />
+    <Content Include="resources\installation_and_usage\11_blueprint_path.png" />
+    <Content Include="resources\BlueprintBlueprints.png" />
+    <Content Include="resources\BlueprintClipboard.png" />
     <Content Include="resources\BlueprintMarket.png" />
     <Content Include="resources\BlueprintMode.png" />
+    <Content Include="resources\BlueprintPieces.png" />
+    <Content Include="resources\BlueprintTools.png" />
     <Content Include="resources\PlanTotem.png" />
     <Content Include="resources\PlanMode.png" />
   </ItemGroup>
