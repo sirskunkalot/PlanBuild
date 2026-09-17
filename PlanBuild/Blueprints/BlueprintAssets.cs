@@ -109,7 +109,7 @@ namespace PlanBuild.Blueprints
                 // Blueprint pieces carry the user's blueprint name, which Jotunn's usage guessing
                 // matches against vanilla tags like "wall" or "roof". Enable once JotunnLib ships
                 // GuessUsage on NuGet (tested against a local build, needs a version bump).
-                //GuessUsage = false,
+                GuessUsage = false,
             });
             // Tools, Clipboard and Blueprints are registered by the pieces using them
             PieceManager.Instance.AddPieceTable(table);
