@@ -1,5 +1,5 @@
 # Version 0.19.1
-* Fixed the Plan Totem activation toggle not being triggerable with a controller
+* The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was not reachable on a controller
 * Fixed plans requiring a crafting station in range even with the `noworkbench` global key set
 * Fixed plans requiring resources even with the `nobuildcost` / `nocraftcost` global keys set
 * Fixed refunded plan materials not being stamped with the world level, which could stop them counting towards requirements
