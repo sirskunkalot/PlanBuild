@@ -4,6 +4,7 @@
 * Fixed plans requiring resources even with the `nobuildcost` / `nocraftcost` global keys set
 * Fixed refunded plan materials not being stamped with the world level, which could stop them counting towards requirements
 * Fixed the plan info panel keeping the snapping icon of the previously selected piece and showing an untranslated "None"
+* Plans no longer clear the mist, spawn wisps or affect particles like the finished piece would
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
 
 # Version 0.19.0
