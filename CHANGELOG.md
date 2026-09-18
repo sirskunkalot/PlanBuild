@@ -1,10 +1,9 @@
 # Version 0.19.1
-* The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was not reachable on a controller
+* The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller
 * The Plan Hammer can now copy a built piece with the vanilla copy keybind to select its plan
-* Fixed plans requiring a crafting station in range even with the `noworkbench` global key set
-* Fixed plans requiring resources even with the `nobuildcost` / `nocraftcost` global keys set
+* Fixed plans requiring a crafting station in range with the `noworkbench` global key set
+* Fixed plans requiring resources with the `nobuildcost` / `nocraftcost` global keys set
 * Fixed refunded plan materials not being stamped with the world level, which could stop them counting towards requirements
-* Fixed the plan info panel keeping the snapping icon of the previously selected piece and showing an untranslated "None"
 * Plans no longer keep the mist force field or light flicker components of the original piece
 * Requirements with an amount of zero are no longer shown as an empty row in the plan info panel
 * Harvest pieces no longer get a plan, they reap and destroy themselves on placement and left an inert piece behind
