@@ -218,6 +218,23 @@ namespace PlanBuild.Plans
             return true;
         }
 
+        /// <summary>
+        ///     Vanilla's copy-the-hovered-piece matches by prefab name against the equipped table, so
+        ///     the Plan Hammer only ever finds plans. Point a real piece at its plan instead.
+        ///     Player.SetSelectedPiece(Piece) is the only caller, which covers both the copy keybind
+        ///     and picking a piece in the build menu.
+        /// </summary>
+        [HarmonyPatch(typeof(PieceTable), nameof(PieceTable.GetPieceIndex))]
+        [HarmonyPrefix]
+        private static void PieceTable_GetPieceIndex_Prefix(PieceTable __instance, ref Piece p)
+        {
+            if (p && __instance.name == PlanHammerPrefab.PieceTableName &&
+                PlanDB.Instance.FindPlanByPrefabName(p.gameObject.name, out PlanPiecePrefab planPrefab))
+            {
+                p = planPrefab.Piece;
+            }
+        }
+
         [HarmonyPatch(typeof(DungeonDB), nameof(DungeonDB.Start))]
         [HarmonyPostfix]
         private static void DungeonDB_Start_Postfix()
