@@ -23,7 +23,7 @@ namespace PlanBuild.Blueprints
         public static Piece LastHoveredPiece;
 
         private static float LastHighlightTime;
-        private static float OriginalPlaceDistance;
+        private static float? OriginalPlaceDistance;
 
         /// <summary>
         ///     Categories shown first in the Blueprint Rune, in this order.
@@ -362,7 +362,11 @@ namespace PlanBuild.Blueprints
         {
             if (__result && Player.m_localPlayer?.m_rightItem?.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
-                OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
+                // only remember the distance of the first equip, a second one would store the rune's own distance
+                if (!OriginalPlaceDistance.HasValue)
+                {
+                    OriginalPlaceDistance = Math.Max(Player.m_localPlayer.m_maxPlaceDistance, 8f);
+                }
                 Player.m_localPlayer.m_maxPlaceDistance = Config.RayDistanceConfig.Value;
 
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
@@ -395,7 +399,12 @@ namespace PlanBuild.Blueprints
             if (Player.m_localPlayer &&
                 item != null && item.m_shared.m_name == BlueprintAssets.BlueprintRuneItemName)
             {
-                Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance;
+                // an unequip without a preceding equip (e.g. while the player is being set up) must not reset the distance to 0
+                if (OriginalPlaceDistance.HasValue)
+                {
+                    Player.m_localPlayer.m_maxPlaceDistance = OriginalPlaceDistance.Value;
+                    OriginalPlaceDistance = null;
+                }
 
                 var desc = Hud.instance.m_buildHud.transform.Find("SelectedInfo/selected_piece/piece_description");
                 if (desc is RectTransform rect)
