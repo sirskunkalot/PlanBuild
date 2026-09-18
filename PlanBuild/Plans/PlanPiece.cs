@@ -191,10 +191,17 @@ namespace PlanBuild.Plans
         {
             if (originalPiece.m_craftingStation)
             {
-                return CraftingStation.HaveBuildStationInRange(originalPiece.m_craftingStation.m_name, transform.position);
+                return NoWorkbenchRequired ||
+                       CraftingStation.HaveBuildStationInRange(originalPiece.m_craftingStation.m_name, transform.position);
             }
             return true;
         }
+
+        /// <summary>
+        ///     The "noworkbench" global key lets the game build without a station in range, honor it for plans too
+        /// </summary>
+        internal static bool NoWorkbenchRequired =>
+            ZoneSystem.instance && ZoneSystem.instance.GetGlobalKey(GlobalKeys.NoWorkbench);
 
         /// <summary>
         /// Destroy this gameObject because of invalid state detected
@@ -298,9 +305,12 @@ namespace PlanBuild.Plans
                 component.sprite = piece.m_craftingStation.m_icon;
                 component2.text = Localization.instance.Localize(piece.m_craftingStation.m_name);
                 component4.m_text = piece.m_craftingStation.m_name;
-                if (craftingStation != null)
+                if (craftingStation != null || NoWorkbenchRequired)
                 {
-                    craftingStation.ShowAreaMarker();
+                    if (craftingStation != null)
+                    {
+                        craftingStation.ShowAreaMarker();
+                    }
                     component.color = Color.white;
                     component3.text = "";
                     component3.color = Color.white;
@@ -454,7 +464,7 @@ namespace PlanBuild.Plans
             if ((bool)originalPiece.m_craftingStation)
             {
                 CraftingStation craftingStation = CraftingStation.HaveBuildStationInRange(originalPiece.m_craftingStation.m_name, user.transform.position);
-                if (!craftingStation)
+                if (!craftingStation && !NoWorkbenchRequired)
                 {
                     user.Message(MessageHud.MessageType.Center, "$msg_missingstation");
                     return false;
