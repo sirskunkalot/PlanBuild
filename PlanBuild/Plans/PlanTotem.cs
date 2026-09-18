@@ -35,7 +35,9 @@ namespace PlanBuild.Plans
         private static bool Container_Interact_Prefix(Container __instance, bool hold, ref bool __result)
         {
             PlanTotem planTotem = __instance as PlanTotem;
-            if (planTotem && !hold && ZInput.GetButton("Crouch") && !__instance.IsInUse())
+            // "Crouch" is the keyboard binding only, the gamepad one is a separate button def
+            bool crouch = ZInput.GetButton("Crouch") || ZInput.GetButton("JoyCrouch");
+            if (planTotem && !hold && crouch && !__instance.IsInUse())
             {
                 planTotem.m_nview.InvokeRPC("ToggleEnabled");
                 __result = true;

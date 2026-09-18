@@ -1,3 +1,6 @@
+# Version 0.19.1
+* Fixed the Plan Totem activation toggle not being triggerable with a controller
+
 # Version 0.19.0
 * Removed the HookGenPatcher dependency; all hooks now use Harmony
 * Fixed pieces with missing scripts breaking plan and ghost creation (thx voyagi)
