@@ -320,6 +320,9 @@ namespace PlanBuild.Plans
                    && piece.GetComponent<TerrainModifier>() == null
                    && piece.GetComponent<Ship>() == null
                    && piece.GetComponent<PlanPiece>() == null
+                   // a harvest piece reaps its radius and destroys itself in Piece.OnPlaced, there is
+                   // nothing left to plan - building one would just leave an inert piece standing
+                   && !piece.m_harvest
                    && !piece.name.Equals(PlanTotemPrefab.PlanTotemPieceName);
         }
     }
