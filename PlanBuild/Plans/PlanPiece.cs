@@ -204,6 +204,13 @@ namespace PlanBuild.Plans
             ZoneSystem.instance && ZoneSystem.instance.GetGlobalKey(GlobalKeys.NoWorkbench);
 
         /// <summary>
+        ///     Same for the free build keys. FreeBuildKey picks NoCraftCost over NoBuildCost for pieces that
+        ///     are really placed items (dishes, meads, feasts), since those were paid for by crafting them
+        /// </summary>
+        internal bool FreeBuild =>
+            ZoneSystem.instance && ZoneSystem.instance.GetGlobalKey(originalPiece.FreeBuildKey());
+
+        /// <summary>
         /// Destroy this gameObject because of invalid state detected
         /// </summary>
         private void InvalidPlanPiece()
@@ -348,7 +355,8 @@ namespace PlanBuild.Plans
                 int remaining = requiredAmount - currentAmount;
 
                 textResAmount.text = currentAmount + "/" + requiredAmount;
-                if (remaining > 0 && !someAvailable)
+                // vanilla keeps showing the counts on a free build world, it just stops flagging them as missing
+                if (remaining > 0 && !someAvailable && !FreeBuild)
                 {
                     imageResIcon.color = Color.gray;
                     textResAmount.color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
@@ -432,14 +440,12 @@ namespace PlanBuild.Plans
             List<IInventory> inventories = GetInventories(user);
             foreach (Requirement req in originalPiece.m_resources)
             {
-                string resourceName = GetResourceName(req);
-                int currentCount = GetResourceCount(resourceName);
-
-                if (currentCount >= req.m_amount)
+                if (GetRemaining(req) <= 0)
                 {
                     continue;
                 }
 
+                string resourceName = GetResourceName(req);
                 foreach (IInventory inventory in inventories)
                 {
                     if (!inventory.HaveItem(resourceName))
@@ -516,6 +522,10 @@ namespace PlanBuild.Plans
         public Dictionary<string, int> GetRemaining()
         {
             Dictionary<string, int> result = new Dictionary<string, int>();
+            if (FreeBuild)
+            {
+                return result;
+            }
             foreach (Requirement req in originalPiece.m_resources)
             {
                 result.Add(GetResourceName(req), GetRemaining(req));
@@ -525,6 +535,10 @@ namespace PlanBuild.Plans
 
         private int GetRemaining(Requirement req)
         {
+            if (FreeBuild)
+            {
+                return 0;
+            }
             int currentCount = GetResourceCount(req);
             int remaining = req.m_amount - currentCount;
             return remaining;
@@ -549,9 +563,7 @@ namespace PlanBuild.Plans
                 {
                     continue;
                 }
-                int currentCount = GetResourceCount(resourceName);
-                int remaining = req.m_amount - currentCount;
-                if (remaining > 0)
+                if (GetRemaining(req) > 0)
                 {
                     m_nView.InvokeRPC("AddResource", resourceName, 1);
                     user.GetInventory().RemoveOneItem(item);
@@ -592,6 +604,10 @@ namespace PlanBuild.Plans
 
         public bool HasAllResources()
         {
+            if (FreeBuild)
+            {
+                return true;
+            }
             foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);

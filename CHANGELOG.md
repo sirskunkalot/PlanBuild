@@ -1,6 +1,7 @@
 # Version 0.19.1
 * Fixed the Plan Totem activation toggle not being triggerable with a controller
 * Fixed plans requiring a crafting station in range even with the `noworkbench` global key set
+* Fixed plans requiring resources even with the `nobuildcost` / `nocraftcost` global keys set
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
 
 # Version 0.19.0
