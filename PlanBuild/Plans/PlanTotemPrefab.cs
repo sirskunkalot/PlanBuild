@@ -95,6 +95,8 @@ namespace PlanBuild.Plans
             CustomPiece planTotemPiece = new CustomPiece(PlanTotemKitbash.Prefab, false, new PieceConfig()
             {
                 PieceTable = "Hammer",
+                // without this Jotunn guesses, and the Container base class alone earned it the Storage tag
+                Usage = new[] { PieceUsages.Misc, PieceUsages.Building },
                 Requirements = new []
                 {
                     new RequirementConfig{ Item = "Wood", Amount = 1 ,Recover = true},

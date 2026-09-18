@@ -88,6 +88,9 @@ namespace PlanBuild.Blueprints
                 CustomPiece piece = new CustomPiece(prefabs[pieceName], false, new PieceConfig
                 {
                     PieceTable = "Hammer",
+                    // Jotunn always guesses usage tags on vanilla tables, and the stack prefab's name
+                    // alone earned it the Stacks tag. Declare it instead of letting it guess
+                    Usage = new[] { PieceUsages.Misc },
                     Requirements = new[] {
                         new RequirementConfig
                         {
