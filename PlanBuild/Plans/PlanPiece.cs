@@ -57,7 +57,7 @@ namespace PlanBuild.Plans
             m_wearNTear.m_onDestroyed += OnDestroyed;
             if (m_nView.IsOwner())
             {
-                m_nView.GetZDO().Set("support", 0f);
+                m_nView.GetZDO().Set(ZDOVars.s_support, 0f);
             }
             m_nView.Register<bool>("Refund", RPC_Refund);
             m_nView.Register<string, int>("AddResource", RPC_AddResource);
@@ -91,11 +91,11 @@ namespace PlanBuild.Plans
 
         internal bool CalculateSupported()
         {
-            // "support" is a session-only ZDOVars key (never persisted to disk, see
+            // ZDOVars.s_support is a session-only key (never persisted to disk, see
             // ZDOVars.s_sessionHashes) - default to m_maxSupport like WearNTear.GetSupport()
             // itself does, instead of the implicit 0f, so a freshly loaded/reactivated ZDO
             // that hasn't run WearNTear.UpdateSupport() yet this session doesn't read as unsupported
-            return m_nView.GetZDO().GetFloat("support", m_maxSupport) >= m_minSupport;
+            return m_nView.GetZDO().GetFloat(ZDOVars.s_support, m_maxSupport) >= m_minSupport;
         }
 
         public void Update()
@@ -358,6 +358,11 @@ namespace PlanBuild.Plans
                 textResName.text = Localization.instance.Localize(req.m_resItem.m_itemData.m_shared.m_name);
 
                 int requiredAmount = req.GetAmount(0);
+                if (requiredAmount <= 0)
+                {
+                    InventoryGui.HideRequirement(elementRoot);
+                    return false;
+                }
 
                 string resourceName = GetResourceName(req);
                 bool someAvailable = GetInventories(Player.m_localPlayer).Exists(inv => inv.HaveItem(resourceName));;
@@ -791,7 +796,7 @@ namespace PlanBuild.Plans
         {
             if (__instance.GetComponent<PlanPiece>())
             {
-                __instance.m_nview.GetZDO().Set("support", __instance.m_support);
+                __instance.m_nview.GetZDO().Set(ZDOVars.s_support, __instance.m_support);
             }
         }
 
