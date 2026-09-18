@@ -251,6 +251,19 @@ A lot aspects of this mod are configurable either through the config file found 
 [*][b]Plan totem glow color[/b]: Color of the glowing lines on the Plan totem.
 [/list][/list]
 
+[b][size=5]World modifiers[/size][/b]
+Plans follow the vanilla global keys that relax building requirements, so a plan costs you exactly what the finished piece would. Set them in the World Modifiers menu when creating a world, or from the console with [pre]setkey <name>[/pre] and [pre]removekey <name>[/pre] (both need [pre]devcommands[/pre] and host or admin rights).
+
+[list]
+[*][b]noworkbench[/b]: Plans no longer need their crafting station in range. Applies to finishing a plan by hand as well as to a [b]Plan Totem[/b] completing it.
+[*][b]nobuildcost[/b]: Plans no longer need resources at all. Interacting with a plan builds it right away, and a [b]Plan Totem[/b] finishes every supported plan in range even with an empty chest.
+[*][b]nocraftcost[/b]: The same, but for the pieces that are really placed items - dishes, meads and feasts. Vanilla decides per piece which of the two keys applies, and PlanBuild follows that decision.
+[/list]
+
+Support is still required in every case: an unsupported plan is never built, and finishing one by hand still needs the [b]Plan Hammer[/b] in your inventory.
+
+The local [pre]nocost[/pre] cheat also finishes a plan on the spot, but only for the player who enabled it. A [b]Plan Totem[/b] is not affected by it.
+
 [b][size=5]Console commands[/size][/b]
 PlanBuild adds some new console commands to the game:
 

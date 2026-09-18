@@ -246,6 +246,18 @@ A lot aspects of this mod are configurable either through the config file found 
   * __Transparency__: Additional transparency for finer control. (default __30%__)
   * __Plan totem glow color__: Color of the glowing lines on the Plan totem.
     
+## World modifiers
+
+Plans follow the vanilla global keys that relax building requirements, so a plan costs you exactly what the finished piece would. Set them in the World Modifiers menu when creating a world, or from the console with ```setkey <name>``` and ```removekey <name>``` (both need ```devcommands``` and host or admin rights).
+
+* __noworkbench__: Plans no longer need their crafting station in range. Applies to finishing a plan by hand as well as to a __Plan Totem__ completing it.
+* __nobuildcost__: Plans no longer need resources at all. Interacting with a plan builds it right away, and a __Plan Totem__ finishes every supported plan in range even with an empty chest.
+* __nocraftcost__: The same, but for the pieces that are really placed items — dishes, meads and feasts. Vanilla decides per piece which of the two keys applies, and PlanBuild follows that decision.
+
+Support is still required in every case: an unsupported plan is never built, and finishing one by hand still needs the __Plan Hammer__ in your inventory.
+
+The local ```nocost``` cheat also finishes a plan on the spot, but only for the player who enabled it. A __Plan Totem__ is not affected by it.
+
 ## Console commands
 
 PlanBuild adds some new console commands to the game:
