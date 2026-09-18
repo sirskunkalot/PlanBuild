@@ -7,6 +7,7 @@
 * Plans no longer keep the mist force field or light flicker components of the original piece
 * Requirements with an amount of zero are no longer shown as an empty row in the plan info panel
 * Harvest pieces no longer get a plan, they reap and destroy themselves on placement and left an inert piece behind
+* The Plan Totem and the standing Blueprint Runes now declare their usage tags instead of letting them be guessed
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
 
 # Version 0.19.0
