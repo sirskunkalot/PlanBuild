@@ -575,6 +575,9 @@ namespace PlanBuild.Plans
 
         private void Refund(bool all)
         {
+            Vector3 dropPosition = transform.position + Vector3.up * originalPiece.m_returnResourceHeightOffset;
+            Container lootContainer = null;
+
             foreach (Requirement req in originalPiece.m_resources)
             {
                 string resourceName = GetResourceName(req);
@@ -586,13 +589,29 @@ namespace PlanBuild.Plans
 
                 while (currentCount > 0)
                 {
-                    ItemDrop.ItemData itemData = req.m_resItem.m_itemData.Clone();
-                    int dropCount = Mathf.Min(currentCount, itemData.m_shared.m_maxStackSize);
-                    itemData.m_stack = dropCount;
-                    currentCount -= dropCount;
+                    if (originalPiece.m_destroyedLootPrefab)
+                    {
+                        ItemDrop.ItemData itemData = req.m_resItem.m_itemData.Clone();
+                        itemData.m_dropPrefab = req.m_resItem.gameObject;
+                        itemData.m_stack = Mathf.Min(currentCount, itemData.m_shared.m_maxStackSize);
+                        currentCount -= itemData.m_stack;
 
-                    Instantiate(req.m_resItem.gameObject, transform.position + Vector3.up, Quaternion.identity)
-                        .GetComponent<ItemDrop>().SetStack(dropCount);
+                        if (lootContainer == null || !lootContainer.GetInventory().HaveEmptySlot())
+                        {
+                            lootContainer = Instantiate(originalPiece.m_destroyedLootPrefab, dropPosition, Quaternion.identity)
+                                .GetComponent<Container>();
+                        }
+                        lootContainer.GetInventory().AddItem(itemData);
+                    }
+                    else
+                    {
+                        ItemDrop drop = Instantiate(req.m_resItem.gameObject, dropPosition, Quaternion.identity)
+                            .GetComponent<ItemDrop>();
+                        drop.SetStack(Mathf.Min(currentCount, drop.m_itemData.m_shared.m_maxStackSize));
+                        // stamps the current world level, without it the drop can stop counting towards requirements
+                        ItemDrop.OnCreateNew(drop);
+                        currentCount -= drop.m_itemData.m_stack;
+                    }
                 }
             }
         }
