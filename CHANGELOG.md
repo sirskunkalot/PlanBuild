@@ -4,7 +4,7 @@
 * Fixed plans requiring resources even with the `nobuildcost` / `nocraftcost` global keys set
 * Fixed refunded plan materials not being stamped with the world level, which could stop them counting towards requirements
 * Fixed the plan info panel keeping the snapping icon of the previously selected piece and showing an untranslated "None"
-* Plans no longer clear the mist, spawn wisps or affect particles like the finished piece would
+* Plans no longer keep the mist force field or light flicker components of the original piece
 * Requirements with an amount of zero are no longer shown as an empty row in the plan info panel
 * Harvest pieces no longer get a plan, they reap and destroy themselves on placement and left an inert piece behind
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
