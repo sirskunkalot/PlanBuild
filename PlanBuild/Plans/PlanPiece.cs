@@ -286,6 +286,11 @@ namespace PlanBuild.Plans
             Hud.instance.m_pieceDescription.text = Localization.instance.Localize(piece.m_description);
             Hud.instance.m_buildIcon.enabled = true;
             Hud.instance.m_buildIcon.sprite = piece.m_icon;
+            // the build Hud is shared, without this the plan keeps the snapping icon of the last selected piece
+            Sprite snappingIcon = Hud.instance.GetSnappingIconForPiece(piece);
+            Hud.instance.m_snappingIcon.sprite = snappingIcon;
+            Hud.instance.m_snappingIcon.enabled = snappingIcon != null &&
+                (piece.m_category == PieceCategory.BuildingWorkbench || piece.m_groundPiece || piece.m_waterPiece);
             GameObject[] uiRequirementPanels = Hud.instance.m_requirementItems;
             for (int j = 0; j < uiRequirementPanels.Length; j++)
             {
@@ -325,7 +330,7 @@ namespace PlanBuild.Plans
                 else
                 {
                     component.color = Color.gray;
-                    component3.text = "None";
+                    component3.text = Localization.instance.Localize("$menu_none");
                     component3.color = ((Mathf.Sin(Time.time * 10f) > 0f) ? Color.red : Color.white);
                 }
             }
