@@ -32,12 +32,14 @@ namespace PlanBuild.Plans
 
         [HarmonyPatch(typeof(Container), nameof(Container.Interact))]
         [HarmonyPrefix]
-        private static bool Container_Interact_Prefix(Container __instance, bool hold, ref bool __result)
+        private static bool Container_Interact_Prefix(Container __instance, bool hold, bool alt, ref bool __result)
         {
             PlanTotem planTotem = __instance as PlanTotem;
-            // "Crouch" is the keyboard binding only, the gamepad one is a separate button def
+            // Vanilla derives alt per input layout, which is the only combo that stays correct across
+            // gamepad layouts and rebinding mods. Crouch keeps working for existing muscle memory, but
+            // asking for it on a pad means holding a stick click down while interacting
             bool crouch = ZInput.GetButton("Crouch") || ZInput.GetButton("JoyCrouch");
-            if (planTotem && !hold && crouch && !__instance.IsInUse())
+            if (planTotem && !hold && (alt || crouch) && !__instance.IsInUse())
             {
                 planTotem.m_nview.InvokeRPC("ToggleEnabled");
                 __result = true;
@@ -290,9 +292,13 @@ namespace PlanBuild.Plans
         {
             ShowAreaMarker();
             bool enabled = GetEnabled();
+            // same split vanilla uses for its own alt interactions, see ItemStand.GetHoverText
+            string altKey = (ZInput.IsNonClassicFunctionality() && ZInput.IsGamepadActive())
+                ? "$KEY_AltKeys"
+                : "$KEY_AltPlace";
             StringBuilder sb = new StringBuilder($"$piece_plan_totem {(enabled ? "" : "(<color=red>$piece_plan_totem_disabled</color>)")}\n" +
                 $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
-                $"[<color=yellow>$KEY_Crouch + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
+                $"[<color=yellow>{altKey} + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {
