@@ -119,6 +119,10 @@ namespace PlanBuild.Plans
                 typeof(GuidePoint),
                 typeof(Light),
                 typeof(LightLod),
+                typeof(LightFlicker),
+                typeof(ParticleSystemForceField),
+                typeof(Demister),
+                typeof(WispSpawner),
                 typeof(Interactable),
                 typeof(Hoverable)
             };
