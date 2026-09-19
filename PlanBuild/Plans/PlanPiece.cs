@@ -42,6 +42,7 @@ namespace PlanBuild.Plans
 
             if (originalPiece.TryGetComponent(out WearNTear wearNTear))
             {
+                m_noSupportWear = wearNTear.m_noSupportWear;
                 m_minSupport = wearNTear.GetMinSupport();
                 m_maxSupport = wearNTear.GetMaxSupport();
             }
@@ -91,6 +92,13 @@ namespace PlanBuild.Plans
 
         internal bool CalculateSupported()
         {
+            // Pieces that take no wear without support (e.g. blackmarble_floor_large) may float
+            // freely in vanilla. Their plan still gets m_noSupportWear forced on in
+            // PlanPiecePrefab, so it would compute a real support value and read as unsupported
+            if (!m_noSupportWear)
+            {
+                return true;
+            }
             // ZDOVars.s_support is a session-only key (never persisted to disk, see
             // ZDOVars.s_sessionHashes) - default to m_maxSupport like WearNTear.GetSupport()
             // itself does, instead of the implicit 0f, so a freshly loaded/reactivated ZDO
@@ -258,6 +266,7 @@ namespace PlanBuild.Plans
         private float m_lastLookedTime = -9999f;
         private float m_lastUseTime = -9999f;
         private readonly float m_holdRepeatInterval = 1f;
+        private bool m_noSupportWear = true;
         private float m_minSupport = 0f;
         internal float m_maxSupport;
 

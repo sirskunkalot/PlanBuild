@@ -1,5 +1,5 @@
 # Version 0.19.1
-* The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller
+* The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)
 * The Plan Hammer can now copy a built piece with the vanilla copy keybind to select its plan
 * Fixed plans requiring a crafting station in range with the `noworkbench` global key set
 * Fixed plans requiring resources with the `nobuildcost` / `nocraftcost` global keys set
@@ -11,6 +11,7 @@
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
 * Fixed container contents not being captured or restored by blueprints since Valheim 1.0
 * Fixed a TypeLoadException breaking plan hover text and material deposits with Craft From Containers 4.x
+* Plans of pieces with m_noSupportWear disabled, like carts, boats and wards, no longer count as unsupported
 
 # Version 0.19.0
 * Removed the HookGenPatcher dependency; all hooks now use Harmony
