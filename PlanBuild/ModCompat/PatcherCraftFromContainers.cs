@@ -2,7 +2,8 @@
 using PlanBuild.Plans;
 using System.Collections.Generic;
 
-using CraftyContainers = CraftFromContainers.CraftFromContainers;
+// CraftFromContainers 4.x renamed its plugin class to BepInExPlugin
+using CraftyContainers = CraftFromContainers.BepInExPlugin;
 
 namespace PlanBuild.ModCompat
 {

@@ -10,6 +10,7 @@
 * The Plan Totem and the standing Blueprint Runes now declare their usage tags instead of letting them be guessed
 * Fixed the build placement distance being reset to zero when the Blueprint Rune was unequipped without being equipped first
 * Fixed container contents not being captured or restored by blueprints since Valheim 1.0
+* Fixed a TypeLoadException breaking plan hover text and material deposits with Craft From Containers 4.x
 
 # Version 0.19.0
 * Removed the HookGenPatcher dependency; all hooks now use Harmony
