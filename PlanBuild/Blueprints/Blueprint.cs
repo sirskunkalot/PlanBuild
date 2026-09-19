@@ -732,7 +732,12 @@ namespace PlanBuild.Blueprints
                 Container container = piece.GetComponent<Container>();
                 if (container != null && container.m_nview)
                 {
-                    additionalInfo = container.m_nview.GetZDO().GetString("items");
+                    // Valheim 1.0 moved the container inventory from a base64 string ZDO field to
+                    // a raw byte array, so the old GetString() always came back empty. Store it
+                    // base64 encoded to keep the blueprint file textual - and byte for byte
+                    // identical to what pre-1.0 blueprints already contain, so old files still load
+                    byte[] items = container.m_nview.GetZDO().GetByteArray(ZDOVars.s_items);
+                    additionalInfo = items != null ? Convert.ToBase64String(items) : string.Empty;
                 }
 
                 var scale = piece.transform.localScale;

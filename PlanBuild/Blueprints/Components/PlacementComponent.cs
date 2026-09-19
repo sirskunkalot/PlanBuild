@@ -343,7 +343,16 @@ namespace PlanBuild.Blueprints.Components
                 {
                     if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                     {
-                        zNetView.m_zdo.Set("items", entry.additionalInfo);
+                        // see Blueprint.cs: the inventory is stored base64 encoded in the blueprint,
+                        // the ZDO field itself is a byte array since Valheim 1.0
+                        try
+                        {
+                            zNetView.m_zdo.Set(ZDOVars.s_items, Convert.FromBase64String(entry.additionalInfo));
+                        }
+                        catch (FormatException)
+                        {
+                            Jotunn.Logger.LogWarning($"Invalid container contents for {entry.name} @{entryPosition}, placing it empty");
+                        }
                     }
                 }
                 ItemDrop itemDrop = gameObject.GetComponent<ItemDrop>();
