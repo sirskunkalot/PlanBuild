@@ -1,3 +1,6 @@
+# Version 0.19.2
+* Blueprint ghosts containing a terrain op piece no longer modify real terrain while being built
+
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)
 * The Plan Hammer can now copy a built piece with the vanilla copy keybind to select its plan

@@ -971,6 +971,8 @@ namespace PlanBuild.Blueprints
             GameObject baseObject = Prefab;
             var ret = true;
             ZNetView.m_forceDisableInit = true;
+            // Ghosts must never touch real terrain, same as vanilla Player.SetupPlacementGhost
+            TerrainOp.m_forceDisableTerrainOps = true;
 
             try
             {
@@ -1045,6 +1047,7 @@ namespace PlanBuild.Blueprints
             finally
             {
                 ZNetView.m_forceDisableInit = false;
+                TerrainOp.m_forceDisableTerrainOps = false;
             }
 
             return ret;
