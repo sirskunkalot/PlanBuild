@@ -297,8 +297,8 @@ namespace PlanBuild.Plans
                 ? "$KEY_AltKeys"
                 : "$KEY_AltPlace";
             StringBuilder sb = new StringBuilder($"$piece_plan_totem {(enabled ? "" : "(<color=red>$piece_plan_totem_disabled</color>)")}\n" +
-                $"[<color=yellow>$KEY_Use</color>] $piece_container_open\n" +
-                $"[<color=yellow>{altKey} + $KEY_Use</color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
+                $"[<color=yellow><b>$KEY_Use</b></color>] $piece_container_open\n" +
+                $"[<color=yellow><b>{altKey} + $KEY_Use</b></color>] {(enabled ? "$piece_plan_totem_disable" : "$piece_plan_totem_enable")}\n" +
                 $"\n");
             if (m_missingCraftingStations.Count > 0)
             {

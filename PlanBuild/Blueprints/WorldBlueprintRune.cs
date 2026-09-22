@@ -35,7 +35,7 @@ namespace PlanBuild.Blueprints
         {
             return Localization.instance.Localize(
                 $"{GetHoverName()}\n" +
-                $"[<color=yellow>$KEY_Use</color>] $piece_world_blueprint_rune_open"
+                $"[<color=yellow><b>$KEY_Use</b></color>] $piece_world_blueprint_rune_open"
             );
         }
 

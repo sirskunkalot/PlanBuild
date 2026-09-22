@@ -104,7 +104,7 @@ namespace PlanBuild.Blueprints
         public string GetHoverText()
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append("[<color=yellow>$KEY_Use</color>] $hud_terrainmod_interact\n");
+            sb.Append("[<color=yellow><b>$KEY_Use</b></color>] $hud_terrainmod_interact\n");
             sb.Append($"$gui_terrainmod_shape: {GetProperty(ShapeProperty)} \n");
             sb.Append($"$gui_terrainmod_radius: {GetProperty(RadiusProperty)}\n");
             sb.Append($"$gui_terrainmod_rotation: {GetProperty(RotationProperty)}\n");

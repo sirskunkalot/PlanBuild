@@ -281,10 +281,10 @@ namespace PlanBuild.Plans
             if (!HasAllResources())
             {
                 return Localization.instance.Localize("" +
-                    "[<color=yellow>$KEY_Use</color>] [<color=yellow>1-8</color>] $plan_piece_hover_add_material\n" +
-                    "[$plan_piece_hover_hold <color=yellow>$KEY_Use</color>] $plan_piece_hover_add_all_materials");
+                    "[<color=yellow><b>$KEY_Use</b></color>] [<color=yellow>1-8</color>] $plan_piece_hover_add_material\n" +
+                    "[<color=yellow><b>$plan_piece_hover_hold + $KEY_Use</b></color>] $plan_piece_hover_add_all_materials");
             }
-            return Localization.instance.Localize("[<color=yellow>$KEY_Use</color>] $plan_piece_hover_build");
+            return Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>] $plan_piece_hover_build");
         }
 
         public float GetHoverOffset()

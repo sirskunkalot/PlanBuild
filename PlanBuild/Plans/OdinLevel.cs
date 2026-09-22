@@ -11,7 +11,7 @@ namespace PlanBuild.Plans
 
         public string GetHoverText()
         {
-            return Localization.instance.Localize("[<color=yellow>$KEY_Use</color>] Toggle grid");
+            return Localization.instance.Localize("[<color=yellow><b>$KEY_Use</b></color>] Toggle grid");
         }
 
         public bool Interact(Humanoid user, bool hold, bool alt)
