@@ -1,5 +1,6 @@
 # Version 0.19.2
 * Blueprint ghosts containing a terrain op piece no longer modify real terrain while being built
+* Hover text keybinds now use the vanilla formatting, so controllers show their button glyphs instead of raw markup (thx Arrowmaster)
 
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)
