@@ -20,6 +20,7 @@ namespace PlanBuild.Blueprints
     internal class Blueprint
     {
         public const string PieceBlueprintName = "piece_blueprint";
+        public const string PieceBlueprintPrefix = PieceBlueprintName + ":";
         public const string PlaceColliderName = "place_collider";
         public const string AdditionalInfo = "AdditionalText";
 
@@ -923,27 +924,52 @@ namespace PlanBuild.Blueprints
         /// <param name="additionalRotation">Rotation added to the base rotation of the rendered prefab on the Y-axis</param>
         public bool CreateThumbnail(int additionalRotation = 0, bool flush = true)
         {
+            // Only clean up a ghost created here, never the one currently used for building
+            bool ownsGhost = !HasGhost();
             if (!InstantiateGhost())
             {
                 return false;
             }
 
-            var req = new RenderManager.RenderRequest(Prefab)
+            Sprite sprite;
+            try
             {
-                Rotation = RenderManager.IsometricRotation * Quaternion.Euler(0f, additionalRotation, 0f),
-                Width = ThumbnailSize,
-                Height = ThumbnailSize
-            };
+                var req = new RenderManager.RenderRequest(Prefab)
+                {
+                    Rotation = RenderManager.IsometricRotation * Quaternion.Euler(0f, additionalRotation, 0f),
+                    Width = ThumbnailSize,
+                    Height = ThumbnailSize
+                };
 
-            var sprite = RenderManager.Instance.Render(req);
+                sprite = RenderManager.Instance.Render(req);
+            }
+            finally
+            {
+                if (ownsGhost)
+                {
+                    DestroyGhost(true);
+                }
+            }
 
             if (sprite == null)
             {
                 return false;
             }
 
+            var oldThumbnail = Thumbnail;
             Thumbnail = sprite.texture;
-            Prefab.GetComponent<Piece>().m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
+            // Only the texture is kept, Jötunn's sprite would leak otherwise
+            Object.Destroy(sprite);
+            if (oldThumbnail && oldThumbnail != Thumbnail)
+            {
+                Object.Destroy(oldThumbnail);
+            }
+            var piece = Prefab.GetComponent<Piece>();
+            if (piece.m_icon)
+            {
+                Object.Destroy(piece.m_icon);
+            }
+            piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
 
             if (flush)
             {
@@ -963,7 +989,7 @@ namespace PlanBuild.Blueprints
             {
                 return false;
             }
-            if (Prefab.transform.childCount > 1)
+            if (HasGhost())
             {
                 return true;
             }
@@ -1094,10 +1120,7 @@ namespace PlanBuild.Blueprints
                     Material[] sharedMaterials = meshRenderer.sharedMaterials;
                     for (int j = 0; j < sharedMaterials.Length; j++)
                     {
-                        Material material = new Material(sharedMaterials[j]);
-                        material.SetFloat("_RippleDistance", 0f);
-                        material.SetFloat("_ValueNoise", 0f);
-                        sharedMaterials[j] = material;
+                        sharedMaterials[j] = GetGhostMaterial(sharedMaterials[j]);
                     }
                     meshRenderer.sharedMaterials = sharedMaterials;
                     meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
@@ -1105,22 +1128,63 @@ namespace PlanBuild.Blueprints
             }
         }
 
-        public void DestroyGhost()
+        /// <summary>
+        ///     Ghost clones of shared materials, one per source material instead of one per renderer.
+        ///     Never destroyed: ShaderHelper.OriginalMaterialDict may hold on to them.
+        /// </summary>
+        private static readonly Dictionary<Material, Material> GhostMaterials = new Dictionary<Material, Material>();
+
+        private static Material GetGhostMaterial(Material source)
         {
-            if (!Prefab)
+            if (source == null)
             {
-                return;
+                return null;
             }
-            if (Prefab.transform.childCount <= 1)
+            if (GhostMaterials.TryGetValue(source, out var material) && material)
+            {
+                return material;
+            }
+
+            material = new Material(source);
+            material.SetFloat("_RippleDistance", 0f);
+            material.SetFloat("_ValueNoise", 0f);
+            GhostMaterials[source] = material;
+            return material;
+        }
+
+        private bool HasGhost()
+        {
+            return Prefab && Prefab.transform.childCount > 1;
+        }
+
+        /// <param name="immediate">
+        ///     Destroy the children right away, so an <see cref="InstantiateGhost"/> later in
+        ///     the same frame does not mistake the doomed ghost for a present one
+        /// </param>
+        public void DestroyGhost(bool immediate = false)
+        {
+            if (!HasGhost())
             {
                 return;
             }
 
+            var children = new List<GameObject>();
             foreach (Transform transform in Prefab.transform)
             {
                 if (transform.name != "_GhostOnly")
                 {
-                    Object.Destroy(transform.gameObject);
+                    children.Add(transform.gameObject);
+                }
+            }
+            foreach (var child in children)
+            {
+                if (immediate)
+                {
+                    Object.DestroyImmediate(child);
+                }
+                else
+                {
+                    Object.Destroy(child);
                 }
             }
 

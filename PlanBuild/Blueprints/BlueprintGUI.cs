@@ -414,9 +414,15 @@ namespace PlanBuild.Blueprints
                 yield return null;
                 bp.CreatePiece();
                 yield return null;
-                bp.InstantiateGhost();
-                yield return null;
-                bp.CreateThumbnail(detail.AdditionalRotation, false);
+                // No InstantiateGhost here, CreateThumbnail only cleans up a ghost it created itself
+                if (!bp.CreateThumbnail(detail.AdditionalRotation, false))
+                {
+                    yield break;
+                }
+                if (detail.Icon)
+                {
+                    UnityEngine.Object.Destroy(detail.Icon);
+                }
                 detail.Icon = Sprite.Create(bp.Thumbnail,
                     new Rect(0, 0, bp.Thumbnail.width, bp.Thumbnail.height),
                     Vector2.zero);

@@ -22,6 +22,11 @@ namespace PlanBuild.Blueprints
                 return;
             }
             bp.CreatePiece();
+            // Instantiate up front so CreateThumbnail keeps the ghost for the selection below
+            // instead of building it twice; the timer lets the watchdog clean it up even if
+            // the selection fails
+            bp.InstantiateGhost();
+            bp.GhostActiveTime = Time.time;
             bp.CreateThumbnail(flush: false);
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
             Player.m_localPlayer.UpdateKnownRecipesList();

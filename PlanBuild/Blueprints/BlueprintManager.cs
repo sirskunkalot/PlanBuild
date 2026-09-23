@@ -61,7 +61,9 @@ namespace PlanBuild.Blueprints
                 {
                     while (true)
                     {
-                        foreach (var bp in LocalBlueprints.Values.Where(x => x.GhostActiveTime > 0f))
+                        // Clipboard blueprints carry a ghost too
+                        foreach (var bp in LocalBlueprints.Values.Concat(TemporaryBlueprints.Values)
+                                     .Where(x => x.GhostActiveTime > 0f))
                         {
                             if (Time.time - bp.GhostActiveTime > GhostTimeout)
                             {
@@ -290,7 +292,7 @@ namespace PlanBuild.Blueprints
 
         private static bool IsBlueprintPiece(GameObject prefab)
         {
-            return prefab && prefab.name.StartsWith($"{Blueprint.PieceBlueprintName}:");
+            return prefab && prefab.name.StartsWith(Blueprint.PieceBlueprintPrefix, StringComparison.Ordinal);
         }
 
         /// <summary>
@@ -306,13 +308,7 @@ namespace PlanBuild.Blueprints
             }
 
             GameObject prefab = __instance.m_buildPieces.GetSelectedPrefab();
-            if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
-            {
-                return;
-            }
-
-            string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
-            if (LocalBlueprints.TryGetValue(bpname, out var bp))
+            if (prefab && TryGetBlueprint(prefab.name, out var bp))
             {
                 bp.InstantiateGhost();
             }
@@ -331,13 +327,7 @@ namespace PlanBuild.Blueprints
             }
 
             GameObject prefab = __instance.m_buildPieces.GetSelectedPrefab();
-            if (!prefab || !prefab.name.StartsWith(Blueprint.PieceBlueprintName))
-            {
-                return;
-            }
-
-            string bpname = prefab.name.Substring(Blueprint.PieceBlueprintName.Length + 1);
-            if (LocalBlueprints.TryGetValue(bpname, out var bp))
+            if (prefab && TryGetBlueprint(prefab.name, out var bp))
             {
                 bp.GhostActiveTime = Time.time;
             }
@@ -469,13 +459,15 @@ namespace PlanBuild.Blueprints
         public static bool TryGetBlueprint(string prefabName, out Blueprint blueprint)
         {
             blueprint = null;
-            if (string.IsNullOrEmpty(prefabName) || !prefabName.StartsWith(Blueprint.PieceBlueprintName))
+            // Check including the separator, the bare stub name would make Substring throw
+            if (string.IsNullOrEmpty(prefabName)
+                || !prefabName.StartsWith(Blueprint.PieceBlueprintPrefix, StringComparison.Ordinal))
             {
                 return false;
             }
 
-            string id = prefabName.Substring(Blueprint.PieceBlueprintName.Length + 1);
-            var blueprints = id.StartsWith("__") ? TemporaryBlueprints : LocalBlueprints;
+            string id = prefabName.Substring(Blueprint.PieceBlueprintPrefix.Length);
+            var blueprints = id.StartsWith("__", StringComparison.Ordinal) ? TemporaryBlueprints : LocalBlueprints;
             return blueprints.TryGetValue(id, out blueprint);
         }
 

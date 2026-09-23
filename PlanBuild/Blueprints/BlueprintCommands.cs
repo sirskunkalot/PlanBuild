@@ -189,6 +189,8 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                 }
 
                 var success = bp.CreateThumbnail(additionalRot);
+                // The old thumbnail texture is destroyed, rebuild the list icons referencing it
+                BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
                 Console.instance.Print(success
                     ? $"Created thumbnail for {id}"
                     : $"Could not create thumbnail for {id}");
@@ -213,12 +215,16 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
             {
                 IEnumerator RegenAll()
                 {
-                    foreach (var bp in BlueprintManager.LocalBlueprints.Values)
+                    // Snapshot, the dictionary may change while this runs over several frames
+                    foreach (var bp in BlueprintManager.LocalBlueprints.Values.ToList())
                     {
                         yield return null;
                         bp.CreateThumbnail();
                     }
-                    
+
+                    // The old thumbnail textures are destroyed, rebuild the list icons referencing them
+                    BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+
                     Console.instance.Print("Thumbnails regenerated");
                 }
 
