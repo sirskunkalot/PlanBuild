@@ -4,6 +4,7 @@
 * Fixed thumbnail creation leaking blueprint ghosts and textures, which could run out of memory with `bp.regenthumbnails`
 * Blueprint ghosts no longer clone a material for every single piece, reducing memory use of large blueprints
 * Clipboard blueprint ghosts are now cleaned up when not in use, like those of saved blueprints
+* Fixed blueprints from InfinityHammer with terrain data failing to load or gaining phantom pieces
 
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)

@@ -43,7 +43,8 @@ namespace PlanBuild.Blueprints
         {
             SnapPoints,
             Terrain,
-            Pieces
+            Pieces,
+            Skip
         }
 
         /// <summary>
@@ -330,10 +331,15 @@ namespace PlanBuild.Blueprints
                 }
                 if (line.StartsWith("#"))
                 {
+                    // Unknown header, e.g. InfinityHammer's #TerrainHeight after #Pieces: skip its
+                    // lines until the next known header instead of parsing them as the current section
+                    state = ParserState.Skip;
                     continue;
                 }
                 switch (state)
                 {
+                    case ParserState.Skip:
+                        continue;
                     case ParserState.SnapPoints:
                         snapPoints.Add(new SnapPointEntry(line));
                         continue;
