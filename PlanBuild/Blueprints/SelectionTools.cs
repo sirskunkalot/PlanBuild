@@ -1,5 +1,7 @@
 ﻿using Jotunn.Managers;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using UnityEngine;
@@ -11,7 +13,7 @@ namespace PlanBuild.Blueprints
         public static void Copy(Selection selection, bool captureCurrentSnapPoints, bool keepMarkers)
         {
             var bp = new Blueprint();
-            bp.ID = $"__{BlueprintManager.TemporaryBlueprints.Count + 1:000}";
+            bp.ID = NextClipboardID();
             bp.Creator = Player.m_localPlayer.GetPlayerName();
             bp.Name = bp.ID;
             bp.Category = BlueprintAssets.CategoryClipboard;
@@ -41,6 +43,24 @@ namespace PlanBuild.Blueprints
                 Jotunn.Logger.LogWarning($"Could not select blueprint {bp.ID} in the piece table");
             }
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
+        }
+
+        /// <summary>
+        ///     Highest clipboard number + 1. Count + 1 reused an existing ID once a clipboard blueprint
+        ///     other than the last one was deleted.
+        /// </summary>
+        private static string NextClipboardID()
+        {
+            int highest = 0;
+            foreach (string id in BlueprintManager.TemporaryBlueprints.Keys)
+            {
+                if (id.StartsWith("__", StringComparison.Ordinal)
+                    && int.TryParse(id.Substring(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
+                {
+                    highest = Math.Max(highest, number);
+                }
+            }
+            return $"__{highest + 1:000}";
         }
 
         public static void Cut(Selection selection, bool captureCurrentSnapPoints, bool keepMarkers)

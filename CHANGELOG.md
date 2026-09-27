@@ -18,6 +18,7 @@
 * Deleting objects or a selection that removes nothing no longer adds an empty undo step
 * `bp.push` with an unknown blueprint ID now reports that the blueprint was not found
 * Fixed an error when loading a world with mod pieces that share a name and have a requirement without an item
+* Fixed copying to the clipboard failing after deleting a clipboard blueprint other than the last one
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1
