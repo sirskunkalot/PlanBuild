@@ -122,28 +122,36 @@ namespace PlanBuild.Blueprints.Components
             {
                 TerrainModEntry entry = bp.TerrainMods[i];
                 
-                // Final position
-                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
+                try
+                {
+                    // Final position
+                    Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
                 
-                // Final rotation
-                Quaternion entryQuat = transform.rotation * entry.GetRotation();
+                    // Final rotation
+                    Quaternion entryQuat = transform.rotation * entry.GetRotation();
 
-                Dictionary<TerrainComp, Indices> indices = null;
-                if (entry.shape.Equals("Circle", StringComparison.OrdinalIgnoreCase))
-                {
-                    indices = TerrainTools.GetCompilerIndicesWithCircle(entryPosition, entry.radius * 2,
-                        BlockCheck.Off);
+                    Dictionary<TerrainComp, Indices> indices = null;
+                    if (entry.shape.Equals("Circle", StringComparison.OrdinalIgnoreCase))
+                    {
+                        indices = TerrainTools.GetCompilerIndicesWithCircle(entryPosition, entry.radius * 2,
+                            BlockCheck.Off);
+                    }
+                    if (entry.shape.Equals("Square", StringComparison.OrdinalIgnoreCase))
+                    {
+                        indices = TerrainTools.GetCompilerIndicesWithRect(entryPosition, entry.radius * 2, entry.radius * 2,
+                            entryQuat.eulerAngles.y * Mathf.PI / 180f, BlockCheck.Off);
+                    }
+                    TerrainTools.LevelTerrain(indices, entryPosition, entry.radius, entry.smooth, entryPosition.y);
+                    if (!string.IsNullOrEmpty(entry.paint))
+                    {
+                        TerrainTools.PaintTerrain(indices, entryPosition, entry.radius,
+                            (TerrainModifier.PaintType) Enum.Parse(typeof(TerrainModifier.PaintType), entry.paint));
+                    }
                 }
-                if (entry.shape.Equals("Square", StringComparison.OrdinalIgnoreCase))
+                catch (Exception e)
                 {
-                    indices = TerrainTools.GetCompilerIndicesWithRect(entryPosition, entry.radius * 2, entry.radius * 2,
-                        entryQuat.eulerAngles.y * Mathf.PI / 180f, BlockCheck.Off);
-                }
-                TerrainTools.LevelTerrain(indices, entryPosition, entry.radius, entry.smooth, entryPosition.y);
-                if (!string.IsNullOrEmpty(entry.paint))
-                {
-                    TerrainTools.PaintTerrain(indices, entryPosition, entry.radius,
-                        (TerrainModifier.PaintType) Enum.Parse(typeof(TerrainModifier.PaintType), entry.paint));
+                    // One broken entry must not abort the placement, the pieces placed so far need their undo
+                    Jotunn.Logger.LogWarning($"Error while placing terrain mod line: {entry.line}\n{e}");
                 }
             }
             
@@ -156,248 +164,256 @@ namespace PlanBuild.Blueprints.Components
             {
                 PieceEntry entry = bp.PieceEntries[i];
 
-                // Dont place an erroneously captured piece_blueprint
-                if (entry.name == Blueprint.PieceBlueprintName)
+                try
                 {
-                    continue;
-                }
-
-                // Final position
-                Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
-
-                // Final rotation
-                Quaternion entryQuat = transform.rotation * entry.GetRotation();
-
-                // Dont place blacklisted pieces
-                if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))
-                {
-                    Jotunn.Logger.LogWarning($"{entry.name} is blacklisted, not placing @{entryPosition}");
-                    continue;
-                }
-
-                // Get the prefab of the piece or the plan piece
-                string prefabName = entry.name;
-                if (!placeDirect)
-                {
-                    prefabName += PlanPiecePrefab.PlannedSuffix;
-                }
-
-                GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
-                if (!prefab)
-                {
-                    Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency, not placing @{entryPosition}");
-                    continue;
-                }
-
-                // No Terrain stuff unless allowed
-                // if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
-                //     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
-                // {
-                //     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
-                //     continue;
-                // }
-
-                // Instantiate a new object with the prefab
-                GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
-                if (!gameObject)
-                {
-                    Jotunn.Logger.LogWarning($"Invalid PieceEntry: {entry.name}");
-                    continue;
-                }
-                OnPiecePlaced(gameObject);
-
-                ZNetView zNetView = gameObject.GetComponent<ZNetView>();
-                if (!zNetView)
-                {
-                    Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
-                }
-                else
-                {
-                    ZDOs.Add(zNetView.m_zdo);
-                    zNetView.SetLocalScale(entry.GetScale());
-                }
-
-                // Register special effects
-                Piece newpiece = gameObject.GetComponent<Piece>();
-                if (newpiece)
-                {
-                    newpiece.SetCreator(player.GetPlayerID(), Splatform.PlatformUserID.None);
-
-                    if (placeDirect && cntEffects < maxEffects)
+                    // Dont place an erroneously captured piece_blueprint
+                    if (entry.name == Blueprint.PieceBlueprintName)
                     {
-                        newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
-                        player.AddNoise(50f);
-                        cntEffects++;
+                        continue;
                     }
 
-                    if (placeDirect)
-                    {
-                        Game.instance.GetPlayerProfile().IncrementStat(PlayerStatType.Builds, 1f, false);
-                    }
-                }
-                CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
-                if (craftingStation)
-                {
-                    player.AddKnownStation(craftingStation);
-                }
-                PrivateArea privateArea = gameObject.GetComponent<PrivateArea>();
-                if (privateArea)
-                {
-                    privateArea.Setup(Game.instance.GetPlayerProfile().GetName());
+                    // Final position
+                    Vector3 entryPosition = transform.TransformPoint(entry.GetPosition());
 
-                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    // Final rotation
+                    Quaternion entryQuat = transform.rotation * entry.GetRotation();
+
+                    // Dont place blacklisted pieces
+                    if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(entry.name))
                     {
-                        zNetView.m_zdo.Set("enabled", bool.Parse(entry.additionalInfo));
+                        Jotunn.Logger.LogWarning($"{entry.name} is blacklisted, not placing @{entryPosition}");
+                        continue;
                     }
-                }
-                WearNTear wearntear = gameObject.GetComponent<WearNTear>();
-                if (wearntear)
-                {
-                    wearntear.OnPlaced();
-                }
-                TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
-                if (textReceiver != null)
-                {
-                    if (!placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+
+                    // Get the prefab of the piece or the plan piece
+                    string prefabName = entry.name;
+                    if (!placeDirect)
                     {
-                        zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
+                        prefabName += PlanPiecePrefab.PlannedSuffix;
                     }
-                    textReceiver.SetText(string.IsNullOrEmpty(entry.additionalInfo) ? string.Empty : entry.additionalInfo);
-                }
-                ItemStand itemStand = gameObject.GetComponent<ItemStand>();
-                if (itemStand != null)
-                {
-                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+
+                    GameObject prefab = PrefabManager.Instance.GetPrefab(prefabName);
+                    if (!prefab)
                     {
-                        var fields = entry.additionalInfo.Split(':');
-                        if (fields.Length < 2)
+                        Jotunn.Logger.LogWarning($"{prefabName} not found, you are probably missing a dependency, not placing @{entryPosition}");
+                        continue;
+                    }
+
+                    // No Terrain stuff unless allowed
+                    // if (!(SynchronizationManager.Instance.PlayerIsAdmin || Config.AllowTerrainmodConfig.Value)
+                    //     && (prefab.GetComponent<TerrainModifier>() || prefab.GetComponent<TerrainOp>()))
+                    // {
+                    //     Jotunn.Logger.LogWarning("Flatten not allowed, not placing terrain modifiers");
+                    //     continue;
+                    // }
+
+                    // Instantiate a new object with the prefab
+                    GameObject gameObject = Instantiate(prefab, entryPosition, entryQuat);
+                    if (!gameObject)
+                    {
+                        Jotunn.Logger.LogWarning($"Invalid PieceEntry: {entry.name}");
+                        continue;
+                    }
+                    OnPiecePlaced(gameObject);
+
+                    ZNetView zNetView = gameObject.GetComponent<ZNetView>();
+                    if (!zNetView)
+                    {
+                        Jotunn.Logger.LogWarning($"No ZNetView for {gameObject}!!??");
+                    }
+                    else
+                    {
+                        ZDOs.Add(zNetView.m_zdo);
+                        zNetView.SetLocalScale(entry.GetScale());
+                    }
+
+                    // Register special effects
+                    Piece newpiece = gameObject.GetComponent<Piece>();
+                    if (newpiece)
+                    {
+                        newpiece.SetCreator(player.GetPlayerID(), Splatform.PlatformUserID.None);
+
+                        if (placeDirect && cntEffects < maxEffects)
                         {
-                            Jotunn.Logger.LogWarning($"ItemStand items not found, not adding items @{entryPosition}");
-                            continue;
+                            newpiece.m_placeEffect.Create(gameObject.transform.position, rotation, gameObject.transform);
+                            player.AddNoise(50f);
+                            cntEffects++;
                         }
-                        var item = fields[0];
-                        var variant = int.Parse(fields[1]);
-                        var quality = 1;
-                        if (fields.Length > 2)
+
+                        if (placeDirect)
                         {
-                            quality = int.Parse(fields[2]);
-                        }
-                        var orientation = 0;
-                        if (fields.Length > 3)
-                        {
-                            orientation = int.Parse(fields[3]);
-                        }
-                        // ItemStand persists its item as the stable hash of the prefab name
-                        // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
-                        // every reload, so storing the raw string here means the item survives
-                        // the initial SetVisualItem call but disappears again on the next reload
-                        int itemHash = item.GetStableHashCode();
-                        zNetView.m_zdo.Set("item", itemHash);
-                        zNetView.m_zdo.Set("variant", variant);
-                        zNetView.m_zdo.Set("quality", quality);
-                        zNetView.m_zdo.Set("type", orientation);
-                        itemStand.SetVisualItem(itemHash, variant, quality, orientation);
-                    }
-                }
-                ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
-                if (armorStand != null)
-                {
-                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
-                    {
-                        var fields = entry.additionalInfo.Split(':');
-                        if (fields.Length < 2)
-                        {
-                            Jotunn.Logger.LogWarning($"ArmorStand items not found, not adding items @{entryPosition}");
-                            continue;
-                        }
-                        var pose = int.Parse(fields[0]);
-                        zNetView.m_zdo.Set("pose", pose);
-                        armorStand.SetPose(pose, false);
-                        var cnt = int.Parse(fields[1]);
-                        for (int j = 0; j < cnt; j++)
-                        {
-                            var item = fields[j * 2 + 2];
-                            var variant = int.Parse(fields[j * 2 + 3]);
-                            // Same int-vs-string persistence bug as ItemStand above, plus: empty
-                            // slots are captured too (Blueprint.cs writes every slot, not just
-                            // occupied ones), so an empty item name must map to hash 0 - the
-                            // "empty slot" sentinel ArmorStand itself uses - instead of hashing
-                            // the empty string, which produced spurious "Missing item prefab" spam
-                            int itemHash = string.IsNullOrEmpty(item) ? 0 : item.GetStableHashCode();
-                            zNetView.m_zdo.Set($"{j}_item", itemHash);
-                            zNetView.m_zdo.Set($"{j}_variant", variant);
-                            armorStand.SetVisualItem(j, itemHash, variant);
+                            Game.instance.GetPlayerProfile().IncrementStat(PlayerStatType.Builds, 1f, false);
                         }
                     }
-                }
-                Door door = gameObject.GetComponent<Door>();
-                if (door != null)
-                {
-                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    CraftingStation craftingStation = gameObject.GetComponentInChildren<CraftingStation>();
+                    if (craftingStation)
                     {
-                        zNetView.m_zdo.Set("state", int.Parse(entry.additionalInfo));
+                        player.AddKnownStation(craftingStation);
                     }
-                }
-                Container container = gameObject.GetComponent<Container>();
-                if (container != null)
-                {
-                    if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                    PrivateArea privateArea = gameObject.GetComponent<PrivateArea>();
+                    if (privateArea)
                     {
-                        // see Blueprint.cs: the inventory is stored base64 encoded in the blueprint,
-                        // the ZDO field itself is a byte array since Valheim 1.0
-                        try
+                        privateArea.Setup(Game.instance.GetPlayerProfile().GetName());
+
+                        if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                         {
-                            zNetView.m_zdo.Set(ZDOVars.s_items, Convert.FromBase64String(entry.additionalInfo));
-                        }
-                        catch (FormatException)
-                        {
-                            Jotunn.Logger.LogWarning($"Invalid container contents for {entry.name} @{entryPosition}, placing it empty");
+                            zNetView.m_zdo.Set("enabled", bool.Parse(entry.additionalInfo));
                         }
                     }
+                    WearNTear wearntear = gameObject.GetComponent<WearNTear>();
+                    if (wearntear)
+                    {
+                        wearntear.OnPlaced();
+                    }
+                    TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
+                    if (textReceiver != null)
+                    {
+                        if (!placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                        {
+                            zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
+                        }
+                        textReceiver.SetText(string.IsNullOrEmpty(entry.additionalInfo) ? string.Empty : entry.additionalInfo);
+                    }
+                    ItemStand itemStand = gameObject.GetComponent<ItemStand>();
+                    if (itemStand != null)
+                    {
+                        if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                        {
+                            var fields = entry.additionalInfo.Split(':');
+                            if (fields.Length < 2)
+                            {
+                                Jotunn.Logger.LogWarning($"ItemStand items not found, not adding items @{entryPosition}");
+                                continue;
+                            }
+                            var item = fields[0];
+                            var variant = int.Parse(fields[1]);
+                            var quality = 1;
+                            if (fields.Length > 2)
+                            {
+                                quality = int.Parse(fields[2]);
+                            }
+                            var orientation = 0;
+                            if (fields.Length > 3)
+                            {
+                                orientation = int.Parse(fields[3]);
+                            }
+                            // ItemStand persists its item as the stable hash of the prefab name
+                            // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
+                            // every reload, so storing the raw string here means the item survives
+                            // the initial SetVisualItem call but disappears again on the next reload
+                            int itemHash = item.GetStableHashCode();
+                            zNetView.m_zdo.Set("item", itemHash);
+                            zNetView.m_zdo.Set("variant", variant);
+                            zNetView.m_zdo.Set("quality", quality);
+                            zNetView.m_zdo.Set("type", orientation);
+                            itemStand.SetVisualItem(itemHash, variant, quality, orientation);
+                        }
+                    }
+                    ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
+                    if (armorStand != null)
+                    {
+                        if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                        {
+                            var fields = entry.additionalInfo.Split(':');
+                            if (fields.Length < 2)
+                            {
+                                Jotunn.Logger.LogWarning($"ArmorStand items not found, not adding items @{entryPosition}");
+                                continue;
+                            }
+                            var pose = int.Parse(fields[0]);
+                            zNetView.m_zdo.Set("pose", pose);
+                            armorStand.SetPose(pose, false);
+                            var cnt = int.Parse(fields[1]);
+                            for (int j = 0; j < cnt; j++)
+                            {
+                                var item = fields[j * 2 + 2];
+                                var variant = int.Parse(fields[j * 2 + 3]);
+                                // Same int-vs-string persistence bug as ItemStand above, plus: empty
+                                // slots are captured too (Blueprint.cs writes every slot, not just
+                                // occupied ones), so an empty item name must map to hash 0 - the
+                                // "empty slot" sentinel ArmorStand itself uses - instead of hashing
+                                // the empty string, which produced spurious "Missing item prefab" spam
+                                int itemHash = string.IsNullOrEmpty(item) ? 0 : item.GetStableHashCode();
+                                zNetView.m_zdo.Set($"{j}_item", itemHash);
+                                zNetView.m_zdo.Set($"{j}_variant", variant);
+                                armorStand.SetVisualItem(j, itemHash, variant);
+                            }
+                        }
+                    }
+                    Door door = gameObject.GetComponent<Door>();
+                    if (door != null)
+                    {
+                        if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                        {
+                            zNetView.m_zdo.Set("state", int.Parse(entry.additionalInfo));
+                        }
+                    }
+                    Container container = gameObject.GetComponent<Container>();
+                    if (container != null)
+                    {
+                        if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
+                        {
+                            // see Blueprint.cs: the inventory is stored base64 encoded in the blueprint,
+                            // the ZDO field itself is a byte array since Valheim 1.0
+                            try
+                            {
+                                zNetView.m_zdo.Set(ZDOVars.s_items, Convert.FromBase64String(entry.additionalInfo));
+                            }
+                            catch (FormatException)
+                            {
+                                Jotunn.Logger.LogWarning($"Invalid container contents for {entry.name} @{entryPosition}, placing it empty");
+                            }
+                        }
+                    }
+                    ItemDrop itemDrop = gameObject.GetComponent<ItemDrop>();
+                    if (itemDrop != null)
+                    {
+                        itemDrop.MakePiece(true);
+                    }
+                    if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
+                    {
+                        if (zNetView.GetComponent<WearNTear>())
+                        {
+                            zNetView.m_zdo.Set(ZDOVars.s_health, -1f);
+                            zNetView.m_zdo.Set(HashFields, true);
+                            zNetView.m_zdo.Set(HashFieldsWearNTear, true);
+                            zNetView.m_zdo.Set(HashMaxHealth, -1f);
+                            zNetView.LoadFields();
+                        }
+                        if (zNetView.GetComponent<MineRock5>())
+                        {
+                            zNetView.m_zdo.Set(HashFields, true);
+                            zNetView.m_zdo.Set(HashFieldsMineRock5, true);
+                            zNetView.m_zdo.Set(HashToolTierMineRock5, int.MaxValue / 2);
+                            zNetView.LoadFields();
+                        }
+                        if (zNetView.GetComponent<TreeBase>())
+                        {
+                            zNetView.m_zdo.Set(HashFields, true);
+                            zNetView.m_zdo.Set(HashFieldsTreeBase, true);
+                            zNetView.m_zdo.Set(HashToolTierTreeBase, int.MaxValue / 2);
+                            zNetView.LoadFields();
+                        }
+                        if (zNetView.GetComponent<TreeLog>())
+                        {
+                            zNetView.m_zdo.Set(HashFields, true);
+                            zNetView.m_zdo.Set(HashFieldsTreeLog, true);
+                            zNetView.m_zdo.Set(HashToolTierTreeLog, int.MaxValue / 2);
+                            zNetView.LoadFields();
+                        }
+                        if (zNetView.GetComponent<Destructible>())
+                        {
+                            zNetView.m_zdo.Set(HashFields, true);
+                            zNetView.m_zdo.Set(HashFieldsDestructible, true);
+                            zNetView.m_zdo.Set(HashToolTierDestructible, int.MaxValue / 2);
+                            zNetView.LoadFields();
+                        }
+                    }
                 }
-                ItemDrop itemDrop = gameObject.GetComponent<ItemDrop>();
-                if (itemDrop != null)
+                catch (Exception e)
                 {
-                    itemDrop.MakePiece(true);
-                }
-                if (placeDirect && zNetView && Config.UnlimitedHealthConfig.Value)
-                {
-                    if (zNetView.GetComponent<WearNTear>())
-                    {
-                        zNetView.m_zdo.Set(ZDOVars.s_health, -1f);
-                        zNetView.m_zdo.Set(HashFields, true);
-                        zNetView.m_zdo.Set(HashFieldsWearNTear, true);
-                        zNetView.m_zdo.Set(HashMaxHealth, -1f);
-                        zNetView.LoadFields();
-                    }
-                    if (zNetView.GetComponent<MineRock5>())
-                    {
-                        zNetView.m_zdo.Set(HashFields, true);
-                        zNetView.m_zdo.Set(HashFieldsMineRock5, true);
-                        zNetView.m_zdo.Set(HashToolTierMineRock5, int.MaxValue / 2);
-                        zNetView.LoadFields();
-                    }
-                    if (zNetView.GetComponent<TreeBase>())
-                    {
-                        zNetView.m_zdo.Set(HashFields, true);
-                        zNetView.m_zdo.Set(HashFieldsTreeBase, true);
-                        zNetView.m_zdo.Set(HashToolTierTreeBase, int.MaxValue / 2);
-                        zNetView.LoadFields();
-                    }
-                    if (zNetView.GetComponent<TreeLog>())
-                    {
-                        zNetView.m_zdo.Set(HashFields, true);
-                        zNetView.m_zdo.Set(HashFieldsTreeLog, true);
-                        zNetView.m_zdo.Set(HashToolTierTreeLog, int.MaxValue / 2);
-                        zNetView.LoadFields();
-                    }
-                    if (zNetView.GetComponent<Destructible>())
-                    {
-                        zNetView.m_zdo.Set(HashFields, true);
-                        zNetView.m_zdo.Set(HashFieldsDestructible, true);
-                        zNetView.m_zdo.Set(HashToolTierDestructible, int.MaxValue / 2);
-                        zNetView.LoadFields();
-                    }
+                    // One broken entry must not abort the placement, the pieces placed so far need their undo
+                    Jotunn.Logger.LogWarning($"Error while placing piece line: {entry.line}\n{e}");
                 }
             }
 
