@@ -349,8 +349,12 @@ namespace PlanBuild.Blueprints
                     // Push local blueprint to the server
                     if (detail != null && BlueprintManager.LocalBlueprints.ContainsKey(detail.ID))
                     {
+                        // Save first, otherwise unsaved edits in the detail view would not be uploaded
+                        string id = detail.ID;
+                        SaveBlueprint(detail, BlueprintLocation.Local);
+
                         Instance.ActionAppliedOverlay.Show();
-                        BlueprintSync.PushLocalBlueprint(detail.ID, (success, message) =>
+                        BlueprintSync.PushLocalBlueprint(id, (success, message) =>
                         {
                             Instance.ActionAppliedOverlay.SetResult(success, message);
                         });
