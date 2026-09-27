@@ -1,9 +1,11 @@
-# Version 0.19.2
-* Blueprint ghosts containing a terrain op piece no longer modify real terrain while being built
+# Version 0.20.0
+* The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
 * Hover text keybinds now use the vanilla formatting (thx Arrowmaster)
-* Fixed thumbnail creation leaking blueprint ghosts and textures, which could run out of memory with `bp.regenthumbnails`
 * Blueprint ghosts no longer clone a material for every single piece, reducing memory use of large blueprints
 * Clipboard blueprint ghosts are now cleaned up when not in use, like those of saved blueprints
+* Blueprints now store door states, item and armor stand data and terrain marker rotations independent of the system language, older blueprints still load
+* Blueprint ghosts containing a terrain op piece no longer modify real terrain while being built
+* Fixed thumbnail creation leaking blueprint ghosts and textures, which could run out of memory with `bp.regenthumbnails`
 * Fixed blueprints from InfinityHammer with terrain data failing to load or gaining phantom pieces
 * Fixed clipboard blueprints losing their thumbnail when saved
 * Server blueprint actions no longer send requests to the server when server blueprints are disabled
@@ -12,9 +14,7 @@
 * Terrain markers now show their configured shape, radius and rotation to other players
 * Fixed errors with ComfyGizmo when using Blueprint Rune tools after logging out and back in
 * Fixed a single broken piece aborting a blueprint placement halfway, which also left the placed pieces without undo
-* Blueprints now store door states, item and armor stand data and terrain marker rotations independent of the system language, older blueprints still load
 * Fixed item and armor stands with incomplete item data skipping the rest of their setup when placed, like unlimited health
-* The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
 * Deleting objects or a selection that removes nothing no longer adds an empty undo step
 * `bp.push` with an unknown blueprint ID now reports that the blueprint was not found
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
