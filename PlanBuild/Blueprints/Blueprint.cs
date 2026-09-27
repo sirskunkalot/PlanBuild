@@ -970,7 +970,8 @@ namespace PlanBuild.Blueprints
                 Object.Destroy(oldThumbnail);
             }
             var piece = Prefab.GetComponent<Piece>();
-            if (piece.m_icon)
+            // Without a thumbnail the icon is still the stub's sprite, shared by every blueprint without one
+            if (piece.m_icon && oldThumbnail && piece.m_icon.texture == oldThumbnail)
             {
                 Object.Destroy(piece.m_icon);
             }
