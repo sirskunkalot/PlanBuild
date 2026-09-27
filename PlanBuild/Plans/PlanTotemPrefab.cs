@@ -79,8 +79,6 @@ namespace PlanBuild.Plans
 
                 planTotem.m_open = planTotemPrefab.transform.Find("new/chest/privatechesttop_open").gameObject;
                 planTotem.m_closed = planTotemPrefab.transform.Find("new/chest/privatechesttop_closed").gameObject;
-                planTotem.m_height = 2;
-                planTotem.m_width = 6;
 
                 MeshRenderer meshRenderer = planTotemPrefab.transform.Find("new/totem").GetComponent<MeshRenderer>();
                 meshRenderer.materials
