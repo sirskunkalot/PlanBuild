@@ -151,6 +151,7 @@
     "msg_bpmarket_notconnected": "Нет соединения",
     "msg_bpmarket_admin_restricted": "Только администраторы могут редактировать чертежи для серверов",
     "msg_bpmarket_save_failed": "Не удалось сохранить чертёж",
+    "msg_bpmarket_notfound": "Чертёж $1 не найден",
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "Объектов:",
     "gui_desc_description": "Описание:",

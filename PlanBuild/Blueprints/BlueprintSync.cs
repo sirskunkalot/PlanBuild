@@ -282,6 +282,10 @@ namespace PlanBuild.Blueprints
                     OnAnswerReceived += callback;
                     PushBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), blueprint.ToZPackage());
                 }
+                else
+                {
+                    callback?.Invoke(false, Localization.instance.Localize("$msg_bpmarket_notfound", id));
+                }
             }
             else
             {
@@ -310,6 +314,10 @@ namespace PlanBuild.Blueprints
                     Logger.LogMessage($"Sending blueprint {id} to server");
                     OnAnswerReceived += callback;
                     PushBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), blueprint.ToZPackage());
+                }
+                else
+                {
+                    callback?.Invoke(false, Localization.instance.Localize("$msg_bpmarket_notfound", id));
                 }
             }
             else
@@ -484,6 +492,10 @@ namespace PlanBuild.Blueprints
                     ZPackage package = new ZPackage();
                     package.Write(id);
                     RemoveServerBlueprintRPC.SendPackage(ZRoutedRpc.instance.GetServerPeerID(), package);
+                }
+                else
+                {
+                    callback?.Invoke(false, Localization.instance.Localize("$msg_bpmarket_notfound", id));
                 }
             }
             else

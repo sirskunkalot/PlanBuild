@@ -144,6 +144,7 @@
     "msg_bpmarket_notconnected": "未连接服务器",
     "msg_bpmarket_admin_restricted": "只有管理员可以编辑服务器的蓝图",
     "msg_bpmarket_save_failed": "无法保存蓝图",
+    "msg_bpmarket_notfound": "未找到蓝图 $1",
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "物件数：",
     "gui_desc_description": "描述："
