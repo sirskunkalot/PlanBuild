@@ -16,6 +16,7 @@ namespace PlanBuild.Blueprints
 
         private ZNetView ZNetView;
         private ShapedProjector Projector;
+        private uint LastDataRevision = uint.MaxValue;
 
         public void Awake()
         {
@@ -71,28 +72,47 @@ namespace PlanBuild.Blueprints
             }
 
             ZNetView.GetZDO().Set(property, value);
+        }
 
-            if (property.Equals(ShapeProperty, StringComparison.Ordinal))
+        // The projector is applied from the ZDO on every client, not in the RPC, which only
+        // reaches the owner and never runs for values loaded with the ZDO
+        public void Update()
+        {
+            if (!ZNetView || !ZNetView.IsValid())
             {
-                if (value.Equals("circle", StringComparison.OrdinalIgnoreCase))
-                {
-                    Projector.SetShape(ShapedProjector.ProjectorShape.Circle);
-                }
-
-                if (value.Equals("square", StringComparison.OrdinalIgnoreCase))
-                {
-                    Projector.SetShape(ShapedProjector.ProjectorShape.Square);
-                }
+                return;
             }
 
-            if (property.Equals(RadiusProperty, StringComparison.Ordinal))
+            uint dataRevision = ZNetView.GetZDO().DataRevision;
+            if (LastDataRevision == dataRevision)
             {
-                Projector.SetRadius(float.Parse(value, CultureInfo.InvariantCulture));
+                return;
+            }
+            LastDataRevision = dataRevision;
+
+            ApplyProjectorProperties();
+        }
+
+        private void ApplyProjectorProperties()
+        {
+            if (float.TryParse(GetProperty(RadiusProperty), NumberStyles.Float, CultureInfo.InvariantCulture, out float radius))
+            {
+                Projector.SetRadius(radius);
             }
 
-            if (property.Equals(RotationProperty, StringComparison.Ordinal))
+            if (int.TryParse(GetProperty(RotationProperty), NumberStyles.Integer, CultureInfo.InvariantCulture, out int rotation))
             {
-                Projector.SetRotation(int.Parse(value));
+                Projector.SetRotation(rotation);
+            }
+
+            string shape = GetProperty(ShapeProperty);
+            if (string.Equals(shape, "circle", StringComparison.OrdinalIgnoreCase))
+            {
+                Projector.SetShape(ShapedProjector.ProjectorShape.Circle);
+            }
+            else if (string.Equals(shape, "square", StringComparison.OrdinalIgnoreCase))
+            {
+                Projector.SetShape(ShapedProjector.ProjectorShape.Square);
             }
         }
 
