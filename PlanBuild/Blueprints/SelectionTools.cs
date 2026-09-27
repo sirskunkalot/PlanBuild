@@ -64,8 +64,12 @@ namespace PlanBuild.Blueprints
                 }
             }
 
-            var action = new UndoRemove(ZDOs);
-            UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
+            // An empty undo step would make the next bp.undo seem to do nothing
+            if (ZDOs.Any())
+            {
+                var action = new UndoRemove(ZDOs);
+                UndoManager.Instance.Add(Config.BlueprintUndoQueueNameConfig.Value, action);
+            }
         }
 
         public static void Save(Selection selection, string name, string category, string description, bool captureCurrentSnapPoints, bool keepMarkers)
