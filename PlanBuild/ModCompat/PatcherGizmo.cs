@@ -22,7 +22,10 @@ namespace PlanBuild.ModCompat
             Action HideAllGizmos = () => {
                 foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
                 {
-                    gizmoInstance.Hide();
+                    if (IsAlive(gizmoInstance))
+                    {
+                        gizmoInstance.Hide();
+                    }
                 }
             };
             
@@ -75,8 +78,18 @@ namespace PlanBuild.ModCompat
 
             foreach (var gizmoInstance in ComfyGizmo.Gizmos._gizmoInstances)
             {
-                gizmoInstance.SetPosition(__instance.m_placementGhost.transform.position);
+                if (IsAlive(gizmoInstance))
+                {
+                    gizmoInstance.SetPosition(__instance.m_placementGhost.transform.position);
+                }
             }
+        }
+
+        // ComfyGizmo creates new instances on every Game.Start but never removes the old ones,
+        // whose GameObjects Unity destroyed with the previous scene
+        private static bool IsAlive(ComfyGizmo.Gizmos gizmo)
+        {
+            return gizmo._gizmoRoot;
         }
     }
 }
