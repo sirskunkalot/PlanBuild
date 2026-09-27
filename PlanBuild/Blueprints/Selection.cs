@@ -462,7 +462,7 @@ namespace PlanBuild.Blueprints
 
         public int GetPieceCount()
         {
-            return Instance.Count() - SnapPoints - CenterMarkers - TerrainMods;
+            return this.Count() - SnapPoints - CenterMarkers - TerrainMods;
         }
 
         public override string ToString()
