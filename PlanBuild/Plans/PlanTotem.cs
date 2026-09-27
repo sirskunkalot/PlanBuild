@@ -65,8 +65,9 @@ namespace PlanBuild.Plans
 
         public new void Awake()
         {
-            m_width = 7;
-            m_height = 4;
+            // Never shrink this: stored items keep their grid position and would end up out of reach
+            m_width = 8;
+            m_height = 8;
             base.Awake();
             StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
