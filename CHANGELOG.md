@@ -6,6 +6,7 @@
 * Clipboard blueprint ghosts are now cleaned up when not in use, like those of saved blueprints
 * Fixed blueprints from InfinityHammer with terrain data failing to load or gaining phantom pieces
 * Fixed clipboard blueprints losing their thumbnail when saved
+* Server blueprint actions no longer send requests to the server when server blueprints are disabled
 
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)

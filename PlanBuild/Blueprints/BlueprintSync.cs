@@ -83,6 +83,7 @@ namespace PlanBuild.Blueprints
             if (!Config.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
+                return;
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -270,6 +271,7 @@ namespace PlanBuild.Blueprints
             if (!Config.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
+                return;
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -298,6 +300,7 @@ namespace PlanBuild.Blueprints
             if (!Config.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
+                return;
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
@@ -470,6 +473,7 @@ namespace PlanBuild.Blueprints
             if (!Config.AllowServerBlueprints.Value)
             {
                 callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_server_disabled"));
+                return;
             }
             if (ZNet.instance != null && !ZNet.instance.IsServer() && ZNet.m_connectionStatus == ZNet.ConnectionStatus.Connected)
             {
