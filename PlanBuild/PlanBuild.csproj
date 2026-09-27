@@ -44,11 +44,6 @@
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
-    <Reference Include="Build Camera">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\libraries\pub\Build Camera.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="CraftFromContainers">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\pub\CraftFromContainers.dll</HintPath>
@@ -125,7 +120,6 @@
     <Compile Include="Utils\DebugUtils.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="ModCompat\PatcherBuildCamera.cs" />
     <Compile Include="ModCompat\PatcherCraftFromContainers.cs" />
     <Compile Include="ModCompat\PatcherAzuCraftyBoxes.cs" />
     <Compile Include="ModCompat\PatcherValheimRaft.cs" />

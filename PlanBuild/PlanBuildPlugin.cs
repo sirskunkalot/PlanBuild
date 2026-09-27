@@ -16,7 +16,6 @@ namespace PlanBuild
 {
     [BepInPlugin(PluginGUID, PluginName, PluginVersion)]
     [BepInDependency(Jotunn.Main.ModGuid, "2.30.1")]
-    [BepInDependency(Patches.BuildCameraGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.CraftFromContainersGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.AzuCraftyBoxesGUID, BepInDependency.DependencyFlags.SoftDependency)]
     [BepInDependency(Patches.GizmoGUID, BepInDependency.DependencyFlags.SoftDependency)]

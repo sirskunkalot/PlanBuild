@@ -9,6 +9,7 @@
 * Server blueprint actions no longer send requests to the server when server blueprints are disabled
 * Fixed selection marker counts going negative when removing markers that were deselected or selected more than once
 * Fixed the square selection projector leaving an object behind every time it was removed
+* Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)

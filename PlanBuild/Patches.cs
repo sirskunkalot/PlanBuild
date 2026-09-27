@@ -6,7 +6,6 @@ namespace PlanBuild
 {
     internal class Patches
     {
-        public const string BuildCameraGUID = "org.gittywithexcitement.plugins.valheim.buildCamera";
         public const string CraftFromContainersGUID = "aedenthorn.CraftFromContainers";
         public const string AzuCraftyBoxesGUID = "Azumatt.AzuCraftyBoxes";
         public const string GizmoGUID = "bruce.valheim.comfymods.gizmo";
@@ -21,12 +20,6 @@ namespace PlanBuild
         internal static void Apply()
         {
             Harmony.PatchAll(typeof(PlanPiece));
-
-            if (Chainloader.PluginInfos.ContainsKey(BuildCameraGUID))
-            {
-                Jotunn.Logger.LogInfo("Applying BuildCamera patches");
-                Harmony.PatchAll(typeof(ModCompat.PatcherBuildCamera));
-            }
 
             if (Chainloader.PluginInfos.ContainsKey(CraftFromContainersGUID))
             {
