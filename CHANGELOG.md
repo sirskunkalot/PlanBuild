@@ -8,6 +8,7 @@
 * Fixed clipboard blueprints losing their thumbnail when saved
 * Server blueprint actions no longer send requests to the server when server blueprints are disabled
 * Fixed selection marker counts going negative when removing markers that were deselected or selected more than once
+* Fixed the square selection projector leaving an object behind every time it was removed
 
 # Version 0.19.1
 * The Plan Totem activation is now toggled with the vanilla alt interaction instead of crouch, which was pretty inconvenient on a controller (Ctrl still works)

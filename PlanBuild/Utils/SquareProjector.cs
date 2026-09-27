@@ -68,6 +68,15 @@ namespace PlanBuild.Utils
             isRunning = false;
         }
 
+        // The template sits in the scene root, not under this projector
+        private void OnDestroy()
+        {
+            if (cube)
+            {
+                Destroy(cube);
+            }
+        }
+
         public void StartProjecting()
         {
             if (isRunning)
