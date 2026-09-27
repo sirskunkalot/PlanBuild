@@ -229,9 +229,14 @@ namespace PlanBuild.Plans
 
         private PieceRequirements GetResourceMap(Piece y)
         {
-            var result = new Dictionary<string, int>(y.m_resources.Length);
-            foreach (Piece.Requirement req in y.m_resources)
+            var result = new Dictionary<string, int>();
+            // Mod pieces can carry requirements without an item, vanilla skips those as well
+            foreach (Piece.Requirement req in y.m_resources ?? Array.Empty<Piece.Requirement>())
             {
+                if (req?.m_resItem == null)
+                {
+                    continue;
+                }
                 result[req.m_resItem.m_itemData.m_shared.m_name] = req.m_amount;
             }
             return new PieceRequirements(result);
