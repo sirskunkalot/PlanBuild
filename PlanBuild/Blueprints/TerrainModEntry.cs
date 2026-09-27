@@ -24,7 +24,7 @@ namespace PlanBuild.Blueprints
             posY = InvariantFloat(parts[2]);
             posZ = InvariantFloat(parts[3]);
             radius = InvariantFloat(parts[4]);
-            rotation = int.Parse(parts[5]);
+            rotation = PieceEntry.InvariantInt(parts[5]);
             smooth = InvariantFloat(parts[6]);
             paint = parts[7];
         }
@@ -33,7 +33,7 @@ namespace PlanBuild.Blueprints
         {
             line = string.Join(";",
                 shape.ToLowerInvariant(), InvariantString(pos.x), InvariantString(pos.y), InvariantString(pos.z),
-                InvariantString(radius), rotation.ToString(), InvariantString(smooth), paint);
+                InvariantString(radius), rotation.ToString(NumberFormatInfo.InvariantInfo), InvariantString(smooth), paint);
             posX = pos.x;
             posY = pos.y;
             posZ = pos.z;

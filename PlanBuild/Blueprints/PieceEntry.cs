@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints
@@ -146,6 +147,24 @@ namespace PlanBuild.Blueprints
         internal static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);
+        }
+
+        /// <summary>
+        ///     Integers used to be written in the system culture, whose minus sign can be U+2212 or carry
+        ///     bidi marks (fa, ar). Normalize those so old blueprints keep loading, reject anything else.
+        /// </summary>
+        internal static int InvariantInt(string s)
+        {
+            var normalized = new StringBuilder(s?.Length ?? 0);
+            foreach (char c in s ?? string.Empty)
+            {
+                if (c == '‎' || c == '‏' || c == '؜')
+                {
+                    continue;
+                }
+                normalized.Append(c == '−' ? '-' : c);
+            }
+            return int.Parse(normalized.ToString().Trim(), NumberStyles.Integer, NumberFormatInfo.InvariantInfo);
         }
     }
 }

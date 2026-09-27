@@ -21,6 +21,31 @@ namespace PlanBuild.Blueprints
             Assert.AreEqual(pieceEntry.GetPosition(), new Vector3(-20.08298f, 1.177017f, 31.44012f));
         }
 
+        [TestMethod]
+        public void ParseTerrainModEntry_NegativeRotation_AnyCultureMinus()
+        {
+            // Integers used to be written in the system culture
+            Assert.AreEqual(-90, new TerrainModEntry("square;0;0;0;3;-90;0.3;").rotation);
+            Assert.AreEqual(-90, new TerrainModEntry("square;0;0;0;3;−90;0.3;").rotation);
+            Assert.AreEqual(-90, new TerrainModEntry("square;0;0;0;3;‎-90;0.3;").rotation);
+            Assert.AreEqual(-90, new TerrainModEntry("square;0;0;0;3;؜-90;0.3;").rotation);
+        }
+
+        [TestMethod]
+        public void WriteTerrainModEntry_InvariantRotation()
+        {
+            var entry = new TerrainModEntry("square", Vector3.zero, 3f, -90, 0.3f, string.Empty);
+            StringAssert.Contains(entry.line, ";-90;");
+            Assert.AreEqual(-90, new TerrainModEntry(entry.line).rotation);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(System.FormatException))]
+        public void ParseTerrainModEntry_InvalidRotation_Throws()
+        {
+            _ = new TerrainModEntry("square;0;0;0;3;abc;0.3;");
+        }
+
       // [TestMethod]
       // public void ParseBlueprint_V1()
       // {

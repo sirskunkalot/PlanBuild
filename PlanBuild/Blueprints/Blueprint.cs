@@ -710,25 +710,25 @@ namespace PlanBuild.Blueprints
                     // from the stored hash instead, since that's what placement re-hashes against
                     string itemName = ObjectDB.instance.GetItemPrefab(itemStand.m_nview.m_zdo.GetInt("item"))?.name ?? "";
                     additionalInfo =
-                        $"{itemName}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}:{itemStand.m_nview.m_zdo.GetInt("type")}";
+                        FormattableString.Invariant($"{itemName}:{itemStand.m_nview.m_zdo.GetInt("variant")}:{itemStand.m_nview.m_zdo.GetInt("quality")}:{itemStand.m_nview.m_zdo.GetInt("type")}");
                 }
                 ArmorStand armorStand = piece.GetComponent<ArmorStand>();
                 if (armorStand != null && armorStand.m_nview)
                 {
-                    additionalInfo = $"{armorStand.m_pose}:";
-                    additionalInfo += $"{armorStand.m_slots.Count}:";
+                    additionalInfo = FormattableString.Invariant($"{armorStand.m_pose}:");
+                    additionalInfo += FormattableString.Invariant($"{armorStand.m_slots.Count}:");
                     for (int slotIndex = 0; slotIndex < armorStand.m_slots.Count; slotIndex++)
                     {
                         // Same reasoning as ItemStand above - resolve the prefab name from the
                         // stored per-slot item hash instead of slot.m_currentItemName
                         string slotItemName = ObjectDB.instance.GetItemPrefab(armorStand.m_nview.m_zdo.GetInt($"{slotIndex}_item"))?.name ?? "";
-                        additionalInfo += $"{slotItemName}:{armorStand.m_slots[slotIndex].m_visualVariant}:";
+                        additionalInfo += FormattableString.Invariant($"{slotItemName}:{armorStand.m_slots[slotIndex].m_visualVariant}:");
                     }
                 }
                 Door door = piece.GetComponent<Door>();
                 if (door != null && door.m_nview)
                 {
-                    additionalInfo = $"{door.m_nview.m_zdo.GetInt("state")}";
+                    additionalInfo = FormattableString.Invariant($"{door.m_nview.m_zdo.GetInt("state")}");
                 }
                 PrivateArea privateArea = piece.GetComponent<PrivateArea>();
                 if (privateArea != null && privateArea.m_nview)

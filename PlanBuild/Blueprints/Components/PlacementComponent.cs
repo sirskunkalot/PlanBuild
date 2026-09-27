@@ -286,16 +286,16 @@ namespace PlanBuild.Blueprints.Components
                                 continue;
                             }
                             var item = fields[0];
-                            var variant = int.Parse(fields[1]);
+                            var variant = PieceEntry.InvariantInt(fields[1]);
                             var quality = 1;
                             if (fields.Length > 2)
                             {
-                                quality = int.Parse(fields[2]);
+                                quality = PieceEntry.InvariantInt(fields[2]);
                             }
                             var orientation = 0;
                             if (fields.Length > 3)
                             {
-                                orientation = int.Parse(fields[3]);
+                                orientation = PieceEntry.InvariantInt(fields[3]);
                             }
                             // ItemStand persists its item as the stable hash of the prefab name
                             // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
@@ -320,14 +320,14 @@ namespace PlanBuild.Blueprints.Components
                                 Jotunn.Logger.LogWarning($"ArmorStand items not found, not adding items @{entryPosition}");
                                 continue;
                             }
-                            var pose = int.Parse(fields[0]);
+                            var pose = PieceEntry.InvariantInt(fields[0]);
                             zNetView.m_zdo.Set("pose", pose);
                             armorStand.SetPose(pose, false);
-                            var cnt = int.Parse(fields[1]);
+                            var cnt = PieceEntry.InvariantInt(fields[1]);
                             for (int j = 0; j < cnt; j++)
                             {
                                 var item = fields[j * 2 + 2];
-                                var variant = int.Parse(fields[j * 2 + 3]);
+                                var variant = PieceEntry.InvariantInt(fields[j * 2 + 3]);
                                 // Same int-vs-string persistence bug as ItemStand above, plus: empty
                                 // slots are captured too (Blueprint.cs writes every slot, not just
                                 // occupied ones), so an empty item name must map to hash 0 - the
@@ -345,7 +345,7 @@ namespace PlanBuild.Blueprints.Components
                     {
                         if (placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
                         {
-                            zNetView.m_zdo.Set("state", int.Parse(entry.additionalInfo));
+                            zNetView.m_zdo.Set("state", PieceEntry.InvariantInt(entry.additionalInfo));
                         }
                     }
                     Container container = gameObject.GetComponent<Container>();
