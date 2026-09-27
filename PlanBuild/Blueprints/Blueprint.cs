@@ -249,10 +249,9 @@ namespace PlanBuild.Blueprints
                 if (numBytes > 0)
                 {
                     byte[] thumbnailBytes = reader.ReadBytes(numBytes);
-                    Texture2D tex = new Texture2D(1, 1);
-                    //tex.LoadImage(thumbnailBytes);
-                    tex.LoadRawTextureData(thumbnailBytes);
-                    ret.Thumbnail = tex;
+                    // ToBlob writes PNG, which needs decoding, not raw pixel data. Jötunn's wrapper
+                    // because ImageConversion.LoadImage has a netstandard 2.1 overload we can't compile against
+                    ret.Thumbnail = AssetUtils.LoadImage(thumbnailBytes);
                 }
             }
 
