@@ -440,8 +440,12 @@ namespace PlanBuild.Blueprints
             {
                 return;
             }
-            SelectedZDOIDs.Remove(zdoid.Value);
             HighlightedZDOIDs.Remove(zdoid.Value);
+            // Listeners are never detached, so this also fires for deselected pieces and once per re-selection
+            if (!SelectedZDOIDs.Remove(zdoid.Value))
+            {
+                return;
+            }
             if (wearNTear.name.StartsWith(BlueprintAssets.PieceSnapPointName, StringComparison.Ordinal))
             {
                 SnapPoints--;
