@@ -282,31 +282,34 @@ namespace PlanBuild.Blueprints.Components
                             var fields = entry.additionalInfo.Split(':');
                             if (fields.Length < 2)
                             {
+                                // Only skip the item, the rest of the piece setup still applies
                                 Jotunn.Logger.LogWarning($"ItemStand items not found, not adding items @{entryPosition}");
-                                continue;
                             }
-                            var item = fields[0];
-                            var variant = PieceEntry.InvariantInt(fields[1]);
-                            var quality = 1;
-                            if (fields.Length > 2)
+                            else
                             {
-                                quality = PieceEntry.InvariantInt(fields[2]);
+                                var item = fields[0];
+                                var variant = PieceEntry.InvariantInt(fields[1]);
+                                var quality = 1;
+                                if (fields.Length > 2)
+                                {
+                                    quality = PieceEntry.InvariantInt(fields[2]);
+                                }
+                                var orientation = 0;
+                                if (fields.Length > 3)
+                                {
+                                    orientation = PieceEntry.InvariantInt(fields[3]);
+                                }
+                                // ItemStand persists its item as the stable hash of the prefab name
+                                // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
+                                // every reload, so storing the raw string here means the item survives
+                                // the initial SetVisualItem call but disappears again on the next reload
+                                int itemHash = item.GetStableHashCode();
+                                zNetView.m_zdo.Set("item", itemHash);
+                                zNetView.m_zdo.Set("variant", variant);
+                                zNetView.m_zdo.Set("quality", quality);
+                                zNetView.m_zdo.Set("type", orientation);
+                                itemStand.SetVisualItem(itemHash, variant, quality, orientation);
                             }
-                            var orientation = 0;
-                            if (fields.Length > 3)
-                            {
-                                orientation = PieceEntry.InvariantInt(fields[3]);
-                            }
-                            // ItemStand persists its item as the stable hash of the prefab name
-                            // (ZDOVars.s_item, an int field) - it re-derives the visual from this on
-                            // every reload, so storing the raw string here means the item survives
-                            // the initial SetVisualItem call but disappears again on the next reload
-                            int itemHash = item.GetStableHashCode();
-                            zNetView.m_zdo.Set("item", itemHash);
-                            zNetView.m_zdo.Set("variant", variant);
-                            zNetView.m_zdo.Set("quality", quality);
-                            zNetView.m_zdo.Set("type", orientation);
-                            itemStand.SetVisualItem(itemHash, variant, quality, orientation);
                         }
                     }
                     ArmorStand armorStand = gameObject.GetComponent<ArmorStand>();
@@ -317,26 +320,29 @@ namespace PlanBuild.Blueprints.Components
                             var fields = entry.additionalInfo.Split(':');
                             if (fields.Length < 2)
                             {
+                                // Only skip the items, the rest of the piece setup still applies
                                 Jotunn.Logger.LogWarning($"ArmorStand items not found, not adding items @{entryPosition}");
-                                continue;
                             }
-                            var pose = PieceEntry.InvariantInt(fields[0]);
-                            zNetView.m_zdo.Set("pose", pose);
-                            armorStand.SetPose(pose, false);
-                            var cnt = PieceEntry.InvariantInt(fields[1]);
-                            for (int j = 0; j < cnt; j++)
+                            else
                             {
-                                var item = fields[j * 2 + 2];
-                                var variant = PieceEntry.InvariantInt(fields[j * 2 + 3]);
-                                // Same int-vs-string persistence bug as ItemStand above, plus: empty
-                                // slots are captured too (Blueprint.cs writes every slot, not just
-                                // occupied ones), so an empty item name must map to hash 0 - the
-                                // "empty slot" sentinel ArmorStand itself uses - instead of hashing
-                                // the empty string, which produced spurious "Missing item prefab" spam
-                                int itemHash = string.IsNullOrEmpty(item) ? 0 : item.GetStableHashCode();
-                                zNetView.m_zdo.Set($"{j}_item", itemHash);
-                                zNetView.m_zdo.Set($"{j}_variant", variant);
-                                armorStand.SetVisualItem(j, itemHash, variant);
+                                var pose = PieceEntry.InvariantInt(fields[0]);
+                                zNetView.m_zdo.Set("pose", pose);
+                                armorStand.SetPose(pose, false);
+                                var cnt = PieceEntry.InvariantInt(fields[1]);
+                                for (int j = 0; j < cnt; j++)
+                                {
+                                    var item = fields[j * 2 + 2];
+                                    var variant = PieceEntry.InvariantInt(fields[j * 2 + 3]);
+                                    // Same int-vs-string persistence bug as ItemStand above, plus: empty
+                                    // slots are captured too (Blueprint.cs writes every slot, not just
+                                    // occupied ones), so an empty item name must map to hash 0 - the
+                                    // "empty slot" sentinel ArmorStand itself uses - instead of hashing
+                                    // the empty string, which produced spurious "Missing item prefab" spam
+                                    int itemHash = string.IsNullOrEmpty(item) ? 0 : item.GetStableHashCode();
+                                    zNetView.m_zdo.Set($"{j}_item", itemHash);
+                                    zNetView.m_zdo.Set($"{j}_variant", variant);
+                                    armorStand.SetVisualItem(j, itemHash, variant);
+                                }
                             }
                         }
                     }

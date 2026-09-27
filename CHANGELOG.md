@@ -13,6 +13,7 @@
 * Fixed errors with ComfyGizmo when using Blueprint Rune tools after logging out and back in
 * Fixed a single broken piece aborting a blueprint placement halfway, which also left the placed pieces without undo
 * Blueprints now store door states, item and armor stand data and terrain marker rotations independent of the system language, older blueprints still load
+* Fixed item and armor stands with incomplete item data skipping the rest of their setup when placed, like unlimited health
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1
