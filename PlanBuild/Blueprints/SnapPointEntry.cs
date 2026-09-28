@@ -32,6 +32,14 @@ namespace PlanBuild.Blueprints
             return new Vector3(posX, posY, posZ);
         }
 
+        /// <summary>
+        ///     New entry mirrored across the blueprint's local YZ plane, see <see cref="BlueprintMirror"/>
+        /// </summary>
+        public SnapPointEntry Mirrored()
+        {
+            return new SnapPointEntry(BlueprintMirror.MirrorPosition(GetPosition()));
+        }
+
         internal static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);

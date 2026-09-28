@@ -23,24 +23,38 @@ namespace PlanBuild.Blueprints
                 selection.Clear();
                 return;
             }
+            AddToClipboard(bp, true);
+        }
+
+        /// <summary>
+        ///     Register a new clipboard blueprint, optionally selecting it for placement
+        /// </summary>
+        internal static void AddToClipboard(Blueprint bp, bool select)
+        {
             bp.CreatePiece();
-            // Instantiate up front so CreateThumbnail keeps the ghost for the selection below
-            // instead of building it twice; the timer lets the watchdog clean it up even if
-            // the selection fails
-            bp.InstantiateGhost();
-            bp.GhostActiveTime = Time.time;
+            if (select)
+            {
+                // Instantiate up front so CreateThumbnail keeps the ghost for the selection below
+                // instead of building it twice; the timer lets the watchdog clean it up even if
+                // the selection fails
+                bp.InstantiateGhost();
+                bp.GhostActiveTime = Time.time;
+            }
             bp.CreateThumbnail(flush: false);
             BlueprintManager.TemporaryBlueprints.Add(bp.ID, bp);
             Player.m_localPlayer.UpdateKnownRecipesList();
             Player.m_localPlayer.UpdateAvailablePiecesList();
-            // Select the new piece by reference - its grid position depends on the piece table order
-            if (bp.PiecePrefab && Player.m_localPlayer.SetSelectedPiece(bp.PiecePrefab))
+            if (select)
             {
-                Player.m_localPlayer.SetupPlacementGhost();
-            }
-            else
-            {
-                Jotunn.Logger.LogWarning($"Could not select blueprint {bp.ID} in the piece table");
+                // Select the new piece by reference - its grid position depends on the piece table order
+                if (bp.PiecePrefab && Player.m_localPlayer.SetSelectedPiece(bp.PiecePrefab))
+                {
+                    Player.m_localPlayer.SetupPlacementGhost();
+                }
+                else
+                {
+                    Jotunn.Logger.LogWarning($"Could not select blueprint {bp.ID} in the piece table");
+                }
             }
             BlueprintGUI.RefreshBlueprints(BlueprintLocation.Temporary);
         }
@@ -49,7 +63,7 @@ namespace PlanBuild.Blueprints
         ///     Highest clipboard number + 1. Count + 1 reused an existing ID once a clipboard blueprint
         ///     other than the last one was deleted.
         /// </summary>
-        private static string NextClipboardID()
+        internal static string NextClipboardID()
         {
             int highest = 0;
             foreach (string id in BlueprintManager.TemporaryBlueprints.Keys)

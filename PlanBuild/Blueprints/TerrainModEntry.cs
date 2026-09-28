@@ -54,6 +54,16 @@ namespace PlanBuild.Blueprints
             return Quaternion.Euler(0f, rotation, 0f);
         }
 
+        /// <summary>
+        ///     New entry mirrored across the blueprint's local YZ plane, see <see cref="BlueprintMirror"/>
+        /// </summary>
+        public TerrainModEntry Mirrored()
+        {
+            return new TerrainModEntry(shape,
+                BlueprintMirror.MirrorPosition(GetPosition()),
+                radius, BlueprintMirror.MirrorYaw(rotation), smooth, paint);
+        }
+
         internal static string InvariantString(float f)
         {
             return f.ToString(NumberFormatInfo.InvariantInfo);

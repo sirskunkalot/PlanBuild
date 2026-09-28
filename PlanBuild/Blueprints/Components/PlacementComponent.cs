@@ -18,6 +18,8 @@ namespace PlanBuild.Blueprints.Components
 
         public override void OnUpdatePlacement(Player self)
         {
+            HandleMirrorKey(self);
+
             if (!self.m_placementMarkerInstance || !self.m_placementMarkerInstance.activeSelf)
             {
                 return;
@@ -55,6 +57,30 @@ namespace PlanBuild.Blueprints.Components
             if (ZInput.GetButton(Config.ToggleButton.Name))
             {
                 PlacementOffset = Vector3.zero;
+            }
+        }
+
+        /// <summary>
+        ///     Before the marker check, the key works while aiming at the sky too
+        /// </summary>
+        private void HandleMirrorKey(Player self)
+        {
+            if (!ZInput.GetButtonDown(Config.MirrorButton.Name)
+                || !BlueprintManager.TryGetBlueprint(gameObject.name, out var bp))
+            {
+                return;
+            }
+
+            if (ZInput.GetButton(Config.CtrlModifierButton.Name))
+            {
+                var copy = BlueprintManager.CreateMirroredCopy(bp);
+                MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft, copy != null
+                    ? Localization.instance.Localize("$msg_bpmirrorcopy", copy.Name)
+                    : "$msg_bpmarket_save_failed");
+            }
+            else
+            {
+                BlueprintManager.ToggleMirrorView(self, bp);
             }
         }
 
@@ -118,9 +144,13 @@ namespace PlanBuild.Blueprints.Components
                 return;
             }
 
-            for (int i = 0; i < bp.TerrainMods.Length; i++)
+            // Place what the ghost shows, mirrored or not
+            TerrainModEntry[] terrainMods = bp.GetViewTerrainMods();
+            PieceEntry[] pieceEntries = bp.GetViewPieceEntries();
+
+            for (int i = 0; i < terrainMods.Length; i++)
             {
-                TerrainModEntry entry = bp.TerrainMods[i];
+                TerrainModEntry entry = terrainMods[i];
                 
                 try
                 {
@@ -160,9 +190,9 @@ namespace PlanBuild.Blueprints.Components
 
             List<ZDO> ZDOs = new List<ZDO>();
 
-            for (int i = 0; i < bp.PieceEntries.Length; i++)
+            for (int i = 0; i < pieceEntries.Length; i++)
             {
-                PieceEntry entry = bp.PieceEntries[i];
+                PieceEntry entry = pieceEntries[i];
 
                 try
                 {

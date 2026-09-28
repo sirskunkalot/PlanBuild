@@ -154,6 +154,62 @@ namespace PlanBuild.Blueprints
         internal float GhostActiveTime;
 
         /// <summary>
+        ///     Session-only mirrored view for placing. The entries, the prefab and everything
+        ///     serialized always stay the original.
+        /// </summary>
+        internal bool IsMirrored { get; private set; }
+
+        private PieceEntry[] MirroredPieceEntries;
+        private TerrainModEntry[] MirroredTerrainMods;
+
+        /// <summary>
+        ///     Piece entries as placed, mirrored if the view is
+        /// </summary>
+        internal PieceEntry[] GetViewPieceEntries()
+        {
+            if (!IsMirrored)
+            {
+                return PieceEntries;
+            }
+            return MirroredPieceEntries ??= PieceEntries.Select(x => x.Mirrored(BlueprintMirror.GetCorrection(x.name))).ToArray();
+        }
+
+        /// <summary>
+        ///     Terrain mods as placed, mirrored if the view is
+        /// </summary>
+        internal TerrainModEntry[] GetViewTerrainMods()
+        {
+            if (!IsMirrored)
+            {
+                return TerrainMods;
+            }
+            return MirroredTerrainMods ??= TerrainMods.Select(x => x.Mirrored()).ToArray();
+        }
+
+        internal void SetMirrorView(bool mirrored)
+        {
+            IsMirrored = mirrored;
+            MirroredPieceEntries = null;
+            MirroredTerrainMods = null;
+            if (Prefab)
+            {
+                CreateKeyHint();
+            }
+        }
+
+        /// <summary>
+        ///     Mirror the entries themselves, for a mirrored copy
+        /// </summary>
+        internal void MirrorEntries()
+        {
+            PieceEntries = PieceEntries.Select(x => x.Mirrored(BlueprintMirror.GetCorrection(x.name))).ToArray();
+            SnapPoints = SnapPoints.Select(x => x.Mirrored()).ToArray();
+            TerrainMods = TerrainMods.Select(x => x.Mirrored()).ToArray();
+            Bounds = default;
+            SetMirrorView(false);
+        }
+
+        /// <summary>
         ///     Creates the ID string of this blueprint from a name value
         /// </summary>
         /// <returns></returns>
@@ -885,6 +941,9 @@ namespace PlanBuild.Blueprints
             var rotatehint = $"{rotatebase} {ctrlkey} + {altkey} = Y\n{ctrlkey} = Z, {altkey} = X";
             rotatehint = rotatehint.Replace("[", null);
             rotatehint = rotatehint.Replace("]", null);
+            var mirrorhint = LocalizationManager.Instance.TryTranslate(IsMirrored ? "$hud_bpunmirror" : "$hud_bpmirror")
+                + $"\n{ctrlkey.Replace("[", null).Replace("]", null)} = "
+                + LocalizationManager.Instance.TryTranslate("$hud_bpmirrorcopy");
             KeyHint = new KeyHintConfig
             {
                 Item = BlueprintAssets.BlueprintRuneName,
@@ -917,6 +976,12 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig
                     {
                         Name = "Scroll", Axis = "Mouse ScrollWheel", Hint = rotatehint
+                    },
+                    new ButtonConfig
+                    {
+                        // One line for both, the key hints are long enough already
+                        Name = Config.MirrorButton.Name, Config = Config.MirrorConfig,
+                        Hint = mirrorhint
                     }
                 }
             };

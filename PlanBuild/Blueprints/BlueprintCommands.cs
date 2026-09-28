@@ -22,6 +22,7 @@ namespace PlanBuild.Blueprints
             CommandManager.Instance.AddConsoleCommand(new PullBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ThumbnailAllCommand());
+            CommandManager.Instance.AddConsoleCommand(new MirrorBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new UndoBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new RedoBlueprintCommand());
             CommandManager.Instance.AddConsoleCommand(new ClearClipboardCommand());
@@ -162,7 +163,7 @@ blueprint_id: ID of the blueprint according to bp.server");
         {
             public override string Name => "bp.thumbnail";
 
-            public override string Help => "[blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data";
+            public override string Help => "[blueprint_id] ([rotation]) Create a new thumbnail for a local or clipboard blueprint from the actual blueprint data";
 
             public override void Run(string[] args)
             {
@@ -170,13 +171,13 @@ blueprint_id: ID of the blueprint according to bp.server");
                 {
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id] ([rotation])
-blueprint_id: ID of the blueprint according to bp.local
+blueprint_id: ID of the blueprint according to bp.local, or of a clipboard blueprint (__001)
 rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     return;
                 }
 
                 var id = args[0];
-                if (!BlueprintManager.LocalBlueprints.TryGetValue(id, out var bp))
+                if (!BlueprintManager.TryGetBlueprintByID(id, out var bp))
                 {
                     Console.instance.Print($"Blueprint {id} not found");
                     return;
@@ -188,9 +189,11 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     additionalRot = rot;
                 }
 
-                var success = bp.CreateThumbnail(additionalRot);
+                // A clipboard blueprint has no file, its thumbnail only lives in memory
+                bool temporary = BlueprintManager.TemporaryBlueprints.ContainsKey(id);
+                var success = bp.CreateThumbnail(additionalRot, flush: !temporary);
                 // The old thumbnail texture is destroyed, rebuild the list icons referencing it
-                BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+                BlueprintGUI.RefreshBlueprints(temporary ? BlueprintLocation.Temporary : BlueprintLocation.Local);
                 Console.instance.Print(success
                     ? $"Created thumbnail for {id}"
                     : $"Could not create thumbnail for {id}");
@@ -198,7 +201,46 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
 
             public override List<string> CommandOptionList()
             {
-                return BlueprintManager.LocalBlueprints.Keys.ToList();
+                return BlueprintManager.LocalBlueprints.Keys.Concat(BlueprintManager.TemporaryBlueprints.Keys).ToList();
+            }
+        }
+
+        /// <summary>
+        ///     Console command to create a mirrored copy of a local or clipboard blueprint
+        /// </summary>
+        private class MirrorBlueprintCommand : ConsoleCommand
+        {
+            public override string Name => "bp.mirror";
+
+            public override string Help => "[blueprint_id] Create a mirrored copy of a local or clipboard blueprint";
+
+            public override void Run(string[] args)
+            {
+                if (args.Length != 1 || string.IsNullOrWhiteSpace(args[0]))
+                {
+                    Console.instance.Print(
+@$"Usage: {Name} [blueprint_id]
+blueprint_id: ID of the blueprint according to bp.local, or of a clipboard blueprint (__001)
+A local blueprint is copied to a new file, a clipboard blueprint to a new clipboard blueprint.");
+                    return;
+                }
+
+                var id = args[0];
+                if (!BlueprintManager.TryGetBlueprintByID(id, out var bp))
+                {
+                    Console.instance.Print($"Blueprint {id} not found");
+                    return;
+                }
+
+                var copy = BlueprintManager.CreateMirroredCopy(bp);
+                Console.instance.Print(copy != null
+                    ? $"Created mirrored copy {copy.ID} ({copy.Name})"
+                    : $"Could not create a mirrored copy of {id}");
+            }
+
+            public override List<string> CommandOptionList()
+            {
+                return BlueprintManager.LocalBlueprints.Keys.Concat(BlueprintManager.TemporaryBlueprints.Keys).ToList();
             }
         }
 

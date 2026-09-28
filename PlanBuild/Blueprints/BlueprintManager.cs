@@ -4,6 +4,7 @@ using PlanBuild.Plans;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -315,6 +316,133 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
+        ///     The ghost is a clone of the always original prefab, mirror the clone for a mirrored view
+        /// </summary>
+        [HarmonyPatch(typeof(Player), nameof(Player.SetupPlacementGhost))]
+        [HarmonyPostfix]
+        private static void Player_SetupPlacementGhost_Postfix(Player __instance)
+        {
+            GameObject ghost = __instance.m_placementGhost;
+            if (ghost && TryGetBlueprint(ghost.name, out var bp) && bp.IsMirrored)
+            {
+                BlueprintMirror.MirrorChildren(ghost.transform);
+            }
+        }
+
+        /// <summary>
+        ///     Mark a mirrored view on the name of the piece shown, hovered in the build menu or selected.
+        ///     The piece itself keeps its name, known recipes are tracked by it.
+        /// </summary>
+        [HarmonyPatch(typeof(Hud), nameof(Hud.SetupPieceInfo))]
+        [HarmonyPostfix]
+        private static void Hud_SetupPieceInfo_Postfix(Hud __instance, Piece piece)
+        {
+            if (piece && TryGetBlueprint(piece.name, out var bp) && bp.IsMirrored)
+            {
+                __instance.m_buildSelection.text =
+                    Localization.instance.Localize("$bp_mirrored_view", __instance.m_buildSelection.text);
+            }
+        }
+
+        /// <summary>
+        ///     Toggle the mirrored view of the blueprint currently placed
+        /// </summary>
+        internal static void ToggleMirrorView(Player player, Blueprint bp)
+        {
+            // Mirroring the ghost in place is instant, a rebuild takes seconds on big blueprints.
+            // Mirroring again undoes it.
+            BlueprintMirror.MirrorChildren(player.m_placementGhost.transform);
+            bp.SetMirrorView(!bp.IsMirrored);
+            MessageHud.instance.ShowMessage(MessageHud.MessageType.TopLeft,
+                bp.IsMirrored ? "$msg_bpmirrored" : "$msg_bpunmirrored");
+        }
+
+        /// <summary>
+        ///     New corrections change what a mirrored view looks like, rebuild its entries and the ghost
+        /// </summary>
+        internal static void OnMirrorOverridesChanged()
+        {
+            BlueprintMirror.ClearCorrections();
+            foreach (var bp in LocalBlueprints.Values.Concat(TemporaryBlueprints.Values).Where(x => x.IsMirrored))
+            {
+                bp.SetMirrorView(true);
+            }
+
+            // Mirroring the current ghost back would use the new corrections, clone it anew instead
+            Player player = Player.m_localPlayer;
+            if (player && player.m_placementGhost && TryGetBlueprint(player.m_placementGhost.name, out var current)
+                && current.IsMirrored)
+            {
+                player.SetupPlacementGhost();
+            }
+        }
+
+        /// <summary>
+        ///     Create a mirrored copy of a blueprint's original, never of its mirrored view: a new file for
+        ///     a local blueprint, a new clipboard blueprint for a clipboard one. Keeps the current selection.
+        /// </summary>
+        /// <returns>The copy or null if it could not be created</returns>
+        internal static Blueprint CreateMirroredCopy(Blueprint source)
+        {
+            bool temporary = source.ID.StartsWith("__", StringComparison.Ordinal);
+            string name = BlueprintMirror.MirroredName(source.Name);
+            string id;
+            if (temporary)
+            {
+                id = SelectionTools.NextClipboardID();
+            }
+            else
+            {
+                // Never overwrite an existing blueprint, number the name instead
+                string baseName = name;
+                id = Blueprint.CreateIDString(name);
+                for (int i = 2; LocalBlueprints.ContainsKey(id)
+                     || File.Exists(Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint")); i++)
+                {
+                    name = $"{baseName} {i}";
+                    id = Blueprint.CreateIDString(name);
+                }
+            }
+
+            byte[] blob = source.ToBlob();
+            if (blob == null)
+            {
+                return null;
+            }
+            // Name, creator, category and description come along, the file paths follow the new ID
+            var bp = Blueprint.FromBlob(id, blob);
+            bp.Name = name;
+            bp.MirrorEntries();
+
+            Piece selected = Player.m_localPlayer.m_buildPieces?.GetSelectedPiece();
+            if (temporary)
+            {
+                bp.Category = BlueprintAssets.CategoryClipboard;
+                SelectionTools.AddToClipboard(bp, false);
+            }
+            else
+            {
+                if (!bp.ToFile())
+                {
+                    return null;
+                }
+                bp.CreatePiece();
+                LocalBlueprints.Add(bp.ID, bp);
+                bp.CreateThumbnail();
+                RegisterKnownBlueprints();
+                BlueprintGUI.RefreshBlueprints(BlueprintLocation.Local);
+            }
+
+            // Updating the piece list can shift the selection to another piece
+            if (selected)
+            {
+                Player.m_localPlayer.SetSelectedPiece(selected);
+            }
+
+            return bp;
+        }
+
+        /// <summary>
         ///     Timed ghost destruction
         /// </summary>
         [HarmonyPatch(typeof(Player), nameof(Player.UpdatePlacementGhost))]
@@ -466,7 +594,20 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            string id = prefabName.Substring(Blueprint.PieceBlueprintPrefix.Length);
+            return TryGetBlueprintByID(prefabName.Substring(Blueprint.PieceBlueprintPrefix.Length), out blueprint);
+        }
+
+        /// <summary>
+        ///     Get a local or clipboard blueprint by its ID, server blueprints are not placeable
+        /// </summary>
+        public static bool TryGetBlueprintByID(string id, out Blueprint blueprint)
+        {
+            blueprint = null;
+            if (string.IsNullOrEmpty(id))
+            {
+                return false;
+            }
+
             var blueprints = id.StartsWith("__", StringComparison.Ordinal) ? TemporaryBlueprints : LocalBlueprints;
             return blueprints.TryGetValue(id, out blueprint);
         }

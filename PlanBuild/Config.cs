@@ -45,7 +45,8 @@ namespace PlanBuild
         public static ConfigEntry<Color> TooltipBackgroundConfig;
         public static ConfigEntry<string> BlueprintUndoQueueNameConfig;
         public static ConfigEntry<bool> AddPlayerNameConfig;
-        
+        public static ConfigEntry<string> MirrorOverridesConfig;
+
         private const string DirectorySection = "Directories";
         public static ConfigEntry<string> BlueprintSearchDirectoryConfig;
         public static ConfigEntry<string> BlueprintSaveDirectoryConfig;
@@ -61,7 +62,9 @@ namespace PlanBuild
         public static ButtonConfig ToggleButton;
         public static ConfigEntry<KeyCode> AltModifierConfig;
         public static ButtonConfig AltModifierButton;
-        
+        public static ConfigEntry<KeyCode> MirrorConfig;
+        public static ButtonConfig MirrorButton;
+
         private const string PlansSection = "Plans";
         public static ConfigEntry<bool> ShowAllPieces;
         public static ConfigEntry<float> RadiusConfig;
@@ -212,6 +215,13 @@ namespace PlanBuild
                 new ConfigDescription("Add your current player profile name to any blueprint file created with that player.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
+            MirrorOverridesConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Mirror rotation overrides", "",
+                new ConfigDescription("Mirroring turns pieces around their own Y axis where their snap points show that this matches their mirror image, e.g. angled beams by 180 and roof corners by 90 degrees. Comma separated list of prefab:degrees (0, 90, 180 or 270) to override that for single pieces, e.g. woodwall:180.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+
+            MirrorOverridesConfig.SettingChanged += (sender, args) => BlueprintManager.OnMirrorOverridesChanged();
+
             // Directory Section
 
             BlueprintSearchDirectoryConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -250,7 +260,12 @@ namespace PlanBuild
                 KeybindSection, "Toggle", KeyCode.Q,
                 new ConfigDescription("Key to switch between modes on various tools", null,
                     new ConfigurationManagerAttributes { Order = --order }));
-            
+
+            MirrorConfig = PlanBuildPlugin.Instance.Config.Bind(
+                KeybindSection, "Mirror", KeyCode.H,
+                new ConfigDescription("Key to mirror the blueprint while placing it, only the view is mirrored and saving keeps the original. Together with the CtrlModifier it creates a mirrored copy instead, a new file for local blueprints, a new clipboard blueprint otherwise.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+
             CtrlModifierConfig.SettingChanged += (sender, args) =>
             {
                 foreach (var bp in BlueprintManager.LocalBlueprints.Values)
@@ -360,6 +375,13 @@ namespace PlanBuild
                 Config = ToggleConfig
             };
             InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, ToggleButton);
+
+            MirrorButton = new ButtonConfig
+            {
+                Name = nameof(MirrorButton),
+                Config = MirrorConfig
+            };
+            InputManager.Instance.AddButton(PlanBuildPlugin.PluginGUID, MirrorButton);
         }
 
         private static void UpdateGhostPlanPieceTextures(object sender, EventArgs e)

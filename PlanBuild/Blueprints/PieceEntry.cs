@@ -135,6 +135,18 @@ namespace PlanBuild.Blueprints
             return new Vector3(scaleX, scaleY, scaleZ);
         }
 
+        /// <summary>
+        ///     New entry mirrored across the blueprint's local YZ plane, see <see cref="BlueprintMirror"/>
+        /// </summary>
+        /// <param name="correction">Turn around the piece's own Y axis, see <see cref="BlueprintMirror.FindCorrection"/></param>
+        public PieceEntry Mirrored(int correction)
+        {
+            return new PieceEntry(name, category,
+                BlueprintMirror.MirrorPosition(GetPosition()),
+                BlueprintMirror.MirrorRotation(GetRotation(), correction),
+                additionalInfo ?? string.Empty, BlueprintMirror.MirrorScale(GetScale(), correction));
+        }
+
         internal static float InvariantFloat(string s)
         {
             if (string.IsNullOrEmpty(s))
