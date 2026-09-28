@@ -151,6 +151,7 @@
     "gui_bpmarket_pieces": "$1 pieces",
     "msg_bpmarket_server_disabled": "Server-Blaupausen deaktiviert",
     "msg_bpmarket_notconnected": "Nicht verbunden",
+    "msg_bpmarket_hosting": "Du hostest diese Welt, deine lokalen Blaupausen sind die Server-Blaupausen",
     "msg_bpmarket_admin_restricted": "Nur Admins dürfen Server-Blaupausen ändern",
     "msg_bpmarket_save_failed": "Blaupause konnte nicht gespeichert werden",
     "msg_bpmarket_notfound": "Blaupause $1 nicht gefunden",

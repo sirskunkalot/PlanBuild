@@ -101,8 +101,18 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+                callback?.Invoke(false, GetNotConnectedMessage());
             }
+        }
+
+        /// <summary>
+        ///     The host of a world is the server itself, so tell it that its local blueprints are the server blueprints.
+        /// </summary>
+        private static string GetNotConnectedMessage()
+        {
+            return LocalizationManager.Instance.TryTranslate(ZNet.instance != null && ZNet.instance.IsServer()
+                ? "$msg_bpmarket_hosting"
+                : "$msg_bpmarket_notconnected");
         }
 
         private static IEnumerator GetListRPC_OnServerReceive(long sender, ZPackage pkg)
@@ -289,7 +299,7 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+                callback?.Invoke(false, GetNotConnectedMessage());
             }
         }
 
@@ -322,7 +332,7 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+                callback?.Invoke(false, GetNotConnectedMessage());
             }
         }
 
@@ -500,7 +510,7 @@ namespace PlanBuild.Blueprints
             }
             else
             {
-                callback?.Invoke(false, LocalizationManager.Instance.TryTranslate("$msg_bpmarket_notconnected"));
+                callback?.Invoke(false, GetNotConnectedMessage());
             }
         }
 
