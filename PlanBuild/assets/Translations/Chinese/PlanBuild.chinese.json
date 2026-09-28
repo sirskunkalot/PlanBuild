@@ -142,6 +142,7 @@
     "gui_bpmarket_pieces": "$1 部件",
     "msg_bpmarket_server_disabled": "服务器已禁用蓝图",
     "msg_bpmarket_notconnected": "未连接服务器",
+    "msg_bpmarket_hosting": "你正在主持这个世界，你的本地蓝图就是服务器蓝图",
     "msg_bpmarket_admin_restricted": "只有管理员可以编辑服务器的蓝图",
     "msg_bpmarket_save_failed": "无法保存蓝图",
     "msg_bpmarket_notfound": "未找到蓝图 $1",

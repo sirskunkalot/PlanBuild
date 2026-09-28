@@ -149,6 +149,7 @@
   "gui_bpmarket_pieces": "$1 piezas",
   "msg_bpmarket_server_disabled": "Planos del servidor deshabilitados",
   "msg_bpmarket_notconnected": "No conectado",
+  "msg_bpmarket_hosting": "Estás alojando este mundo, tus planos locales son los planos del servidor",
   "msg_bpmarket_admin_restricted": "Solo los administradores pueden editar planos del servidor",
   "msg_bpmarket_save_failed": "No se pudo guardar el plano",
   "msg_bpmarket_notfound": "No se encontró el plano $1",
