@@ -315,7 +315,10 @@ namespace PlanBuild.Blueprints.Components
         [HarmonyPostfix]
         private static void Hud_SetupPieceInfo_Postfix(Hud __instance)
         {
-            if (!__instance.m_pieceSelectionWindow.activeSelf && TryGetActive(out var tool))
+            // An open build menu shows the hovered piece. Vanilla hides the old m_pieceSelectionWindow,
+            // mods can bring it back.
+            if (!Hud.IsPieceSelectionVisible() && !__instance.m_pieceSelectionWindow.activeSelf
+                && TryGetActive(out var tool))
             {
                 tool.UpdateDescription();
             }

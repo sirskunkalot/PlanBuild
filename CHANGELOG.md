@@ -21,6 +21,7 @@
 * Fixed copying to the clipboard failing after deleting a clipboard blueprint other than the last one
 * Uploading a local blueprint now saves it first, so unsaved changes to name, category and description are uploaded too
 * The Blueprint Marketplace now tells the host of a world that its local blueprints are the server blueprints instead of saying "Not connected"
+* Fixed Blueprint Rune tools replacing the description of pieces hovered in the build menu
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1
