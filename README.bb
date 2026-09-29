@@ -147,6 +147,8 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 [*]Use [b]Alt + Scroll[/b] to move the blueprint on the X-axis.
 [*]Use [b]Ctrl + Alt + Scroll[/b] to move the blueprint on the Y-axis.
 [*]Use [b]Q[/b] to reset the offset on all axes.
+[*]Press [b]H[/b] to mirror the blueprint. Only the view is mirrored, saving or uploading the blueprint always keeps the original. Angled pieces and roof corners are turned to match their mirror image, pieces with a handedness like doors or spiral stairs stay as they are.
+[*]Press [b]Ctrl + H[/b] to create a mirrored copy of the selected blueprint, as a file for a local blueprint or as a clipboard blueprint for a clipboard one.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [*]There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing [b]Ctrl[/b] while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
 [/list]
@@ -226,6 +228,7 @@ A lot aspects of this mod are configurable either through the config file found 
 [*][b]Tooltip Color[/b]: Set the background color for the tooltip on blueprint pieces.
 [*][b]Undo queue name[/b]: Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues. (default [b]blueprintqueue[/b])
 [*][b]Add player prefix to file name[/b]: Add your current player profile name to any blueprint file created with that player. (default [b]true[/b])
+[*][b]Mirror rotation overrides[/b]: Mirroring turns pieces around their own Y axis where their snap points show that this matches their mirror image. Comma separated list of prefab:degrees (0, 90, 180 or 270) to override that for single pieces, e.g. woodwall:180. (default empty)
 [/list][*][b]Directories[/b]
 [list]
 [*][b]Blueprint search directory[/b] Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location (default [b].[/b])
@@ -237,6 +240,7 @@ A lot aspects of this mod are configurable either through the config file found 
 [*][b]CtrlModifier[/b]: Second modifier key to change behaviours on various tools (default [b]LeftCtrl[/b])
 [*][b]AltModifier[/b]: Third modifier key to change behaviours on various tools (default [b]LeftAlt[/b])
 [*][b]Toggle[/b]: Key to switch between modes on various tools. (default [b]Q[/b])
+[*][b]Mirror[/b]: Key to mirror the blueprint while placing it, together with the CtrlModifier it creates a mirrored copy. (default [b]H[/b])
 [/list][*][b]Plans[/b]:
 [list]
 [*][b]Plan unknown pieces[/b]: Show all plans, even for pieces you don't know yet. (default [b]false[/b])
@@ -276,7 +280,8 @@ PlanBuild adds some new console commands to the game:
 [*][b]bp.push[/b] - [blueprint_id] Upload a local blueprint to the current connected server
 [*][b]bp.server[/b] - Get the list of the current connected servers blueprints
 [*][b]bp.pull[/b] - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
-[*][b]bp.thumbnail[/b] - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
+[*][b]bp.thumbnail[/b] - [blueprint_id] ([rotation]) Create a new thumbnail for a local or clipboard blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
+[*][b]bp.mirror[/b] - [blueprint_id] Create a mirrored copy of a local or clipboard blueprint, as a file for a local blueprint or as a clipboard blueprint for a clipboard one
 [*][b]bp.regenthumbnails[/b] - Create a new thumbnail for all local blueprints
 [*][b]bp.undo[/b] - Undo your last rune action (build, delete or terrain)
 [*][b]bp.redo[/b] - Redo your last undone rune action (build, delete or terrain)

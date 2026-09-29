@@ -1,6 +1,6 @@
 # Version 0.20.0
 * The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
-* Blueprints can be mirrored while placing (H), Ctrl+H or `bp.mirror` create a mirrored copy; angled pieces and roof corners are turned to match their mirror image
+* Blueprints can be mirrored while placing (H). Ctrl+H or `bp.mirror` create a mirrored copy as a new build piece; angled pieces and roof corners are turned to match their mirror image
 * Hover text keybinds now use the vanilla formatting (thx Arrowmaster)
 * Blueprint ghosts no longer clone a material for every single piece, reducing memory use of large blueprints
 * Clipboard blueprint ghosts are now cleaned up when not in use, like those of saved blueprints

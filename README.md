@@ -151,6 +151,8 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
 * Use __Q__ to reset the offset on all axes.
+* Press __H__ to mirror the blueprint. Only the view is mirrored, saving or uploading the blueprint always keeps the original. Angled pieces and roof corners are turned to match their mirror image, pieces with a handedness like doors or spiral stairs stay as they are.
+* Press __Ctrl + H__ to create a mirrored copy of the selected blueprint, as a file for a local blueprint or as a clipboard blueprint for a clipboard one.
 * Use __Shift + Scroll__ to adjust the camera distance.
 * There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
 
@@ -225,6 +227,7 @@ A lot aspects of this mod are configurable either through the config file found 
   * __Tooltip Color__: Set the background color for the tooltip on blueprint pieces.
   * __Undo queue name__: Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues. (default __blueprintqueue__)
   * __Add player prefix to file name__: Add your current player profile name to any blueprint file created with that player. (default __true__)
+  * __Mirror rotation overrides__: Mirroring turns pieces around their own Y axis where their snap points show that this matches their mirror image. Comma separated list of prefab:degrees (0, 90, 180 or 270) to override that for single pieces, e.g. woodwall:180. (default empty)
 * __Directories__
   * __Blueprint search directory__ Base directory to scan (recursively) for blueprints and vbuild files, relative paths are relative to the valheim.exe location (default __.__)
   * __Save directory__: Directory to save blueprint files, relative paths are relative to the valheim.exe location (default __BepInEx/config/PlanBuild/blueprints__)
@@ -234,6 +237,7 @@ A lot aspects of this mod are configurable either through the config file found 
   * __CtrlModifier__: Second modifier key to change behaviours on various tools (default __LeftCtrl__)
   * __AltModifier__: Third modifier key to change behaviours on various tools (default __LeftAlt__)
   * __Toggle__: Key to switch between modes on various tools. (default __Q__)
+  * __Mirror__: Key to mirror the blueprint while placing it, together with the CtrlModifier it creates a mirrored copy. (default __H__)
 * __Plans__:
   * __Plan unknown pieces__: Show all plans, even for pieces you don't know yet. (default __false__)
   * __Plan totem build radius__: Build radius of the plan totem (default __30__)
@@ -268,7 +272,8 @@ PlanBuild adds some new console commands to the game:
 * __bp.push__ - [blueprint_id] Upload a local blueprint to the current connected server
 * __bp.server__ - Get the list of the current connected servers blueprints
 * __bp.pull__ - [blueprint_id] Load a blueprint from the current connected server and add it to your local blueprints
-* __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
+* __bp.thumbnail__ - [blueprint_id] ([rotation]) Create a new thumbnail for a local or clipboard blueprint from the actual blueprint data, optionally provide additional rotation of the blueprint on the thumbnail
+* __bp.mirror__ - [blueprint_id] Create a mirrored copy of a local or clipboard blueprint, as a file for a local blueprint or as a clipboard blueprint for a clipboard one
 * __bp.regenthumbnails__ - Create a new thumbnail for all local blueprints
 * __bp.undo__ - Undo your last rune action (build, delete or terrain)
 * __bp.redo__ - Redo your last undone rune action (build, delete or terrain)
