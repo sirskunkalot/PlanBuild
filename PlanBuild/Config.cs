@@ -5,6 +5,7 @@ using PlanBuild.Blueprints;
 using PlanBuild.Plans;
 using PlanBuild.Utils;
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace PlanBuild
@@ -120,13 +121,7 @@ namespace PlanBuild
                 new ConfigDescription("Default build mode when placing blueprints.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
-            DefaultBuildModeConfig.SettingChanged += (sender, args) =>
-            {
-                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
-                {
-                    bp.CreateKeyHint();
-                }
-            };
+            DefaultBuildModeConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
             
             UnlimitedHealthConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Unlimited health", false,
@@ -266,22 +261,6 @@ namespace PlanBuild
                 new ConfigDescription("Key to mirror the blueprint while placing it, only the view is mirrored and saving keeps the original. Together with the CtrlModifier it creates a mirrored copy instead, a new file for local blueprints, a new clipboard blueprint otherwise.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
-            CtrlModifierConfig.SettingChanged += (sender, args) =>
-            {
-                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
-                {
-                    bp.CreateKeyHint();
-                }
-            };
-            
-            AltModifierConfig.SettingChanged += (sender, args) =>
-            {
-                foreach (var bp in BlueprintManager.LocalBlueprints.Values)
-                {
-                    bp.CreateKeyHint();
-                }
-            };
-
             // Plans Section
 
             ShowAllPieces = PlanBuildPlugin.Instance.Config.Bind(
@@ -332,6 +311,18 @@ namespace PlanBuild
             
             // Create Buttons
             CreateCustomButtons();
+
+            // Subscribed after the buttons so Jötunn rebinds ZInput first, the key hints read the bound key from there
+            CtrlModifierConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
+            AltModifierConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
+        }
+
+        private static void RecreateBlueprintKeyHints()
+        {
+            foreach (var bp in BlueprintManager.LocalBlueprints.Values.Concat(BlueprintManager.TemporaryBlueprints.Values))
+            {
+                bp.CreateKeyHint();
+            }
         }
         
         private static void CreateCustomButtons()
