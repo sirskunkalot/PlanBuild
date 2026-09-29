@@ -61,15 +61,17 @@ namespace PlanBuild.Blueprints
 
         /// <summary>
         ///     Highest clipboard number + 1. Count + 1 reused an existing ID once a clipboard blueprint
-        ///     other than the last one was deleted.
+        ///     other than the last one was deleted. Mirrored copies count with their source's number, so
+        ///     a new clipboard blueprint never takes over the copy of a deleted one.
         /// </summary>
         internal static string NextClipboardID()
         {
             int highest = 0;
             foreach (string id in BlueprintManager.TemporaryBlueprints.Keys)
             {
-                if (id.StartsWith("__", StringComparison.Ordinal)
-                    && int.TryParse(id.Substring(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
+                string sourceID = BlueprintMirror.IsMirroredID(id) ? BlueprintMirror.MirroredID(id) : id;
+                if (sourceID.StartsWith("__", StringComparison.Ordinal)
+                    && int.TryParse(sourceID.Substring(2), NumberStyles.Integer, CultureInfo.InvariantCulture, out int number))
                 {
                     highest = Math.Max(highest, number);
                 }

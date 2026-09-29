@@ -220,6 +220,17 @@ namespace PlanBuild.Blueprints
             Assert.AreEqual("House", BlueprintMirror.MirroredName("House (mirrored)"));
         }
 
+        [TestMethod]
+        public void MirroredID_AddsAndRemovesSuffix()
+        {
+            // Matches the IDs CreateIDString gave copies from their mirrored name
+            Assert.AreEqual("Jules_House_(mirrored)", BlueprintMirror.MirroredID("Jules_House"));
+            Assert.AreEqual("Jules_House", BlueprintMirror.MirroredID("Jules_House_(mirrored)"));
+            Assert.IsTrue(BlueprintMirror.IsMirroredID("Jules_House_(mirrored)"));
+            Assert.IsFalse(BlueprintMirror.IsMirroredID("Jules_House"));
+            Assert.AreEqual("__005_(mirrored)", BlueprintMirror.MirroredID("__005"));
+        }
+
       // [TestMethod]
       // public void ParseBlueprint_V1()
       // {

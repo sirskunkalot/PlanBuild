@@ -258,7 +258,7 @@ namespace PlanBuild
 
             MirrorConfig = PlanBuildPlugin.Instance.Config.Bind(
                 KeybindSection, "Mirror", KeyCode.H,
-                new ConfigDescription("Key to mirror the blueprint while placing it, only the view is mirrored and saving keeps the original. Together with the CtrlModifier it creates a mirrored copy instead, a new file for local blueprints, a new clipboard blueprint otherwise.", null,
+                new ConfigDescription("Key to mirror the blueprint while placing it, only the view is mirrored and saving keeps the original. Together with the CtrlModifier it creates a mirrored copy instead, a file for local blueprints, a clipboard blueprint otherwise.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
             // Plans Section

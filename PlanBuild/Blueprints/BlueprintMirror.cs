@@ -17,6 +17,11 @@ namespace PlanBuild.Blueprints
         public const string NameSuffix = " (mirrored)";
 
         /// <summary>
+        ///     ID suffix of mirrored copies, like <see cref="Blueprint.CreateIDString"/> turns the name suffix
+        /// </summary>
+        public const string IDSuffix = "_(mirrored)";
+
+        /// <summary>
         ///     Turns around a piece's own Y axis tried to match its mirror image, no turn first
         /// </summary>
         private static readonly int[] CorrectionCandidates = { 0, 180, 90, 270 };
@@ -73,6 +78,22 @@ namespace PlanBuild.Blueprints
             return name.EndsWith(NameSuffix, StringComparison.Ordinal)
                 ? name.Substring(0, name.Length - NameSuffix.Length)
                 : name + NameSuffix;
+        }
+
+        /// <summary>
+        ///     ID of a mirrored copy, derived from the source ID so a renamed original still
+        ///     finds its copy: mirroring a mirrored copy again removes the suffix
+        /// </summary>
+        public static string MirroredID(string id)
+        {
+            return IsMirroredID(id)
+                ? id.Substring(0, id.Length - IDSuffix.Length)
+                : id + IDSuffix;
+        }
+
+        public static bool IsMirroredID(string id)
+        {
+            return id.EndsWith(IDSuffix, StringComparison.Ordinal);
         }
 
         /// <summary>

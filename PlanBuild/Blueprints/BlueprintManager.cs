@@ -378,31 +378,18 @@ namespace PlanBuild.Blueprints
         }
 
         /// <summary>
-        ///     Create a mirrored copy of a blueprint's original, never of its mirrored view: a new file for
-        ///     a local blueprint, a new clipboard blueprint for a clipboard one. Keeps the current selection.
+        ///     Create a mirrored copy of a blueprint's original, never of its mirrored view: a file for
+        ///     a local blueprint, a clipboard blueprint for a clipboard one. An existing copy is replaced,
+        ///     it can only differ in the values taken from its source. Works both ways, mirroring a copy
+        ///     replaces its original. Keeps the current selection.
         /// </summary>
         /// <returns>The copy or null if it could not be created</returns>
         internal static Blueprint CreateMirroredCopy(Blueprint source)
         {
             bool temporary = source.ID.StartsWith("__", StringComparison.Ordinal);
             string name = BlueprintMirror.MirroredName(source.Name);
-            string id;
-            if (temporary)
-            {
-                id = SelectionTools.NextClipboardID();
-            }
-            else
-            {
-                // Never overwrite an existing blueprint, number the name instead
-                string baseName = name;
-                id = Blueprint.CreateIDString(name);
-                for (int i = 2; LocalBlueprints.ContainsKey(id)
-                     || File.Exists(Path.Combine(Config.BlueprintSaveDirectoryConfig.Value, $"{id}.blueprint")); i++)
-                {
-                    name = $"{baseName} {i}";
-                    id = Blueprint.CreateIDString(name);
-                }
-            }
+            string id = BlueprintMirror.MirroredID(source.ID);
+            TryGetBlueprintByID(id, out var existing);
 
             byte[] blob = source.ToBlob();
             if (blob == null)
@@ -415,6 +402,14 @@ namespace PlanBuild.Blueprints
             bp.MirrorEntries();
 
             Piece selected = Player.m_localPlayer.m_buildPieces?.GetSelectedPiece();
+            bool selectCopy = false;
+            if (existing != null)
+            {
+                selectCopy = selected && selected == existing.PiecePrefab;
+                existing.DestroyBlueprint();
+                (temporary ? TemporaryBlueprints : LocalBlueprints).Remove(id);
+            }
+
             if (temporary)
             {
                 bp.Category = BlueprintAssets.CategoryClipboard;
@@ -434,7 +429,15 @@ namespace PlanBuild.Blueprints
             }
 
             // Updating the piece list can shift the selection to another piece
-            if (selected)
+            if (selectCopy)
+            {
+                // The replaced copy was selected (bp.mirror on its source), keep it selected
+                if (Player.m_localPlayer.SetSelectedPiece(bp.PiecePrefab))
+                {
+                    Player.m_localPlayer.SetupPlacementGhost();
+                }
+            }
+            else if (selected)
             {
                 Player.m_localPlayer.SetSelectedPiece(selected);
             }

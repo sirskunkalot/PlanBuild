@@ -221,7 +221,7 @@ rotation: Rotation on the Y-Axis in degrees (default: 0)");
                     Console.instance.Print(
 @$"Usage: {Name} [blueprint_id]
 blueprint_id: ID of the blueprint according to bp.local, or of a clipboard blueprint (__001)
-A local blueprint is copied to a new file, a clipboard blueprint to a new clipboard blueprint.");
+A local blueprint is copied to a file, a clipboard blueprint to a clipboard blueprint.");
                     return;
                 }
 
