@@ -2,28 +2,19 @@
 * The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
 * Blueprints can be mirrored while placing (H). Ctrl+H or `bp.mirror` create a mirrored copy as a new build piece; angled pieces and roof corners are turned to match their mirror image
 * Hover text keybinds now use the vanilla formatting (thx Arrowmaster)
-* Blueprint ghosts no longer clone a material for every single piece, reducing memory use of large blueprints
-* Clipboard blueprint ghosts are now cleaned up when not in use, like those of saved blueprints
+* Reduced memory use of blueprint ghosts and fixed thumbnail creation leaking them, which could run out of memory with `bp.regenthumbnails`
 * Blueprints now store door states, item and armor stand data and terrain marker rotations independent of the system language, older blueprints still load
 * Blueprint ghosts containing a terrain op piece no longer modify real terrain while being built
-* Fixed thumbnail creation leaking blueprint ghosts and textures, which could run out of memory with `bp.regenthumbnails`
 * Fixed blueprints from InfinityHammer with terrain data failing to load or gaining phantom pieces
 * Fixed clipboard blueprints losing their thumbnail when saved
-* Server blueprint actions no longer send requests to the server when server blueprints are disabled
-* Fixed selection marker counts going negative when removing markers that were deselected or selected more than once
-* Fixed the square selection projector leaving an object behind every time it was removed
 * Terrain markers now show their configured shape, radius and rotation to other players
 * Fixed errors with ComfyGizmo when using Blueprint Rune tools after logging out and back in
 * Fixed a single broken piece aborting a blueprint placement halfway, which also left the placed pieces without undo
-* Fixed item and armor stands with incomplete item data skipping the rest of their setup when placed, like unlimited health
-* Deleting objects or a selection that removes nothing no longer adds an empty undo step
-* `bp.push` with an unknown blueprint ID now reports that the blueprint was not found
 * Fixed an error when loading a world with mod pieces that share a name and have a requirement without an item
 * Fixed copying to the clipboard failing after deleting a clipboard blueprint other than the last one
 * Uploading a local blueprint now saves it first, so unsaved changes to name, category and description are uploaded too
 * The Blueprint Marketplace now tells the host of a world that its local blueprints are the server blueprints instead of saying "Not connected"
 * Fixed Blueprint Rune tools replacing the description of pieces hovered in the build menu
-* Fixed blueprint key hints not updating correctly after changing the modifier keys or the default build mode
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1
