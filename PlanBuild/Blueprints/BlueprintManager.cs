@@ -332,15 +332,24 @@ namespace PlanBuild.Blueprints
         /// <summary>
         ///     Mark a mirrored view on the name of the piece shown, hovered in the build menu or selected.
         ///     The piece itself keeps its name, known recipes are tracked by it.
+        ///     Also shows the material cost when enabled, the piece description does not contain it.
         /// </summary>
         [HarmonyPatch(typeof(Hud), nameof(Hud.SetupPieceInfo))]
         [HarmonyPostfix]
         private static void Hud_SetupPieceInfo_Postfix(Hud __instance, Piece piece)
         {
-            if (piece && TryGetBlueprint(piece.name, out var bp) && bp.IsMirrored)
+            if (!piece || !TryGetBlueprint(piece.name, out var bp))
+            {
+                return;
+            }
+            if (bp.IsMirrored)
             {
                 __instance.m_buildSelection.text =
                     Localization.instance.Localize("$bp_mirrored_view", __instance.m_buildSelection.text);
+            }
+            if (Config.ShowMaterialCostConfig.Value)
+            {
+                __instance.m_pieceDescription.text = Localization.instance.Localize(bp.GetDescriptionWithMaterialCost());
             }
         }
 

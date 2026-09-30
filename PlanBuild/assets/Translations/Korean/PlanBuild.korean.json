@@ -163,6 +163,8 @@
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "조각:",
     "gui_desc_description": "설명:",
+    "gui_desc_materials": "재료:",
+    "gui_desc_materials_incomplete": "(불완전, 누락된 조각 있음)",
     "hud_terrainmod_interact": "값 변경",
     "gui_terrainmod_shape": "모양",
     "gui_terrainmod_radius": "반지름",

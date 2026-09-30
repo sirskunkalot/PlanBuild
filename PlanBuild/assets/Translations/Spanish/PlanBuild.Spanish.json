@@ -163,6 +163,8 @@
   "gui_desc_id": "ID:",
   "gui_desc_pieces": "Piezas:",
   "gui_desc_description": "Descripción:",
+  "gui_desc_materials": "Materiales:",
+  "gui_desc_materials_incomplete": "(incompleto, faltan piezas)",
   "hud_terrainmod_interact": "Cambiar valores",
   "gui_terrainmod_shape": "Forma",
   "gui_terrainmod_radius": "Radio",

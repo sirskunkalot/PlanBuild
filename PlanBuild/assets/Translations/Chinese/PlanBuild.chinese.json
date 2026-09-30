@@ -155,5 +155,7 @@
     "msg_bpmarket_notfound": "未找到蓝图 $1",
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "物件数：",
-    "gui_desc_description": "描述："
+    "gui_desc_description": "描述：",
+    "gui_desc_materials": "材料：",
+    "gui_desc_materials_incomplete": "（不完整，缺少物件）"
 }

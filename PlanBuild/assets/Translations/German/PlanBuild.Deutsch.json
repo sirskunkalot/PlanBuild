@@ -165,6 +165,8 @@
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "Objekte:",
     "gui_desc_description": "Beschreibung:",
+    "gui_desc_materials": "Material:",
+    "gui_desc_materials_incomplete": "(unvollständig, Objekte fehlen)",
     "hud_terrainmod_interact": "Werte anpassen",
     "gui_terrainmod_shape": "Shape",
     "gui_terrainmod_radius": "Radius",

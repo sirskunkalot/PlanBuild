@@ -163,6 +163,8 @@
     "gui_desc_id": "ID:",
     "gui_desc_pieces": "Объектов:",
     "gui_desc_description": "Описание:",
+    "gui_desc_materials": "Материалы:",
+    "gui_desc_materials_incomplete": "(неполно, отсутствуют объекты)",
     "hud_terrainmod_interact": "Изменить значения",
     "gui_terrainmod_shape": "Форма",
     "gui_terrainmod_radius": "Радиус",

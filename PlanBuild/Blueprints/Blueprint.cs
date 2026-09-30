@@ -160,6 +160,11 @@ namespace PlanBuild.Blueprints
         internal bool IsMirrored { get; private set; }
 
         private PieceEntry[] MirroredPieceEntries;
+
+        /// <summary>
+        ///     Cache of <see cref="GetDescriptionWithMaterialCost"/>, reset by <see cref="CreatePiece"/>
+        /// </summary>
+        private string DescriptionWithMaterialCost;
         private TerrainModEntry[] MirroredTerrainMods;
 
         /// <summary>
@@ -899,15 +904,8 @@ namespace PlanBuild.Blueprints
             Piece piece = Prefab.GetComponent<Piece>();
             piece.m_name = Name;
             piece.m_enabled = true;
-            piece.m_description = $"{LocalizationManager.Instance.TryTranslate("$gui_desc_id")} {ID}";
-            if (PieceEntries != null)
-            {
-                piece.m_description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_pieces")} {PieceEntries.Length}";
-            }
-            if (!string.IsNullOrEmpty(Description))
-            {
-                piece.m_description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_description")}{Environment.NewLine}{Description}";
-            }
+            piece.m_description = CreateDescription(null);
+            DescriptionWithMaterialCost = null;
             if (Thumbnail != null)
             {
                 piece.m_icon = Sprite.Create(Thumbnail, new Rect(0, 0, Thumbnail.width, Thumbnail.height), Vector2.zero);
@@ -923,6 +921,71 @@ namespace PlanBuild.Blueprints
             Prefab.AddComponent<PlacementComponent>();
 
             return true;
+        }
+
+        private string CreateDescription(string materialCost)
+        {
+            var description = $"{LocalizationManager.Instance.TryTranslate("$gui_desc_id")} {ID}";
+            description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_pieces")} {PieceEntries.Length}";
+            if (!string.IsNullOrEmpty(materialCost))
+            {
+                description += $"{Environment.NewLine}{materialCost}";
+            }
+            if (!string.IsNullOrEmpty(Description))
+            {
+                description += $"{Environment.NewLine}{LocalizationManager.Instance.TryTranslate("$gui_desc_description")}{Environment.NewLine}{Description}";
+            }
+            return description;
+        }
+
+        /// <summary>
+        ///     Piece description including the summed up resources of all pieces, calculated on first use
+        ///     because the piece prefabs are not available yet when blueprints are loaded
+        /// </summary>
+        internal string GetDescriptionWithMaterialCost()
+        {
+            return DescriptionWithMaterialCost ??= CreateDescription(CalculateMaterialCost());
+        }
+
+        private string CalculateMaterialCost()
+        {
+            var amounts = new Dictionary<string, int>();
+            var incomplete = false;
+            foreach (var group in PieceEntries.GroupBy(x => x.name))
+            {
+                var prefab = PrefabManager.Instance.GetPrefab(group.Key);
+                if (!prefab)
+                {
+                    incomplete = true;
+                    continue;
+                }
+                if (!prefab.TryGetComponent(out Piece piece))
+                {
+                    continue;
+                }
+                foreach (var requirement in piece.m_resources.Where(x => x.m_resItem))
+                {
+                    var itemName = requirement.m_resItem.m_itemData.m_shared.m_name;
+                    amounts.TryGetValue(itemName, out var amount);
+                    amounts[itemName] = amount + requirement.m_amount * group.Count();
+                }
+            }
+
+            if (amounts.Count == 0 && !incomplete)
+            {
+                return null;
+            }
+
+            // Translate here like the other lines, a token followed by the \r of Environment.NewLine
+            // is not recognized by the HUD
+            var materials = string.Join(", ", amounts.OrderByDescending(x => x.Value)
+                .Select(x => $"{x.Value} {Localization.instance.Localize(x.Key)}"));
+            var cost = $"{LocalizationManager.Instance.TryTranslate("$gui_desc_materials")} {materials}";
+            if (incomplete)
+            {
+                cost += $" {LocalizationManager.Instance.TryTranslate("$gui_desc_materials_incomplete")}";
+            }
+            return cost;
         }
 
         public void CreateKeyHint()

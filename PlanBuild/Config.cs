@@ -44,6 +44,7 @@ namespace PlanBuild
         public static ConfigEntry<bool> ShowGridConfig;
         public static ConfigEntry<bool> TooltipEnabledConfig;
         public static ConfigEntry<Color> TooltipBackgroundConfig;
+        public static ConfigEntry<bool> ShowMaterialCostConfig;
         public static ConfigEntry<string> BlueprintUndoQueueNameConfig;
         public static ConfigEntry<bool> AddPlayerNameConfig;
         public static ConfigEntry<string> MirrorOverridesConfig;
@@ -199,7 +200,12 @@ namespace PlanBuild
                 RuneSection, "Tooltip Color", new Color(0.13f, 0.13f, 0.13f, 0.65f),
                 new ConfigDescription("Set the background color for the tooltip on blueprint pieces.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
-            
+
+            ShowMaterialCostConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Show material cost", true,
+                new ConfigDescription("Show the materials needed to build a blueprint in its piece description. Long lists may not fit into the build HUD.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+
             BlueprintUndoQueueNameConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Undo queue name", "blueprintqueue",
                 new ConfigDescription("Global name of the blueprint undo queue used for bp.undo and bp.redo commands. Can be set to the same value as other mods' config (if supported) to combine their undo queues.", null,
