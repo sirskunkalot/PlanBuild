@@ -260,11 +260,12 @@ namespace PlanBuild.Blueprints
             });
         }
 
+        // Height vertices sit on whole grid positions, see Heightmap.WorldToVertex
         private static Vector3 VertexToWorld(Heightmap hmap, int x, int y)
         {
             var vector = hmap.transform.position;
-            vector.x += (x - hmap.m_width / 2 + 0.5f) * hmap.m_scale;
-            vector.z += (y - hmap.m_width / 2 + 0.5f) * hmap.m_scale;
+            vector.x += (x - hmap.m_width / 2) * hmap.m_scale;
+            vector.z += (y - hmap.m_width / 2) * hmap.m_scale;
             return vector;
         }
 
@@ -318,23 +319,23 @@ namespace PlanBuild.Blueprints
         private static IEnumerable<HeightIndex> GetHeightIndicesWithCircle(TerrainComp compiler, Vector3 centerPos,
             float diameter)
         {
+            // Measured from the exact center, snapping it to the vertex grid shifted the area by up to half a meter
             List<HeightIndex> indices = new List<HeightIndex>();
-            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
-            var maxDistance = diameter / 2f / compiler.m_hmap.m_scale;
+            var maxDistance = diameter / 2f;
             var max = compiler.m_width + 1;
-            Vector2 center = new Vector2((float)cx, (float)cy);
             for (int i = 0; i < max; i++)
             {
                 for (int j = 0; j < max; j++)
                 {
-                    var distance = Vector2.Distance(center, new Vector2((float)j, (float)i));
+                    var position = VertexToWorld(compiler.m_hmap, j, i);
+                    var distanceX = position.x - centerPos.x;
+                    var distanceY = position.z - centerPos.z;
+                    var distance = Mathf.Sqrt(distanceX * distanceX + distanceY * distanceY);
                     if (distance > maxDistance) continue;
-                    var distanceX = j - cx;
-                    var distanceY = i - cy;
                     indices.Add(new HeightIndex()
                     {
                         Index = i * max + j,
-                        Position = VertexToWorld(compiler.m_hmap, j, i),
+                        Position = position,
                         DistanceWidth = distanceX / maxDistance,
                         DistanceDepth = distanceY / maxDistance,
                         Distance = distance / maxDistance
@@ -345,23 +346,23 @@ namespace PlanBuild.Blueprints
             return indices;
         }
 
-        private static float GetX(int x, int y, float angle) => Mathf.Cos(angle) * x - Mathf.Sin(angle) * y;
-        private static float GetY(int x, int y, float angle) => Mathf.Sin(angle) * x + Mathf.Cos(angle) * y;
+        private static float GetX(float x, float y, float angle) => Mathf.Cos(angle) * x - Mathf.Sin(angle) * y;
+        private static float GetY(float x, float y, float angle) => Mathf.Sin(angle) * x + Mathf.Cos(angle) * y;
 
         private static IEnumerable<HeightIndex> GetHeightIndicesWithRect(TerrainComp compiler, Vector3 centerPos,
             float width, float depth, float angle)
         {
             List<HeightIndex> indices = new List<HeightIndex>();
-            compiler.m_hmap.WorldToVertex(centerPos, out var cx, out var cy);
-            var maxWidth = width / 2f / compiler.m_hmap.m_scale;
-            var maxDepth = depth / 2f / compiler.m_hmap.m_scale;
+            var maxWidth = width / 2f;
+            var maxDepth = depth / 2f;
             var max = compiler.m_width + 1;
             for (int x = 0; x < max; x++)
             {
                 for (int y = 0; y < max; y++)
                 {
-                    var dx = x - cx;
-                    var dy = y - cy;
+                    var position = VertexToWorld(compiler.m_hmap, x, y);
+                    var dx = position.x - centerPos.x;
+                    var dy = position.z - centerPos.z;
                     var distanceX = GetX(dx, dy, angle);
                     var distanceY = GetY(dx, dy, angle);
                     if (Mathf.Abs(distanceX) > maxWidth) continue;
@@ -371,7 +372,7 @@ namespace PlanBuild.Blueprints
                     indices.Add(new HeightIndex()
                     {
                         Index = y * max + x,
-                        Position = VertexToWorld(compiler.m_hmap, x, y),
+                        Position = position,
                         DistanceWidth = distanceWidth,
                         DistanceDepth = distanceDepth,
                         Distance = Mathf.Max(Mathf.Abs(distanceWidth), Mathf.Abs(distanceDepth))
