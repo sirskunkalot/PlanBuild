@@ -697,6 +697,7 @@ namespace PlanBuild.Plans
                 return;
             }
 
+            // Text of a piece the Plan Totem replaced with this plan, see PlanTotem.Replace
             GameObject actualPiece = SpawnPiece(gameObject, creatorID, transform.position, transform.rotation,
                 originalPiece.gameObject, m_nView.GetZDO().GetString(Blueprint.AdditionalInfo));
 #if DEBUG
@@ -740,8 +741,9 @@ namespace PlanBuild.Plans
             {
                 wearntear.OnPlaced();
             }
+            // Without a stored text the piece keeps its default, e.g. the "..." vanilla shows on a new sign
             TextReceiver textReceiver = actualPiece.GetComponent<TextReceiver>();
-            if (textReceiver != null)
+            if (textReceiver != null && !string.IsNullOrEmpty(additionalInfo))
             {
                 textReceiver.SetText(additionalInfo);
             }

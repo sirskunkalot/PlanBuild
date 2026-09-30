@@ -295,14 +295,12 @@ namespace PlanBuild.Blueprints.Components
                     {
                         wearntear.OnPlaced();
                     }
+                    // Only a direct build gets the stored text, a plan has no TextReceiver and shows the default.
+                    // Without a stored text the piece keeps its default too, e.g. the "..." on a new sign.
                     TextReceiver textReceiver = gameObject.GetComponent<TextReceiver>();
-                    if (textReceiver != null)
+                    if (textReceiver != null && !string.IsNullOrEmpty(entry.additionalInfo))
                     {
-                        if (!placeDirect && zNetView && !string.IsNullOrEmpty(entry.additionalInfo))
-                        {
-                            zNetView.m_zdo.Set(Blueprint.AdditionalInfo, entry.additionalInfo);
-                        }
-                        textReceiver.SetText(string.IsNullOrEmpty(entry.additionalInfo) ? string.Empty : entry.additionalInfo);
+                        textReceiver.SetText(entry.additionalInfo);
                     }
                     ItemStand itemStand = gameObject.GetComponent<ItemStand>();
                     if (itemStand != null)

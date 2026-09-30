@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Rendering;
 using Logger = Jotunn.Logger;
@@ -1221,8 +1222,9 @@ namespace PlanBuild.Blueprints
             // A Ghost doesn't need fancy scripts
             foreach (var component in child.GetComponentsInChildren<MonoBehaviour>())
             {
-                // A missing script shows up as a null entry
-                if (component == null)
+                // A missing script shows up as a null entry. Static texts like the "..." on a sign stay,
+                // so the ghost shows which side is the front.
+                if (component == null || component is TMP_Text)
                 {
                     continue;
                 }

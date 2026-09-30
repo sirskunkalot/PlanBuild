@@ -1,4 +1,5 @@
 ﻿using HarmonyLib;
+using PlanBuild.Blueprints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,8 +87,13 @@ namespace PlanBuild.Plans
         internal void Replace(GameObject gameObject, PlanPiecePrefab planPrefab)
         {
             Transform replaceTransform = gameObject.transform;
-            string textReceiver = gameObject.GetComponent<TextReceiver>()?.GetText();
-            GameObject created = PlanPiece.SpawnPiece(gameObject, m_piece.m_creator, replaceTransform.position, replaceTransform.rotation, planPrefab.PiecePrefab, textReceiver);
+            // A plan has no TextReceiver, it keeps the text in its ZDO until it is built again
+            string text = gameObject.GetComponent<TextReceiver>()?.GetText();
+            GameObject created = PlanPiece.SpawnPiece(gameObject, m_piece.m_creator, replaceTransform.position, replaceTransform.rotation, planPrefab.PiecePrefab, null);
+            if (!string.IsNullOrEmpty(text) && created.TryGetComponent(out ZNetView createdView) && createdView.IsValid())
+            {
+                createdView.GetZDO().Set(Blueprint.AdditionalInfo, text);
+            }
             TriggerConnection(created.transform.position);
         }
 

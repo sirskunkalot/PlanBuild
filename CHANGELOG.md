@@ -19,6 +19,8 @@
 * The Blueprint Marketplace now tells the host of a world that its local blueprints are the server blueprints instead of saying "Not connected"
 * Fixed Blueprint Rune tools replacing the description of pieces hovered in the build menu
 * The terrain tool and blueprint terrain markers now modify exactly the area under the projector instead of up to half a meter off
+* Signs from the Plan Hammer or a blueprint now show the vanilla "..." on their front, also as plan or ghost
+* Signs a Plan Totem replaces with a plan get their text back when the plan is built
 * Removed compatibility with Build Camera, which hasn't been updated since 2021. If you use it or one of its forks and run into problems with PlanBuild, please open an issue
 
 # Version 0.19.1

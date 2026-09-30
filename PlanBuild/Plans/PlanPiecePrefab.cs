@@ -4,6 +4,7 @@ using Jotunn.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -89,6 +90,12 @@ namespace PlanBuild.Plans
             {
                 // A missing script shows up as a null entry
                 if (component == null)
+                {
+                    continue;
+                }
+
+                // Keep static texts like the "..." on a sign, so a plan shows which side is its front
+                if (component is TMP_Text)
                 {
                     continue;
                 }
