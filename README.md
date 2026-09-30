@@ -119,6 +119,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Use the __Scroll Wheel__ to change the tool radius.
   * Use __Ctrl + Shift + Scroll__ and __Alt + Shift + Scroll__ to change only the width or the depth of the rectangle marker.
   * Use __Ctrl + Scroll__ to rotate the rectangle marker.
+  * Use __Ctrl + Alt + Scroll__ to tilt the marker. Flattening then creates a slope rising towards the marker's rotation instead of a level area.
   * Use __Alt + Scroll__ to move the marker on the Y-axis.
   * Use __Shift + Scroll__ to adjust the camera distance.
 

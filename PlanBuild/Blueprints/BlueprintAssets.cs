@@ -350,24 +350,9 @@ namespace PlanBuild.Blueprints
                 }
             });
 
-            // Terrain
+            // Terrain and Paint
 
-            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
-            {
-                Item = BlueprintRuneName,
-                Piece = PieceTerrainName,
-                ButtonConfigs = new[]
-                {
-                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
-                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
-                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_alt" },
-                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_ctrl" },
-                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpsquare_width" },
-                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpsquare_depth" },
-                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
-                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
-                }
-            });
+            CreateTerrainKeyHints();
 
             // Delete
 
@@ -385,9 +370,62 @@ namespace PlanBuild.Blueprints
                 }
             });
 
-            // Paint
+            GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
+        }
 
-            KeyHintManager.Instance.AddKeyHint(new KeyHintConfig
+        private static KeyHintConfig TerrainKeyHint;
+        private static KeyHintConfig PaintKeyHint;
+
+        private static string GetBoundKeyName(ButtonConfig button)
+        {
+            return LocalizationManager.Instance.TryTranslate(ZInput.instance.GetBoundKeyString(button.Name))
+                .Replace("[", null).Replace("]", null);
+        }
+
+        /// <summary>
+        ///     (Re)create the Terrain and Paint KeyHints, their modifier combinations name the bound keys in the text
+        /// </summary>
+        internal static void CreateTerrainKeyHints()
+        {
+            if (ZInput.instance == null)
+            {
+                return;
+            }
+
+            if (TerrainKeyHint != null)
+            {
+                KeyHintManager.Instance.RemoveKeyHint(TerrainKeyHint);
+            }
+            if (PaintKeyHint != null)
+            {
+                KeyHintManager.Instance.RemoveKeyHint(PaintKeyHint);
+            }
+
+            var shiftKey = GetBoundKeyName(Config.ShiftModifierButton);
+            var widthHint = Localization.instance.Localize("$hud_bpsquare_width", shiftKey);
+            var depthHint = Localization.instance.Localize("$hud_bpsquare_depth", shiftKey);
+            var tiltHint = Localization.instance.Localize("$hud_bpterrain_tilt", GetBoundKeyName(Config.AltModifierButton));
+
+            TerrainKeyHint = new KeyHintConfig
+            {
+                Item = BlueprintRuneName,
+                Piece = PieceTerrainName,
+                ButtonConfigs = new[]
+                {
+                    new ButtonConfig { Name = "Attack", HintToken = "$hud_bpterrain_flatten" },
+                    new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_alt" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_ctrl" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, Hint = widthHint },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, Hint = depthHint },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, Hint = tiltHint },
+                    new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
+                    new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
+                }
+            };
+            KeyHintManager.Instance.AddKeyHint(TerrainKeyHint);
+
+            PaintKeyHint = new KeyHintConfig
             {
                 Item = BlueprintRuneName,
                 Piece = PiecePaintName,
@@ -397,14 +435,13 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bppaint_marker" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bppaint_alt" },
                     new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bppaint_ctrl" },
-                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpsquare_width" },
-                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpsquare_depth" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, Hint = widthHint },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, Hint = depthHint },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
-            });
-
-            GUIManager.OnCustomGUIAvailable -= CreateCustomKeyHints;
+            };
+            KeyHintManager.Instance.AddKeyHint(PaintKeyHint);
         }
     }
 }

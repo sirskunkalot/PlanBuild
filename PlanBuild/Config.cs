@@ -122,7 +122,7 @@ namespace PlanBuild
                 new ConfigDescription("Default build mode when placing blueprints.", null,
                     new ConfigurationManagerAttributes { Order = --order }));
 
-            DefaultBuildModeConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
+            DefaultBuildModeConfig.SettingChanged += (sender, args) => RecreateKeyHints();
             
             UnlimitedHealthConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Unlimited health", false,
@@ -319,16 +319,18 @@ namespace PlanBuild
             CreateCustomButtons();
 
             // Subscribed after the buttons so Jötunn rebinds ZInput first, the key hints read the bound key from there
-            CtrlModifierConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
-            AltModifierConfig.SettingChanged += (sender, args) => RecreateBlueprintKeyHints();
+            CtrlModifierConfig.SettingChanged += (sender, args) => RecreateKeyHints();
+            AltModifierConfig.SettingChanged += (sender, args) => RecreateKeyHints();
+            ShiftModifierConfig.SettingChanged += (sender, args) => RecreateKeyHints();
         }
 
-        private static void RecreateBlueprintKeyHints()
+        private static void RecreateKeyHints()
         {
             foreach (var bp in BlueprintManager.LocalBlueprints.Values.Concat(BlueprintManager.TemporaryBlueprints.Values))
             {
                 bp.CreateKeyHint();
             }
+            BlueprintAssets.CreateTerrainKeyHints();
         }
         
         private static void CreateCustomButtons()

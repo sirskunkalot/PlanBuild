@@ -12,6 +12,8 @@ namespace PlanBuild.Blueprints.Components
         // Half the square's depth, SelectionRadius is half its width
         public static float SelectionDepthRadius = 10.0f;
         public static int SelectionRotation;
+        // Degrees the terrain tool's selection is tilted up towards its rotation
+        public static int SelectionSlope;
         public static float CameraOffset;
         public static Vector3 PlacementOffset = Vector3.zero;
         public static Vector3 MarkerOffset = Vector3.zero;
@@ -233,6 +235,34 @@ namespace PlanBuild.Blueprints.Components
             }
 
             SelectionProjector.SetRotation(SelectionRotation);
+        }
+
+        /// <summary>
+        ///     Tilt the selection, uses the rotation increment
+        /// </summary>
+        public void UpdateSelectionSlope(float scrollWheel)
+        {
+            if (SelectionProjector == null)
+            {
+                return;
+            }
+
+            bool scrollingDown = scrollWheel < 0f;
+            if (Config.InvertRotationScrollConfig.Value)
+            {
+                scrollingDown = !scrollingDown;
+            }
+            if (scrollingDown)
+            {
+                SelectionSlope -= Config.RotationIncrementConfig.Value;
+            }
+            else
+            {
+                SelectionSlope += Config.RotationIncrementConfig.Value;
+            }
+
+            SelectionSlope = Mathf.Clamp(SelectionSlope, -45, 45);
+            SelectionProjector.SetSlope(SelectionSlope);
         }
 
         public void EnableSelectionProjector(Player self, bool enableMask = false)

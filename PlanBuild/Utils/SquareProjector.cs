@@ -11,6 +11,8 @@ namespace PlanBuild.Utils
         public float radius = 2f;
         public float depthRadius = 2f;
         public int rotation = 0;
+        // Degrees the square is tilted up towards its local forward
+        public float slope = 0f;
         public GameObject prefab;
 
         private GameObject cube;
@@ -196,6 +198,13 @@ namespace PlanBuild.Utils
                 b.position = cubeParent.forward * (sideDistance - cubesThickness / 2) + cubeParent.right * sideLengthHalved + cubeParent.position; // R
                 Vector3 dir = b.position - a.position;
 
+                // Tilt the cubes along the side so a slope shows as a straight edge instead of steps,
+                // stretched to still cover the side's horizontal length
+                float gradient = Mathf.Tan(slope * Mathf.Deg2Rad);
+                Vector3 tiltedDir = dir.normalized + Vector3.up * (Vector3.Dot(dir.normalized, center.forward) * gradient);
+                Quaternion cubeRotation = Quaternion.LookRotation(tiltedDir);
+                float cubeStretch = tiltedDir.magnitude;
+
                 for (int i = 0; i < cubes.Count; i++)
                 {
                     Transform cube = cubes[i];
@@ -228,12 +237,18 @@ namespace PlanBuild.Utils
                     }
                     
                     RaycastHit hitInfo;
-                    if (Physics.Raycast(pos + Vector3.up * 500f, Vector3.down, out hitInfo, 1000f, mask.value))
+                    if (slope != 0f)
+                    {
+                        pos.y += Vector3.Dot(pos - transform.position, center.forward) * gradient;
+                    }
+                    else if (Physics.Raycast(pos + Vector3.up * 500f, Vector3.down, out hitInfo, 1000f, mask.value))
                     {
                         pos.y = hitInfo.point.y;
                     }
 
+                    scale.z *= cubeStretch;
                     cube.position = pos;
+                    cube.rotation = cubeRotation;
                     cube.localScale = scale;
                 }
                 yield return new WaitForSecondsRealtime(1 / updatesPerSecond);

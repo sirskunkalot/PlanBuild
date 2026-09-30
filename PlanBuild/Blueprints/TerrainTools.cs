@@ -171,11 +171,13 @@ namespace PlanBuild.Blueprints
         {
             Action<TerrainComp, HeightIndex> action = (compiler, heightIndex) =>
             {
-                var multiplier = CalculateSlope(angle, heightIndex.DistanceWidth, heightIndex.DistanceDepth)
-                                 * CalculateSmooth(smooth, heightIndex.Distance);
+                // Smoothing blends towards the slope like LevelTerrain, smoothing only the slope part
+                // left the edges at the center's altitude instead of the original terrain
+                var target = altitude
+                             + CalculateSlope(angle, heightIndex.DistanceWidth, heightIndex.DistanceDepth) * amount / 2f;
+                var multiplier = CalculateSmooth(smooth, heightIndex.Distance);
                 var index = heightIndex.Index;
-                compiler.m_levelDelta[index] +=
-                    (altitude - compiler.m_hmap.m_heights[index]) + multiplier * amount / 2f;
+                compiler.m_levelDelta[index] += multiplier * (target - compiler.m_hmap.m_heights[index]);
                 compiler.m_smoothDelta[index] = 0f;
                 compiler.m_modifiedHeight[index] = compiler.m_levelDelta[index] != 0f;
             };

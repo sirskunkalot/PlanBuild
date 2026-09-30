@@ -115,6 +115,7 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
 [*]Use [b]Ctrl + Shift + Scroll[/b] and [b]Alt + Shift + Scroll[/b] to change only the width or the depth of the rectangle marker.
 [*]Use [b]Ctrl + Scroll[/b] to rotate the rectangle marker.
+[*]Use [b]Ctrl + Alt + Scroll[/b] to tilt the marker. Flattening then creates a slope rising towards the marker's rotation instead of a level area.
 [*]Use [b]Alt + Scroll[/b] to move the marker on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Delete Objects:[/b] Allows you to remove vegetation objects in a chosen radius.

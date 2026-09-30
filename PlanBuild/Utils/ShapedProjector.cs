@@ -32,19 +32,22 @@ namespace PlanBuild.Utils
         // Half the square's depth, Radius is half its width
         private float DepthRadius = 10f;
         private int Rotation;
+        // Degrees the shape is tilted up towards its rotation
+        private float Slope;
 
-        private CircleProjector Circle;
+        private RingProjector Circle;
         private SquareProjector Square;
-        
+
         public void Enable()
         {
             if (Shape == ProjectorShape.Circle && Circle == null)
             {
-                Circle = gameObject.AddComponent<CircleProjector>();
-                Circle.m_prefab = SelectionSegment;
-                Circle.m_prefab.SetActive(true);
-                Circle.m_radius = Radius;
-                Circle.m_nrOfSegments = (int)Radius * 4;
+                Circle = gameObject.AddComponent<RingProjector>();
+                Circle.prefab = SelectionSegment;
+                Circle.prefab.SetActive(true);
+                Circle.radius = Radius;
+                Circle.rotation = Rotation;
+                Circle.slope = Slope;
             }
 
             if (Shape == ProjectorShape.Square && Square == null)
@@ -54,6 +57,7 @@ namespace PlanBuild.Utils
                 Square.radius = Radius;
                 Square.depthRadius = DepthRadius;
                 Square.rotation = Rotation;
+                Square.slope = Slope;
             }
         }
 
@@ -61,10 +65,7 @@ namespace PlanBuild.Utils
         {
             if (Circle != null)
             {
-                foreach (GameObject segment in Circle.m_segments)
-                {
-                    DestroyImmediate(segment);
-                }
+                // RingProjector removes its segments itself
                 DestroyImmediate(Circle);
             }
 
@@ -148,8 +149,7 @@ namespace PlanBuild.Utils
 
             if (Shape == ProjectorShape.Circle && Circle != null)
             {
-                Circle.m_radius = Radius;
-                Circle.m_nrOfSegments = (int)Radius * 4;
+                Circle.radius = Radius;
             }
 
             if (Shape == ProjectorShape.Square && Square != null)
@@ -186,6 +186,12 @@ namespace PlanBuild.Utils
         {
             Rotation = newRotation;
 
+            // The circle only needs the rotation as the direction of its slope
+            if (Shape == ProjectorShape.Circle && Circle != null)
+            {
+                Circle.rotation = Rotation;
+            }
+
             if (Shape == ProjectorShape.Square && Square != null)
             {
                 Square.rotation = Rotation;
@@ -197,11 +203,31 @@ namespace PlanBuild.Utils
             return Rotation;
         }
 
+        public void SetSlope(float newSlope)
+        {
+            Slope = newSlope;
+
+            if (Shape == ProjectorShape.Circle && Circle != null)
+            {
+                Circle.slope = Slope;
+            }
+
+            if (Shape == ProjectorShape.Square && Square != null)
+            {
+                Square.slope = Slope;
+            }
+        }
+
+        public float GetSlope()
+        {
+            return Slope;
+        }
+
         public void EnableMask()
         {
-            if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 2048)
+            if (Shape == ProjectorShape.Circle && Circle != null && Circle.mask != 2048)
             {
-                Circle.m_mask = 2048;
+                Circle.mask = 2048;
             }
 
             if (Shape == ProjectorShape.Square && Square != null && Square.mask != 2048)
@@ -212,9 +238,9 @@ namespace PlanBuild.Utils
 
         public void DisableMask()
         {
-            if (Shape == ProjectorShape.Circle && Circle != null && Circle.m_mask != 0)
+            if (Shape == ProjectorShape.Circle && Circle != null && Circle.mask != 0)
             {
-                Circle.m_mask = 0;
+                Circle.mask = 0;
             }
 
             if (Shape == ProjectorShape.Square && Square != null && Square.mask != 0)

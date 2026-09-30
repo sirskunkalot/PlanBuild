@@ -1,4 +1,5 @@
 ﻿using Jotunn.Managers;
+using PlanBuild.Utils;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Components
@@ -18,6 +19,8 @@ namespace PlanBuild.Blueprints.Components
             }
 
             EnableSelectionProjector(self);
+            // Only this tool tilts the shared projector
+            SelectionProjector.SetSlope(SelectionSlope);
 
             float scrollWheel = Input.GetAxis("Mouse ScrollWheel");
             if (scrollWheel != 0f)
@@ -33,6 +36,11 @@ namespace PlanBuild.Blueprints.Components
                 else if (shiftModifier && altModifier)
                 {
                     UpdateSelectionDepth(scrollWheel);
+                    UndoRotation(self, scrollWheel);
+                }
+                else if (ctrlModifier && altModifier)
+                {
+                    UpdateSelectionSlope(scrollWheel);
                     UndoRotation(self, scrollWheel);
                 }
                 else if (altModifier)
@@ -79,19 +87,34 @@ namespace PlanBuild.Blueprints.Components
             var pos = SelectionProjector.GetPosition();
             var rad = SelectionProjector.GetOuterRadius();
 
+            var smooth = ZInput.GetButton(Config.CtrlModifierButton.Name)
+                ? Mathf.Clamp01(Config.TerrainSmoothConfig.Value) : 0f;
+
             if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
                 TerrainTools.ResetTerrain(indices, pos, rad);
             }
-            else if (ZInput.GetButton(Config.CtrlModifierButton.Name))
+            else if (SelectionSlope != 0)
             {
-                TerrainTools.LevelTerrain(indices, pos, rad, Mathf.Clamp01(Config.TerrainSmoothConfig.Value), pos.y);
+                // The slope rises towards the projector's rotation. Rectangle indices are already relative
+                // to it, circle indices are in world axes and need the rotation as the slope's direction.
+                bool isSquare = SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square;
+                var angle = isSquare ? 0f : SelectionProjector.GetRotation() * Mathf.Deg2Rad;
+                var length = 2f * (isSquare ? SelectionProjector.GetDepthRadius() : SelectionProjector.GetRadius());
+                var amount = length * Mathf.Tan(SelectionSlope * Mathf.Deg2Rad);
+                TerrainTools.SlopeTerrain(indices, pos, rad, angle, smooth, pos.y, amount);
             }
             else
             {
-                TerrainTools.LevelTerrain(indices, pos, rad, 0f, pos.y);
+                TerrainTools.LevelTerrain(indices, pos, rad, smooth, pos.y);
             }
             MarkerOffset = Vector3.zero;
+        }
+
+        public override void UpdateDescription()
+        {
+            Hud.instance.m_pieceDescription.text +=
+                $"\n{LocalizationManager.Instance.TryTranslate("$hud_bpterrain_slope")}: {SelectionSlope}°";
         }
     }
 }
