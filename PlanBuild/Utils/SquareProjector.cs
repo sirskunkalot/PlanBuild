@@ -7,7 +7,9 @@ namespace PlanBuild.Utils
     internal class SquareProjector : MonoBehaviour
     {
         public float cubesSpeed = 1f;
+        // Half the width (local X) and half the depth (local Z)
         public float radius = 2f;
+        public float depthRadius = 2f;
         public int rotation = 0;
         public GameObject prefab;
 
@@ -18,10 +20,6 @@ namespace PlanBuild.Utils
         public LayerMask mask = 0;
         
         private float updatesPerSecond = 60f;
-        private int cubesPerSide;
-        private float sideLength;
-        private float cubesLength100;
-        private float sideLengthHalved;
         private Quaternion translatedRotation;
         private bool isRunning = false;
 
@@ -57,10 +55,7 @@ namespace PlanBuild.Utils
             }
             isRunning = true;
 
-            StartCoroutine(AnimateElements(parentNorth, cubesNorth));
-            StartCoroutine(AnimateElements(parentEast, cubesEast));
-            StartCoroutine(AnimateElements(parentSouth, cubesSouth));
-            StartCoroutine(AnimateElements(parentWest, cubesWest));
+            StartAnimations();
         }
 
         private void OnDisable()
@@ -90,15 +85,21 @@ namespace PlanBuild.Utils
             center.position = transform.position;
             center.rotation = Quaternion.Euler(0f, rotation, 0f);
 
-            parentNorth = CreateElements(rotation + 0, cubesNorth);
-            parentEast = CreateElements(rotation + 90, cubesEast);
-            parentSouth = CreateElements(rotation + 180, cubesSouth);
-            parentWest = CreateElements(rotation + 270, cubesWest);
+            // North and south run along the width, east and west along the depth
+            parentNorth = CreateElements(rotation + 0, cubesNorth, radius);
+            parentEast = CreateElements(rotation + 90, cubesEast, depthRadius);
+            parentSouth = CreateElements(rotation + 180, cubesSouth, radius);
+            parentWest = CreateElements(rotation + 270, cubesWest, depthRadius);
 
-            StartCoroutine(AnimateElements(parentNorth, cubesNorth));
-            StartCoroutine(AnimateElements(parentEast, cubesEast));
-            StartCoroutine(AnimateElements(parentSouth, cubesSouth));
-            StartCoroutine(AnimateElements(parentWest, cubesWest));
+            StartAnimations();
+        }
+
+        private void StartAnimations()
+        {
+            StartCoroutine(AnimateElements(parentNorth, cubesNorth, true));
+            StartCoroutine(AnimateElements(parentEast, cubesEast, false));
+            StartCoroutine(AnimateElements(parentSouth, cubesSouth, true));
+            StartCoroutine(AnimateElements(parentWest, cubesWest, false));
         }
 
         public void StopProjecting()
@@ -119,20 +120,21 @@ namespace PlanBuild.Utils
             cubesWest.Clear();
         }
 
+        private static int GetCubeCount(float halfLength)
+        {
+            return Mathf.FloorToInt(halfLength) + 1;
+        }
+
         private void RefreshStuff()
         {
-            cubesPerSide = Mathf.FloorToInt(radius);
-            sideLength = radius * 2;
-            cubesLength100 = sideLength / cubesPerSide;
-            sideLengthHalved = sideLength / 2;
             translatedRotation = Quaternion.Euler(0f, rotation, 0f);
-            
+
             if (!isRunning)
             {
                 return;
             }
-            
-            if (cubesPerSide + 1 != cubesNorth.Count)
+
+            if (GetCubeCount(radius) != cubesNorth.Count || GetCubeCount(depthRadius) != cubesEast.Count)
             {
                 StopProjecting();
                 StartProjecting();
@@ -144,7 +146,7 @@ namespace PlanBuild.Utils
             }
         }
 
-        private Transform CreateElements(int localRotation, List<Transform> cubes)
+        private Transform CreateElements(int localRotation, List<Transform> cubes, float halfLength)
         {
             // Spawn parent object, each which represent a side of the cube
             Transform cubesParent = new GameObject(localRotation.ToString()).transform;
@@ -153,7 +155,7 @@ namespace PlanBuild.Utils
             cubesParent.SetParent(center);
 
             // Spawn cubes
-            for (int i = 0; i < cubesPerSide + 1; i++)
+            for (int i = 0; i < GetCubeCount(halfLength); i++)
             {
                 cubes.Add(Instantiate(cube, transform.position, Quaternion.identity, cubesParent).transform);
             }
@@ -173,7 +175,7 @@ namespace PlanBuild.Utils
             return cubesParent;
         }
 
-        private IEnumerator AnimateElements(Transform cubeParent, List<Transform> cubes)
+        private IEnumerator AnimateElements(Transform cubeParent, List<Transform> cubes, bool alongWidth)
         {
             Transform a = cubeParent.Find("Start");
             Transform b = cubeParent.Find("End");
@@ -183,8 +185,15 @@ namespace PlanBuild.Utils
             {
                 RefreshStuff(); // R
 
-                a.position = cubeParent.forward * (sideLengthHalved - cubesThickness / 2) - cubeParent.right * sideLengthHalved + cubeParent.position; // R
-                b.position = cubeParent.forward * (sideLengthHalved - cubesThickness / 2) + cubeParent.right * sideLengthHalved + cubeParent.position; // R
+                // A side runs along one axis and sits at the other axis' distance from the center
+                float sideLengthHalved = alongWidth ? radius : depthRadius;
+                float sideDistance = alongWidth ? depthRadius : radius;
+                float sideLength = sideLengthHalved * 2;
+                int cubesPerSide = GetCubeCount(sideLengthHalved) - 1;
+                float cubesLength100 = sideLength / cubesPerSide;
+
+                a.position = cubeParent.forward * (sideDistance - cubesThickness / 2) - cubeParent.right * sideLengthHalved + cubeParent.position; // R
+                b.position = cubeParent.forward * (sideDistance - cubesThickness / 2) + cubeParent.right * sideLengthHalved + cubeParent.position; // R
                 Vector3 dir = b.position - a.position;
 
                 for (int i = 0; i < cubes.Count; i++)

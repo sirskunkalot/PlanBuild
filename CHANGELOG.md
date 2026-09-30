@@ -2,6 +2,7 @@
 * The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
 * Blueprints can be mirrored while placing (H). Ctrl+H or `bp.mirror` create a mirrored copy as a new build piece; angled pieces and roof corners are turned to match their mirror image
 * New option to show the material cost of a blueprint in its piece description
+* The square marker of the terrain and paint tools is now a rectangle, its width and depth can be changed separately (Ctrl/Alt + Shift + Scroll)
 * Hover text keybinds now use the vanilla formatting (thx Arrowmaster)
 * Reduced memory use of blueprint ghosts and fixed thumbnail creation leaking them, which could run out of memory with `bp.regenthumbnails`
 * Blueprints now store door states, item and armor stand data and terrain marker rotations independent of the system language, older blueprints still load

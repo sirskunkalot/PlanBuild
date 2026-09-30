@@ -362,6 +362,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bpterrain_marker" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpterrain_alt" },
                     new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpterrain_ctrl" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpsquare_width" },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpsquare_depth" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }
@@ -395,6 +397,8 @@ namespace PlanBuild.Blueprints
                     new ButtonConfig { Name = Config.ToggleButton.Name, Config = Config.ToggleConfig, HintToken = "$hud_bppaint_marker" },
                     new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bppaint_alt" },
                     new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bppaint_ctrl" },
+                    new ButtonConfig { Name = Config.CtrlModifierButton.Name, Config = Config.CtrlModifierConfig, HintToken = "$hud_bpsquare_width" },
+                    new ButtonConfig { Name = Config.AltModifierButton.Name, Config = Config.AltModifierConfig, HintToken = "$hud_bpsquare_depth" },
                     new ButtonConfig { Name = Config.ShiftModifierButton.Name, Config = Config.ShiftModifierConfig, HintToken = "$hud_bpcamera" },
                     new ButtonConfig { Name = "Scroll", Axis = "Mouse ScrollWheel", HintToken = "$hud_bpradius" }
                 }

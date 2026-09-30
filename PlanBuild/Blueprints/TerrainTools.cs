@@ -367,15 +367,16 @@ namespace PlanBuild.Blueprints
                     var distanceY = GetY(dx, dy, angle);
                     if (Mathf.Abs(distanceX) > maxWidth) continue;
                     if (Mathf.Abs(distanceY) > maxDepth) continue;
-                    var distanceWidth = distanceX / maxWidth;
-                    var distanceDepth = distanceY / maxDepth;
+                    // Distance to the nearest edge relative to the shorter half side, so smoothing is
+                    // equally wide on all sides of a rectangle and unchanged for a square
+                    var edgeDistance = Mathf.Min(maxWidth - Mathf.Abs(distanceX), maxDepth - Mathf.Abs(distanceY));
                     indices.Add(new HeightIndex()
                     {
                         Index = y * max + x,
                         Position = position,
-                        DistanceWidth = distanceWidth,
-                        DistanceDepth = distanceDepth,
-                        Distance = Mathf.Max(Mathf.Abs(distanceWidth), Mathf.Abs(distanceDepth))
+                        DistanceWidth = distanceX / maxWidth,
+                        DistanceDepth = distanceY / maxDepth,
+                        Distance = 1f - edgeDistance / Mathf.Min(maxWidth, maxDepth)
                     });
                 }
             }

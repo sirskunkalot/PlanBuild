@@ -29,6 +29,8 @@ namespace PlanBuild.Utils
 
         private ProjectorShape Shape = ProjectorShape.Circle;
         private float Radius = 10f;
+        // Half the square's depth, Radius is half its width
+        private float DepthRadius = 10f;
         private int Rotation;
 
         private CircleProjector Circle;
@@ -50,6 +52,7 @@ namespace PlanBuild.Utils
                 Square = gameObject.AddComponent<SquareProjector>();
                 Square.prefab = SelectionSegment;
                 Square.radius = Radius;
+                Square.depthRadius = DepthRadius;
                 Square.rotation = Rotation;
             }
         }
@@ -135,7 +138,13 @@ namespace PlanBuild.Utils
 
         public void SetRadius(float newRadius)
         {
+            SetRadius(newRadius, newRadius);
+        }
+
+        public void SetRadius(float newRadius, float newDepthRadius)
+        {
             Radius = newRadius;
+            DepthRadius = newDepthRadius;
 
             if (Shape == ProjectorShape.Circle && Circle != null)
             {
@@ -146,11 +155,30 @@ namespace PlanBuild.Utils
             if (Shape == ProjectorShape.Square && Square != null)
             {
                 Square.radius = Radius;
+                Square.depthRadius = DepthRadius;
             }
         }
 
         public float GetRadius()
         {
+            return Radius;
+        }
+
+        public float GetDepthRadius()
+        {
+            return DepthRadius;
+        }
+
+        /// <summary>
+        ///     Radius of a circle around the whole shape, the corners of a square lie outside its radius
+        /// </summary>
+        public float GetOuterRadius()
+        {
+            if (Shape == ProjectorShape.Square)
+            {
+                return Mathf.Sqrt(Radius * Radius + DepthRadius * DepthRadius);
+            }
+
             return Radius;
         }
 

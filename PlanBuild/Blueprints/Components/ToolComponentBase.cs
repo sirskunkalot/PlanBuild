@@ -1,4 +1,5 @@
-﻿using HarmonyLib;
+﻿using System.Collections.Generic;
+using HarmonyLib;
 using PlanBuild.Utils;
 using UnityEngine;
 
@@ -8,6 +9,8 @@ namespace PlanBuild.Blueprints.Components
     {
         public static ShapedProjector SelectionProjector;
         public static float SelectionRadius = 10.0f;
+        // Half the square's depth, SelectionRadius is half its width
+        public static float SelectionDepthRadius = 10.0f;
         public static int SelectionRotation;
         public static float CameraOffset;
         public static Vector3 PlacementOffset = Vector3.zero;
@@ -130,13 +133,8 @@ namespace PlanBuild.Blueprints.Components
             }
         }
 
-        public void UpdateSelectionRadius(float scrollWheel)
+        private float GetSelectionIncrement(float scrollWheel)
         {
-            if (SelectionProjector == null)
-            {
-                return;
-            }
-
             bool scrollingDown = scrollWheel < 0f;
             if (Config.InvertSelectionScrollConfig.Value)
             {
@@ -144,15 +142,73 @@ namespace PlanBuild.Blueprints.Components
             }
             if (scrollingDown)
             {
-                SelectionRadius -= Config.SelectionIncrementConfig.Value;
+                return -Config.SelectionIncrementConfig.Value;
             }
             else
             {
-                SelectionRadius += Config.SelectionIncrementConfig.Value;
+                return Config.SelectionIncrementConfig.Value;
+            }
+        }
+
+        /// <summary>
+        ///     Change the width and the depth of the selection
+        /// </summary>
+        public void UpdateSelectionRadius(float scrollWheel)
+        {
+            if (SelectionProjector == null)
+            {
+                return;
             }
 
-            SelectionRadius = Mathf.Clamp(SelectionRadius, 2f, 100f);
-            SelectionProjector.SetRadius(SelectionRadius);
+            float increment = GetSelectionIncrement(scrollWheel);
+            SelectionRadius = Mathf.Clamp(SelectionRadius + increment, 2f, 100f);
+            SelectionDepthRadius = Mathf.Clamp(SelectionDepthRadius + increment, 2f, 100f);
+            SelectionProjector.SetRadius(SelectionRadius, SelectionDepthRadius);
+        }
+
+        /// <summary>
+        ///     Change only the width of a square selection
+        /// </summary>
+        public void UpdateSelectionWidth(float scrollWheel)
+        {
+            if (SelectionProjector == null || SelectionProjector.GetShape() != ShapedProjector.ProjectorShape.Square)
+            {
+                return;
+            }
+
+            SelectionRadius = Mathf.Clamp(SelectionRadius + GetSelectionIncrement(scrollWheel), 2f, 100f);
+            SelectionProjector.SetRadius(SelectionRadius, SelectionDepthRadius);
+        }
+
+        /// <summary>
+        ///     Change only the depth of a square selection
+        /// </summary>
+        public void UpdateSelectionDepth(float scrollWheel)
+        {
+            if (SelectionProjector == null || SelectionProjector.GetShape() != ShapedProjector.ProjectorShape.Square)
+            {
+                return;
+            }
+
+            SelectionDepthRadius = Mathf.Clamp(SelectionDepthRadius + GetSelectionIncrement(scrollWheel), 2f, 100f);
+            SelectionProjector.SetRadius(SelectionRadius, SelectionDepthRadius);
+        }
+
+        /// <summary>
+        ///     Get the terrain indices under the selection projector
+        /// </summary>
+        public Dictionary<TerrainComp, Indices> GetSelectionIndices()
+        {
+            var pos = SelectionProjector.GetPosition();
+            var rad = SelectionProjector.GetRadius();
+
+            if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
+            {
+                return TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, SelectionProjector.GetDepthRadius() * 2,
+                    SelectionProjector.GetRotation() * Mathf.PI / 180f, BlockCheck.Off);
+            }
+
+            return TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, BlockCheck.Off);
         }
 
         public void UpdateSelectionRotation(float scrollWheel)
@@ -185,7 +241,7 @@ namespace PlanBuild.Blueprints.Components
             {
                 SelectionProjector = self.m_placementMarkerInstance.AddComponent<ShapedProjector>();
                 SelectionProjector.Enable();
-                SelectionProjector.SetRadius(SelectionRadius);
+                SelectionProjector.SetRadius(SelectionRadius, SelectionDepthRadius);
                 SelectionProjector.SetRotation(SelectionRotation);
             }
             if (enableMask)

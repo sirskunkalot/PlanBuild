@@ -109,11 +109,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Terrain Tools:[/b] Allows you to "flatten" the terrain in a chosen radius or remove previously made modifications. Uses Valheim's TerrainCompiler and is 100% compatible with the vanilla game and modifications made with the Hoe for example.
 [list]
-[*]Press [b]Q[/b] to switch between a circle and a square shaped marker.
+[*]Press [b]Q[/b] to switch between a circle and a rectangle shaped marker.
 [*]Press [b]Ctrl[/b] to add smooth edges to the flattened area
 [*]Press [b]Alt[/b] to remove terrain modifications.
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
-[*]Use [b]Ctrl + Scroll[/b] to rotate the square marker.
+[*]Use [b]Ctrl + Shift + Scroll[/b] and [b]Alt + Shift + Scroll[/b] to change only the width or the depth of the rectangle marker.
+[*]Use [b]Ctrl + Scroll[/b] to rotate the rectangle marker.
 [*]Use [b]Alt + Scroll[/b] to move the marker on the Y-axis.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Delete Objects:[/b] Allows you to remove vegetation objects in a chosen radius.
@@ -123,11 +124,12 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][*][b]Paint terrain:[/b] Allows you to reset the terrain "paint" per biome (grass in the Meadows, sand at beaches, etc). Can also paint dirt or paved onto every terrain. Can be used as a "brush" by holding down the Attack button continously.
 [list]
-[*]Press [b]Q[/b] to switch between a circle and a square shaped marker.
+[*]Press [b]Q[/b] to switch between a circle and a rectangle shaped marker.
 [*]Press [b]Ctrl[/b] to paint "dirt".
 [*]Press [b]Alt[/b] to paint "paved".
 [*]Use the [b]Scroll Wheel[/b] to change the tool radius.
-[*]Use [b]Ctrl + Scroll[/b] to rotate the square marker.
+[*]Use [b]Ctrl + Shift + Scroll[/b] and [b]Alt + Shift + Scroll[/b] to change only the width or the depth of the rectangle marker.
+[*]Use [b]Ctrl + Scroll[/b] to rotate the rectangle marker.
 [*]Use [b]Shift + Scroll[/b] to adjust the camera distance.
 [/list][/list]
 

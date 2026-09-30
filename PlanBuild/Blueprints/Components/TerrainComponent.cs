@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Jotunn.Managers;
-using PlanBuild.Utils;
+﻿using Jotunn.Managers;
 using UnityEngine;
 
 namespace PlanBuild.Blueprints.Components
@@ -27,7 +25,17 @@ namespace PlanBuild.Blueprints.Components
                 bool ctrlModifier = ZInput.GetButton(Config.CtrlModifierButton.Name);
                 bool altModifier = ZInput.GetButton(Config.AltModifierButton.Name);
                 bool shiftModifier = ZInput.GetButton(Config.ShiftModifierButton.Name);
-                if (altModifier)
+                if (shiftModifier && ctrlModifier)
+                {
+                    UpdateSelectionWidth(scrollWheel);
+                    UndoRotation(self, scrollWheel);
+                }
+                else if (shiftModifier && altModifier)
+                {
+                    UpdateSelectionDepth(scrollWheel);
+                    UndoRotation(self, scrollWheel);
+                }
+                else if (altModifier)
                 {
                     MarkerOffset.y += GetPlacementOffset(scrollWheel);
                     UndoRotation(self, scrollWheel);
@@ -67,19 +75,9 @@ namespace PlanBuild.Blueprints.Components
                 return;
             }
 
-            Dictionary<TerrainComp, Indices> indices = null;
+            var indices = GetSelectionIndices();
             var pos = SelectionProjector.GetPosition();
-            var rad = SelectionProjector.GetRadius();
-            var rot = SelectionProjector.GetRotation();
-
-            if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Circle)
-            {
-                indices = TerrainTools.GetCompilerIndicesWithCircle(pos, rad * 2, BlockCheck.Off);
-            }
-            if (SelectionProjector.GetShape() == ShapedProjector.ProjectorShape.Square)
-            {
-                indices = TerrainTools.GetCompilerIndicesWithRect(pos, rad * 2, rad * 2, rot * Mathf.PI / 180f, BlockCheck.Off);
-            }
+            var rad = SelectionProjector.GetOuterRadius();
 
             if (ZInput.GetButton(Config.AltModifierButton.Name))
             {
