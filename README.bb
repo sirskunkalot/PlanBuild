@@ -1,9 +1,15 @@
 [size=6][b]PlanBuild[/b][/size]
-[quote][size=4][b]⚠️ Version 0.19.0 no longer needs the HookGenPatcher[/b][/size]
+[quote][size=4][b]✨ New in version 0.20.0[/b][/size]
+[list]
+[*][b]Mirror blueprints[/b] while placing them with [b]H[/b], or create a mirrored copy with [b]Ctrl + H[/b]. Angled pieces and roof corners are turned to match their mirror image.
+[*][b]Rectangle marker[/b] for the terrain and paint tools: change its width and depth separately with [b]Ctrl + Shift + Scroll[/b] and [b]Alt + Shift + Scroll[/b].
+[*][b]Slopes[/b] with the terrain tool: tilt its marker with [b]Ctrl + Alt + Scroll[/b], the marker shows the finished slope before you build it.
+[/list]
+More new features and bug fixes are listed in the [url=https://github.com/sirskunkalot/PlanBuild/blob/master/CHANGELOG.md]changelog[/url].
 
-All hooks now use Harmony, so [b]HookGenPatcher (MMHOOK) is no longer a dependency[/b] and can be removed if no other mod requires it.
+[size=4][b]⚠️ Since version 0.19.0 the HookGenPatcher is no longer needed[/b][/size]
 
-This version also comes with a number of fixes, most of them for the new build UI — see the [url=https://github.com/sirskunkalot/PlanBuild/blob/master/CHANGELOG.md]changelog[/url] for the full list.[/quote]
+All hooks now use Harmony, so [b]HookGenPatcher (MMHOOK) is no longer a dependency[/b] and can be removed if no other mod requires it.[/quote]
 
 PlanBuild enables you to plan, copy and share your building creations in Valheim with ease. The mod adds two new tools to the game. The [b]Plan Hammer[/b] is used to plan your creations before actually gathering all the materials. When you are happy with your build, you can add the required building materials one by one or use a custom totem to automatically build the pieces for you. The [b]Blueprint Rune[/b] lets you copy, save or delete your creations as a single building piece which can also be shared with other players using the mod and also includes terrain modification tools for quick and more precise terraforming without using the Hoe or Cultivator.
 
