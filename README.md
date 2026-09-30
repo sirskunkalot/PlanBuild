@@ -1,6 +1,6 @@
 # PlanBuild
 
-> ### ✨ New in version 0.20.0
+> ### New in version 0.20.0
 >
 > * __Mirror blueprints__ while placing them with __H__, or create a mirrored copy with __Ctrl + H__. Angled pieces and roof corners are turned to match their mirror image.
 > * __Rectangle marker__ for the terrain and paint tools: change its width and depth separately with __Ctrl + Shift + Scroll__ and __Alt + Shift + Scroll__.
@@ -8,7 +8,7 @@
 >
 > More new features and bug fixes are listed in the [changelog](https://github.com/sirskunkalot/PlanBuild/blob/master/CHANGELOG.md).
 >
-> ### ⚠️ Since version 0.19.0 the HookGenPatcher is no longer needed
+> ### Since version 0.19.0 the HookGenPatcher is no longer needed
 >
 > All hooks now use Harmony, so __HookGenPatcher (MMHOOK) is no longer a dependency__ and can be removed if no other mod requires it.
 
@@ -129,8 +129,10 @@ The Blueprint Rune comes with a handful of tools to handle blueprint creation an
   * Use __Alt + Scroll__ to move the marker on the Y-axis.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
-* __Delete Objects:__ Allows you to remove vegetation objects in a chosen radius.
-  * Press __Ctrl__ to remove all objects including Pieces and Items (__Warning:__ Very destructive).
+* __Delete Objects:__ Allows you to remove objects in a chosen radius. 
+  * Per default vegetation and other objects of the world like trees, bushes and rocks are removed. Pieces, items and creatures are kept.
+  * Press __Ctrl__ to remove only built pieces, plans are kept.
+  * Press __Alt__ to remove everything except creatures, including pieces, plans and items (__Warning:__ Very destructive).
   * Use the __Scroll Wheel__ to change the tool radius.
   * Use __Shift + Scroll__ to adjust the camera distance.
 
@@ -160,8 +162,8 @@ Place a blueprint as planned pieces. Select your previously saved blueprint and 
 * Use __Alt + Scroll__ to move the blueprint on the X-axis.
 * Use __Ctrl + Alt + Scroll__ to move the blueprint on the Y-axis.
 * Use __Q__ to reset the offset on all axes.
-* Press __H__ to mirror the blueprint. Only the view is mirrored, saving or uploading the blueprint always keeps the original. Angled pieces and roof corners are turned to match their mirror image, pieces with a handedness like doors or spiral stairs stay as they are.
-* Press __Ctrl + H__ to create a mirrored copy of the selected blueprint, as a file for a local blueprint or as a clipboard blueprint for a clipboard one.
+* Press __H__ to mirror the blueprint. Only the view is mirrored, saving or uploading always keeps the original. Angled pieces, doors and roof corners are turned to match their mirror image.
+* Press __Ctrl + H__ to create a mirrored copy named "... (mirrored)". Doing it again updates that copy.
 * Use __Shift + Scroll__ to adjust the camera distance.
 * There is a (server enforced) config option to allow placing the blueprints as regular pieces, so you can configure per server if you want to allow "cheating" structures without resources. When enabled, build your structures without building costs by pressing __Ctrl__ while placing the blueprint. Admins are always allowed to "direct build". You can change the default building behaviour in the config file.
 
