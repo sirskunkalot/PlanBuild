@@ -606,7 +606,8 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            return TryGetBlueprintByID(prefabName.Substring(Blueprint.PieceBlueprintPrefix.Length), out blueprint);
+            return TryGetBlueprintByID(
+                Blueprint.UnescapePrefabID(prefabName.Substring(Blueprint.PieceBlueprintPrefix.Length)), out blueprint);
         }
 
         /// <summary>

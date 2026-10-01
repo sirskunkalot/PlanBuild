@@ -125,9 +125,27 @@ namespace PlanBuild.Blueprints
         private Texture2D ResizedThumbnail;
 
         /// <summary>
-        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:{ID}"
+        ///     Name of the generated prefab of the blueprint instance. Is always "piece_blueprint:{ID}" with the ID escaped
         /// </summary>
-        private string PrefabName => $"{PieceBlueprintName}:{ID}";
+        private string PrefabName => PieceBlueprintPrefix + EscapePrefabID(ID);
+
+        /// <summary>
+        ///     Escapes the characters Valheim's Utils.GetPrefabName cuts a name at (space and "(", ")" for symmetry).
+        ///     The new build UI selects pieces by that cut name, so IDs sharing a prefix up to a space (e.g. the
+        ///     player name) all selected the first one. Escaping instead of replacing keeps the names unique and reversible.
+        /// </summary>
+        private static string EscapePrefabID(string id)
+        {
+            return id.Replace("%", "%25").Replace(" ", "%20").Replace("(", "%28").Replace(")", "%29");
+        }
+
+        /// <summary>
+        ///     Reverses <see cref="EscapePrefabID"/>
+        /// </summary>
+        internal static string UnescapePrefabID(string escapedID)
+        {
+            return Uri.UnescapeDataString(escapedID);
+        }
 
         /// <summary>
         ///     Dynamically generated prefab for this blueprint
@@ -221,15 +239,14 @@ namespace PlanBuild.Blueprints
         /// <returns></returns>
         public static string CreateIDString(string name)
         {
-            var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
-            var id = fileName.Replace(' ', '_').Trim();
-
+            // Player name first, so its spaces and invalid chars are cleaned up like the rest
             if (Config.AddPlayerNameConfig.Value)
             {
-                id = $"{Player.m_localPlayer.GetPlayerName()}_{id}";
+                name = $"{Player.m_localPlayer.GetPlayerName()}_{name}";
             }
 
-            return id;
+            var fileName = string.Concat(name.Split(Path.GetInvalidFileNameChars()));
+            return fileName.Replace(' ', '_').Trim();
         }
 
         /// <summary>

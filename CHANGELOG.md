@@ -12,6 +12,7 @@
 * Fixed clipboard blueprints losing their thumbnail when saved
 * Terrain markers now show their configured shape, radius and rotation to other players
 * Fixed errors with ComfyGizmo when using Blueprint Rune tools after logging out and back in
+* Fixed blueprints with a space or bracket in their ID (e.g. from the player name) not being selectable in the new build menu
 * Fixed a single broken piece aborting a blueprint placement halfway, which also left the placed pieces without undo
 * Fixed an error when loading a world with mod pieces that share a name and have a requirement without an item
 * Fixed copying to the clipboard failing after deleting a clipboard blueprint other than the last one
