@@ -39,6 +39,7 @@ namespace PlanBuild
         public static ConfigEntry<float> SelectionIncrementConfig;
         public static ConfigEntry<bool> InvertSelectionScrollConfig;
         public static ConfigEntry<int> RotationIncrementConfig;
+        public static ConfigEntry<int> SlopeIncrementConfig;
         public static ConfigEntry<bool> InvertRotationScrollConfig;
         public static ConfigEntry<float> SelectionConnectedMarginConfig;
         public static ConfigEntry<bool> ShowGridConfig;
@@ -143,7 +144,8 @@ namespace PlanBuild
 
             CameraOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Camera offset increment", 2f,
-                new ConfigDescription("Camera height change when holding the camera modifier key and scrolling.", null,
+                new ConfigDescription("Camera height change when holding the camera modifier key and scrolling.",
+                    new AcceptableValueRange<float>(0.5f, 10f),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             InvertCameraOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -153,7 +155,8 @@ namespace PlanBuild
 
             PlacementOffsetIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Placement offset increment", 0.1f,
-                new ConfigDescription("Placement height change when holding the modifier key and scrolling.", null,
+                new ConfigDescription("Placement height change when holding the modifier key and scrolling.",
+                    new AcceptableValueRange<float>(0.01f, 2f),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             InvertPlacementOffsetScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -163,7 +166,8 @@ namespace PlanBuild
 
             SelectionIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Selection increment", 1f,
-                new ConfigDescription("Selection radius increment when scrolling.", null,
+                new ConfigDescription("Selection radius increment when scrolling.",
+                    new AcceptableValueRange<float>(0.1f, 10f),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             InvertSelectionScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
@@ -173,12 +177,19 @@ namespace PlanBuild
             
             RotationIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Rotation increment", 5,
-                new ConfigDescription("Selection rotation increment when scrolling.", null,
+                new ConfigDescription("Selection rotation increment when scrolling.",
+                    new AcceptableValueRange<int>(1, 90),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             InvertRotationScrollConfig = PlanBuildPlugin.Instance.Config.Bind(
                 RuneSection, "Invert rotation scroll", false,
                 new ConfigDescription("Invert the direction of rotation scrolling.", null,
+                    new ConfigurationManagerAttributes { Order = --order }));
+
+            SlopeIncrementConfig = PlanBuildPlugin.Instance.Config.Bind(
+                RuneSection, "Slope increment", 5,
+                new ConfigDescription("Terrain tool slope increment in degrees when tilting the marker. Its direction follows \"Invert rotation scroll\".",
+                    new AcceptableValueRange<int>(1, 45),
                     new ConfigurationManagerAttributes { Order = --order }));
 
             SelectionConnectedMarginConfig = PlanBuildPlugin.Instance.Config.Bind(

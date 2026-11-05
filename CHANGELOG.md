@@ -1,4 +1,6 @@
 # Version 0.20.1
+* The terrain tool's slope increment is now configurable separately from the rotation ("Slope increment")
+* The increment settings of the Blueprint Rune now have a slider
 * Pieces can be excluded from blueprints with a ZDO flag, used by ServersideQoL (thx ArgusMagnus)
 * Fixed the Blueprint Rune camera offset sending the camera flying while a mod like Build Camera controls it
 

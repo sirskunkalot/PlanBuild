@@ -238,7 +238,7 @@ namespace PlanBuild.Blueprints.Components
         }
 
         /// <summary>
-        ///     Tilt the selection, uses the rotation increment
+        ///     Tilt the selection
         /// </summary>
         public void UpdateSelectionSlope(float scrollWheel)
         {
@@ -254,11 +254,11 @@ namespace PlanBuild.Blueprints.Components
             }
             if (scrollingDown)
             {
-                SelectionSlope -= Config.RotationIncrementConfig.Value;
+                SelectionSlope -= Config.SlopeIncrementConfig.Value;
             }
             else
             {
-                SelectionSlope += Config.RotationIncrementConfig.Value;
+                SelectionSlope += Config.SlopeIncrementConfig.Value;
             }
 
             SelectionSlope = Mathf.Clamp(SelectionSlope, -45, 45);
