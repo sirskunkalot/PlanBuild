@@ -126,6 +126,7 @@
     <Compile Include="ModCompat\PatcherAzuCraftyBoxes.cs" />
     <Compile Include="ModCompat\PatcherValheimRaft.cs" />
     <Compile Include="ModCompat\PatcherGizmo.cs" />
+    <Compile Include="ModCompat\ZDOVarsServersideQoL.cs" />
     <Compile Include="Patches.cs" />
     <Compile Include="Plans\OdinLevel.cs" />
     <Compile Include="Plans\OdinLevelPrefab.cs" />

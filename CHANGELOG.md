@@ -1,3 +1,6 @@
+# Version 0.20.1
+* Pieces can be excluded from blueprints with a ZDO flag, used by ServersideQoL (thx ArgusMagnus)
+
 # Version 0.20.0
 * The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents
 * Blueprints can be mirrored while placing (H). Ctrl+H or `bp.mirror` create a mirrored copy as a new build piece; angled pieces and roof corners are turned to match their mirror image

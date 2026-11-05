@@ -109,7 +109,8 @@ namespace PlanBuild.Blueprints
                 return false;
             }
 
-            if (piece.m_nview.m_zdo.GetBool(ExcludeFromBlueprintsHash))
+            // Pieces without a valid ZDO (e.g. while being destroyed) must not throw here
+            if (piece.m_nview && piece.m_nview.GetZDO() is ZDO zdo && zdo.GetBool(ExcludeFromBlueprintsHash))
             {
                 return false;
             }
