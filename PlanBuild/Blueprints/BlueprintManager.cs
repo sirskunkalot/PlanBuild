@@ -37,6 +37,8 @@ namespace PlanBuild.Blueprints
             BlueprintAssets.CategoryBlueprints
         };
 
+        private static readonly int ExcludeFromBlueprintsHash = ModCompat.ZDOVarsServersideQoL.ExcludeFromBlueprints.GetStableHashCode();
+
         public static void Init()
         {
             Logger.LogInfo("Initializing BlueprintManager");
@@ -103,6 +105,11 @@ namespace PlanBuild.Blueprints
             }
 
             if (!SynchronizationManager.Instance.PlayerIsAdmin && PlanBlacklist.Contains(piece))
+            {
+                return false;
+            }
+
+            if (piece.m_nview.m_zdo.GetBool(ExcludeFromBlueprintsHash))
             {
                 return false;
             }
