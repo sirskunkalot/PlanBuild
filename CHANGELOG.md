@@ -1,5 +1,6 @@
 # Version 0.20.1
 * Pieces can be excluded from blueprints with a ZDO flag, used by ServersideQoL (thx ArgusMagnus)
+* Fixed the Blueprint Rune camera offset sending the camera flying while a mod like Build Camera controls it
 
 # Version 0.20.0
 * The Plan Totem's container is now 8x8 instead of 7x4, existing totems keep their contents

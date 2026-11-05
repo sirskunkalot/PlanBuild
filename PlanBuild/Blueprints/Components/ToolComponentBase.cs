@@ -384,9 +384,11 @@ namespace PlanBuild.Blueprints.Components
         /// </summary>
         [HarmonyPatch(typeof(GameCamera), nameof(GameCamera.UpdateCamera))]
         [HarmonyPostfix]
-        private static void GameCamera_UpdateCamera_Postfix(GameCamera __instance)
+        private static void GameCamera_UpdateCamera_Postfix(GameCamera __instance, bool __runOriginal)
         {
-            if (!TryGetActive(out _))
+            // Mods like Build Camera skip vanilla and move the camera relatively, adding the offset
+            // there would accumulate every frame
+            if (!__runOriginal || !TryGetActive(out _))
             {
                 return;
             }
