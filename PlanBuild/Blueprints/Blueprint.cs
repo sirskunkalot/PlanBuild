@@ -643,6 +643,7 @@ namespace PlanBuild.Blueprints
             var numPieces = 0;
             var collected = new List<Piece>();
             var snapPoints = new List<Vector3>();
+            var pieceSnapPoints = new List<Vector3>();
             Transform centerPiece = null;
             var terrainMods = new List<TerrainModEntry>();
 
@@ -708,7 +709,7 @@ namespace PlanBuild.Blueprints
                     {
                         if (tf.name.StartsWith("$hud_snappoint"))
                         {
-                            snapPoints.Add(tf.position);
+                            pieceSnapPoints.Add(tf.position);
                         }
                     }
                 }
@@ -840,12 +841,28 @@ namespace PlanBuild.Blueprints
                 PieceEntries[i++] = new PieceEntry(pieceName, piece.m_category.ToString(), pos, quat, additionalInfo, scale);
             }
 
-            // Create instance snap points
-            var group = snapPoints
-                .GroupBy(x => x)
-                .Where(x => x.Count() == 1)
-                .Select(x => x.Key)
-                .ToList();
+            // Create instance snap points. Markers are always kept. Piece snap points shared by
+            // several pieces are inner joints and dropped, one at a marker would only be a duplicate.
+            // Points of different pieces rarely line up to the last float bit, so compare within 1cm.
+            bool IsNear(Vector3 a, Vector3 b) => (a - b).sqrMagnitude <= 0.0001f;
+
+            var group = new List<Vector3>();
+            foreach (var marker in snapPoints)
+            {
+                if (!group.Any(x => IsNear(x, marker)))
+                {
+                    group.Add(marker);
+                }
+            }
+            for (int p = 0; p < pieceSnapPoints.Count; p++)
+            {
+                var point = pieceSnapPoints[p];
+                bool shared = pieceSnapPoints.Where((other, q) => q != p && IsNear(point, other)).Any();
+                if (!shared && !group.Any(x => IsNear(x, point)))
+                {
+                    group.Add(point);
+                }
+            }
 
             if (SnapPoints == null)
             {
