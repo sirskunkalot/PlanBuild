@@ -41,6 +41,10 @@
   <PropertyGroup>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Jotunn" Condition="'$(OS)' != 'Windows_NT'">
+      <HintPath>$(PkgJotunnLib)/lib/net462/Jotunn.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="0Harmony, Version=2.9.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>$(VALHEIM_INSTALL)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
@@ -144,13 +148,13 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="assets\Translations\German\PlanBuild.Deutsch.json" />
-    <None Include="assets\Translations\English\PlanBuild.English.json" />
+    <None Include="assets\Translations\English\PlanBuild.english.json" />
     <None Include="assets\Translations\Korean\PlanBuild.korean.json" />
     <None Include="assets\Translations\Portuguese_Brazilian\PlanBuild.Portuguese_Brazilian.json" />
     <EmbeddedResource Include="EmbeddedAssets\blueprints" />
     <EmbeddedResource Include="EmbeddedAssets\planbuild" />
     <None Include="assets\Translations\Russian\PlanBuild.russian.json" />
-    <None Include="assets\Translations\Chinese\PlanBuild.Chinese.json" />
+    <None Include="assets\Translations\Chinese\PlanBuild.chinese.json" />
     <None Include="assets\Translations\Spanish\PlanBuild.Spanish.json" />
   </ItemGroup>
   <ItemGroup>
@@ -176,9 +180,10 @@
     <Content Include="resources\PlanMode.png" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="JotunnLib">
+    <PackageReference Include="JotunnLib" GeneratePathProperty="true">
       <Version>2.30.1</Version>
     </PackageReference>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="JotunnPostBuildTaskWin" Condition="'$(OS)' == 'Windows_NT'">
