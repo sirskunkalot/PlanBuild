@@ -68,7 +68,7 @@ namespace PlanBuild.Plans
         {
             // Never shrink this: stored items keep their grid position and would end up out of reach
             m_width = 8;
-            m_height = 8;
+            m_height = 72;
             base.Awake();
             StartCoroutine(UpdatePlanTotem());
             m_areaMarker = GetComponentInChildren<CircleProjector>(true);
@@ -154,10 +154,7 @@ namespace PlanBuild.Plans
             while (true)
             {
                 yield return new WaitForSeconds(3f);
-                if (!GetEnabled())
-                {
-                    continue;
-                }
+                bool enabled = GetEnabled();
 
                 m_remainingRequirements.Clear();
                 m_supportedPieces = 0;
@@ -176,7 +173,7 @@ namespace PlanBuild.Plans
                             m_supportedPieces++;
                         }
 
-                        if (m_nview.IsOwner() && planPiece.HasSupport())
+                        if (enabled && m_nview.IsOwner() && planPiece.HasSupport())
                         {
                             if (m_inventory.m_inventory.Count != 0)
                             {
@@ -232,7 +229,7 @@ namespace PlanBuild.Plans
                        .Where(pair => pair.Value > 0)
                        .OrderByDescending(pair => pair.Value)
                        .ToList();
-                bool active = m_connectedPieces.Count > 0;
+                bool active = enabled && m_connectedPieces.Count > 0;
                 SetActive(active);
             }
         }
